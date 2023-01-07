@@ -1,0 +1,19 @@
+RED:     C'est le premier canal utilisant des buffers reduits.
+
+MH: C'est le nombre maximum de stations listees par MHeard
+    (stations entendues).
+
+MONITOR: Nombre de lignes buffers dans la fenetre monitor.
+
+INPUT:   Nombre de lignes dans la zone d'entree *haut* (canal 1 -> RED)
+
+OUTPUT:  Nombre de lignes zone reception *milieu* (canal 1 -> RED)
+
+R_IN:    Nombre de lignes dans la zone d'entre (reduit)(canal RED -> fin)
+
+R_OUT:   Nombre de lignes zone reception *milieu* (canal RED -> fin)
+
+BOX:     Nombre de lignes buffers dans l'ecran mailbox.
+
+MON:     Nombre de lignes visibles en bas de l'ecran de connection.
+         Avec une valeur de "0", il n'y aura pas de monitoring.

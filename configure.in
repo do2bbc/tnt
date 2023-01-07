@@ -1,0 +1,426 @@
+dnl configure.in for tnt, 2002/11/17
+AC_INIT(src/main.c)
+AC_CANONICAL_SYSTEM
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(tnt,1.9.2)
+
+dnl Available languages
+ALL_LINGUAS="de fr"
+
+AC_PROG_CC
+AC_ISC_POSIX
+AC_PROG_INSTALL
+AC_PROG_MAKE_SET
+
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h strings.h sys/ioctl.h sys/time.h unistd.h \
+		 signal.h string.h ctype.h time.h dirent.h sys/stat.h \
+		 sys/types.h sys/wait.h errno.h libintl.h locale.h)
+AC_CHECK_LIB(ncurses, main,, [ AC_CHECK_LIB(termcap, main) ])
+
+AC_CHECK_LIB(intl, gettext)
+
+AM_GNU_GETTEXT
+
+dnl Initial Default Values
+cwax25=0
+cwsound=1
+cwsoundini=tnt_sound_dir
+gennewuser=0
+language=en
+
+if test ${prefix} = "NONE"; then
+        prefix=/usr/local
+fi
+
+dnl These tricky lines took me several hours ;-)
+if test $localstatedir = '${prefix}/var'; then
+	localstatedir=/var
+fi
+
+tnt_main_dir=${prefix}/tnt
+tnt_work_dir=${prefix}/tnt
+tnt_conf_dir=${prefix}/tnt
+tnt_doc_dir=${prefix}/tnt/doc
+tnt_log_dir=${prefix}/var
+tnt_proc_dir=${prefix}/tnt
+tnt_bin_dir=${prefix}/libexec/tnt
+tnt_sound_dir=${prefix}/tnt/sounds
+
+case "$target" in
+	*-*-netbsd*)
+		CFLAGS="$CFLAGS -DTNT_NETBSD"
+		AC_DEFINE([DIR_STRING],"ls -la ",[Command to list directory])
+		AC_DEFINE([DIRL_STRING],"ls -la ",[Command to list directory in long format])
+		AC_DEFINE([DIRRUN_STRING],"ls ",[Command to list rundir])
+		AC_DEFINE([FREE_STRING],"df 2>/dev/null > ",[Command to show free space])
+		AC_DEFINE([BCAST],1,[BCAST included])
+		AC_DEFINE([USE_IFACE],1,[use interface])
+		AC_DEFINE([DEF_AUTO_NEWLINE],0,[auto newline])
+		AC_DEFINE([DEF_SUPP_HICNTL],0,[hicntl])
+		AC_DEFINE([DEF_TERMCAP],0,[use termcap])
+		AC_DEFINE([DEF_COLOR],1,[use colors])
+		AC_DEFINE([HAVE_CRTSCTS],1,[have crtscts])
+		cfg=conf/netbsd.cfg
+		tnt_main_dir=${prefix}
+		tnt_work_dir=${localstatedir}/spool/tnt
+		tnt_conf_dir=${prefix}/share/tnt/conf
+		tnt_doc_dir=${prefix}/share/doc/tnt
+		tnt_log_dir=${localstatedir}/log
+		tnt_proc_dir=${localstatedir}/run
+		tnt_bin_dir=${prefix}/libexec/tnt
+		tnt_sound_dir=${prefix}/share/tnt/sounds
+	;;
+
+	*-*-openbsd*)
+		CFLAGS="$CFLAGS -DTNT_NETBSD"
+		AC_DEFINE([DIR_STRING],"ls -la ",[Command to list directory])
+		AC_DEFINE([DIRL_STRING],"ls -la ",[Command to list directory in long format])
+		AC_DEFINE([DIRRUN_STRING],"ls ",[Command to list rundir])
+		AC_DEFINE([FREE_STRING],"df 2>/dev/null > ",[Command to show free space])
+		AC_DEFINE([BCAST],1,[BCAST included])
+		AC_DEFINE([USE_IFACE],1,[use interface])
+		AC_DEFINE([DEF_AUTO_NEWLINE],0,[auto newline])
+		AC_DEFINE([DEF_SUPP_HICNTL],0,[hicntl])
+		AC_DEFINE([DEF_TERMCAP],0,[use termcap])
+		AC_DEFINE([DEF_COLOR],1,[use colors])
+		AC_DEFINE([HAVE_CRTSCTS],1,[have crtscts])
+		cfg=conf/netbsd.cfg
+		tnt_main_dir=${prefix}
+		tnt_work_dir=${localstatedir}/spool/tnt
+		tnt_conf_dir=${prefix}/share/tnt/conf
+		tnt_doc_dir=${prefix}/share/doc/tnt
+		tnt_log_dir=${localstatedir}/log
+		tnt_proc_dir=${localstatedir}/run
+		tnt_bin_dir=${prefix}/libexec/tnt
+		tnt_sound_dir=${prefix}/share/tnt/sounds
+	;;
+
+	*-*-linux*)
+		CFLAGS="$CFLAGS -DTNT_LINUX"
+		AC_DEFINE([DIR_STRING],"ls -xaFT80 ",[Command to list directory])
+		AC_DEFINE([DIRL_STRING],"ls -laFT80 ",[Command to list directory in long format])
+		AC_DEFINE([DIRRUN_STRING],"ls -xT80 ",[Command to list rundir])
+		AC_DEFINE([FREE_STRING],"df 2>/dev/null > ",[Command to show free space])
+		AC_DEFINE([BCAST],1,[BCAST included])
+		AC_DEFINE([USE_IFACE],1,[use interface])
+		AC_DEFINE([DEF_AUTO_NEWLINE],0,[auto newline])
+		AC_DEFINE([DEF_SUPP_HICNTL],0,[hicntl])
+		AC_DEFINE([DEF_TERMCAP],0,[use termcap])
+		AC_DEFINE([DEF_COLOR],1,[use colors])
+		AC_DEFINE([HAVE_CRTSCTS],1,[have crtscts])
+		cfg=conf/linux.cfg
+                tnt_main_dir=${prefix}
+                tnt_work_dir=${localstatedir}/spool/tnt
+                tnt_conf_dir=${prefix}/share/tnt/conf
+                tnt_doc_dir=${prefix}/share/tnt/doc
+                tnt_log_dir=${localstatedir}/log
+		tnt_proc_dir=${localstatedir}/run
+                tnt_bin_dir=${prefix}/libexec/tnt
+                tnt_sound_dir=${prefix}/share/tnt/sounds
+	;;
+
+	*-*-isc*)
+		CFLAGS="$CFLAGS -DTNT_ISC"
+		AC_DEFINE([DIR_STRING],"ls -lF ",[Command to list directory])
+		AC_DEFINE([DIRL_STRING],"ls -lF ",[Command to list directory in long format])
+		AC_DEFINE([DIRRUN_STRING],"ls ",[Command to list rundir])
+		AC_DEFINE([FD_SETSIZE],256,[FD_SETSIZE])
+		AC_DEFINE([FREE_STRING],"df 2>/dev/null > ",[Command to show free space])
+		AC_DEFINE([BCAST],1,[BCAST included])
+		AC_DEFINE([USE_IFACE],1,[use interface])
+		AC_DEFINE([SPECIAL],1,[special])
+		AC_DEFINE([PWD_NOT_EMPTY],1,[empty PWD])
+		AC_DEFINE([DEF_AUTO_NEWLINE],1,[auto newline])
+		AC_DEFINE([DEF_SUPP_HICNTL],1,[hicntl])
+		AC_DEFINE([DEF_TERMCAP],1,[use termcap])
+		AC_DEFINE([DEF_COLOR],1,[use colors])
+		AC_DEFINE([HAVE_CRTSCTS],1,[have crtscts])
+		LIBS="$LIBS -linet -lcposix"
+		cfg=conf/isc.cfg
+	;;
+
+	*-*-solaris*)
+		CFLAGS="$CFLAGS -DTNT_SOLARIS"
+		AC_DEFINE([DIR_STRING],"ls -lF ",[Command to list directory])
+		AC_DEFINE([DIRL_STRING],"ls -lF ",[Command to list directory in long format])
+		AC_DEFINE([DIRRUN_STRING],"ls ",[Command to list rundir])
+		AC_DEFINE([FREE_STRING],"df 2>/dev/null > ",[Command to show free space])
+		AC_DEFINE([BCAST],1,[BCAST included])
+		AC_DEFINE([USE_IFACE],1,[use interface])
+		AC_DEFINE([SPECIAL],1,[special])
+		AC_DEFINE([PWD_NOT_EMPTY],1,[empty PWD])
+		AC_DEFINE([DEF_AUTO_NEWLINE],1,[auto newline])
+		AC_DEFINE([DEF_SUPP_HICNTL],1,[hicntl])
+		AC_DEFINE([DEF_TERMCAP],1,[use termcap])
+		dnl AC_DEFINE([DEF_COLOR],0,[use colors])
+		LIBS="$LIBS -lnsl -lsocket"
+		cfg=conf/solaris.cfg
+		tnt_main_dir=${prefix}/tnt
+		tnt_work_dir=${prefix}/tnt/work
+		tnt_conf_dir=${prefix}/tnt
+		tnt_doc_dir=${prefix}/tnt/doc
+		tnt_log_dir=${prefix}/tnt/work
+		tnt_proc_dir=${prefix}/tnt
+		tnt_bin_dir=${prefix}/libexec/tnt
+		tnt_sound_dir=${prefix}/tnt/work/sounds
+	;;
+
+	*)
+		AC_MSG_ERROR("$target is currently not supported")
+	;;
+
+esac
+
+AC_MSG_CHECKING(whether to enable flat install locations)
+AC_ARG_ENABLE(flat, [ --enable-flat                install tnt in flat directory prefix/tnt],
+[
+	if test "$enableval" = "yes"; then
+		tnt_main_dir=${prefix}/tnt
+		tnt_work_dir=${prefix}/tnt
+		tnt_conf_dir=${prefix}/tnt
+		tnt_doc_dir=${prefix}/tnt/documentation
+		tnt_log_dir=${prefix}/tnt
+		tnt_proc_dir=${prefix}/tnt
+		tnt_bin_dir=${prefix}/tnt/bin
+		tnt_sound_dir=${prefix}/tnt/sounds
+		bindir=${prefix}/tnt
+		sbindir=${prefix}/tnt
+		libexecdir=${prefix}/tnt
+		datadir=${prefix}/tnt
+		sysconfdir=${prefix}/tnt
+		sharedstatedir=${prefix}/tnt
+		localstatedir=${prefix}/tnt
+		libdir=${prefix}/tnt
+		includedir=${prefix}/tnt/include
+		oldincludedir=${prefix}/tnt/include
+		infodir=${prefix}/tnt/documentation
+		mandir=${prefix}/tnt/documentation
+		DATADIRNAME=tnt
+		
+		AC_MSG_RESULT(yes)
+	else
+		AC_MSG_RESULT(no)
+	fi
+],[
+	AC_MSG_RESULT(no)
+])
+
+AC_SUBST_FILE(cfg)
+AC_SUBST(tnt_main_dir)
+AC_SUBST(tnt_work_dir)
+AC_SUBST(tnt_conf_dir)
+AC_SUBST(tnt_doc_dir)
+AC_SUBST(tnt_log_dir)
+AC_SUBST(tnt_proc_dir)
+AC_SUBST(tnt_bin_dir)
+AC_SUBST(tnt_sound_dir)
+
+dnl Checks for header files.
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS(errno.h fcntl.h sys/ioctl.h sys/signal sys/time.h termcap.h termio.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_UID_T
+AC_HEADER_TIME
+AC_STRUCT_TM
+dnl AC_CHECK_TYPE(u_int32_t, unsigned long)
+
+dnl Checks for library functions.
+AC_PROG_GCC_TRADITIONAL
+AC_TYPE_SIGNAL
+AC_FUNC_UTIME_NULL
+AC_CHECK_FUNCS(getcwd gettimeofday mkdir mktime select socket strdup strerror strstr strtoul usleep srandom index memmove)
+
+AC_EGREP_HEADER(ut_host, utmp.h, AC_DEFINE([HAVE_UT_HOST], 1, [if we have UT_HOST]))
+AC_EGREP_HEADER(ut_exit, utmp.h, AC_DEFINE([HAVE_UT_EXIT], 1, [if we have UT_EXIT]))
+AC_EGREP_HEADER(socklen_t, sys/socket.h, AC_DEFINE([HAVE_SOCKLEN_T], 1, [if we have SOCKLEN_T]))
+
+dnl Checks for a standard editor
+AC_PATH_PROGS(tnt_editor, cmdtool editor vim vi, ed)
+AC_DEFINE_UNQUOTED([DEFAULT_EDITOR], "${tnt_editor}", [what should be our editor])
+
+AC_MSG_CHECKING(whether to enable sound support)
+AC_ARG_ENABLE(sound, [ --disable-sound              will disable sound support],
+[
+	if test "$enableval" = "no"; then
+		AC_MSG_RESULT(no)
+		cwsound=0
+		cwsoundini="#tnt_sound_dir"
+	else
+		AC_DEFINE([TNT_SOUND],1,[with sound support])
+		AC_MSG_RESULT(yes)
+	fi
+],[
+	AC_MSG_RESULT(yes)
+	AC_DEFINE([TNT_SOUND],1,[with sound support])
+])
+AC_SUBST(cwsound)
+AC_SUBST(cwsoundini)
+
+AC_MSG_CHECKING(which language to use from {en de fr})
+AC_ARG_WITH(language, [ --with-language={en,de,fr}   set language],
+[
+	if test "$withval" = "de"; then
+		AC_MSG_RESULT(deutsch)
+		language=de
+	elif test "$withval" = "fr"; then
+		AC_MSG_RESULT(france)
+		language=fr
+	else
+		AC_MSG_RESULT(english)
+		language=en
+	fi
+],[
+	AC_MSG_RESULT(english)
+	language=en
+])
+AC_SUBST(language)
+
+AC_MSG_CHECKING(whether to enable support for DPBOXT)
+AC_ARG_ENABLE(dpboxt, [ --enable-dpboxt              compile for use with dpboxt],
+[
+	if test "$enableval" = "yes"; then
+		AC_DEFINE([DPBOXT],1,[with dpbox terminal])
+		AC_MSG_RESULT(yes)
+	else
+		AC_MSG_RESULT(no)
+	fi
+],[
+	AC_MSG_RESULT(no)
+])
+
+AC_MSG_CHECKING(whether to enable newuser generation)
+AC_ARG_ENABLE(genuser, [ --enable-genuser             enable newuser generation],
+[
+	if test "$enableval" = "yes"; then
+		AC_DEFINE([GEN_NEW_USER],1,[neue Users automatisch anlegen])
+		AC_MSG_RESULT(yes)
+		gennewuser=1
+	else
+		AC_MSG_RESULT(no)
+	fi
+],[
+	AC_MSG_RESULT(no)
+])
+
+AC_MSG_CHECKING(whether to enable ax25 kernel support)
+AC_ARG_ENABLE(ax25k, [ --enable-ax25k               use the Linux AX25 Kernel],
+[
+	if test "$enableval" = "yes"; then
+		LIBS="$LIBS -lax25"
+		AC_DEFINE([USE_AX25K],1,[use AX25 interface])
+		AC_MSG_RESULT(yes)
+		cwax25=1
+                AC_CHECK_HEADER(ax25/axutils.h,
+		[
+			AC_MSG_RESULT("Found AX25-headers: GOOD!")
+		],[
+			AC_MSG_ERROR("Missing AX25-headers in /usr/include/ax25")
+		])
+		AC_CHECK_LIB(ax25, ax25_config_get_addr,
+		[
+			AC_MSG_RESULT("Found AX25-library: GOOD!")
+		],[
+			AC_MSG_ERROR("Missing AX25-library")
+		])
+		AC_CHECK_HEADER(netax25/ax25.h,
+		[
+			AC_MSG_RESULT("Found glibc2.1 AX25-headers")
+			AC_DEFINE([HAVE_NETAX25_AX25_H], 1, [if we have NETAX25_AX25_H])
+		])
+		AC_CHECK_HEADER(net/ax25.h,
+		[
+			AC_MSG_RESULT("Found old-style AX25-headers")
+			AC_DEFINE([HAVE_NET_AX25_H], 1, [if we have old AX25-header])
+		])
+	else
+		AC_MSG_RESULT(no)
+	fi
+],[
+	AC_MSG_RESULT(no)
+])
+
+AC_MSG_CHECKING(whether to enable ax25 kernel v2.2.x support)
+AC_ARG_ENABLE(ax25k2, [ --enable-ax25k2              use the Linux AX25 Kernel 2.2.x and new axutils],
+[
+	if test "$enableval" = "yes"; then
+		LIBS="$LIBS -lax25"
+		AC_DEFINE([USE_AX25K2],1,[with old kernel AX25])
+		AC_DEFINE([USE_AX25K],1,[with new kernel AX25])
+		AC_MSG_RESULT(yes)
+		cwax25=1
+
+		dnl Checks for working glibc 2.1 headers (stolen fm ax25-apps)
+		AC_MSG_CHECKING(for working netax25/ax25.h header file)
+		AC_HEADER_EGREP(ax25_fwd_struct, netax25/ax25.h, has_ax25=yes, has_ax25=no)
+		if test "$has_ax25" = "yes" ; then
+			AC_DEFINE([HAVE_NETAX25_AX25_H],1,[if we have NETAX25_AX25_H])
+			AC_MSG_RESULT(yes)
+		else
+			AC_MSG_RESULT(no)
+		fi
+			AC_MSG_CHECKING(for working netrom/netrom.h header file)
+			AC_HEADER_EGREP(unsigned int ndigis, netrom/netrom.h, has_netrom=yes, has_netrom=no)
+		if test "$has_netrom" = "yes" ; then
+			AC_DEFINE([HAVE_NETROM_NETROM_H],1,[have we the netrom headers])
+			AC_MSG_RESULT(yes)
+		else
+			AC_MSG_RESULT(no)
+		fi
+			AC_MSG_CHECKING(for working netrose/rose.h header file)
+			AC_HEADER_EGREP(rose_facilities_struct, netrose/rose.h, has_rose=yes, has_rose=no)
+		if test "$has_rose" = "yes" ; then
+			AC_DEFINE([HAVE_NETROSE_ROSE_H],1,[have we the rose headers])
+			AC_MSG_RESULT(yes)
+		else
+			AC_MSG_RESULT(no)
+		fi
+
+		AC_CHECK_LIB(ax25, ax25_config_load_ports, AX25_LIB="-lax25", AC_MSG_ERROR(Could not find the libax25 libraries; aborting))
+		AC_CHECK_HEADER(netax25/procutils.h,
+		[
+			AC_DEFINE([HAVE_NETAX25_PROCUTILS_H],1,[if we have the netax25 procutils])
+		])
+	else
+		AC_MSG_RESULT(no)
+	fi
+],[
+	AC_MSG_RESULT(no)
+])
+
+AC_MSG_CHECKING(whether to enable HIBAUD)
+AC_ARG_ENABLE(hibaud, [ --enable-hibaud              use hibaud-rate (>38400), only on Linux],
+[
+	if test "$enableval" = "yes"; then
+		AC_DEFINE([USE_HIBAUD],1,[whether to use hibaud])
+		AC_MSG_RESULT(yes)
+	else
+		AC_MSG_RESULT(no)
+	fi
+],[
+	AC_MSG_RESULT(no)
+])
+
+AC_DEFINE_UNQUOTED([TNT_INIT_PATH], "${tnt_conf_dir}", [path for configuration])
+AC_DEFINE_UNQUOTED([TNT_RUN_PATH], "${tnt_bin_dir}", [path for runprograms])
+AC_DEFINE_UNQUOTED([TNT_MAIN_PATH], "${tnt_log_dir}", [path for logfiles])
+
+AC_SUBST(cwax25)
+AC_SUBST(gennewuser)
+
+AC_OUTPUT(conf/tnt_setup.de conf/tnt_setup.en conf/tnt_setup.fr \
+	  conf/Makefile doc/Makefile doc/solaris/Makefile \
+	  examples/sounds.tnt examples/tnt.ini examples/tntc.ini \
+	  examples/sounds/Makefile examples/Makefile \
+	  intl/Makefile po/Makefile.in \
+	  src/Makefile src/runprgs/tntrun.h src/runprgs/Makefile \
+	  Makefile)
+  
+AC_MSG_RESULT("---- Check ok. Type now \"make\" to compile and then \"make install\" to install.")
+

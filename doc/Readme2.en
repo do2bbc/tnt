@@ -1,0 +1,11 @@
+TYP: Your TNC-type. This maybe a real hardware-TNC or the TNC-emulator TFkiss.
+     For TFkiss there are two possible settings: connection via unix-socket
+     or via network-socket (see HELP on global settings).
+BAUD: Baudrate for connection TNC<->Computer (only for a real hardware-TNC)
+DEVICE: Interface for TNC (hardware and software). If you are using a hardware
+        TNC you can select between comports 1 to 4.
+        If you are using TFkiss you must define a valid socket-interface (this
+        is the same like the frontend-socket for tntc, see HELP there)
+CHAN: Number of TNC-channels which will be controlled by TNT. If you are
+      using a hardware-TNC this will be normally 10 or 27 (depends on eprom-
+      version). TFkiss defaultly has 50 channels.

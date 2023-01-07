@@ -1,0 +1,10 @@
+RED:     This is the first channel with reduced backscrollbuffers.
+MH:      This is the maximum number of callsigns in MH-list.
+MONITOR: Number of lines of backscrollable monitorlines.
+INPUT:   Number of inputlines on connectscreen (channels 1 to RED)
+OUTPUT:  Number of outputlines on connectscreen (channels 1 to RED)
+R_IN:    Number of inputlines on reduced channels (channels RED to end)
+R_OUT:   Number of outputlines on reduced channels (channels RED to end)
+BOX:     Number of backscrollable outputlines on mailboxsection.
+MON:     Number of monitorlines you can see on connectscreen. If you use
+         a value of "0", there will be no monitorlines on connectscreen.

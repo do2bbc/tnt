@@ -1,0 +1,12 @@
+CALL:  Your terminalcall.
+BOX:   Your mailboxcall.
+COLOR: Colorsettings. A value of "0" means monochromsettings. Value of
+       "1" uses colorsettings in termcap for terminaltyp "linux". Value
+       of "2" uses colorsettings. Value of "3" uses termcaps and settings
+       for terminal "xterm". Default: 2
+STAT:  There are two different kinds of statuslines. The old-fashioned one
+       (Typ 0) shows informations like "packet reject", etc. The informative
+       (Typ 1) shows things like name and callsign of remote-station.
+       Default: Typ 1 (informative).
+RESY:  Enable or disable resynclogfile. If enabled TNT will save informations
+       about every resync. This is normally only needed for debugging.

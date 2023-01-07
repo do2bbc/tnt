@@ -1,0 +1,3965 @@
+TNT - Ein UNIX-Packet-Radio-Terminalprogramm
+
+----------------------------------------------------------------------------
+
+Einleitung
+Versionsnummer der hier beschriebenen TNT-Version
+Lizenz, Kopieren, Garantie
+Über Packet Radio und TNT
+Wieso dieses Programm?
+Was wird benötigt?
+Mailbox-Programm DPBox
+Anmerkungen zur deutschen Übersetzung der Dokumentation
+
+1. Bildschirmaufbau
+1.1. Virtuelle Bildschirme
+1.2. Typen virtueller Bildschirme
+1.3. Hauptstatuszeile
+
+2. Befehle
+2.1. Tastaturkommandos
+2.1.1. Cursorbewegung und Verschiedenes
+2.1.2. Fensterbewegung und -kontrolle
+2.1.3. Umschalten zwischen Bildschirmen
+2.1.4. Tastaturmakros
+2.2. Befehle im Kommandomodus
+2.2.1. TNC-Befehle
+2.2.2. Externe Befehle
+2.2.2.1. Daten in Dateien speichern
+2.2.2.2. Dateien senden
+2.2.2.3. Shells und Programme starten, Daten umleiten, Sockets
+2.2.2.4. Verzeichnisse
+2.2.2.5. Verschiedenes
+2.2.2.6. Routing-Scripts
+2.2.2.7. Erweiterter Monitor (Extended monitor) und Boxliste (Boxlist)
+2.2.2.8. Interfacebefehle
+2.2.2.9. DPBox-Interfacebefehle
+2.2.2.10. Passwortgenerierungsbefehle
+2.2.2.11. Remotekommandoerlaubnis und Zugriffsebenen
+2.2.2.12. Broadcastings senden/empfangen
+
+3. Detaillierte Beschreibung
+3.1. Remotebefehle
+3.1.1. Standardzugriffsebenen für Remotebefehle
+3.1.2. Sysop-Passwortüberprüfung (//SYSOP)
+3.1.3. Shell mit root-Erlaubnis (//ROOTSH)
+3.1.4. Socketverbindung (//SOCKET)
+3.1.5. Gefährliches //ECHO-Kommando
+3.1.6. Behandlung unbekannter Remotebefehle
+3.1.7. Erweiterte Remotebefehle
+3.2. Umlautkonvertierung
+3.2.1. Anzeige
+3.2.2. Text senden
+3.2.3. Dateien empfangen
+3.2.4. Dateien senden
+3.3. Benutzung von UNIX-Besonderheiten
+3.3.1. Shell-login
+3.3.2. Umleitung von Daten
+3.3.3. Programme ausführen
+3.3.4. Socket-Server
+3.3.4.1. AX25-Server
+3.3.4.2. Netcmd
+3.3.5. Socket-Verbindung
+3.4. Dateiübertragungsmethoden
+3.4.1. AutoBIN
+3.4.2. YAPP
+3.4.3. 7Plus-Dateiempfang
+3.5. Spezielle Begrüßungstexte und Dateien mit Makros, Namendatenbank
+3.6. Routing-Scripts
+3.7. Rufzeichen-Update
+3.8. Logbuch
+3.9. Tastaturmakros
+3.10. Boxliste
+3.10.1. Allgemeine Beschreibung
+3.10.2. Benutzung der Boxliste
+3.10.3. Benutzung von Tastaturmakros
+3.10.4. Erkannte Formate
+3.11. Erweiterter Monitor
+3.12. Benutzung der DPBox
+3.12.1. Allgemeine Beschreibung
+3.12.2. Benutzung des UNIX-Socket-Interfaces
+3.12.3. Mailbox-Bildschirm
+3.12.4. DPBox über Packet Radio benutzen
+3.12.5. Autobox- und monbox-Feature
+3.12.6. Umgang mit der Unproto-Liste
+3.13. Automatische Passwortgenerierung
+3.13.1. Allgemeine Beschreibung
+3.13.2. DIEBOX
+3.13.3. FlexNet
+3.13.4. TheNet
+3.13.5. Baycom
+3.13.6. MD2
+3.14. Huffman-Kompression
+3.15. Umgang mit FlexNet-Verbindungsqualitätschecks
+3.16. Benutzung verschiedener Software mit dem gleichen Rufzeichen
+3.17. PACSAT-Broadcast-Operationen
+3.18. Autostart beim Connect
+3.19. TNT als Dämon, TNTC
+
+4. Beschreibung der Konfigurationsdateien
+4.1. Hauptkonfigurationsdatei
+4.1.1. Serielle und allgemeine Konfiguration
+4.1.2. Sicherheit
+4.1.3. Verzeichnisse, Dateien und Sockets
+4.1.3.1. Verzeichnisse
+4.1.3.2. Dateien
+4.1.3.3. Sockets und Boxdateien
+4.1.4. Linien der virtuellen Bildschirme
+4.1.5. Anzeigekonfiguration
+4.1.6. Bildschirmattribute
+4.1.6.1. Farbattribute
+4.1.6.2. Monochromattribute
+4.1.7. Packetsammel-Timeout
+4.1.8. Zusätzliche Optionen
+4.2. TNC-Konfigurationsdateien
+4.3. Cookie-Datei
+4.4. Dateien für Remotebefehle
+4.5. Dateien für Connecttexte
+4.6. Dateien für die Namendatenbank und Routing-Scripts
+4.6.1. Namendatenbank
+4.6.2. Routingdatenbank
+4.7. User-ID und Sicherheit
+4.8. Log-Datei für Resynchronisation
+4.9. Datei für Tastaturmakros
+4.10. Datei für die Passwortgenerierung
+4.11. Datei für die Sysop-Authentifikation
+4.12. Datei für das Sperren des Remotezugangs
+4.13. Datei mit nicht für XConnects zugelassene Rufzeichen
+4.14. Datei mit FlexNet-Digipeatern
+4.15. Datei für AX25-Server-Zugang
+4.16. Datei für Autostart beim Connect
+4.17. Datei für erweiterte Remotebefehle
+4.18. Datei für BBS-Features
+4.19. Konfigurationsdatei für TNTC
+
+5. Zusätzliche Informationen
+5.1. Kommandozeilenparameter
+5.2. TNT unter X11
+5.3. Portierung von TNT
+
+6. Danksagungen und Kontaktadressen
+
+A. Anhang
+A.1. Statische Huffmann-Kompressionstabelle
+
+----------------------------------------------------------------------------
+
+Einleitung
+
+----------------------------------------------------------------------------
+
+Versionsnummer der hier beschriebenen TNT-Version
+
+Diese Dokumentation beschreibt TNT V1.0 vom 26.01.1997. Das letzte
+Update der Dokumentation wurde am 26.01.1997 durchgeführt.
+
+----------------------------------------------------------------------------
+
+Lizenz, Kopieren, Garantie
+
+TNT ist Copyright (c) 1993-1997 by Mark Wahl, DL4YBG
+
+Dieses Programm ist freie Software; es kann unter Beachtung der GNU
+General Public License, veröffentlicht durch die Free Software
+Foundation, weiterveröffentlicht und/oder verändert werden.
+
+Dieses Programm wird in der Hoffnung veröfftenlicht, daß es nützlich ist, aber
+ohne jede Garantie; sogar ohne die vorausgesetzte Garantie der Verkäuflichkeit
+oder Anwendbarkeit für einen bestimmten Zweck (Siehe die GNU General Public
+License für weitere Einzelheiten (enthalten in der Datei "license")).
+
+Sie sollten eine Kopie der GNU General Public License mit diesem Programm
+erhalten haben; ist dem nicht so, schreiben Sie an die Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+----------------------------------------------------------------------------
+
+Über Packet Radio und TNT
+
+Packet Radio ist ein spezieller Modus, welcher von Funkamateuren zur
+Übertragung von Text und Daten genutzt wird. Er ist packetorientiert
+und nutzt das AX.25-Protokoll (eine spezielle Version von X.25, welche
+Amateurfunkbedürfnissen gerecht wird).
+
+Es gibt einige Ein-Board-Computer, welche das AX.25-Protokoll erfüllen und das
+Modem-Interface für das Funkgerät enthalten. Das Terminal oder der Computer mit
+dem Terminalprogramm wird über eine RS232-Schnittstelle angeschlossen. Diese
+Ein-Board-Computer werden Terminal Node Controller (TNC) genannt.
+
+Für die meisten TNCs gibt es spezielle Software (WA8DED-Software oder The
+Firmware by NORD><LINK), welche an der RS232-Schnittstelle in ein spezielles
+Protokoll geschalten werden können (Hostmode). Wenn Hostmode ausgewählt ist,
+ist es nicht möglich, ein TNC mit einem einfachen Terminal zu betreiben,
+sondern es wird ein Computer mit einem speziellen Terminalprogramm benötigt.
+
+Der Vorteil des Hostmodes ist, dass das Terminalprogramm virtuelle
+Bildschirme für die verschiedenen Verbindungen, den Befehlsmodus und den
+Monitormodus bereitstellen kann. All diese werden gemeinsam auf einem
+normalen Terminal dargestellt, was zu Verwirrung beim Benutzer führt.
+
+TNT ist ein solches Terminalprogramm (TNT steht für TNc Terminalprogramm).
+
+----------------------------------------------------------------------------
+
+Wieso dieses Programm?
+
+Es sind einige Implementationen des AX.25-Protokolls für UNIX verfügbar
+(KA9Q, WAMPES, etc.). Sie alle nutzen das TNC als ein einfaches Modem
+(KISS-Modus) und haben das TCP/IP-Protokoll eingebaut (unter Benutzung von
+AX.25). Aber die Benutzerschnittstelle ist sehr einfach gehalten, es gibt
+keine virtuellen Bildschirme oder Backscroll-Puffer. Meine Absicht war es,
+ein Programm zu schreiben, welches eine ansprechende Benutzerschnittstelle
+hat und das TNC nicht als Modem, sondern als Terminal Node Controller nutzt.
+
+----------------------------------------------------------------------------
+
+Was wird benötigt?
+
+Das Programm wurde für Linux und ein VT100-kompatibles Terminal entwickelt.
+Es benötigt weiterhin ein TNC mit WA8DED-Software oder The Firmware by
+NORD><LINK, welches an eine serielle Schnittstelle des Computers
+angeschlossen ist. The Firmware by NORD><LINK ist für TNC2, alle TNC2-Klone
+und für AEA PK232 und PK88 verfügbar. WA8DED-Software ist für TAPR-TNC1
+verfügbar.
+
+Wenn Sie kein TNC mit The Firmware haben oder die Software ihres TNCs nicht
+ändern möchten, kann TFKISS benutzt werden. TFKISS ist ein Linux-Programm,
+welches ein TNC mit The Firmware emuliert. Es benötigt nur ein TNC im
+Kiss-Modus oder ein Gerät, welches sich wie ein TNC im Kiss-Modus verhält.
+TFKISS unterstützt Standard-KISS, KISS mit Checksumme (SMACK) und KISS mit
+Checksumme, wie es in Flexnet-Digipeatern benutzt wird (RMNC-KISS).
+
+Obwohl Linux die Entwicklungsplattform für TNT ist, sollte eine Portierung zu
+anderen UNIX-Plattformen möglich sein, da keine speziellen Funktionen benutzt
+werden.  Es können andere Terminals benutzt werden, wenn sie wenigstens das
+Einfügen und Löschen von Zeilen beherrschen und einen Eintrag in /etc/termcap
+haben.
+
+----------------------------------------------------------------------------
+
+Mailbox-Programm DPBox
+
+Joachim (DL8HBS) hat ein sehr gutes Packet-Radio-Programm mit Namen DigiPoint
+für ATARI-Computer geschrieben. Es enthält ein Packet-Radio-Host-Terminal,
+Satellitenberechnung und ein Bulletin-Board-System (BBS).
+
+Das BBS enthält fast alle Features der bekannten BBS-Systeme und ist in
+der Lage, mit vielen anderen Systemen Store&Forward zu betreiben und auch
+komprimiertes S&F mit F6FBB-BBS-Systemen ist möglich. Zusätzlich kann es
+gefüttert werden, indem es einfach die Frequenz überwacht. Auf diese Weise
+bekommt man eine aktuelle Mailbox, ohne selbst Übertragungen vornehmen zu
+müssen.
+
+Ich entschied also, mich an einer Portierung für den BBS-Teil von DP für
+Linux zu versuchen. Joachim gab mir seinen Pascal-Sourcecode und ich
+übersetzte ihn mit P2C von Dave Gillespie (ist in den meisten
+Linux-Distributionen enthalten) in C. P2C leistete ausgezeichnete Arbeit
+(danke Dave). Es war nur ein wenig Vorarbeit an den Sourcen nötig und P2C
+erstellte fast lauffähigen Code. Es wurde auf beiden Seiten, TNT und DPBox,
+ein UNIX-Socket-Interface hinzugefügt und die ersten erfolgreichen Tests
+wurden durchgeführt.
+
+Seitdem wurden viele Verbesserungen vorgenommen, sogar der
+PACSAT-Übertragungs-Transmitter/Empfänger ist nun enthalten. Die Kombination
+TNT und DPBox läuft zur Zeit in einigen deutschen Vollzeit-BBSs und hat sich
+als gut und stabil erwiesen. Für weitere Informationen konsultieren Sie die
+DPBox-Dokumentation.
+
+----------------------------------------------------------------------------
+
+Anmerkungen zur deutschen Übersetzung der Dokumentation
+(von Rene Meyer, DAB625)
+
+Diese Übersetzung erhebt nicht den Anspruch der Vollständigkeit und
+Korrektheit. Sie wurde erstellt, um den vielen deutschen Nutzern von TNT,
+welche der englischen Sprache nicht so mächtig sind, die Arbeit mit der
+Dokumentation zu erleichtern. Ich übernehme keinerlei Haftung für jede Art
+von Folgeschäden an Hard- oder Software, die aufgrund von eventuellen Fehlern
+in der Übersetzung entstanden sind.
+Die Verbreitung, Anwendung und Verbesserung der Übersetzung ist ausdrücklich
+erlaubt. Sollte jemand Anregungen für Verbesserungen haben, kann er sie an
+mich senden und ich werde diese dann mit einbauen.
+
+Da ich z.Z. nur Zugang zum CB-Packet-Radio-Netzwerk habe, senden Sie Mails
+bitte entweder direkt an mich
+
+DAB625@DBX794.#ANA.SAX.DEU.EU
+
+oder an Joerg
+
+DG1JKN@DB0DLN.#SAX.DEU.EU
+0373427798-0001@t-online.de
+
+Die Nachrichten werden dann von ihm an mich weitergeleitet.
+
+----------------------------------------------------------------------------
+
+1. Bildschirmaufbau
+
+----------------------------------------------------------------------------
+
+1.1. Virtuelle Bildschirme
+
+In anderen, einfachen Programmen werden alle Befehle und Daten für alle
+Kanäle auf einem Bildschirm angezeigt. Dies ist nicht einfach zu handhaben
+und führt oft zu Verwirrung beim Benutzer. Deshalb benutzt TNT einen
+"virtuellen" Bildschirm für jede einzelne Art von Daten. Da nur ein echter
+Bildschirm vorhanden ist, muss der Nutzer auswählen, welchen der
+verschiedenen virtuellen Bildschirme er sehen möchte. Er kann zwischen diesen
+mit Hilfe spezieller Codes oder Tasten auf der Tastatur umschalten.
+
+Um anzuzeigen, welcher Bildschirm und Kanal aktiviert ist und um allgemeine
+Informationen zu geben, wird eine Statuszeile am unteren Ende des Bildschirms
+angezeigt.
+
+Alle virtuellen Bildschirme (oder die beiden Teile des Connect-Bildschirms)
+können größer als der echte Bildschirm konfiguriert werden. Dann wird nur ein
+kleines Fenster des virtuellen Bildschirms angezeigt. Das Fenster kann durch
+den Benutzer bewegt werden.
+
+----------------------------------------------------------------------------
+
+1.2. Typen virtueller Bildschirme
+
+Es ist möglich, mit mehreren Verbindungen auf der gleichen Frequenz zu
+arbeiten. Der Connectbildschirm ist in ein Teil, in dem alle Eingaben
+geschrieben werden, und ein Teil, in dem alle empfangenen Daten dargestellt
+werden, geteilt. Eine Statuszeile mit allen Informationen über die Verbindung
+ist zwischen beiden dargestellt. Optional können einige Zeilen angezeigt
+werden, welche die Aktivität auf der Frequenz darstellen (Befehl MONLINES,
+"lines_moncon" in tnt.ini).
+
+Um Parameter zu verändern oder Befehle an das TNC zu geben ist ein
+Kommandobildschirm verfügbar. Um die Benutzung zu vereinfachen, können alle
+Befehle ebenso im Connectbildschirm eingegeben werden, indem man vor sie
+einen Doppelpunkt ":" an den Zeilenanfang setzt.
+
+Es ist möglich, die Aktivität aller anderen Stationen auf der Frequenz zu
+überwachen. Um diese Informationen dazustellen, ist ein Monitorbildschirm
+verfügbar.
+
+Zusätlich gibt es einige Bildschirme für spezielle Zwecke. Ein Bildschirm für
+die Heard-Stations-Liste, für den erweiterten Monitor (Extended Monitor), für
+die Online-Hilfe und für die Boxliste. Wenn ein Link zu einer DPBox aktiv
+ist, steht ein Bildschirm für die Boxbenutzung zur Verfügung.
+
+----------------------------------------------------------------------------
+
+1.3. Hauptstatuszeile
+
+Die Statuszeile am unteren Ende des Bildschirms zeigt den hauptsächlichen
+Status des Programms. Es zeigt den Bildschirmtyp (connect, command oder
+monitor) und den aktuellen Kanal. Zusätzlich wird jede offene Datei im
+aktuellen Kanal (bei Senden und Empfangen) angezeigt.
+
+Wenn die Huffman-Kompression auf dem gewählten Kanal aktiv ist wird CONNECT
+durch CONN(H) und EXTMONI durch EXTM(H) ersetzt.
+
+Zusätzlich wird ein "P" angezeigt, wenn die Datenausgabe gestoppt und ein
+"I", wenn der Einfügemodus aktiv ist. Wenn die Hostmode-Synchronisation
+verlorengegangen ist, wird ein "S" angezeigt. Wenn das TNC beschäftigt war
+und Daten vom Computer nochmals gesendet werden, wird ein "B" angezeigt. Wenn
+ein Routing-Script aktiv ist, wird ein "X" angezeigt.
+
+Wenn Daten auf einem Kanal empfangen werden, welcher gerade nicht angezeigt
+wird, wird die Kanalnummer solange angezeigt, bis auf den entsprechenden
+Connectbildschirm umgeschaltet wird. Wenn eine Verbindung auf einem Kanal
+aktiv ist, wird ein "+" an der Position des entsprechenden Kanals angezeigt.
+
+Wenn eine Datei auf dem angezeigten Kanal geöffnet ist, wird ein
+Dateitypkenner aus zwei Zeichen und der Dateiname (nur die letzten 14
+Zeichen) in der Statuszeile angezeigt. Dateien, in welche Daten geschrieben
+werden, werden im ersten Dateifeld angezeigt, solche, aus denen Daten
+gesendet werden, im zweiten Feld. Der Dateitypkenner wird im Kapitel über
+Dateibefehle erklärt.
+
+----------------------------------------------------------------------------
+
+2. Befehle
+
+----------------------------------------------------------------------------
+
+2.1. Tastaturkommandos
+
+Anmerkung:
+
+Die Kombination Alt+Taste ergibt den Code <ESC> Taste im normalen
+Konsolenmodus. Unter X wird Alt+Taste nicht in dieser Weise unterstützt.
+Deshalb müssen Sie, um z.B. unter X den Monitorbildschirm zu aktivieren,
+zuerst <ESC> und dann M anstelle von Alt+M eingeben.
+
+Abkürzungen für Gültigkeitsbereiche:
+(*1) : Eingabeteil des Connect- oder Mailboxbildschirms
+(*2) : Kommandobildschirm und Eingabeteil des Erweiterten-Monitor-Bildschirms
+(*3) : Monitorbildschirm, Empfangsteil des Connect-, Erweiterten-Monitor-
+oder Mailbox-Bildschirms
+(*4) : Kommando-, Boxlisten-, Heardlisten- und Hilfebildschirm
+(*5) : Nur auf dem Monitorbildschirm
+
+----------------------------------------------------------------------------
+
+2.1.1. Cursorbewegung und Verschiedenes
+
+CR, LF, <CNTL>M, <CNTL>J:
+Die Zeile vom Beginn bis zur aktuellen Cursorposition wird auf dem gerade
+aktiven Kanal gesendet (*1) oder zum Kommandointerpreter übertragen (*2). Ist
+das erste Zeichen ein Doppelpunkt ":" (*1), wird die Zeile ohne den
+Doppelpunkt an den Kommandointerpreter übergeben. Ein Doppelpunkt als erstes
+Zeichen von (*2) wird ignoriert und entfernt. Wenn WHOLElin auf "on" gesetzt
+ist, wird die gesamte Zeile benutzt und die Cursorposition ignoriert.
+
+Pfeil links, <CNTL>S:
+Der Cursor wird ein Zeichen nach links bewegt, wenn er nicht am Zeilenanfang
+steht (*1,*2).
+
+Pfeil rechts, <CNTL>D:
+
+Der Cursor wird ein Zeichen nach rechts bewegt, wenn er nicht am Zeilenende
+steht (*1,*2).
+
+Pfeil hoch, <CNTL>E:
+Der Cursor wird eine Zeile nach oben bewegt, wenn er nicht am oberen
+Bildschirmende steht (*1,*2,*4).
+
+Pfeil unten, <CNTL>X:
+Der Cursor wird eine Zeile nach unten bewegt, wenn er nicht am unteren
+Bildschirmende steht (*1,*2,*4).
+
+<CNTL>A:
+Der Cursor wird an den Zeilenanfang gesetzt (im Kommandobildschirm und dem
+Eingabeteil des Connectbildschirmes).
+
+<CNTL>F:
+Der Cursor wird auf das letzte Zeichen der Zeile, welches kein Leerzeichen
+ist, gesetzt (im Kommandobildschirm und dem Eingabeteil des
+Connectbildschirmes).
+
+Einf, <CNTL>N: Ein-/Ausschalten des Einfügemodus. Wenn der Einfügemodus aktiv
+ist, wird ein "I" in der Hauptstatuszeile am unteren Bildschirmrand
+angezeigt. Im Normalmodus werden alle Zeichen überschrieben, im Einfügemodus
+werden alle Zeichen von der Cursorposition bis zum Zeilenende eine Position
+nach rechts verschoben (*1,*2).
+
+Del, <CNTL>H: Löscht das Zeichen links vom Cursor und bewegt den Cursor eine
+Position nach links. Wenn der Einfügemodus aktiv ist, werden alle Zeichen von
+der Cursorposition bis zum Zeilenende eine Position nach links bewegt
+(*1,*2).
+
+<CNTL>L:
+Das Zeichen an der Cursorposition wird gelöscht, alle Zeichen rechts des
+Cursors bis zum Zeilenende werden eine Position nach links verschoben
+(*1,*2).
+
+<CNTL>Y:
+Löscht alle Zeichen von der Cursorposition bis zum Zeilenende (*1,*2).
+
+<CNTL>V:
+Ein Entwerte-Zeichen. Will man z.B. ein CNTL-T zur verbundenen Station
+senden, gibt man zuerst CNTL-V und dann ein "T" ein. Eine andere Eingabe
+würde zeigen, daß es es CNTL-Zeichen ist (*1).
+
+----------------------------------------------------------------------------
+
+2.1.2. Fensterbewegung und -kontrolle
+
+<CNTL>R, Pfeil hoch (*5):
+Bewegt das Anzeigefenster des virtuellen Bildschirms eine Zeile nach oben,
+wenn nicht schon der obere Bildschirmrand erreicht ist (*3).
+
+<CNTL>C, Pfeil unten (*5):
+Bewegt das Anzeigefenster des virtuellen Bildschirms eine Zeile nach unten,
+wenn nicht schon der untere Bildschirmrand erreicht ist (*3).
+
+Bild auf, <CNTL>W:
+Bewegt das Anzeigefenster des virtuellen Bildschirm eine Seite nach oben,
+wenn nicht schon der obere Bildschirmrand erreicht ist (*3,*4).
+
+Bild ab, <CNTL>Z:
+Bewegt das Anzeigefenster des virtuellen Bildschirms eine Seite nach unten,
+wenn nicht schon der untere Bildschirmrand erreicht ist (*3,*4).
+
+Pos1:
+Gehe zum Fensterbeginn (*3,*4).
+
+Ende:
+Gehe zum Fensterende (*3,*4).
+
+<CNTL>P, <ALT>P, <ESC>P:
+Datenausgabe auf dem aktuellen Bildschirm stoppen/wiederanschalten (nur auf
+dem Connect- und Monitorbildschirm). Der Stop wird durch ein "P" in der
+Hauptstatuszeile angezeigt (im Monitorbildschirm und dem Empfangsteil des
+Connect-Bildschirmes).
+
+----------------------------------------------------------------------------
+
+2.1.3. Umschalten zwischen Bildschirmen
+
+F1-F9:
+Auf den Connect-Bildschirm von Kanal eins bis neun umschalten. Wenn die Taste
+nochmals gedrückt wird und mehr als zehn Kanäle existieren, wird der Kanal
+oberhalb Kanal 9 gewählt (zweimal F1 führt zu Kanal 11).
+
+F10:
+Auf den Connect-Bildschirm von Kanal 0 (Unproto-Kanal) umschalten. Bei
+mehrmaligem Drücken werden Kanal 10, 20... gewählt, falls diese existieren.
+
+F11, <ALT>M, <ESC>M:
+Auf den Monitorbildschirm umschalten. Ist der Monitorbildschirm aktiviert,
+wird zum letzten angewählten Bildschirm zurückgeschaltet.
+
+F12, <ALT>C, <ESC>C:
+Auf den Kommandobildschirm umschalten.
+
+<ALT>Q, <ESC>Q:
+Auf den Connect-Bildschirm des aktuellen Kanals umschalten.
+
+Tab, <CNTL>I:
+Einen neuen Kanal anwählen, ein "??" als Kanalnummer in der Statuszeile zeigt
+dies an. Es muss dann eine Nummer von 00 bis 99 als Kanalnummer 00 bis 99
+eingegeben werden. Es werden nur existierende Kanalnummern akzeptiert. Wenn
+ein erweiterter Monitor aktiviert ist, wird dessen Kanalnummer (0 bis 4)
+ansteller des Connectkanals ausgewählt.
+
+<ALT>H, <ESC>H:
+Auf den Hilfe-Bildschirm umschalten.
+
+<ALT>X, <ESC>X:
+Auf den Erweiterten-Monitor-Bildschirm umschalten.
+
+<ALT>S, <ESC>S:
+Die Heardliste auf den neusten Stand bringen und den Heard-Bildschirm
+anzeigen.
+
+<ALT>L, <ESC>L:
+Auf den Boxlisten-Bildschirm umschalten (nur, wenn er auf dem gegenwärtigen
+Kanal aktiviert ist). Wenn man schon im Boxlisten-Bildschirm ist, wird auf
+den zuvor ausgewählten Bildschirm umgeschalten.
+
+<ALT>B, <ESC>B:
+Wenn man mit DPBox verbunden ist, wird auf die Box-Operator-Konsole
+umgeschaltet
+
+----------------------------------------------------------------------------
+
+2.1.4. Tastaturmakros
+
+<ALT>0 - <ALT>9, <ESC>0 - <ESC>9:
+Benutzerdefinierbare Funktionstasten für Befehle und Texte.
+
+----------------------------------------------------------------------------
+
+2.2. Befehle im Kommandomodus
+
+----------------------------------------------------------------------------
+
+2.2.1. TNC-Befehle
+
+Die meisten Kommandos im Hostmode bestehen aus einem Zeichen. Es ist
+schwierig, sich die Zeichen nicht oft benötigter Kommandos zu merken. Deshalb
+wurden für jedes TNC-Kommando längere Namen gewählt. Aber es ist trotzdem
+möglich, die ursprünglichen Kommandos zu nutzen. Es sind nur die bekannten
+Kommandos eingebaut. Sollten Sie eine TNC-Software haben, welche zusätzliche
+Kommandos unterstützt, müssen Sie den Befehl "TNC" nutzen.
+
+Weitere Informationen über die Befehle können Sie in der Dokumentation der
+TNC-Software finden (TNC-Befehle von NORD><LINK The Firmware 2.6a). Einige
+dieser Kommandos gibt es in neueren Versionen nicht mehr (TF 2.7).
+
+DAMAdis, "B"	: DAMA-Timeout
+Version, "V"	: Zeigt die Version der TNC-Software
+CHeck, "@T3"	: Verbindungs-Timer T3
+Connect, "C"    : Verbindung starten
+CText, "U"	: Begrüßungstext, wenn der Connect vom TNC
+entgegengenommen wird
+DIGIpeat, "R"	: Digipeater-Funktion
+Disconne, "D"	: Verbindung beenden
+DAYTIme, "K"	: Zeit- und Datumsfunktionen
+Frack, "F"	: Startwert für den Frack-Timer
+FUlldup, "@D"   : Vollduplex auf der Modemseite
+MAXframe, "O"	: Maximale Nummer ausstehender Packete
+Monitor, "M"	: Frequenz-Monitor-Funktionen
+MYcall, "I"	: Rufzeichen des Benutzers. Mit MYCALL wird das
+Rufzeichen auf dem betreffenden Kanal permanent gesetzt, mit "I" nur
+bis zum nächste Disconnect. Ein permanentes MYCALL kann unter Benutzung
+von "$" als Rufzeichen entfernt werden.
+Persist, "P"	: Persistance für das Senden
+RESptime, "@T2" : Zeit, bis ein Info-Frame bestätigt wird (Timer T2)
+REtry, "N"	: Maximale Anzahl von Versuchen
+SLottime, "W"	: Slottime-Wert für das Senden
+Txdelay, "T"	: Zeit zwischen dem Hochtasten des Senders und dem
+Senden von Daten
+USers, "Y"	: Anzahl von für Verbindungen offene Kanäle
+Xmitok, "X"	: Sender sichern
+BUFfers, "@B"	: Freie TNC-Puffer
+A1SRTT, "@A1"	: A1-Wert
+A2SRTT, "@A2"	: A2-Wert
+A3SRTT, "@A3"	: A3-Wert
+IPOll, "@I"	: Packetlänge, bis zu welcher der I-Polling-Modus
+benutzt wird
+VALcall, "@V"	: Das Rufzeichen im Connect-Befehl überprüfen
+
+Alle langen Kommandos können abgekürzt werden, der großgeschriebene Teil ist
+notwendigerweise einzugeben.
+
+----------------------------------------------------------------------------
+
+2.2.2. Externe Befehle
+
+Die meisten Kommandos können abgekürzt werden, der großgeschriebene Teil ist
+notwendigerweise einzugeben.
+
+2.2.2.1. Daten in Dateien speichern
+
+LOGQso <Dateiname>:
+Eine Datei wird geöffnet, in welcher alle gesendeten und empfangenen Daten
+auf dem gewählten Kanal gespeichert werden. Wenn kein Verzeichnis
+spezifiziert wurde, wird die Datei in "download_dir" gespeichert. Wenn
+"download_dir" leer ist, wird das aktuelle Verzeichnis benutzt. Ein CR wird
+in LF und Control-Codes werden nach ^X übersetzt und die Umlautkonvertierung
+wird vorgenommen. Der Dateitypkenner ist "RN" (Receive Normal).
+
+LOGRec <Dateiname>:
+Dieser Befehl hat dieselbe Funktion wie LOGQSO, allerdings werden nur
+empfangene Daten gespeichert. Der Dateitypkenner ist "RN" (Receive Normal).
+
+LOGSnd <Dateiname>:
+Dieser Befehl hat dieselbe Funktion wie LOGQSO, allerdings werden nur
+gesendete Daten gespeichert. Der Dateitypkenner ist "RN" (Receive Normal).
+
+READ <Dateiname>:
+Eine Datei wird geöffnet und alle empfangenen Daten in ihr gespeichert. Wenn
+kein Verzeichnis spezifiziert wurde, wird die Datei in "download_dir"
+gespeichert. Wenn "download_dir" leer ist, wird das aktuelle Verzeichnis
+verwendet. Es wird CR in LF übersetzt. READ sollte zum Empfangen von
+7Plus-Files genutzt werden. Der Dateitypkenner ist "RP" (Receive Plain).
+
+READBin <Dateiname>:
+Dieser Befehl hat dieselbe Funktion wie READ, allerdings wird keine
+Zeichenübersetzung vorgenommen. Der Dateitypkenner ist "RB" (Receive Binary).
+
+READAbin <Dateiname>:
+Starten den AutoBin-Empfang einer Datei. Wenn kein Verzeichnis spezifiziert
+wurde, wird die Datei in "download_dir" gespeichert. Wenn "download_dir" leer
+ist, wird das aktuelle Verzeichnis verwendet. Der Dateitypkenner ist "RA"
+(Receive AutoBin).
+
+LOGAbin <Dateiname>:
+Dieser Befehl hat dieselbe Funktion wie READABIN, außer daß die
+Übertragungsstatistik am Ende nur angezeigt und nicht gesendet wird
+(praktisch für das Auslesen von Binärdateien aus BBSs, welche durch die
+Statistik verwirrt werden). Der Dateitypkenner ist "RQ" (Receive AutoBin,
+Quiet Mode).
+
+READYapp [Dateiname]:
+Startet den YAPP-Empfang einer Datei. Wenn kein Name spezifiziert wurde, wird
+der übertragene genutzt und ein eventuell übertragenes Verzeichnis ignoriert.
+Wenn kein Verzeichnis spezifiziert wurde, wird die Datei in "download_dir"
+gespeichert. Wenn "download_dir" leer ist, wird das aktuelle Verzeichnis
+verwendet. Der Dateitypkenner ist "RY" (Receive YAPP).
+
+CLose:
+Schließt die aktive Empfangsdatei.
+
+LOGMon <Dateiname>:
+Eine Datei wird geöffnet, in welcher alle auf dem Monitorbildschirm
+empfangenen Daten gespeichert werden. Wenn kein Verzeichnis spezifiziert
+wurde, wird die Datei in "download_dir" gespeichert. Wenn "download_dir" leer
+ist, wird das aktuelle Verzeichnis verwendet. CR wird in LF und Control-Codes
+in ^X übersetzt und die Umlautkonvertierung wird ausgeführt. Der
+Dateitypkenner ist "RN" (Receive Normal).
+
+RDMON <Dateiname>:
+Dieser Befehl hat dieselbe Funktion wie LOGMON, allerdings wird nur CR nach
+LF übersetzt. Der Dateitypkenner ist "RP" (Receive Plain).
+
+RDMONBin <Dateiname>:
+Dieser Befehl hat dieselbe Funktion wie RDMON, allerdings wird keine
+Zeichenübersetzung ausgeführt. Der Dateitypkenner ist "RB" (Receive Binary).
+
+CLOSEMon:
+Schließt die aktive Empfangsdatei im Monitorbildschirm.
+
+LOGXmon <Dateiname> (auf dem Erweiterten-Monitor-Bildschirm)
+LOGXmon <xmon-Kanal> <Dateiname> (auf anderen Bildschirmen):
+Eine Datei wird geöffnet, in welcher alle auf dem aktuellen oder
+spezifizierten Erweiterten-Monitor-Bildschirm empfangenen Daten gespeichert
+werden. Wenn kein Verzeichnis spezifiziert wurde, wird "download_dir"
+verwendet. Ist "download_dir" leer, wird das aktuelle Verzeichnis verwendet.
+CR wird in LF und Control-Codes in ^X übersetzt und die Umlautkonvertierung
+wird durchgeführt. Der Dateitypkenner ist "RN" (Receive Normal).
+
+RDXMON <Dateiname> (auf dem Erweiterten-Monitor-Bildschirm)
+RDXMON <xmon-Kanal> <Dateiname> (auf anderen Bildschirmen):
+Dieser Befehl hat dieselbe Funktion wie LOGXMON, allerdings wird nur CR nach
+LF übersetzt. Der Dateitypkenner ist "RP" (Receive Plain).
+
+RDXMONBi <Dateiname> (auf dem Erweiterten-Monitor-Bildschirm)
+RDXMONBi <xmon-Kanal> <Dateiname> (auf anderen Bildschirmen):
+Dieser Befehl hat dieselbe Funktion wie RDXMON, allerdings wird keine
+Zeichenübersetzung durchgeführt. Der Dateitypkenner ist "RB" (Receive
+Binary).
+
+CLOSEXmo (auf dem Erweiterten-Monitor-Bildschirm)
+CLOSEXmo <xmon-Kanal> (auf anderen Bildschirmen):
+Schließt die aktive Empfangsdatei auf dem aktuellen oder spezifizierten
+Erweiterten-Monitor-Bildschirm.
+
+APPend [ON/OFF]:
+Bestimmt, ob Daten an eine existierende Datei angehängt werden sollen (nur
+für LOGQSO, LOGREC, LOGSND, LOGMON und LOGXMON wichtig).
+
+AUTOBIn [ON/OFF]:
+Bestimmt, ob der AutoBin-Empfang automatisch beim Empfang eines gültigen
+AutoBin-Headers starten soll (Empfang wird wie bei LOGABIN im stillen Modus
+durchgeführt).
+
+AUTOYApp [ON/OFF]:
+Bestimmt, ob der YAPP-Empfang beim Empfang eines gültigen YAPP-Headers
+automatisch starten soll.
+
+AUTO7Pl [ON/OFF]:
+Bestimmt, ob der 7Plus-Empfang beim Empfang eines gültigen 7Plus-Headers
+automatisch starten soll. Um des 7Plus-Empfang anzuzeigen, wird ein
+Dateitypkenner "A7" in der Statuszeile angezeigt.
+
+2.2.2.2. Dateien senden
+
+SEND <Dateiname>:
+Sendet eine Datei auf dem gewählten Kanal, wobei LF nach CR übersetzt wird.
+Wenn kein Verzeichnis spezifiziert wurde, wird "upload_dir" verwendet. Wenn
+"upload_dir" leer ist, wird das aktuelle Verzeichnis verwendet. SEND sollte
+zum Senden von 7Plus-Dateien genutzt werden. Der Dateitypkenner ist "TP"
+(Transmit Plain).
+
+SENDLog <Dateiname>:
+Dieser Befehl hat dieselbe Funktion wie SEND, allerdings werden Control-Codes
+nach ^X übersetzt und die Umlautkonvertierung durchgeführt. Der
+Dateitypkenner ist "TN" (Transmit Normal).
+
+SENDBin <Dateiname>:
+Dieser Befehl hat dieselbe Funktion wie SEND, allerdings ohne
+LF-nach-CR-Übersetzung. Der Dateitypkenner ist "TB" (Transmit Binary).
+
+SENDABin <Dateiname>:
+Sendet eine Datei im AutoBin-Modus. Wurde kein Verzeichnis spezifiziert, wird
+"upload_dir" verwendet. Ist "upload_dir" leer, wird das aktuelle Verzeichnis
+verwendet. Der Dateitypkenner ist "TA" (Transmit AutoBin).
+
+SENDQbin <Dateiname>:
+Dieser Befehl hat dieselbe Funktion wie SENDABin, allerdings wird nicht auf
+das #OK# nach dem Senden des #BIN#-Headers gewartet und die Statistiken nicht
+übertragen. Der Dateitypkenner ist "TQ" (Transmit AutoBin, Quiet Mode).
+
+SENDYapp <Dateiname>:
+Sendet eine Datei im YAPP-Modus. Wurde kein Verzeichnis spezifiziert, wird
+"upload_dir" verwendet. Ist "upload_dir" leer, wird das aktuelle Verzeichnis
+verwendet. Der Dateitypkenner ist "TY" (Transmit YAPP).
+
+BReak:
+Bricht das Senden einer Datei ab.
+
+FPACLen:
+Spezifiziert die maximale Packetlänge für das Senden von Dateien. Wird
+SENDLog benutzt, wird die Länge aufgrund möglicher Umlautkonvertierungen
+halbiert. Der erlaubte Wert liegt zwischen 20 und 256 Zeichen. Ist die
+statische Huffman-Kompression aktiviert, wird der Maximalwert auf 255 Zeichen
+reduziert. Änderungen gelten auf allen Kanälen.
+
+2.2.2.3. Shells und Programme starten, Daten umleiten, Sockets
+
+SHell:
+Startet eine Shell auf dem aktuellen Kanal. Das Rufzeichen der Gegenstation
+wird als User-ID benutzt. Existiert diese User-ID nicht im System, hängt es
+von "unix_new_user" ab, ob "remote_user" verwendet (0) oder die User-ID
+erstellt wird (1). Alle auf dem Kanal empfangenen Daten werden zur Shell
+gesendet und alle Daten der Shell werden auf dem entsprechenden Kanal
+gesendet. Alle LF, welche von der Shell gesendet wurden, werden in CR
+übersetzt. Alle CRs der Gegenstation werden in LF übersetzt, bevor sie zur
+Shell gesendet werden. (Dieses Kommando ist nur verfügbar, wenn TNT von root
+gestartet wurde.)
+
+TSHell:
+Dieser Befehl hat dieselbe Funktion wie SHell, allerdings wird keine
+LF-CR-Konvertierung durchgeführt.
+
+ROOTSH:
+Dieser Befehl hat dieselbe Funktion wie SHell, allerdings wird eine Shell mit
+Superuser-Privilegien (root) gestartet.
+
+TROOTSH:
+Dieser Befehl hat dieselbe Funktion wie ROOTSH, allerdings  wird keine
+LF-CR-Konvertierung durchgeführt.
+
+ENDShell:
+Beendet die Shell auf dem aktuellen Kanal.
+
+RUN <Programm>:
+Auf dem aktuellen Kanal wird das spezifizierte Programm ausgeführt. Alle auf
+dem aktuellen Kanal empfangenen Daten werden als Standard-Input des Programms
+genutzt und alle Daten, welche vom Programm zum Standard-Output gesendet
+werden, werden auf dem Kanal übertragen. Es können nur in "tnt_bin_dir"
+enthaltene Programme gestartet werden. Alle vom Programm gesendetetn LF
+werden nach CR konvertiert. Alle auf dem Kanal empfangenen CR werden nach LF
+konvertiert, bevor sie an das Programm weitergegeben werden.
+
+RUNT <Programm>:
+Dieser Befehl hat dieselbe Funktion wie RUN, allerdings wird keine
+LF-CR-Konvertierung ausgeführt.
+
+ENDRun:
+Bricht die Programmausführung auf dem aktuellen Kanal ab.
+
+REDir <Device>:
+Umleitung von Eingaben/Ausgaben. Alle auf dem aktuellen Kanal empfangenen
+Daten werden an <Device> geschickt, alle von <Device> empfangenen Daten
+werden auf dem aktuellen Kanal übertragen.
+
+ENDRedir:
+Beendet die Umleitung auf dem aktuellen Kanal.
+
+SOCKCon <Socket-Adresse>:
+Der spezifizierte Socket wird connected und alle von diesem empfangenen
+Daten werden auf dem aktuellen Kanal übertragen und umgekehrt. LF vom
+Socket werden in CR und CR von der Gegenstation werden in LF
+konvertiert, bevor sie an den Socket weitergegeben werden. Weitere
+Informationen finden Sie im Kapitel "Detaillierte Beschreibung".
+
+TSOCKCon <Socket-Adresse>:
+Dieser Befehl hat dieselbe Funktion wie SOCKCon, allerdings ohne
+LF-CR-Konvertierung.
+
+ENDSOCKC:
+Beendet die Socket-Verbindung auf dem aktuellen Kanal.
+
+SOCket AXSERV <Socket-Adresse>:
+Auf dem spezifizierten Socket wird ein AX25-Server installiert. Von nun
+an ist eine Verbindung mit diesem Socket möglich und es können nach
+Authorisierung AX25-Verbindungen gestartet werden (z.B.
+Internet-Zugriff auf Packet Radio). Weitere Informationen finden Sie im
+Kapitel "Detaillierte Beschreibung".
+
+SOCket AXSPEC <Socket-Adresse>:
+Dieser Befehl hat dieselbe Funktion wie SOCket AXSERV, allerdings
+werden die Daten vom Client direkt nach dem Auftreten von LF oder CR
+ohne das Warten auf "pty_timeout" nach AX25 gesendet.
+
+SOCket NETCMD <Socket-Adresse> <Default-Rufzeichen>:
+Ein Wampes-kompatibler AX25-Server wird auf dem spezifizierten Socket
+gestartet. Wurde kein Rufzeichen im Connect-Kommando spezifiziert, wird
+das Standard-Rufzeichen verwendet. Weitere Informationen finden Sie im
+Kapitel "Detaillierte Beschreibung".
+
+ENDSock <Socket-Adresse>:
+Beendet den Socket-Server an der spezifizierten Socket-Adresse. Alle
+Verbindungen zum Server werden beendet.
+
+2.2.2.4. Verzeichnisse
+
+CD <Verzeichnis>:
+Ändert das Arbeitsverzeichnis in <Verzeichnis>. Ist <Verzeichnis> leer,
+wird das Homeverzeichnis verwendet.
+
+CWD:
+Zeigt das aktuelle Arbeitsverzeichnis an.
+
+2.2.2.5. Verschiedenes
+
+TNC <Befehl>:
+<Befehl> wird als Kommand ohne jede Konvertierung an das TNC gesendet.
+
+CHANnel <x> oder S <x>:
+Schaltet auf den Connect-Bildschirm von Kanal <x>. Ist der Befehl in
+ein Script eingebaut, wird keine Bildschirm-Umschaltung vorgenommen,
+sondern er spezifiziert nur den für die folgenden Befehle zu nutzenden
+Kanal.
+
+CONCall <Rufzeichen>:
+Wird das Rufzeichen in der Statuszeile durch eine Connect-Nachricht im
+normalen Text verändert, kann das Rufzeichen durch diesen Befehl wieder
+hergestellt werden.
+
+CStatus:
+Eine Liste aller Kanäle mit Verbindungen mit Startzeit der Verbindung und
+Rufzeichen wird angezeigt.
+
+SENDCom <Dateiname>:
+Ausführung einer Datei, welche TNC- oder externe Befehle enthält
+(Kommandoscript).
+
+CBell [ON/OFF/OTHER]:
+Es wird ein Beep generiert, wenn sich der Status einer Verbindung ändert
+(Connect Bell). Bei OTHER wird nur dann ein Ton ausgegeben, wenn eine Station
+auf einem anderen als dem aktuellen Kanal connected.
+
+INFObell [ON/OFF/OTHER]:
+Es wird ein Beep generiert, wenn auf einem Kanal ein neues Packet empfangen
+wurde (Information Bell). Bei OTHER wird nur dann ein Ton ausgegeben, wenn
+ein neues Packet auf einem anderen als dem aktuellen Kanal empfangen wurde.
+
+COOKie [ON/OFF]:
+Ein Cookie (Spruch) senden, wenn man von außerhalb connected wird.
+
+UMLaut [ON/OFF]:
+Umlautkonvertierung (ä->ae, ö->oe, ü->ue, ß->ss).
+
+CONText [ON/OFF]:
+Sendet einen speziellen Connect-Text (Makros erlaubt), übergeht COOKie.
+
+TXEcho [ON/OFF]:
+Wiederholt alle gesendeten Daten von Eingabeteil im Empfangsteil des
+Bildschirms.
+
+PTYEcho [ON/OFF]:
+Wiederholt alle empfangenen und gesendeten Daten auf einem Kanal, auf welchem
+SHELL, RUN, REDIR oder SOCKET aktiv sind.
+
+NAME <Name>:
+Setzt den Namen des Rufzeichens auf dem aktuellen Kanal auf <Name>. Ist
+<Name> nicht angegeben, wird der gespeicherte Name angezeigt (Nur, wenn auf
+dem Kanal eine Verbindung besteht.).
+
+STIme:
+Sendet Zeit und Datum auf dem aktuellen Kanal.
+
+SCOokie:
+Sendet ein Cookie auf dem aktuellen Kanal.
+
+TIMESET:
+Setzt die TNC-Zeit auf die Computerzeit.
+
+DATESET:
+Setzt das TNC-Datum auf das Computerdatum.
+
+RESYnc:
+Zeigt die Anzahl der Hostmode-Resynchronisationen seit dem Programmstart und,
+wenn verfügbar, zusätzliche Informationen zum Problem.
+
+LAYer3 [ON/OFF]:
+Schaltet die Analyse von NETROM/TheNet-Headern (pid CF) in auf dem
+Monitorbildschirm überwachten Frames ein/aus.
+
+HEArd [ON/OFF]:
+Schaltet die Heard-Liste ein/aus. Wenn ausgeschaltet, wird die Liste nicht
+länger aktualisiert.
+
+KMAcro:
+Liest die Datei für Tastaturmakros, welche in "func_key_file" spezifiziert
+ist, erneut ein.
+
+MSEnd <Dateiname>:
+Sendet eine Datei, welche Makros enthält. Die Datei wird aus dem Verzeichnis
+"macrotext_dir" entnommen.
+
+WORDWrap [ON/OFF]:
+Schaltet die Zeilenumbruchsfunktion ein/aus. Ein unvollständiges Wort am
+Zeilenende wird automatisch auf die nächste Zeile umgebrochen.
+
+WHOLElin [ON/OFF]:
+Wenn ON, wird die gesamte Zeile übertragen, sonst nur der Teil vom
+Zeilenanfang bis zur aktuellen Cursorposition.
+
+LINelen <Wert>:
+Setzt die Zeilenlänge, ab welcher weitere Eingaben ignoriert oder ein
+Zeilenumbruch ausgeführt wird. Dieser Wert sollte normalerweise auf 80
+Zeichen gesetzt sein. Der Standardwert kann durch "input_linelen" im
+Init-File TNT.INI gesetzt werden.
+
+MONLines <Wert>:
+Wenn Sie einen Teil des Monitorbildschirms im Connectbildschirm sehen
+möchten, kann die Anzahl von Monitorzeilen hier spezifiziert werden.
+Setzen Sie sie auf 0, wenn sie keinen Monitorteil wünschen. Der
+Standardwert kann durch "lines_moncon" in der TNT.INI eingestellt
+werden.
+
+CONDiv <Wert>:
+Ändert die Einteilung des Connect-Bildschirms in Eingabe- und
+Ausgabeteil. Für weitere Details ziehen Sie "scr_divide" in der Datei
+TNT.INI zu Rate.
+
+XMONDiv <Wert>:
+Ändert die Einteilung des erweiterten Monitors in Eingabe- und
+Ausgabeteil. Für weitere Details ziehen Sie "xmon_scr_divide" in der
+Datei TNT.INI zu Rate.
+
+MBOXDiv <Wert>:
+Ändert die Einteilung des Mailbox-Bildschirmes in Eingabe- und
+Ausgabeteil. Für weitere Details ziehen Sie "mbscr_divide" in der Datei
+TNT.INI zu Rate.
+
+COMP [ON/OFF]:
+
+Schaltet die Huffman-Kompression auf dem aktuellen Kanal ein/aus. "CONN(H)"
+in der unteren Statuszeile signalisiert die eingeschaltete
+Huffman-Kompression. Wird kein Wert übergeben, wird der aktuelle Status
+zurückgegeben. Um das Umschalten der Huffman-Kompression zwischen dem
+Programm und der Gegenstation zu synchronisieren, sollte anstelle dieses
+Befehls das Remote-Kommando //COMP verwendet werden.
+
+BSCRHold [ON/OFF]:
+Wenn diese Option eingeschaltet ist, wird kein Scrolling im angezeigten
+Fenster eintreten, solange die letzte Zeile des Bildschirmpuffers nicht
+angezeigt (Backscrolling aktiv) und die erste angezeigte Zeile noch im
+Bildschirmpuffer ist.
+
+TABExp [ON/OFF]:
+Wenn diese Option eingeschaltet ist, wird ein TAB-Zeichen den Cursor auf den
+nächsten Tabulatorstop setzen. Ein Tabulatorstop findet sich alle 8 Zeichen.
+Wenn ausgeschaltet, wird ein ^I angezeigt.
+
+FREE:
+Dieser Befehl zeigt die Anzahl freier Puffer im TNC an. Dieser Befehl führt
+kein "@B"-Kommando aus, zeigt aber den Wert des letzten periodischen Polls
+an.
+
+SIGNon:
+Zeigt Version und Copyright-Information von TNT an.
+
+LOGBOOK [ON/OFF]:
+Dieser Befehl kann das Schreiben der Logbuch-Datei ausschalten.
+
+EXit:
+Verläßt TNT.
+
+QUIT:
+Verläßt TNTC ohne den TNT-Dämon zu beenden.
+
+2.2.2.6. Routing-Scripts
+
+XConnect [portheader:]<Rufzeichen>:
+Start eines Routing-Scripts für das spezifizierte Rufzeichen. Ein aktives
+Script kann durch die Benutzung von "OFF" als Rufzeichen beendet werden. Ist
+ein Routing-Script aktiv, wird ein "X" in der Hauptstatuszeile angezeigt.
+Kann das Rufzeichen nicht in der Routingdatenbank gefunden werden, wird ein
+einfacher Connect gestartet. Wird ein Multiport-TNC benutzt, kann ein
+gültiger Port-Header, welcher mit dem Befehl QRG eingegeben wurde, vor dem
+Rufzeichen genutzt werden um den Port, auf welchem der erste Connect
+gestartet werden soll, auszuwählen. Bei der Benutzung dieses Befehls wird ein
+freier SSID automatisch dem Ausgangsrufzeichen zugeordnet, damit mehrere
+Verbindungen zum selben Digipeater möglich sind.
+
+QRG [<Port> <Frequenz>] [portheader:]:
+Mit diesem Kommando wird die Frequenz, auf der das Programm arbeitet,
+festgelegt. Die spezifizierte Frequenz wird benutzt, um gültige Routingdaten
+aus der Routingdatenbank zu suchen.
+<Frequenz> kann ein String mit bis zu 19 Zeichen Länge sein. Für TNCs mit
+einem Port ist 0 als <port> zu benutzen und
+<portheader:>: QRG 0 438.300 wegzulassen. Für Multiport-TNCs muss für jeden
+Port eine Frequenz und ein Portheader definiert werden: QRG 0 438.300: QRG 1
+430.900 2: Ohne angegebene Argumente wird die aktuelle Frequenzdefinition
+angezeigt.
+
+LSNOTOWN:
+Dieses Kommando listet alle Rufzeichen mit einem Eintrag in der Datei
+"tnt_notownfile" auf. Diese Rufzeichen dürfen nicht als Ausgangsrufzeichen
+für einen xconnect benutzt werden. Auf diese Weise sind Sie in der Lage,
+einige SSIDs zu ihrem Rufzeichen zu definieren, welche TNT nicht benutzen
+wird (wird benötigt, wenn verschiedene Software mit dem gleichen Rufzeichen
+arbeitet).
+
+LDNOTOWN:
+Wenn "tnt_notownfile" geändert wurde, während TNT lief, kann es mit diesem
+Befehl neu eingelesen werden. Ein erneutes Einlesen ist nötig, da TNT diese
+Datei nur beim Start einliest und die Daten in den Speicher kopiert.
+
+2.2.2.7. Erweiterter Monitor (Extended monitor) und Boxliste (Boxlist)
+
+XMON [ON/OFF]:
+Schaltet die Erweiterte-Monitor-Funktion ein/aus. Wenn sie ausgeschaltet
+wurde, werden empfangene Monitor-Frames nicht länger analysiert.
+
+EXTmon <Call 1> <Call 2> [<Call 3> <Call 4>] (xmon-Bildschirm)
+EXTmon <cmon-Kanal> <Call 1> <Call 2> [<Call 3> <Call 4>] (andere Bildsch.):
+Auf dem aktuellen (xmon-Bildschirm) Erweiterten-Monitor-Bildschirm oder auf
+dem spezifizierten Kanal (andere Bildsch.) kann eine Verbindung überwacht
+werden. Wenn nur <Call 1> und <Call 2> angegeben ist, werden Frames von 1
+nach 2 und 2 nach 1 überwacht, sonst von 1 nach 2 und 3 nach 4.
+
+EXTAmon <Call 1> <Call 2> [<Call 3> <Call 4>]:
+Dieser Befehl hat dieselbe Funktion wie EXTmon, außer daß der nächste freie
+Erweiterte-Monitor-Kanal genutzt wird. Der resultierende Kanal wird als
+Antwort zurückgegeben.
+
+ENDEXtm (Erweiterter-Monitor-Bildschirm)
+ENDEXtm <xmon-Kanal> (andere Bildschirme):
+Der erweiterte Monitor auf dem aktuellen (Erweiterter-Monitor-Bildschirm)
+oder spezifizierten (andere Bildschirme) Kanal wird geschlossen. Die
+Verbindung wird nicht länger überwacht.
+
+EXTComp [ON/OFF]:
+Schaltet die Huffman-Kompression auf dem aktuellen
+Erweiterten-Monitor-Bildschirm ein/aus. "EXTM(H)" in der unteren Statuszeile
+zeigt die eingeschaltete Kompression an. Wird kein Wert übergeben, wird der
+aktuelle Status zurückgegeben.
+
+LOGBlist:
+Auf dem aktuellen Kanal oder dem Mailbox-Bildschirm wird eine Datei geöffnet
+und alle empfangenen Daten darin gespeichert. Das Kommando ist äquivalent zu
+LOGREC, außer daß ein einheitlicher Name benutzt (im /tmp-Verzeichnis) und
+die Datei beim Beenden von TNT wieder gelöscht wird.
+
+BLIst [<Dateiname>]:
+Auf dem aktuellen Kanal oder dem Mailbox-Bildschirm wird die letzte
+aktive Datei für den Boxlist-Bildschirm und das -Feature benutzt. War
+die Datei bis dahin nicht geschlossen, wird sie geschlossen. Optional kann
+ein Dateiname spezifiziert werden. In diesem Fall wird diese Datei in den
+Boxlist-Bildschirm geladen.
+
+XBList:
+Beendet die Boxliste und schließt den Boxlist-Bildschirm auf den aktuellen
+Kanal.
+
+2.2.2.8. Interfacebefehle
+
+IFAce <Socket-Name>:
+Baut eine Socket-Verbindung zu einem externen Programm über einen UNIX-Socket
+<Socket-Name> auf.
+
+ENDIFace <Socket-Name>:
+Löst die Socket-Verbindung zu einem externen Programm über einen UNIX-Socket
+<Socket-Name>.
+
+FINIFace <Socket-Name>:
+Dieser Befehl hat dieselbe Funktion wie ENDIFace, außer daß das externe
+Programm den Befehl bekommt, seine Ausführung zu beenden.
+
+ACTIf <Socket-Name>:
+Aktiviert das externe Programm auf dem aktuellen Kanal, wobei die schon
+aufgebaute Socket-Verbindung benutzt wird.
+
+DEACtif <Socket-Name>:
+Deaktiviert das externe Programm auf dem aktuellen Kanal.
+
+SNOCONN <Zeichenkette>:
+Die Zeichenkette wird gesendet, wenn das Programm über das Interface
+fernaktiviert wurde und die Aktivierung nicht erfolgreich war.
+
+2.2.2.9. DPBox-Intefacebefehle
+
+ACTBox:
+Baut eine Socket-Verbindung zu DPBox über ein UNIX-Socket auf, welches durch
+"box_socket" in der Datei TNT.INI festgelegt wird.
+
+DEACTBox:
+Löst die Socket-Verbindung zu DPBox.
+
+FINBox:
+Löst die Socket-Verbindung zu DPBox und beendet DPBox.
+
+BOX [Rufzeichen]:
+Aktiviert DPBox auf dem aktuellen Kanal unter Benutzung der schon aufgebauten
+Socket-Verbindung. Wird ein Rufzeichen spezifiziert, wird dieses an der
+Mailbox-Konsole anstelle des Boxrufzeichens verwendet.
+
+ENDBox:
+Deaktiviert DPBox auf dem aktuellen Kanal.
+
+AUTOBOx [ON/OFF]:
+Wenn diese Option aktiviert ist, werden alle Verbindungen nach Mail-Headern
+durchsucht. Ein gültiger Mailheader führt zum Speichern der darauf folgenden
+Mail. Ist das Ende erreicht, wird die Mail über das Interface an DPBox
+gesendet.
+
+MONBox [ON/OFF]:
+Wenn diese Option aktiviert ist, werden alle Monitor-Frames nach
+Mail-Headern durchsucht. Ein gültiger Mail-Header führt zur erweiterten
+Überwachung der Verbindung im erweiterten Monitor. Fehlen keine Frames und
+ist das Ende der Mail erreicht, wird die überwachte Mail per Interface an
+DPBox gesendet.
+
+LMONbox:
+Es werden alle Mails angezeigt, welche gerade mit MONBox empfangen werden.
+
+SNOBOX <Zeichenkette>:
+Diese Zeichenkette wird gesendet, wenn DPBox von der Gegenstation aktiviert
+wurde und die Aktivierung nicht erfolgreich war.
+
+SCANMBEA [<Quelle> <Ziel> <eigenes Call> <Connect-Call> [<Timeout>]] [$]:
+TNT kann Mail-Baken überwachen und, falls das eigene Rufzeichen gefunden
+wurde, Store&Forward starten, um die neue Mail zu erhalten. Um dieses Feature
+zu aktivieren, müssen Quelle und Ziel der erwarteten Bake (z.B. das
+Rufzeichen der HomeBBS und MAIL), das eigene Rufzeichen (das Rufzeichen,
+welches in den Baken gesucht wird), ein Connect-Rufzeichen und ein optionaler
+Timeout-Wert angegeben werden. Die Verbindung wird als xconnect mit
+Connect-Rufzeichen und Timeout als Parameter aufgebaut. Wurde die Verbindung
+aufgebaut, wird S&F beginnen. Der Befehl ohne Parameter gibt die aktuellen
+Daten zurück. Zum Deaktivieren des Features ist ein "$" als einziges Argument
+zu übergeben.
+
+LDBOXFil:
+Alle Dateien, welche die Boxkonfiguration betreffen ("autobox_dir",
+"tnt_boxender" und "f6fbb_box") werden erneut eingelesen. Es können
+Veränderungen in diesen Dateien vorgenommen werden, ohne TNT verlassen zu
+müssen.
+
+ACCUIReq [ON/OFF]:
+Wenn eingeschaltet, werden Unproto-Listen-Anfragen an das mit ACCUICal
+definierte Rufzeichen (und SSID) an DPBox weitergegeben. DPBox wird dann die
+entsprechenden Aktionen veranlassen.
+
+2.2.2.10. Passwortgenerierungsbefehle
+
+PRIV:
+Dieses Kommando startet die Passwortgenerierung. Es wird zurückgewiesen, wenn
+auf dem entsprechenden Kanal keine Verbindung läuft oder das Rufzeichen nicht
+in der Datei "tnt_pwfile" enthalten ist. Die weiteren Aktionen hängen vom für
+das Rufzeichen eingestellten Typ der Passwortgenerierung ab.
+
+LISTPRIV:
+Dieses Kommando listet alle Rufzeichen mit einem Eintrag in der Datei
+"tnt_pwfile" auf. Zusätzlich werden zu jedem Rufzeichen der Typ der
+Passwortgenerierung und die Datei, in welcher die Passwortdaten gespeichert
+sind, ausgegeben.
+
+LOADPRIV:
+Wurde "tnt_pwfile" während der Ausführung von TNT geändert, kann die Datei
+mit diesem Befehl erneut eingelesen werden. Ein erneutes Einlesen ist nötig,
+da TNT die Datei nur beim Start einliest und die Daten im Speicher behält.
+
+2.2.2.11. Remotekommandoerlaubnis und Zugriffsebenen
+
+REMOte [ON/OFF]:
+Bestimmt die Remote-Erlaubnis für alle Kanäle. Wenn OFF, sind Kommandos mit
+dem Status ALWAYS nicht verfügbar.
+
+REMAllow [ON/OFF]:
+Bestimmt die Remote-Erlaubnis auf dem aktuellen Kanal. Wenn OFF, sind
+Kommandos mit dem Status ALWAYS verfügbar. Dieser Befehl ist nur erlaubt,
+wenn auf dem Kanal eine Verbindung besteht. Zusätzlich wird der aktuelle
+Status in Beachtung des "tnt_noremfile" bei einem neuen Connect entsprechend
+geändert.
+
+SETACC <Remote-Befehl> [NORMAL/SYSOP/ROOT/ALWAYS]:
+Definiert, welche Zugriffsebene eine Gegenstation benötigt, um ein bestimmtes
+Remote-Kommando ausführen zu können. NORMAL bedeutet, der Befehl ist für
+jeden , Kommandos mit SYSOP-Status sind nur nach einer erfolgreichen
+Authorisation mit //sys verfügbar. Wurde das Root-Sysop-Flag in "tnt_sysfile"
+gesetzt, sind Befehle mit ROOT-Status ebenfalls nach erfolgreicher
+Authorisation verfügbar. ALWAYS bedeutet, daß der Befehl sogar für Stationen,
+welche in "tnt_noremfile" eingetragen sind, verfügbar ist.
+
+NOACC [ON/OFF]:
+Wenn ON, können nur Remote-Stationen mit Eintrag in "tnt_sysfile" die Station
+connecten. Alle anderen werden die durch SNOACC definierte Zeichenkette
+erhalten und werden danach disconnectet.
+
+SNOACC <Zeichenkette>:
+Definiert die Zeichenkette, welche gesendet wird, falls eine Station nicht
+authorisiert ist, die Station zu connecten.
+
+LISTSYS:
+Dieses Kommando listet alle Rufzeichen mit Eintrag in "tnt_sysfile" auf.
+Zusätzlich wird für jedes Rufzeichen die Datei mit den Passwortdaten
+ausgegeben und, ob diese Station den Sysop-Status nach Authorisation
+erreichen kann (0: nicht Root-Sysop, 1: Root-Sysop).
+
+LOADSYS:
+Wurde "tnt_sysfile" während der Ausführung von TNT geändert, kann es mit
+diesem Befehl erneut eingelesen werden. Dies ist notwendig, da TNT die Datei
+nur beim Start einliest und die Daten im Speicher behält.
+
+LSTNOREM:
+Dieses Kommando listet alle Rufzeichen mit Eintrag in"tnt_noremfile"
+auf. Für diese Rufzeichen sind alle Remote-Befehle außer die, welche
+den Status ALWAYS haben, gesperrt. Die Sperre besteht bis zum Lösen der
+Verbindung auf dem Kanal, so daß Weiterconnecten oder Reconnects nicht zum
+Aufheben derselbigen führen. Ein Aufheben der Remote-Sperre ist mit dem
+Befehl REMALLOW möglich.
+
+LDNOREM:
+Liest die Datei "tnt_noremfile" erneut ein.
+
+LSTFLCHK:
+Gibt alle Rufzeichen mit Eintrag in "tnt_flchkfile" aus. Diese Rufzeichen
+erhalten keinen Connect-Text, Remote-Zugriff und keine Verbindung zu DPBox
+oder anderen Programmen über das Interface. Es wird kein Eintrag im Logbuch
+vorgenommen.
+
+LDFLCHK:
+Liest die Datei "tnt_flchkfile" erneut ein.
+
+LSEXTREM:
+Gibt alle zur Zeit aktiven erweiterten Remote-Befehle, deren Zugriffsebene,
+die Anzahl der notwendigen Zeichen und das verwandte Kommando mit Paramteren
+aus. Diese Daten werden beim Start von TNT aus "tnt_extremotefile"
+eingelesen.
+
+LDEXTREM:
+Liest "tnt_extremotefile" erneut ein.
+
+AUTOStrt [ON/OFF]:
+Schaltet die Autostartfunktion ein/aus.
+
+LSAUTOST:
+Gibt alle z.Z. aktiven Rufzeichen-SSID-Kombinationen, für welche
+Autostart-Kommandos definiert sind, aus. Diese Daten werden beim Start von
+TNT aus "tnt_autostartfile" eingelesen.
+
+LDAUTOST:
+Liest "tnt_autostartfile" erneut ein.
+
+2.2.2.12. Broadcastings senden/empfangen
+
+SENDBC <Dateiname>:
+Die spezifizierte Datei wird unter Benutzung des PACSAT-Broadcast-Protokolls
+gesendet.
+
+BCRQST [ON/OFF]:
+Wenn eingeschaltet, werden bei fehlenden Daten Broadcast-Anfragen generiert.
+Ansonst wird auf eine erneute Übertragung gewartet.
+
+SHPACSAT [ON/OFF]:
+Wenn eingeschaltet, werden Broadcast-Frames angezeigt, sonst nicht.
+
+DECBCAST [ON/OFF]:
+Wenn eingeschaltet, werden Broadcast-Frames decodiert, sonst nicht.
+
+BCRXstat:
+Anzeige der schon oder gerade vom Broadcast-Empfänger empfangenen Dateien und
+einige Statusinformationen.
+
+BCTXstat:
+Anzeige der gerade von Broadcast-Sender gesendeten Dateien und einige
+Statusinformationen.
+
+----------------------------------------------------------------------------
+
+3. Detaillierte Beschreibung
+
+----------------------------------------------------------------------------
+
+3.1. Remotebefehle
+
+Ist der Remotezugriff eingeschaltet, kann die Gegenstation einige Befehle an
+das Programm übermitteln. Alle Remotebefehle beginnen mit einem doppelten
+Schrägstrich "//", welcher direkt am Zeilenanfang eingegeben werden muß, da
+der Befehl sonst nicht erkannt wird.
+
+Die folgenden Remotebefehle werden erkannt:
+
+//COMP on/off		Ein-/Ausschalten der Huffman-Kompression
+//NAME <Name>		Speichert den Namen in der Namensatenbank
+//CSTAT			Zeigt alle aktiven Verbindungen
+//SHELL			Startet eine UNIX-Shell
+//TSHELL		Startet eine UNIX-Shell ohne CR-LF-Konvertierung
+//RUN <Programm>	Führt ein Programm aus
+//RUNT <Programm>	Führt ein Programm ohne CR-LF-Konvertierung aus
+//RUN 			Verzeichnis aller verfügbaren Programme
+//BOX			Startet DPBox.
+//COOKIE		Sendet ein Cookie.
+//DIR <Filter>		Zeigt Verzeichnisinhalt
+//DIRLONG <Filter>	Zeigt Verzeichnisinhalt im langen Format
+//FREE			Zeigt freien Speicherplatz auf Speichermedien
+//INFO			Informationen über die Station
+//HELP			Diese Hilfe
+//NEWS			Zeigt Neuigkeiten über diese Station
+//READ <Datei>		Liest eine Datei
+//BREAK			Bricht das Auslesen einer Datei ab
+//WRITE <Datei>		Schreibt eine Datei auf ein Speichermedium
+//CLOSE			Beendet das Schreiben einer Datei
+//WPRG <Datei>		Schreibt eine Datei im AutoBin-Modus
+//WPRG <Datei> <rDatei>	Wie oben, //RPRG <rDatei> wird zurückgesendet
+//RPRG <Datei>		Liest eine Datei im AutoBin-Modus
+//RPRG <Datei> <rDatei>	Wie oben, //WPRG <rDatei> wird zurückgesendet
+//WYAPP <Datei>		Schreibt eine Datei im YAPP-Modus
+//RYAPP [Datei]		Liest eine Datei im YAPP-Modus
+//VERSION		Zeigt die Version der Software
+//ECHO <Zeichenkette>	Sendet <Zeichenkette> zurück
+//TIME			Sendet Zeit
+//RTT [Zeitstring]	Laufzeit hin und zurück berechnen
+//RING			Läuten (Sysop rufen)
+//QUIT			Disconnect
+//DISC			Disconnect
+
+//SYSOP			Startet die Sysop-Password-Authorisation
+//ROOTSH		Startet eine Shell mit Root-Zugriff
+//TROOTSH		Shell mit Root-Zugriff, ohne CR-LF-Konvertierung
+//SOCKET <Socket-Adr.>	Startet Socket-Verbindung
+//TSOCKET <Socket-Adr.>	Socket-Verbindung ohne CR-LF-Konvertierung
+//COMMAND <Befehl>	Führt ein gültiges TNT-Kommando aus
+
+----------------------------------------------------------------------------
+
+3.1.1. Standardzugriffsebenen für Remotebefehle
+
+Alle Remotebefehle sind für jeden verfügbar (Status NORMAL), außer //SHELL,
+//TSHELL, //ECHO, //COMMAND (Status SYSOP) und //ROOTSH, //TROOTSH, //SOCKET
+und //TSOCKET (Status ROOT). //COMP ist verfügbar, selbst wenn Remote-Zugriff
+auf dem entsprechenden Kanal gesperrt ist (Status ALWAYS). Diese
+Standardkonfiguration kann mit dem Befehl SETACC geändert werden.
+
+----------------------------------------------------------------------------
+
+3.1.2. Sysop-Passwortüberprüfung (//SYSOP)
+
+Wird der Remotebefehl //SYS empfangen, wird eine Sysop-Passwortüberprüfung
+gestartet. TNT wählt zufällig 5 Zahlen von 1 bis zur Länge der gespeicherten
+Passwort-Zeichenkette. Die Gegenstation muß die 5 zugehörigen Zeichen in der
+richtigen Reihenfolge übermitteln. Die Zeichen können an beliebiger Stelle in
+einer beliebigen Zeichenkette enthalten sein, um ein Knacken des Passworts
+durch Außenstehende zu erschweren. Zusätzlich gibt es keine Antwort, ob die
+Überprüfung erfolgreich war oder nicht, der Status wird nur intern geändert.
+Deshalb ist es ratsam, //SYS drei- oder mehrmals mit nur einer richtigen
+Antwort zu senden. Dies wird das Knacken des Passworts nahezu unmöglich
+machen. Der benutzte Algorithmus ist zur TheNet-Passwortabfrage kompatibel.
+
+----------------------------------------------------------------------------
+
+3.1.3. Shell mit root-Erlaubnis (//ROOTSH)
+
+Da dieser Befehl sehr gefährlich ist, sollten Sie sicher sein, daß er nur den
+richtigen Leuten nach Passwort-Überprüfung zugänglich ist. Möchten Sie dieses
+Kommando sperren, setzten Sie den Status auf ROOT und das Root-Sysop-Flag in
+"tnt_sysfile" für alle Rufzeichen auf 0.
+
+----------------------------------------------------------------------------
+
+3.1.4. Socketverbindung (//SOCKET)
+
+Dieser Befehl erlaubt es, zu jedem Socket in ihrem System eine Verbindung
+aufzubauen. Deshalb ist es ebenso ziemlich gefährlich. Ein anderer Status als
+ROOT ist nicht empfehlenswert. Möchten Sie Verbindungen zu spezifischen
+Sockets erlauben, benutzen Sie erweiterte Remote-Befehle
+("tnt_extremotefile").
+
+----------------------------------------------------------------------------
+
+3.1.5. Gefährliches //ECHO-Kommando
+
+Es laufen im BBS-Netz manchmal Bulletins um, welche das //ECHO-Kommando
+nutzen, um Bulletins mit beleidigendem oder anstößigem Inhalt in ihrem Namen
+abzusenden. Aus diesem Grund habe ich die Zugriffsebene von //ECHO auf SYSOP
+geändert. Wenn Sie alle BBSs, mit denen Sie arbeiten, in "tnt_noremfile"
+eintragen oder REMALLOW nutzen, um den Remotezugriff auf dem Kanal, auf
+welchem sich ihre BBS-Verbindung befindet, zu sperren, können sie den Status
+wieder auf NORMAL setzen. Aber seien Sie vorsichtig, da es sonst
+WW-versendete Bulletins mit beleidigendem oder anstößigem Inhalt und ihrem
+Rufzeichen als Absender geben könnte.
+
+----------------------------------------------------------------------------
+
+3.1.6. Behandlung unbekannter Remotebefehle
+
+Um auf einfache Weise neue Remotebefehle hinzufügen zu können, werden
+unbekannte Remotebefehle wie Parameter für //RUN behandelt. Z.B. wird das
+Kommando //FOOBAR in //RUN FOOBAR übersetzt. Existiert ein Programm FOOBAR in
+"tnt_bin_dir", wird es ausgeführt. Ist kein solches Programm vorhanden, wird
+der User \xfcber einen falschen Remotebefehl informiert ("invalid remote 
+command").
+
+----------------------------------------------------------------------------
+
+3.1.7. Erweiterte Remotebefehle
+
+Das im letzten Teil (3.1.6.) beschriebene Verhalten erlaubt eine einfache
+Erweiterung des Remote-Befehlsschatzes, indem Programme in "tnt_bin_dir"
+bereitgestellt werden. Ist eine Erweiterung nötig, welche nicht durch ein
+Programm erledigt werden kann oder ein Programm Parameter benötigt, können
+erweiterte Remotebefehle genutzt werden.
+
+Ein erweiterter Remotebefehl besteht aus einem gültigen Remotebefehl plus
+Parametern. Zusätzlich können die Zugriffsebene und Anzahl der signifikanten
+Buchstaben definiert werden. Alle Daten werden in "tnt_extremotefile"
+gespeichert.
+
+Der Inhalt dieser Datei kann mit dem Befehl LSEXTREM angezeigt werden. Wurde
+es verändert, kann es mit LDEXTREM erneut eingelesen werden.
+
+----------------------------------------------------------------------------
+
+3.2. Umlautkonvertierung
+
+----------------------------------------------------------------------------
+
+3.2.1. Anzeige
+
+Werden die Control-Codes der LINUX-Konsole genutzt, wird für die
+Bildschirmdarstellung der IBM-Zeichensatz verwendet und keine
+Umlautkonvertierung durchgeführt. Wird termcap genutzt, wird ein empfangener
+IBM-Umlaut abhängig von UMLAUT konvertiert. Ist UMLAUT auf ON gestellt, wird
+er in einen 8-Bit-Latin-1-Umlaut, ist es OFF, in ein aus zwei Zeichen
+bestehendes Äquivalent ("ae") konvertiert.
+
+----------------------------------------------------------------------------
+
+3.2.2. Text senden
+
+Ist UMLAUT aus, werden alle eingegebenen Umlaute in ein
+Zwei-Zeichen-Äquivalent übersetzt. Ist UMLAUT ein, wird keine Konvertierung
+durchgeführt und Umlaute als IBM-Umlaute gesendet.
+
+----------------------------------------------------------------------------
+
+3.2.3. Dateien empfangen
+
+Es werden nur Log-Dateien (LOGREC, LOGSND, LOGQSO, LOGMON und LOGXMON) von
+der Umlautkonvertierung beeinflußt. Ist UMLAUT ein, wird ein IBM-Umlaut in
+einen 8-Bit-Latin-1-Umlaut konvertiert. Ist UMLAUT aus, wird er in ein
+Äquivalent ("ae") konvertiert.
+
+----------------------------------------------------------------------------
+
+3.2.4. Dateien senden
+
+Es werden nur Log-Dateien (SENDLOG) von der Umlautkonvertierung beeinflußt.
+Ist UMLAUT ein, werden 8-Bit-Latin-1-Umlaute in IBM-Umlaute konvertiert. Ist
+UMLAUT aus, werden sie in Äquivalente ("ae") konvertiert.
+
+----------------------------------------------------------------------------
+
+3.3. Benutzung von UNIX-Besonderheiten
+
+----------------------------------------------------------------------------
+
+3.3.1. Shell-login
+
+TNT erlaubt einer Gegenstation, sich wie ein normaler User in UNIX
+einzulogen. Alle empfangen Daten werden als Shell-Input behandelt, alle
+von der Shell übermittelten Daten werden an die Gegenstation gesendet. Um den
+Shell-Login zu nutzen ist es nötig, daß TNT von root aufgerufen wurde. Sonst
+ist der Shell-Login deaktiviert. Die Shell kann durch den Benutzer mit dem
+Befehl SHELL oder TSHELL und durch die Gegenstation mit den Remotebefehlen
+//SHELL oder //TSHELL gestartet werden. Es ist möglich, alle Programme,
+welche für den User freigegeben sind, zu starten.
+
+Um der Zeilenende-Konvention, welche in Packet Radio verwendet wird, gerecht
+zu werden, werden alle LF von der Shell in CR und alle CR von der
+Gegenstation in LF konvertiert. Diese Konvertierung kann durch Benutzung von
+TSHELL oder //TSHELL anstelle von SHELL oder //SHELL umgangen werden.
+
+Zur Login-Zeit wird überprüft, ob das Rufzeichen der Gegenstation eine
+gültige User-ID darstellt. Ist dies nicht der Fall, wird, abhängig von
+"unix_new_user" in der Datei TNT.INI, eine neue User-ID erstellt oder die
+durch "remote_user" spezifizierte User-ID genutzt. In allen Fällen wird das
+Rufzeichen in der Umgebungsvariablen "CALLSIGN" gespeichert.
+
+Für einige Konfigurationen ist es sinnvoll, eine Shell mit Root-Rechten zur
+Verfügung zu haben. Sie kann mit dem Befehl (//)ROOTSH oder (//)TROOTSH (mit
+deaktivierter CR-LF-Konvertierung) gestartet werden. Ein root-Zugang ist sehr
+gefährlich, deshalb müssen zusätzliche Sicherheitsmaßnahmen ergriffen werden.
+
+Um die Leistung zu erhöhen, werden alle Daten zwischengespeichert, d.h., die
+Daten werden nicht sofort gesendet, sondern wenn der Zwischenspeicher 256
+Byte enthält (die maximale AX25-Packetlänge) oder eine Zeit lang keine neuen
+Zeichen empfangen wurden. Diese Zeit ("pty_timeout") kann in der Datei
+TNT.INI eingestellt werden.
+
+----------------------------------------------------------------------------
+
+3.3.2. Umleitung von Daten
+
+Ein Connect-Bildschirm in TNT akzeptiert keine der Standard-Control-Zeichen,
+welche in bildschirmorientierten Programmen genutzt werden. Wenn Sie eine
+AX25-Verbindung mit einem solchen Programm nutzen (z.B. eine TSHELL auf dem
+TNT einer anderen Station), können sie die Daten zu einer von Linux
+virtuellen Konsolen umleiten (Befehl REDIR). Dann werden alle Control-Codes
+korrekt gehandhabt und Sie können mit dem Programm arbeiten, als wären Sie
+direkt in diesem System eingelogt.
+
+REDIR erlaubt die Umleitung aller Daten eines AX25-Kanals auf jedes im System
+bekannte Device. Beispiele sind die virtuellen Konsolen /dev/ttyX oder ein
+Teil eines tty/pty-Paares.
+
+Es wird keine Zeichenkonvertierung durchgeführt, alle empfangenen Daten
+werden original an das Device weitergegeben und umgekehrt. Wie beim
+Shell-Login werden alle Daten vor der Übertragung zwischengespeichert.
+
+----------------------------------------------------------------------------
+
+3.3.3. Programme ausführen
+
+Für Benutzer ohne UNIX-Erfahrung ist die Benutzung einer Shell relativ
+kompliziert. Deshalb wurde ein RUN-Befehl eingebaut, welcher ein
+spezifiziertes Programm unter Benutzung einer Shell startet. Wenn Sie TNT
+nicht mit Root-Rechten ausführen möchten und den Shell-Login deshalb
+deaktiviert haben, können mit RUN Programme durch die Gegenstationen
+gestartet werden.
+
+Ein spezielles Verzeichnis "tnt_bin_dir" enthält alle ausführbaren Programme.
+Programme in anderen Verzeichnissen können mit diesem Befehl nicht ausgeführt
+werden. Da kein Login durchgeführt wird, wird das Programm von in
+"remote_user" eingestellten User ausgeführt. Wurde TNT nicht von Root
+gestartet, kann diese Einstellung nicht geändert werden. In diesem Fall wird
+das Programm mit den Erlaubnissen der User-ID gestartet, unter welcher TNT
+gestartet wurde. Das Rufzeichen des Users wird in den Umgebungsvariablen
+"CALLSIGN" und "LOGNAME" gespeichert. Das Rufzeichen mit SSID wird in der
+Umgebungsvariablen "CALLSSID" gespeichert.
+
+In den meisten Fällen ist es erwünscht, UNIX-LF in Packet-Radio-CR und
+umgekehrt zu konvertieren. Soll keine Konvertierung durchgeführt werden, muß
+der Befehl RUNT benutzt werden. Wie beim Shell-Login werden alle Daten vor
+der Übertragung zwischengespeichert.
+
+----------------------------------------------------------------------------
+
+3.3.4. Socket-Server
+
+Wird Ihr System von mehreren Leuten genutzt oder ist es Teil eines Netzwerks,
+möchten Sie diesen vielleicht Zugang zu Packet Radio ermöglichen. Oder Sie
+wollen die Programme auf Ihrem System nutzen, welches in der Lage sein muß,
+einen ausgehenden AX25-Connect zu erzeugen. Um diesen Anforderungen gerecht
+zu werden, wurde der Socket-Server eingebaut (Befehl SOCKET).
+
+Es gibt drei Server-Typen: AXSERV, AXSPEC und NETCMD. AXSERV und AXSPEC sind
+als AX25-Server fast identisch. AXSPEC nimmt keine Zwischenspeicherung der
+Daten wie im Shell-Login vor, sondern sendet sie sofort weiter, wenn ein CR
+oder LF eintrifft. NETCMD ist ein Wampes-kompatibler Server, welcher die
+Nutzung für Wampes entwickelter Programme (z.B. conversd) mit TNT erlaubt.
+
+Alle Servertypen benötigen eine Socket-Adresse, welche verschiedene Formate
+haben kann:
+
+a) UNIX-Sockets
+Das Format für UNIX-Sockets ist "unix:<Socket-Pfad>" oder
+"local:<Socket-Pfad". Der Pfad kann der absolute Pfad, beginnend mit "/" oder
+der zu "tnt_dir" relative Pfad sein.
+
+Beispiel: unix:/tcp/sockets/convers
+
+b) INET-Sockets
+Das Format eines INET-Sockets ist "IP-Adresse:Port". Die IP-Adresse kann eine
+IP-Adresse, ein Hostname oder ein "*" für alle IP-Adressen sein. Port kann
+jeder gültige Port oder ein Name für einen Service sein.
+Beispiel: *:3600; 199.199.10.10:ftp; foo.bar.com:2000
+
+3.3.4.1. AX25-Server
+
+Ein lokaler Nutzer kann diesen Server mit "telnet localhost <Port-Nummer"
+connecten. Dann wird ein Login mit Rufzeichen und Passwort ausgeführt. Nach
+dem erfolgreichen Login ist der Nutzer mit dem AX25-Server verbunden und kann
+einen TNC-Kanal für Packet-Radio-Verbindungen nutzen. Die Benutzung ist
+einfach und Hilfe für den Nutzer ist verfügbar. Die Login-Informationen
+werden in "sock_passfile" gespeichert und sind von der Passwortdatei
+unabhängig.
+
+3.3.4.2. Netcmd
+
+Der Netcmd-Server ist Wampes-kompatibel. Nach einem Connect zum Socket ist
+der Server im Kommandomodus und akzeptiert drei Befehle: ASCII, BINARY und
+CONNECT. Jede andere Eingabe oder falsche Argumente führen zum Beenden der
+Verbindung.
+
+ASCII wählt eine LF-CR-Konvertierung vor dem Senden von Daten auf der
+AX25-Seite und umgekehrt. Dies ist der Standardmodus.
+
+BINARY wählt eine Verbindung ohne Zeichenkonvertierung.
+
+CONNECT startet eine AX25-Verbindung auf einem freien Kanal. Es benötigt
+zusätzliche Parameter, wobei die Syntax folgendermaßen aussieht:
+
+CONNECT <Transportmodus> <Zielrufzeichen> [Startrufzeichen]
+
+Der einzige gültige Transportmodus ist AX25, andere Werte führen zum Beenden
+der Verbindung. Das Zielrufzeichen darf keine Digipeater enthalten. TNT
+benutzt xconnect, um die Verbindung aufzubauen, weshalb der Pfad in der
+Routingdatenbank enthalten sein muß. Normalerweise wird das
+Standardrufzeichen, welches bei SOCKET eingegeben wurde, verwendet. Wurde ein
+Startrufzeichen angegeben wird dieses anstelle des Standardrufzeichens
+verwendet. Es existiert eine automatische SSID-Vergabe, um mehrere
+Verbindungen mit dem gleichen Ziel zu erlauben.
+
+Nach einem erfolgreichen Link-Setup schaltet der Server in den Datenmodus,
+wobei alle empfangenen Daten an der Socket übertragen und alle Daten vom
+Socket auf AX25-Seite gesendet werden.
+
+War das Link-Setup nicht erfolgreich, wird die Socket-Verbindung ohne weitere
+Information beendet.
+
+----------------------------------------------------------------------------
+
+3.3.5. Socket-Verbindung
+
+Möglicherweise haben Sie einige Socket-Server auf Ihrem System installiert.
+Um Packet-Radio-Nutzern Zugriff auf diese zu gewähren, ist das
+Socket-Connect-Feature verfügbar. Das einzige benötigte Argument ist die
+Socket-Adresse des gewünschten Sockets. Die Socketadresse folgt der gleichen
+Syntax wie die Socket-Server.
+
+Wie bei den anderen UNIX-Features gibt es die Möglichkeit der
+CR-LF-Konvertierung (Befehl SOCKCON, Remotebefehl //SOCKET) oder einer
+Verbindung ohne Zeichenkonvertierung (Befehl TSOCKCON, Remotebefehl
+//TSOCKET).
+
+Da es keine Zugangsbeschränkungen zu einen Socket gibt, müssen Sie mit diesem
+Befehl vorsichtig sein. Die Benutzung aller Sockets sollte nur einem Sysop
+erlaubt sein. Benutzern sollten nur spezifische Sockets erlaubt sein, welche
+durch den Einsatz erweiterter Remotebefehle ("tnt_extremotefile") eingestellt
+werden.
+
+----------------------------------------------------------------------------
+
+3.4. Dateiübertragunsmethoden
+
+----------------------------------------------------------------------------
+
+3.4.1. AutoBIN
+
+Um Binärdateien ohne viel Überhang, aber mit einem Sicherheitscheck zu
+übertragen, wurde das AutoBIN-Protokoll definiert. Es ist in vielen
+PR-Programmen und deshalb auch in TNT eingebaut. Zum Nutzen von AutoBin sind
+die Befehle SENDABIN, READABIN und LOGABIN für den Nutzer und //WPRG und
+//RPRG für den Remote-Nutzer verfügbar. Zusätzlich wird mit AUTOBIN das
+Protokoll automatisch beim Empfang eines gültigen AutoBin-Headers gestartet.
+
+Am Ende einer erfolgreichen Übertragung werden die benötigte Zeit und
+effektive Baudrate angezeigt. Wird eine Datei empfangen, werden zusätzlich
+die empfangene und berechnete Prüfsumme angezeigt. Normalerweise werden diese
+statistischen Informationen auch an die Gegenstation gesendet. Im Falle von
+LOGABIN und AUTOBIN werden sie aber nur angezeigt, um eine Verwirrung der
+BBS-Software zu vermeiden.
+
+Wurde die Übertragung abgebrochen, die Verbindung gelöst oder ist die
+berechnete Prüfsumme nicht gleich der empfangenen, wird die empfangene Datei
+in ein spezielles Verzeichnis verschoben ("abin_dir"). Zusätzlich wird der
+Name in einen Einheitsnamen geändert. Von Zeit zu Zeit muß dieses Verzeichnis
+aufgeräumt werden. Obwohl diese defekten Dateien in den meisten Fällen nicht
+von Interesse sind, werden sie für die wenigen Ausnahmen in diesem
+Verzeichnis aufbewahrt.
+
+----------------------------------------------------------------------------
+
+3.4.2. YAPP
+
+Das Autobin-Protokoll ist in Deutschland weit verbreitet, aber der Rest der
+Welt benutzt normalerweise das YAPP-Protokoll. Vom technischen Standpunkt aus
+ist YAPP und seine Erweiterung YAPP-C die bessere Wahl zur Übertragung von
+Binärdaten und sollte bevorzugt werden.
+
+In TNT sind zur Nutzung von YAPP die Befehle READYAPP und SENDYAPP verfügbar
+und ein Remote-User kann //RYAPP und //WYAPP verwenden. Um den automatischen
+Empfang von YAPP-Daten zu ermöglichen, kann AUTOYAPP eingeschaltet werden.
+Alle automatisch empfangenen Dateien werden in "yapp_dir" (definiert in
+TNT.INI) gespeichert.
+
+----------------------------------------------------------------------------
+
+3.4.3. 7Plus-Dateiempfang
+
+Wenn Sie eine große Anzahl 7Plus-Dateien empfangen, möchten Sie diese
+möglicherweise direkt in einem speziellen Verzeichnis speichern (ohne
+irgendwelche Zeichen am Anfang oder Ende). Dies kann durch das Einschalten
+von AUTO7PL erreicht werden. Alle empfangenen 7Plus-Dateien werden in
+"tnt_7plus_dir" gespeichert.
+
+----------------------------------------------------------------------------
+
+3.5. Spezielle Begrüßungstexte und Dateien mit Makros, Namendatenbank
+
+Um die Möglichkeit zu haben, spezielle Begrüßungstexte zu einer gerade
+eingelogten Station zu senden, können Makros in die Connecttext-Datei
+eingefügt werden. Die Connecttext-Datei wird bei einem Connect gesendet, wenn
+CONTEXT eingeschaltet wurde. Als Standard wird "tnt_ctextfile" im
+TNT-Verzeichnis genutzt, allerdings können für einzelne User persönliche
+Connecttexte im Connecttext-Verzeichnis "ctext_dir" abgelegt werden. Die
+Dateien müssen mit <Rufzeichen>.ctx bezeichnet sein.
+
+Zusätzlich kann eine Datei, welche Makros enthält, zu jedem beliebigen
+Zeitpunkt mit dem Befehl MSEND gesendet werden. Diese Dateien müssen sich mit
+Makrotext-Verzeichnis "macrotext_dir" befinden.
+
+Um persönlicher zu wirken und eine Gedankenstütze für den Namen des Benutzers
+der Gegenstation zu bieten, wurde eine Namendatenbank eingebaut. Der Name
+kann durch den Benutzer m.H. des Befehls NAME und durch die Gegenstation m.H.
+des Remotebefehls //NAME eingegeben werden. Wird kein Name spezifiziert, wird
+der aktuelle Name ausgegeben.
+
+Die folgenden Makros werden abgearbeitet, falls sie in einem Connecttext oder
+Makrotext gefunden werden:
+
+%v: Version von TNT
+%c: Rufzeichen der Gegenstation
+%n: Name der Gegenstation (aus der Namendatenbank
+%y: Eigenes Rufzeichen
+%k: Kanalnummer
+%t: Aktuelle Zeit
+%d: Aktuelles Datum
+%b: Klingel (CNTL-G)
+%i: Fügt das News-File ein ("news_file_name")
+%z: Zeitzone
+%_: CR/LF
+%o: Fügt ein Cookie ein.
+%?: Sendet einen Hinweis, falls der Name der Gegenstation nicht in der
+Namendatenbank enthalten ist.
+%%: "%" selbst
+
+----------------------------------------------------------------------------
+
+3.6. Routing-Scripts
+
+Die Struktur des Packet-Radio-Netzwerks ist ziemlich anders als die des
+Internets. Im Internet kann das Ziel angegeben werden und das Routing
+geschieht automatisch. Im Packet-Radio-Netzwerk existieren verschiedene
+Systeme mit inkompatiblen Routingmechanismen, weshalb, um ein Ziel zu
+connecten, mehrere verschiedene Schritte nötig werden könnten. Nehmen wir
+folgendes Beispiel an:
+
+Sie möchten DL7ZZZ connecten, welcher auf der Frequenz des Digipeaters DB0LUC
+QRV ist. Ihr Einstiegdigipeater ist DB0BLO. Deshalb connecten sie zuerst
+DB0BLO:
+
+:c db0blo
+
+War das Link-Setup erfolgreich, senden sie die Zeile
+
+c db0ber
+
+zum Digipeater, welcher DB0BER connecten wird, welcher den nächste Digipeater
+in Richtung DB0LUC ist. Wurde die Verbindung aufgebaut, wird DB0BLO diesen
+Hinweis senden:
+
+*** connected to DB0BER'
+
+Nun geben sie die Zeile
+
+c db0luc db0bln
+
+ein, was bedeutet, dass DB0LUC von DB0BER aus via DB0BLN erreicht werden
+kann. Wurde die Verbindung aufgebaut, erhalten Sie den Hinweis
+
+BSUED:DB0BER> Connected to DB0LUC via DB0BLN
+
+und können nun versuchen, ihr gewünschtes Ziel zu connecten:
+
+c dl7zzz
+
+Der erfolgreiche Aufbau der Verbindung wird duch
+
+*** connected to DL7ZZZ
+
+angezeigt. Machen Sie alles von Hand, müssen sie den Bildschirm beobachten
+und nach jedem erfolgreichen Connect-Versuch die nächste Zeile eingeben. Die
+Connect-Script-Funktion (Befehl XCONNECT) tut alle diese Schritte automatisch
+für Sie, falls Sie dem Programm die Routing-Informationen übergeben haben.
+Die Informationen werden aus der Routingdatenbank-Datei "route_file_name"
+entnommen und sehen für das Beispiel wie folgt aus:
+
+T>DL7ZZZ Joe; N>DB0LUC T>DL7ZZZ
+N>DB0LUC Digi Luckau; N>DB0BER F>DB0BLN N>DB0LUC
+N>DB0BER Digi Tempelhof; N>DB0BLO N>DB0BER
+N>DB0BLO Digi 9K6
+
+Wie Sie sehen können, sind die Routingeinträge rekursiv angelegt, so
+daß man nicht das gesamte Routing für das Ziel zu spezifizieren braucht,
+sondern auf schon vorhandene Einträge zurückgreifen kann. Die Zeichen vor den
+Rufzeichen geben dem Connect-Script Informationen, ob es einen Digipeater
+(N>), einen Digipeater mit via (F>, D>), einen normalen User (T>) oder eine
+Mailbox (B>) connecten soll.
+
+Einige Programme, welche von normalen Usern genutzt werden, erlauben einen
+Connect mit dem Befehl //C <Rufzeichen>. Wenn Sie eine solche Station in den
+Pfad einbauen möchten, setzen sie ein T> vor das Rufzeichen und es wird der
+entsprechende Befehl benutzt werden.
+
+Wenn Sie oft die Frequenz wechseln, gibt es die Möglichkeit der Benutzung des
+QRG-Befehls und der Einstellung von Routing-Daten, die nur für eine bestimmte
+Frequenz gelten ("<IF xxxx> <END>"-Konstruktion).
+
+----------------------------------------------------------------------------
+
+3.7. Rufzeichen-Update
+
+Wenn Sie Routing-Scripts verwenden oder per Hand durch eine Menge Digipeater
+connecten, verlieren sie leicht die Orientierung. Deshalb wird jede
+"connected to"-Zeile das in der Statuszeile angezeigte Rufzeichen updaten.
+
+"reconnected to"-Zeilen werden das Rufzeichen ebenfalls auf den neusten Stand
+bringen, allerdings werden Routing-Scripts dann nicht die nächste
+Befehlszeile senden und das im Logbuch eingetragene Rufzeichen wird nicht
+geändert.
+
+Wird das Rufzeichen durch eine "connected to"-Zeile im normalen Text
+verändert, kann es mit dem Befehl CONCALL wiederhergestellt werden.
+
+----------------------------------------------------------------------------
+
+3.8. Logbuch
+
+Alle Verbindungen, welche von der Station ausgingen, werden in einer
+Logbuch-Datei protokolliert. Jede Zeile enthält Start- und Endzeit der
+Verbindung und das Rufzeichen der Gegenstation. Wurde das Ziel direkt
+connected, wird nur dessen Rufzeichen gespeichert, wurde es über mehrere
+Digipeater oder ein Routing-Script connected, wird zusätzlich der erste
+Digipeater gespeichert. Der Name der Logbuch-Datei kann in der Datei TNT.INI
+unter "tnt_logbookfile" festgelegt werden. Der Befehl LOGBOOK kann genutzt
+werden, um die Logbuchfunktion ein- und auszuschalten.
+
+Beispiel:
+
+   Starttime   |    Endtime     |          Callsign
+------------------------------------------------------------------
+16.03.94 18:08 | 16.03.94 18:09 | DB0BLO
+17.03.94 21:32 | 17.03.94 21:37 | GEHREN:DB0LUC, Uplink: DB0BLO
+
+----------------------------------------------------------------------------
+
+3.9. Tastaturmakros
+
+Mit Tastaturmakros können einige oft benutzte Befehle oder oft gesendete
+Texte mit nur einer Tastenkombination ausgeführt oder gesendet werden. Man
+kann 10 Tastenkombinationen belegen (<ALT>0 bis <ALT>9 oder <ESC>0 bis
+<ESC>9), wobei entweder Texte oder TNT-Befehle in der Datei "func_key_file"
+spezifiziert werden können.
+
+Jede Zeile dieser Datei beginnt mit einer zweistelligen Zahl und einem
+Doppelpunkt, welche die Tastenkombination festlegt (01: fuer <ALT>1 / <ESC>1,
+10: für <ALT>0 / <ESC>0). Eine Textzeile muß direkt hinter dem Doppelpunkt
+folgen. Ist das letzte Zeichen der Zeile ein Asterisk ("*"), wird anstelle
+des Asterisks ein CR gesendet, sonst nicht. Ein Befehl muß mit einem
+zusätzlichen Doppelpunkt beginnen und ein CR wird an diesen automatisch
+angehängt. Die Text- oder Befehlslänge darf die Länge der Zeile nicht
+überschreiten.
+
+Ist die Zeilenlänge für den gewünschten Text nicht ausreichend oder will man
+einen Text mit Makros senden, muß man die Befehle "SEND" oder "MSEND"
+anstelle einer Textzeile verwenden. Die Tastaturmakro-Datei wird beim Start
+von TNT geladen und kann mit dem Befehl "KMACRO" erneut eingelesen werden.
+
+----------------------------------------------------------------------------
+
+3.10. Boxliste
+
+----------------------------------------------------------------------------
+
+3.10.1. Allgemeine Beschreibung
+
+Bekommt man eine Liste von Dateien einer BBS, muß man die Dateien, welche
+interessant scheinen aufschreiben oder die Liste in einer Datei speichern und
+diese danach durchsehen. In beiden Fällen muß man den Dateinamen oder die
+Nummer der Datei eingeben, um die Datei von der BBS zu erhalten.
+
+Die Boxliste erlaubt es, eine Datei durch das Auswählen innerhalb der
+Dateiliste (m.H. der Cursortasten) und Drücken von CR aus der BBS zu
+bekommen.
+
+Wurde eine Interace-Verbindung zu einer DPBox aktiviert und ein
+"CHECK"-Befehl mit Bulletin-ID in der Liste ausgeführt, werden alle
+Bulletins, welche im Bulletin-ID-Pool der DPBox sind, in einer anderen Farbe/
+einem anderen Attribut dargestellt. Somit gewinnt man einen Überblick, welche
+Bulletins sich schon in der eigenen DPBox befinden.
+
+----------------------------------------------------------------------------
+
+3.10.2. Benutzung der Boxliste
+
+Wie funktioniert es?
+
+a) Bevor Sie die Dateiliste anfordern, öffnen Sie ein Logfile. Wenn Sie nicht
+daran interessiert sind, die Liste zu behalten, benutzen Sie das Kommando
+"LOGBLIST", wodurch eine temporäre Datei mit einem einheitlichen Namen
+benutzt wird, welche beim Verlassen von TNT gelöscht wird. Möchten Sie die
+Liste behalten, benutzen Sie "LOGREC <Dateiname>".
+
+b) Wurde das Ende der Dateiliste empfangen, benutzen Sie den Befehl "BLIST".
+Dieser Befehl schließt das Logfile und lädt es in den Boxlist-Bildschirm.
+Wurde kein Logfile geöffnet, wird das letzte auf dem aktuellen Kanal
+geöffnete Logfile in den Boxlist-Bildschirm geladen.
+
+c) Benutzen Sie <ALT>L / <ESC>L, um zwischen Connect- und Boxlist-Bildschirm
+umzuschalten. Im Boxlist-Bildschirm können Sie die Cursortasten
+benutzen, um eine Datei auszuwählen. Mit CR (Return) senden Sie das Kommando
+zum Auslesen an die BBS. Alle schon ausgelesenen Dateien werden mit einem
+anderen Merkmal angezeigt.
+
+d) Haben Sie alle gewünschten Dateien aus der Liste ausgelesen, können Sie
+die Boxliste mit dem Befehl XBLIST schließen.
+
+----------------------------------------------------------------------------
+
+3.10.3. Benutzung von Tastaturmakros
+
+Um die Boxliste zu nutzen, ohne die Befehle eingeben zu müssen, ist es
+empfehlenswert, Tastaturmakros zu benutzen. Zum Beispiel:
+
+<ALT>8 / <ESC>8 : 'logblist'
+<ALT>9 / <ESC>9 : 'blist'
+<ALT>0 / <ESC>0 : 'xblist'
+
+Diese Tastaturmakros sind schon im der Beispieldatei für Tastaturmakros
+enthalten.
+
+----------------------------------------------------------------------------
+
+3.10.4. Erkannte Formate
+
+Zur Zeit werden folgende Listenformate erkannt:
+
+a) DIEBOX-"Check"
+
+     7 DL4BCU > TERMINE...16 24.09.94 DL 2214 5 2m Mobilfuchsjagd I05 08.
+
+     -> R TERMINE 16
+
+b) DIEBOX-"List"
+
+     263 DL1ZAX 02.11.94 18:03 6763 DL-RUNDSPRUCH NR. 39/94
+
+     -> R 263
+
+c) DIEBOX-"Checklist" mit BID
+
+     263 DL1ZAX 02.11.94 18:03 6763 DL-RUNDSPRUCH NR. 39/94
+
+     -> R 263
+
+d) RUN C mit Option D=CRD$@L
+
+     DG0XC DIGI......17 28.04.95 2845DB0BALWE DL 1 DB0BRO-1 wieder ok.
+
+     -> R DIGI 17
+
+----------------------------------------------------------------------------
+
+3.11. Erweiterter Monitor
+
+Der erweiterte Monitor erlaubt die Überwachung einzelner Verbindungen auf der
+Frequenz, wobei automatisch die Packet-Header und Resent-Packete entfernt
+werden. Es sind 5 (0 bis 4) Erweiterte-Monitor-Kanäle verfügbar. <ALT>X oder
+<ESC>X schaltete auf dem Erweiterten-Monitor-Bildschirm und TAB kann zum
+Wechsel des Kanals benutzt werden.
+
+Der Befehl EXTMON wird zum Aktivieren des erweiterten Monitors benutzt. Wurde
+der Befehl von einem Erweiterten-Monitor-Bildschirm aus gegeben, wird dieser
+benutzt, sonst muß die Kanalnummer als zusätzlicher Parameter vor den
+Rufzeichen spezifiziert werden. Wird der Befehl EXTAMON benutzt, wird der
+nächste freie Erweiterte-Monitor-Kanal verwendet.
+
+Als Parameter müssen die Rufzeichen der Verbindung, welche überwacht werden
+soll, angegeben werden. Normalerweise sind das zwei Rufzeichen, wobei beide
+Richtungen überwacht werden (mit verschiedenen Attributen).
+
+Werden Digipeater wie NETROM/TheNet oder RMNC/Flexnet verwendet, besteht eine
+Verbindung aus 2 einzelnen Verbindungen: Der Verbindung von Station 1 zum
+Digipeater (DL9xxx <> DB0xxx) und der Verbindung vom Digipeater zu Station 2
+(DL9xxx-15 <> DG1xxx). In diesem Fall können 4 Rufzeichen angegeben werden
+(DB0xxx DL9xxx DL9xxx-15 DG1xxx), wobei beide Richtungen der Verbindung auf
+dem erweiterten Monitor überwacht werden.
+
+Ist die überwachte Verbindung Huffman-codiert, kann das Decodieren durch den
+Befehl EXTCOMP aktiviert werden.
+
+Der erweiterte Monitor kann mit dem Befehl ENDEXTM beendet werden.
+
+----------------------------------------------------------------------------
+
+3.12. Benutzung der DPBox
+
+----------------------------------------------------------------------------
+
+3.12.1. Allgemeine Beschreibung
+
+DPBox ist ein vollkommen von TNT unabhängiger Dämon. Der Dämon muß vor der
+Nutzung irgendeines DPBox-Befehls in TNT gestartet werden.
+
+----------------------------------------------------------------------------
+
+3.12.2. Benutzung des UNIX-Socket-Interfaces
+
+Um die Verbindung von TNT zu DPBox aufzubauen, wird der Befehl ACTBOX
+verwendet. Um die Verbindung zu beenden, wird DEACTBOX verwendet.
+
+Der Befehl FINBOX beendet nicht nur die Verbindung (wie DEACTBOX), sondern
+sendet einen Beenden-Befehl an den DPBox-Dämon.
+
+Der UNIX-Socketname von DPBox muß unter "box_socket"in der Datei TNT.INI
+definiert werden.
+
+----------------------------------------------------------------------------
+
+3.12.3. Mailbox-Bildschirm
+
+Ist die Verbindung zu DPBox aktiviert, kann der Mailbox-Bildschirm (<ALT>B
+oder <ESC>B) m.H. des Befehls BOX als Sysop-Konsole verwendet werden.
+
+Sie können entweder "quit" oder den Befehl ENDBOX zum Beenden der
+Sysop-Sitzung verwenden.
+
+Es sind alle Features eines normalen Connect-Bildschirms vorhanden, auch die
+Boxliste. Im Boxlist-Modus gibt es einige zusätzliche Besonderheiten: Wählt
+man eine Datei aus und drückt anstatt CR "e", wird die Datei gelöscht. "k"
+für Beenden und "l" für Auflisten ist ebenso möglich. "t" gibt die
+Möglichkeit, einen neuen Rubrikennamen einzugeben und "0" setzt die
+Lebensdauer der Message auf 0.
+
+----------------------------------------------------------------------------
+
+3.12.4. DPBox über Packet Radio benutzen
+
+DPBox kann auf einem normalen Connect-Kanal mit dem Befehl BOX, dem
+Remotebefehl //BOX oder über einen Connect zu einem Kanal, dessen SSID mit
+dem in "tnt_box_ssid" eingestellten übereinstimmt, aktiviert werden.
+
+DPBox wird nur aktiviert, wenn auf dem Kanal eine Verbindung besteht.
+
+Der Befehl ENDBOX, "quit" an die Box gesendet oder ein Disconnect beenden die
+Box-Sitzung.
+
+----------------------------------------------------------------------------
+
+3.12.5. Autobox- und monbox-Feature
+
+Ist AUTOBOX eingeschaltet, werden alle Mails, welche auf irgendeinem Kanal
+empfangen wurden, an DPBox gesendet und in der Corresponding-Rubrik
+gespeichert. Dies schließt persönliche Mails und Bulletins ein.
+
+Sind MONBOX und XMON eingeschaltet, werden alle überwachten Frames auf
+Mail-Headers durchsucht. Wurde ein Mail-Header gefunden, wird versucht, die
+gesamte Mail ähnlich wie beim erweiterten Monitor zu empfangen. Gehen Packete
+verloren oder passiert ein anderer Fehler, wird die Mail nicht akzeptiert.
+Wurde die Mail vollständig empfangen, wird sie an DPBox gesendet und in der
+Corresponding-Rubrik gespeichert. Es werden alle Bulletins und persönlichen
+Mails, welche ein Rufzeichen aus "autobox_dir" als Sender oder Empfänger
+enthalten, auf diese Weise behandelt. Alle Mails, welche gerade empfangen
+werden, können mit dem Befehl LMONBOX ausgegeben werden.
+
+----------------------------------------------------------------------------
+
+3.12.6. Umgang mit der Unproto-Liste
+
+Die Behandlung der Unproto-Liste, eine Besonderheit aus F6FBB, ist nun auch
+mit DPBox 5.03.00 aufwärts möglich. Die BBS wird ein Unproto-Frame für jede
+empfangene Mail aussenden. Dieses Frame enthält die Mailnummer, welche für
+den Mail-Empfang mit Programmen wie TPK oder TSTHOST benutzt werden kann.
+
+Gingen einige Unproto-Frames verloren, kann eine hörende Station eine Anfrage
+zum erneuten Senden alter Frames aussenden. Damit diese Anfragen an DPBox
+weitergegeben werden, muß ACCUIREQ eingeschaltet und das Rufzeichen der BBS
+mit ACCUICAL eingestellt sein. Dieses Rufzeichen muß identisch mit dem
+Ausgangsrufzeichen der Unproto-Frames sein, die die BBS aussendet.
+
+Alle diese Konfigurationen werden benötigt, um den Umgang mit
+der Unproto-Liste in einer echten BBS zu aktivieren. Die andere Richtung, so
+daß TNT Unproto-Listen wie bei TPK oder TSTHOST als einen Client behandelt,
+wurde bisher noch nicht eingebaut.
+
+----------------------------------------------------------------------------
+
+3.13. Automatische Passwortgenerierung
+
+----------------------------------------------------------------------------
+
+3.13.1. Allgemeine Beschreibung
+
+Im Packet-Radio-Netzwerk werden zur Zeit viele verschiedene Passwortsysteme
+verwendet. Deshalb wird eine Konfigurationsdatei "tnt_pwfile" zur Verfügung
+gestellt. In dieser Datei kann für jede Rufzeichen-SSID-Kombination ein
+Passworttyp und eine Datei mit den Passwortdaten definiert werden. Abhängig
+vom Passworttyp werden verschiedene Aktionen ausgeführt und ändert sich der
+Inhalt der Passwortdatei.
+
+Bis jetzt werden nur einige Passwortsysteme von TNT unterstützt, aber es ist
+geplant, die Anzahl zu vergrößern. Wenn Sie ein Passwortsystem hinzugefügt
+haben, teilen sie mir das bitte mit.
+
+----------------------------------------------------------------------------
+
+3.13.2. DIEBOX
+
+Ist der Typ DIEBOX, wird nach dem Connect zum angegebenen Rufzeichen jeder
+Text nach dem Text "Login: " durchsucht. Wurde dies gefunden, wird die
+folgende Zeit- und Datumsangabe aufgezeichnet und die Suche gestoppt.
+
+Führt man den Befehl PRIV nun aus, wird ein 4-Zeichen-Passwort aus der
+Login-Zeit  und der Passwortdatei berechnet und als Ergebnis eine "PRIV
+xxxx"-Zeile gesendet (xxxx sind die 4 Zeichen).
+
+Das Passwort kann CR und LF, CR, LF oder keines davon enthalten, da TNT dies
+aus der Dateilänge erfährt.
+
+----------------------------------------------------------------------------
+
+3.13.3. FlexNet
+
+Ist der Typ FLEXNET und die Verbindung zu der spezifizierten Station
+hergestellt, startet der Befehl PRIV die Passwortsequenz. Ein "SYS" wird zur
+Gegenstation gesendet, welche mit "(xyz) abcde" oder ähnlich antworten wird.
+Die Antwort wird aus dieser Angabe und dem spezifizierten Passwort berechnet.
+Die Antwort wird an die Gegenstation gesendet, wonach der Sysop-Status
+verfügbar ist.
+
+Anders als bei anderen Passwortsystemen, ist hier der dritte Wert in der
+Konfigurationsdatei nicht der Dateiname der Passwortdatei, sondern die
+Passwortnummer selbst.
+
+Es gibt einige Software, welche den gleichen Passwortalgorithmus wie FlexNet,
+aber einen anderen Aktivierungsstring als "SYS" verwendet. Deshalb kann in
+einem vierten optionalen Wert dieser String definiert werden.
+
+----------------------------------------------------------------------------
+
+3.13.4. TheNet
+
+Ist der Typ TheNet und die Verbindung zur gewünschten Station aufgebaut,
+startet PRIV die Passwortsequenz. Ein String, welcher durch den fünften Wert
+in der Konfigurationsdatei festgelegt wird, wird zur Gegenstation gesendet,
+welche mit "NODE:NODE1: a b c d e" oder "a b c d e" oder ähnlichem antwortet.
+Dies legt fest, welche Zeichen aus der Passwortdatei als Antwort gesendet
+werden müssen. Die Antwort wird generiert und an die Gegenstation gesendet,
+wonach der Sysop-Status verfügbar sein wird.
+
+Der dritte Wert in der Konfigurationsdatei legt fest, welche Datei die
+Passwortdaten enthält.
+
+Der vierte Wert in der Konfigurationsdatei legt fest, ob einige zusätzliche
+Features genutzt werden sollen. Ist Bit 0 gesetzt, wird die
+Passwortgenerierung dreimal durchgeführt, wobei nur bei einer zufällig
+ausgewählten Durchführung das Passwort richtig generiert wird. Bei den
+falschen Generierungsversuchen wird ein aus fünf Zeichen bestehender,
+zufälliger String gesendet. Ist Bit 1 gesetzt, wird die Antwort in einem
+72-Zeichen-String versteckt. Ist Bit 2 gesetzt, wird "Perfect Hiding"
+verwendet, d.h., es werden nur Zeichen aus dem Passwort verwendet, um die 72
+Zeichen zu erzeugen. Als Alternative kann eine zweite Zeile in der
+Passwortdatei eingefügt werden, aus welcher dann die 72 Zeichen generiert
+werden.
+
+Die TheNet-Passwortgenerierung wird auch von anderer Software (Baycom,
+DigiPoint) genutzt.
+
+----------------------------------------------------------------------------
+
+3.13.5. Baycom
+
+Das Baycom-Passwortsystem ist ähnlich dem von TheNet, nur wird hier kein
+Aktivierungsstring verwendet, sondern man erhält direkt nach dem Connect die
+5 Zahlen.
+
+Die Syntax ist die gleiche wie bei TheNet, außer daß der fünfte Parameter
+(der Aktivierungsstring) weggelassen werden kann. Der Standard ist SYS. Da
+der String nur gebraucht wird, wenn eine spezielle Konfiguration für das
+Userprofil in BayBox vorhanden ist, ist er normalerweise unwichtig.
+
+Es gibt einen weiteren Unterschied zu TheNet: Eine dreifache Generierung mit
+nur einer richtigen Antwort ist nicht erlaubt.
+
+----------------------------------------------------------------------------
+
+3.13.6. MD2
+
+Nach dem Connect wird eine der folgenden ähnliche Zeile empfangen:
+
+XXXBBS> [ABCDEFGHIL]
+
+Aus diesem String wird die Antwort m.H. des "RSA Data Security, Inc. MD2
+Message Digest Algorithm" berechnet.
+
+----------------------------------------------------------------------------
+
+3.14. Huffman-Kompression
+
+Die Huffman-Datenkompression, welche auch in einigen anderen Programmen
+eingebaut ist, ist ebenso verfügbar. Sie kann durch den Befehl COMP oder den
+Remotebefehl //COMP aktiviert werden. Die Kompression führt zu einer 30%igen
+Verringerung des Datenaufkommens bei reinem ASCII-Text. Für Binärdaten ist
+die Kompression nicht sinnvoll.
+
+Um ein komprimiertes QSO im erweiterten Monitor zu überwachen, muß der Befehl
+EXTComp verwendet werden.
+
+Das MONBOX-Feature erkennt die Kompression und wird in den meisten Fällen die
+Mails aufzeichnen, auch wenn sie im komprimierten Modus ausgelesen werden.
+
+Die Kompression ist nur verfügbar, wenn tnt_comp in der Konfigurationsdatei
+gesetzt ist. In diesem Fall ist die maximale erlaubte Packetlänge für das
+Dateisenden (file_paclen in der Konfigurationsdaten, Befehl FPACLEN) 255
+Byte.
+
+Die //Comp-Methode wurde zuerst von DK4NB in SP 9.00 genutzt und die
+Übersetzungstabelle stammt von ihm.
+
+----------------------------------------------------------------------------
+
+3.15. Umgang mit FlexNet-Verbindungsqualitätschecks
+
+Das FlexNet-Digipeaterprotokoll benutzt Verbindungen, um die Qualität und
+Verfügbarkeit der Links zu überprüfen. Diese Verbindungen führen zu unnötigen
+Aktivierungen von Connecttexten, DPBox oder anderen Programmen, welche mit
+dem Interface verbunden sind. Zusätzlich wird das Logbuch mit solchen
+Verbindungen unnötigerweise vergrößert.
+
+Deshalb stellt TNT eine Datei bereit (tnt_flchkfile), in welcher die
+Rufzeichen der Flexnet-Digipeater, welche solche Qualitätschecks durchführen,
+eingetragen werden können. Führt ein Rufzeichen aus dieser Datei einen
+Connect aus, wird es keinen Connecttext, keinen Remotezugriff und keinen
+Interfacezugriff bekommen. Die Verbindung wird nicht im Logbuch eingetragen.
+
+Der Inhalt der Datei kann mit dem Befehl LSTFLCHK angezeigt werden. Wurde die
+Datei verändert, kann sie mit LDFLCHK erneut eingelesen werden.
+
+----------------------------------------------------------------------------
+
+3.16. Benutzung verschiedener Software mit dem gleichen Rufzeichen
+
+Möchten sie verschiedene Software mit dem gleichen Rufzeichen benutzen,
+müssen sie definieren, welche SSIDs ihres Rufzeichens TNT nicht benutzen
+darf. Dies kann in der Datei "tnt_notownfile" getan werden. Rufzeichen aus
+dieser Datei werden nicht für Connects, welche Routing-Scripts benutzen,
+genutzt werden.
+
+Der Inhalt der Datei kann mit dem Befehl LSNOTOWN angezeigt und die Datei mit
+LDNOTOWN erneut eingelesen werden.
+
+----------------------------------------------------------------------------
+
+3.17. PACSAT-Broadcast-Operationen
+
+TNT enthält einen PACSAT-Broadcast-kompatiblen Sender/Empfänger. Der
+Programmtext basiert hauptsächlich auf dem von Joachim, DL8HBS, geschriebenen
+Pascal-Programmtext.
+
+Der Empfänger wird durch das Setzen von DECBCAST auf ON eingeschaltet. Alle
+Dateien, welche in PACSAT-Broadcast-Frames empfangen werden, werden
+decodiert. Abhängig vom Dateityp wird eine komplette Datei in "tnt_bcsavedir"
+gespeichert (normale Dateien) oder an DPBox gesendet (BBS-Daten).
+
+Fehlen Teile der Datei und ist der Broadcast-Sender kein permanenter Sender,
+können die fehlenden Teile durch das Setzen von BCRQST auf ON angefordert
+werden.
+
+Der Status der Broadcast-Empfängers kann mit BCRXSTAT angezeigt werden. Alle
+komplett empfangenen oder z.Z. in der Übertragung inbegriffenen Dateien
+werden angezeigt. Einige statistische Daten zeigen den Fortschritt.
+
+Der Broadcast-Sender wird von DPBox kontrolliert, um BBS-Dateien zu senden.
+Für mehr Informationen ziehen sie die Dokumentation von DPBox zu Rate.
+Zusätzlich ist eine Broadcast-Transmission von normalen Dateien (Befehl
+SENDBX) möglich.
+
+Der Status des Broadcast-Senders kann mit BCTXSTAT angezeigt werden. Alle
+z.Z. übertragenen Dateien werden zusammen mit einigen statistischen
+Informationen angezeigt.
+
+Da die TheFirmware- und WA8DED-Software keine Änderungen der PID für das
+Senden von Frames erlaubt, wird beim Senden PID F0 benutzt. Dies kann zu
+Problemen bei anderer Software (WISP) beim Empfänger führen. TFKISS und eine
+spezielle Version von TheFirmware (Fragen Sie bei mir oder DL8HBS nach)
+erlaubt die Änderung der PID und damit die korrekte Broadcast-Übertragung in
+Übereinstimmung mit dem Protokoll.
+
+----------------------------------------------------------------------------
+
+3.18. Autostart beim Connect
+
+Es gibt viele Möglichkeiten in TNT (RUN, SOCKET), um einer Gegenstation die
+Nutzung von Software auf dem System zu ermöglichen. Aber um diese Anwendungen
+zu nutzen, muß man nach dem Connect zu TNT zuerst einen speziellen Befehl
+eingeben.
+
+Um Anwendungen leicht zugänglich zu machen und zu verstecken, daß TNT im
+Hintergrund läuft, können für spezifische Rufzeichen-SSID-Kombinationen
+Autostart-Kommandos festgelegt werden. Dieses Kommando, welches jeden
+gültigen Remotebefehl mit den entsprechenden Parametern enthalten kann, wird
+beim Connect der Rufzeichen-SSID-Kombination ausgeführt.
+
+Das Autostart-Feature muß mit dem Befehl AUTOSTRT eingeschaltet werden, da es
+standardmäßig deaktiviert ist.
+
+Um eine Verbindung zu der Rufzeichen-SSID-Kombination zu erlauben, müssen
+ein oder mehrere TNC-Kanäle entsprechend eingestellt werden (Benutzen Sie
+MYCALL in TNT.UP).
+
+Die Rufzeichen-SSID-Kombinationen und zugehörigen Autostart-Kommandos werden
+in "tnt_autostartfile" festgelegt. Der aktuelle Inhalt der Datei kann mit
+LSAUTOST angezeigt und die Datei mit LDAUTOST erneut eingelesen werden.
+
+----------------------------------------------------------------------------
+
+3.19. TNT als Dämon, TNTC
+
+Normalerweise benutzt TNT eine Konsole als Benutzerschnittstelle. Aber in
+einigen Fällen ist dies nicht erwünscht oder notwendig:
+
+- Das TNT-Benutzerinterface wird auf einem anderen Host benötigt.
+- Es soll zwischen X und dem Terminalmodus ohne Beendigung von TNT gewechselt
+werden.
+- Es wird kein Benutzerinterface benötigt.
+
+Deshalb kann TNT durch Benutzung des Kommandozeilenparamteres "-d" als Dämon
+gestartet werden. TNT akzeptiert dann Anfragen auf Socket-Verbindungen an der
+Socket-Adresse, welche unter "frontend_socket" in der TNT.INI eingestellt
+wurde. Diese Socket-Adresse kann verschiedene Formate haben (welche gleich
+denen bei den Socket-Servern sind):
+
+a) UNIX-Sockets
+
+Das Format für UNIX-Sockets ist "unix:<Socket-Pfad>" oder
+"local:<Socket-Pfad>". Der Pfad kann absolut oder relativ zum in "tnt_dir"
+angegebenen Pfad angegeben werden. Beispiel:
+
+unix:tntsock
+unix:/tcp/sockets/convers
+
+b) INET-Sockets
+
+Das Format für INET-Sockets ist "IP-Adresse:Port". IP-Adresse kann ein
+Hostname, eine IP-Adresse oder ein "*" für jede IP-Adresse sein. Port kann
+jeder gültige Port oder Name eines Services sein. Beispiel:
+
+*:3600
+199.199.10.10:ftp
+foo.bar.com:2000
+
+Um TNT zu connecten, ist ein Remote-Konsolen-Programm verfügbar: TNTC. Es
+benutzt seine eigene Konfigurationsdatei TNTC.INI, in welcher das
+Home-Verzeichnis und der zu connectende Socket gespeichert sind. Beim Start
+sendet TNTC den Terminaltyp (Umgebungseintrag TERM) und die Anzahl Zeilen und
+Spalten der Anzeige an TNT. Außer der Spaltenanzahl, welche durch
+"input_linelen" in der TNT.INI festgelegt ist, werden diese Werte zur
+korrekten Bildschirmaufteilung benutzt.
+
+TNTC kann durch den Befehl QUIT beendet werden. EXIT beendet TNTC und TNT.
+
+----------------------------------------------------------------------------
+
+4. Beschreibung der Konfigurationsdateien
+
+----------------------------------------------------------------------------
+
+4.1. Hauptkonfigurationsdatei
+
+Die Konfiguration des Programms wird in der Hauptkonfigurationsdatei TNT.INI
+eingestellt, welche im aktuellen Verzeichnis oder im Home-Verzeichnis des
+Users gesucht wird. Andere Dateinamen können mit dem Kommandozeilenparameter
+-i eingestellt werden.
+
+Beispiel TNT.INI:
+
+# definiert, ob select() benutzt werden soll; normalerweise 1; setzen sie es
+# auf 0, wenn sie einen älteren Kernel benutzen (select() 
+# produziert einen höheren CPU-Load)
+use_select 1
+
+#--------------------------------------------------------------------------
+
+# 0 für ein echtes TNT an einem seriellen Port, 1 für TFKISS an einem
+# UNIX-Socket und 2 für TFKISS an einem anderen Socket
+soft_tnc 0
+
+# serieller Port, an welchem das TNC angeschlossen ist; UNIX-Socket oder
+# anderer Socket von TFKISS
+device /dev/cua0
+
+# Lock-Datei für seriellen Port oder TFKISS
+tnt_lockfile /usr/spool/uucp/LCK..cua0
+
+# benutzte Baudrate, nur wenn TNC an seriellen Port angeschlossen
+speed 19200
+
+# Timing-Parameter für das Interface zu TFKISS (soft_tnc ist 1)
+# 1: feste Wartezeit (10ms) nach jedem zu TFKISS gesendeten Hostmode-Packet 
+fixed_wait 1
+# ist fixed_wait == 0, Anzahl der gesendeten Zeichen, nach denen TNT 10ms
+# warten wird
+amount_wait 20
+
+# --------------------------------------------------------------------------
+
+# Anzahl der Kanäle des TNC
+tnc_channels 10
+
+# erster Kanal mit reduziertem Backscroll-Puffer
+r_channels 4
+
+# --------------------------------------------------------------------------
+
+# Huffman-Kompression erlaubt (mit //COMP):1 oder nicht:0
+tnt_comp 1
+
+# Packetlänge für das Senden von Dateien
+file_paclen 255
+
+# 1: Disconnecten aller Kanäle beim Start von TNT
+disc_on_start 0
+
+# --------------------------------------------------------------------------
+
+# UNIX-User, welcher für den Remote-Zugang angenommen wird
+remote_user guest
+
+# wenn 1, werden neue User erstellt; wenn 0, werden alle neuen User als User
+# definiert unter "remote_user" eingelogt
+unix_new_user 1
+
+# kleinste User-ID für das Erstellen neuer User
+unix_first_uid 410
+
+# Gruppen-ID für neue User
+unix_user_gid 101
+
+# --------------------------------------------------------------------------
+
+# Zeit (in s) ohne empfangene Daten, nach welcher bei SHELL/REDIR und dem
+# Interface ein Packet gesendet wird, obwohl es noch nicht die Packetlänge
+# erreicht hat
+pty_timeout 2
+
+# --------------------------------------------------------------------------
+
+# 1: R-Zeilen werden durch Boxlist-Read-Befehl mit abgerufen
+blist_add_plus 0
+
+# --------------------------------------------------------------------------
+
+# SSID von DPBox (es muß ein Kanal mit diesem Rufzeichen und SSID im TNC
+# existieren)
+tnt_box_ssid 7
+
+# Rufzeichen und SSID von DPBox (es muß ein Kanal mit diesem Rufzeichen und
+# SSID im TNC existieren); wird diese Option verwendet, wird
+# tnt_box_ssid ignoriert
+#tnt_box_call
+
+# SSID eines Nodes (noch nicht eingebaut)
+tnt_node_ssid 9
+
+# Rufzeichen und SSID eines Nodes (noch nicht eingebaut)
+#tnt_node_call
+
+# --------------------------------------------------------------------------
+
+# TNT-Verzeichnis
+tnt_dir /work/tnt/
+# Remote-Verzeichnis
+remote_dir remote/
+# Connecttext-Verzeichnis
+ctext_dir ctext/
+# Verzeichnis für defekte Autobin-Dateien
+abin_dir abin/
+# Verzeichnis für Uploads
+upload_dir up/
+# Verzeichnis für Downloads
+download_dir down/
+# Verzeichnis für 7Plus-Dateien
+tnt_7plus_dir 7plus/
+# Verzeichnis für YAPP
+yapp_dir yapp/
+# Verzeichnis für mit RUN ausführbare Programme
+tnt_bin_dir bin/
+# Home-Verzeichnis für neue User
+unix_user_dir tntusers/
+# Verzeichnis für Makrotexte
+macrotext_dir macro/
+# Verzeichnis für Box-Broadcast-Dateien
+tnt_bcnewmaildir bcast/newmail/
+# Verzeichnis für Broadcast-Dateien
+tnt_bcsavedir bcast/save/
+# Verzeichnis für temporäre Broadcast-Dateien
+tnt_bctempdir /tmp/
+
+# TNC-Initialisierungsdatei (nach dem Start von TNT)
+tnt_upfile tnt.up
+# TNC-Initialisierungsdatei (vor dem Beenden von TNT)
+tnt_downfile tnt.dwn
+# Datei, welche Prozeß-ID von TNT enthält
+proc_file tnt.pid
+# Datei mit Stationsinfo
+rem_info_file tntrem.inf
+# Remote-Hilfedatei
+rem_help_file tntrem.hlp
+# TNT-Hilfedatei
+tnt_help_file tnt.hlp
+# Spruchdatei
+tnt_cookiefile /usr/games/fortunes/startrek
+# Namendatei (Namendatenbank)
+name_file_name names.tnt
+# Routendatei (Routingdatenbank)
+route_file_name routes.tnt
+# News-File
+news_file_name news.tnt
+# Connecttext
+tnt_ctextfile ctext.tnt
+# Logbuchdatei
+tnt_logbookfile log.tnt
+# Passwort-Konfigurationsdatei
+tnt_pwfile pw.tnt
+# Sysop-Passwortkonfigurationsdatei
+tnt_sysfile sys.tnt
+# Rufzeichen ohne Remotezugriff
+tnt_noremfile norem.tnt
+# Rufzeichen, welche Flexnet-Link-Qualitätschecks durchführen
+tnt_flchkfile flchk.tnt
+# für xconnect gesperrte eigene Rufzeichen
+tnt_notownfile notown.tnt
+# Resync-Logdatei
+resy_log_file resy.log
+# Broadcast-Logdatei
+bcast_log_file bcast.log
+# Socket-Passwortdatei
+sock_passfile netpass.tnt
+# Datei für Tastaturmakros
+func_key_file fkeys.tnt
+# Datei für erweiterte Remotebefehle
+tnt_extremotefile extrem.tnt
+# Datei für Autostarts beim Connect
+tnt_autostartfile autostrt.tnt
+
+# DPBox-Socket
+box_socket /work/box/stat/socket
+# Verzeichnis für neue Mails
+newmaildir newmail/
+# Datei, welche überwachte Rubriken enthält
+autobox_dir autobox.dir
+# Datei für Mail-Endstrings
+tnt_boxender boxender.tnt
+# Datei für F6FBB-Einstellungen
+f6fbb_box /work/box/system/f6fbb.box
+
+# Socket für TNT-Node (noch nicht eingebaut)
+node_socket /work/tntnode/socket
+
+# Socket für Frontend
+frontend_socket unix:tntsock
+
+# --------------------------------------------------------------------------
+
+# maximale Länge einer Eingabezeile
+input_linelen 80
+
+# 1: Einfügemodus nach dem Start aktiviert, 0: nicht
+insertmode 0
+
+# maximale Anzahl von Einträgen in die Heardliste
+num_heardentries 100
+
+# Größe der Backscroll-Puffe
+
+# Kommando-Bildschirm
+lines_command 50
+# Monitorbildschirm
+lines_monitor 400
+
+# Eingabeteil des Connect-Bildschirms
+lines_input 20
+# Ausgabeteil des Connect-Bildschirms
+lines_output 100
+# Eingabeteil des Connect-Bildschirms (reduzierte Backscroll-Puffer)
+lines_r_input 5
+# Ausgabeteil des Connect-Bildschirms (reduzierte Backscroll-Puffer)
+lines_r_output 20
+# Einteilung des Connect-Bildschirms in Eingabe- und Ausgabeteil
+scr_divide 5
+# auf dem Connect-Bildschirm angezeigte Monitor-Zeilen lines_moncon 0
+
+# Eingabeteil des Mailboxbildschirms
+lines_mbinput 10
+# Ausgabeteil des Mailbox-Bildschirms
+lines_mboutput 200
+# Einteilung des Mailbox-Bildschirms in Eingabe- und Ausgabeteil
+mbscr_divide
+8
+
+# Eingabeteil des Erweiterten-Monitor-Bildschirms
+lines_xmon_pre 10
+# Ausgabeteil des Erweiterten-Monitor-Bildschirms
+lines_xmon 100
+# Einteilung des erweiterten Monitors in Eingabe- und Ausgabeteil
+xmon_scr_divide 5
+
+# --------------------------------------------------------------------------
+
+# 0: monochrom, 1: Farbattribute werden genutzt, wenn TERM="linux" oder
+# "conXXX", sonst monochrom und termcap, 2: Farbattribute werden genutzt,
+# 3: Farbattribute werden bei TERM="xterm" genutzt
+color 1
+
+# 0: termcap nicht benutzen, 1: termcap benutzen
+termcap 0
+
+# 1: alternative Kanalstatuszeile
+altstat 0
+
+# --------------------------------------------------------------------------
+
+# Farbattribute
+
+# normale Zeichen
+attc_normal 0x07
+# Zeichen in unterer Statusleiste
+attc_statline 0x10
+# Zeichen in Monitor-Headern
+attc_monitor 0x06
+# Zeichen in Kanalstatuszeile
+attc_cstatline 0x1F
+# Control-Zeichen
+attc_controlchar 0x0F
+# Remote-Antworten
+attc_remote 0x06
+# spezielle Features
+attc_special 0x01
+
+# --------------------------------------------------------------------------
+
+# Monochromattribute
+
+# normale Zeichen
+attm_normal 0x00
+# Zeichen in unterer Statusleiste
+attm_statline 0x08
+# Zeichen in Monitor-Headern
+attm_monitor 0x10
+# characters in channel statusline
+attm_cstatline 0x10
+# control-characters
+attm_controlchar 0x10
+# Remote-Antworten und selbst gesendeter Text
+attm_remote 0x10
+# spezielle Features
+attm_special 0x10
+
+# --------------------------------------------------------------------------
+
+# Diese Werte müssen bei der Verwendung von LINUX unverändert bleiben.
+
+# 1: Terminal setzt Cursor nach dem letzten Zeichen der letzten Spalte in
+# eine neue Zeile
+auto_newline 0
+
+# 1: zeigt Zeichen 128-160 nicht an
+supp_hicntl 0
+
+# --------------------------------------------------------------------------
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.1.1. Serielle und allgemeine Konfiguration
+
+"use_select":
+Legt fest, ob select() genutzt werden soll (Standard 1). Bei älteren Kernels
+sollte diese Option auf 0 gesetzt werden (select() produziert einen größeren
+CPU-Load).
+
+"soft_tnc":
+Legt fest, ob ein echtes TNC (0) oder TFKISS (1,2) benutzt wird.
+
+"device":
+Hier wird das Device, an welches das TNC angeschlossen ist, angegeben. Wird
+TFKISS benutzt und ist soft_tnc = 1, wird hier der Pfad und Dateiname des
+UNIX-Sockets angegeben. Ist soft_tnc = 2, muß hier eine allgemeine
+Socket-Beschreibung wie in 3.3.4. beschrieben angegeben werden.
+
+"speed":
+Hier wird die Baudrate des seriellen Ports angegeben, falls ein echtes TNC
+verwendet wird.
+
+"tnt_lockfile":
+Hier wird der Dateiname zum locken des Ports angegeben (d.h., ist die Datei
+vorhanden, kann der Port nicht mehr von anderen Programmen genutzt werden).
+Der gewählte Name sollte den üblichen Konventionen folgen: Für das Device
+/dev/cua0 wird das Lockfile /usr/spool/uucp/LCK..cua0 verwendet. Für TFKISS
+sollte ein Pseudo-Lockfile wie z.B. /usr/spool/uucp/tfkiss oder ähnlich
+verwendet werden.
+
+"fixed_wait":
+Dieser Wert ist nur für die Nutzung von TFKISS wichtig: Standard ist 1, d.h.,
+nach jedem an TFKISS gesendeten Hostmode-Packet wird 10ms gewartet. Wenn
+fixed_wait = 0, definiert "amount_wait" die Warteeinstellungen.
+
+"amount_wait":
+Dieser Wert ist nur für die Nutzung von TFKISS und bei fixed_wait = 0
+wichtig: Er gibt die Anzahl von Zeichen an, nach deren Sendung an TFKISS 
+TNT 10ms gewartet wird (kann zur Optimierung des Timings genutzt werden).
+
+"tnc_channels":
+Anzahl der Kanäle des TNC.
+
+"r_channels":
+Nummer des ersten Kanals mit reduziertem Backscroll-Puffer.
+
+"tnt_comp":
+Wenn nicht 0, ist die statische Huffman-Kompression verfügbar. In diesem Fall
+liegt die maximale Dateipacketlänge "file_paclen" bei 255 Zeichen.
+
+"file_paclen":
+Definiert die maximale Länge eines Packets. Gültige Werte sind 20 bis 256
+Byte. Ist die Huffman-Kompression aktiviert ("tnt_comp"), ist das Maximum 255
+Byte. Der Wert kann mit dem Befehl FPACLEN geändert werden.
+
+"disc_on_start":
+Wenn 1, werden alle Verbindungen beim Start von TNT beendet, bei 0 bleiben
+die Verbindungen aktiv.
+
+"blist_add_plus":
+Wenn nicht 0, wird ein "+" an das Boxlist-Read-Kommando angehängt. Als
+Resultat enthält die Mail die ausführlichen R-Zeilen.
+
+"tnt_box_ssid":
+Ist der SSID des eigenen Rufzeichens auf einem Kanal gleich diesem SSID, wird
+DPBox beim Connect gestartet.
+
+"tnt_box_call":
+Ist die Rufzeichen-SSID-Kombination eines Kanals gleich dieser hier
+eingestellten Kombination, wird nach dem Connect dieses Kanals DPBox
+gestartet. Dieser Paramter wird "tnt_box_ssid" übergehen. Er kann benutzt
+werden, wenn verschiedene Rufzeichen mit dem gleichen SSID benutzt werden
+sollen und DPBox nur für eines dieser Rufzeichen aktiviert werden soll.
+
+"tnt_node_ssid":
+Die Funktion ist analog der von "tnt_box_ssid" (das Feature ist noch in der
+Entwicklung).
+
+"tnt_node_call":
+Die Funktion ist analog der von "tnt_box_call" (das Feature ist noch in der
+Entwicklung).
+
+----------------------------------------------------------------------------
+
+4.1.2. Sicherheit
+
+"remote_user":
+User-ID für den Remote-Zugriff.
+
+Wurde TNT durch root gestartet, wird vor jedem Remote-Datei-Befehl die
+User-ID geändert, um die Dateierlaubnis des Remote-Nutzers einzuschränken.
+Wurde TNT von einem normalen Nutzer gestartet, wird die User-ID nicht
+geändert. Deshalb hat ein Remote-Nutzer in diesem Fall den gleichen
+Datei-Erlaubnisstatus wie der Nutzer selbst.
+
+"unix_new_user":
+1: Ein neuer User bekommt einen Eintrag in /etc/passwd und ein Verzeichnis
+wird erstellt.
+0: Ein neuer User wird wie in "remote_user" angegeben eingelogt.
+
+"unix_first_uid":
+Erste User-ID, welche für neue User benutzt wird.
+
+"unix_user_gid":
+Gruppen-ID für neue User.
+
+----------------------------------------------------------------------------
+
+4.1.3. Verzeichnisse, Dateien und Sockets
+
+Das Verzeichnis "tnt_dir" muß immer den kompletten Pfad enthalten. Bei allen
+anderen Verzeichnissen und Dateien ist die Behandlung vom ersten Zeichen
+abhängig: Ist es ein "/", wird der Wert als kompletter Pfad angenommen, sonst
+wird die Angabe als relativ zu "tnt_dir" gewertet.
+
+4.1.3.1. Verzeichnisse
+
+"tnt_dir":
+Verzeichnis, welches die TNT-Dateien enthält.
+
+"remote_dir":
+Verzeicnis, welches für den Remotezugriff benutzt wird.
+
+"ctext_dir":
+Verzeichnis für persönliche Connecttexte.
+
+"abin_dir":
+Verzeichnis für Dateien aus nicht erfolgreichen AutoBin-Transfers.
+
+"upload_dir":
+Verzeichnis für das Senden von Dateien (SEND/SENDLOG/...), falls kein
+Verzeichnis mit dem Befehl angegeben wurde.
+
+"download_dir":
+Verzeichnis für das Empfangen von Dateien (READ/LOGQSO/...), falls kein
+Verzeichnis mit dem Befehl angegeben wurde.
+
+"yapp_dir":
+Verzeichnis für den Dateiempfang mit AUTOYAPP.
+
+"tnt_7plus_dir":
+Verzeichnis für den Dateiempfang mit AUTO7PL.
+
+"tnt_bin_dir":
+Verzeichnis für mit //RUN ausführbare Programme.
+
+"unix_user_dir":
+Wurzelverzeichnis für die Home-Verzeichnisse neuer User.
+
+"macrotext_dir":
+Verzeichnis, welches Texte mit Makros enthält (MSEND).
+
+"tnt_bcnewmaildir":
+Verzeichnis, in welchem empfangene Broadcastdateien von Typ BBS gespeichert
+werden.
+
+"tnt_bcsavedir":
+Verzeichnis, in welchem andere empfangene Broadcastdateien gespeichert
+werden.
+
+"tnt_bctempdir":
+Verzeichnis für temporäre Dateien des Broadcast-Empfängers.
+
+"newmaildir":
+Verzeichnis, in welchem Mails, welche durch AUTOBOX und MONBOX empfangen
+wurden, für DPBox gespeichert werden.
+
+4.1.3.2. Dateien
+
+"tnt_upfile":
+Kommandoscript, welches beim Start von TNT ausgeführt wird.
+
+"tnt_downfile":
+Kommandoscript, welches vor dem Verlassen von TNT ausgeführt wird.
+
+"proc_file":
+Datei, welche die Prozeß-ID von TNT während dem Ausführen von TNT enthält.
+
+"rem_info_file":
+Datei, welche beim Empfang des Remotebefehls //INFO gesendet wird
+(Stationsinfo).
+
+"rem_help_file":
+Datei, welche beim Empfang des Remotebefehls //HELP gesendet wird.
+
+"tnt_help_file":
+Datei, welche angezeigt wird, falls der Hilfe-Bildschirm ausgewählt wurde.
+
+"tnt_cookiefile":
+Datei, welche die Sprüchedatenbank enthält.
+
+"name_file_name":
+Datei für die Namendatenbank.
+
+"route_file_name":
+Datei für die Routingdatenbank.
+
+"news_file_name":
+Datei für Neuigkeiten, welche beim Empfang des Remotebefehls //NEWS oder beim
+Vorkommen von %i in Makrotexten gesendet wird.
+
+"tnt_ctextfile":
+Datei, welche den allgemeinen Connecttext enthält.
+
+"tnt_logbookfile":
+Logbuchdatei.
+
+"tnt_pwfile":
+Konfigurationsdatei für die Passwortgenerierung.
+
+"tnt_sysfile":
+Datei für Zugriffsbeschränkungen und Sysop-Authorisierung.
+
+"tnt_noremfile":
+Datei mit Rufzeichen, welche keinen Remotezugriff erhalten.
+
+"tnt_flchkfile":
+Datei mit Rufzeichen, welche Flexnet-Linkqualitätschecks ausführen.
+
+"tnt_notownfile":
+Datei mit Rufzeichen-SSID-Kombinationen, welche nicht für xconnect erlaubt
+sind.
+
+"resy_log_file":
+Logdatei, falls ein Resync auftritt.
+
+"bcast_log_file":
+Logdatei für Fehler/Warnungen vom Broadcast-Sender/Empfänger.
+
+"sock_passfile":
+Socket-Login-Datenbank.
+
+"func_key_file":
+Definition von Tastaturmakros.
+
+"tnt_extremotefile":
+Datei mit erweiterten Remotebefehlen.
+
+"tnt_autostartfile":
+Datei mit Autostart-Befehlen, welche beim Connect ausgeführt werden.
+
+4.1.3.3. Sockets und Boxdateien
+
+"box_socket":
+Pfad und Name des UNIX-Sockets, welcher für die Verbindung zu DPBox genutzt
+wird.
+
+"autobox_dir":
+Datei, welche Rubriken enthält, die durch MONBOX überwacht werden sollen.
+
+"tnt_boxender":
+Datei mit Zeichenfolgen, welche das Ende oder den Abbruch einer Message
+anzeigen (für MONBOX und AUTOBOX).
+
+"f6fbb_box":
+Datei mti Zeichenfolgen, welche von der von ihnen benutzten F6FBB-Box
+verwendet werden. Diese Datei wird auch von DPBox verwendet und sollte im
+DPBox-Systemverzeichnis plaziert werden. Eine genaue Definition ist für das
+AUTOBOX-Feature wichtig.
+
+"node_socket":
+Pfad und Name des UNIX-Sockets, welcher für die Verbindung zu TNTNODE
+verwendet wird (noch in Entwicklung).
+
+"frontend_socket":
+Name des Sockets, welcher vom Frontend TNTC genutzt wird, falls TNT als Dämon
+gestartet wird. Die Syntax ist identisch zur detaillierten Beschreibung der
+Socket-Server.
+
+----------------------------------------------------------------------------
+
+4.1.4. Linien der virtuellen Bildschirme
+
+"input_linelen":
+Maximale Länge einer Eingabezeile. Beim Überschreiten werden die folgenden
+Zeichen ignoriert oder ein Zeilenumbruch ausgeführt. Der Wert kann mit dem
+Befehl LINelen geändert werden.
+
+"insertmode":
+1: Der Einfügemodus ist auf allen Kanälen nach dem Start von TNT aktiv.
+
+"num_heardentries":
+Anzahl der Einträge in der Heardliste.
+
+"lines_command":
+Zeilenanzahl im Kommandobildschirm.
+
+"lines_monitor":
+Zeilenanzahl im Monitorbildschirm.
+
+"lines_input":
+Zeilenanzahl im Eingabeteil des Connect-Bildschirmes.
+
+"lines_output":
+Zeilenanzahl im Ausgabeteil des Connect-Bildschirmes.
+
+"lines_r_input":
+Zeilenanzahl im Eingabeteil des Connect-Bildschirmes bei Kanälen mit
+reduziertem Backscroll-Puffer.
+
+"lines_r_output":
+Zeilenanzahl im Ausgabeteil des Connect-Bildschirmes bei Kanälen mit
+reduziertem Backscroll-Puffer.
+
+"scr_divide":
+Bestimmt die Einteilung des Connect-Bildschirmes in Eingabe- und Ausgabeteil.
+Der Wert kann mit dem Befehl CONDiv geändert werden. Beispiel: Der reale
+Bildschirm hat 25 Zeilen und scr_divide = 5. 25 - 2 Zeilen = 23 Zeilen für
+Eingabe/Ausgabe. 23/5 = 4,6 -> 4 Zeilen für die Eingabe, 23 - 4 = 19 Zeilen
+für die Ausgabe von Daten.
+
+"lines_moncon":
+Anzahl von Monitorzeilen, welche auch auf dem Connect-Bildschirm angezeigt
+werden. Bei lines_moncon = 0 wird kein Monitorteil in den Connect-Bildschirm
+eingeblendet. Der Wert kann mit dem Befehl MONLines geändert werden (Die
+Zeilenanzahl des realen Bildschirms wird um diesen Wert verringert, bevor die
+Eingabe-Ausgabe-Verteilung berechnet wird.).
+
+"lines_mbinput":
+Zeilenanzahl des Eingabeteils des Mailbox-Bildschirmes.
+
+"lines_mboutput":
+Zeilenanzahl des Ausgabeteils des Mailbox-Bildschirmes.
+
+"mbscr_divide":
+Eingabe-Ausgabe-Verteilung des realen Bildschirmes im Mailbox-Bildschirm. Der
+Wert kann mit dem Befehl MBOXDiv geändert werden.
+
+"lines_xmon":
+Zeilenanzahl des Ausgabeteils des erweiterten Monitors.
+
+"lines_xmon_pre":
+Zeilenanzahl des Eingabeteils des erweiterten Monitors.
+
+"xmon_scr_divide":
+Eingabe-Ausgabe-Verteilung des realen Bildschirmes im erweiterten Monitor.
+Der Wert kann mit dem Befehl XMONDiv geändert werden.
+
+----------------------------------------------------------------------------
+
+4.1.5. Anzeigekonfiguration
+
+"color":
+0: keine Farbattribute benutzen
+1: Farbattribute der Linux-Konsole
+2: immer Farbattribute benutzen
+3: Farbattribute nur im XTerm nutzen
+
+"termcap":
+0: Linux-Konsole-Control-Codes nutzen
+1: /etc/termcap nutzen
+
+"altstat":
+1: eine alternative Statuszeile im Connect-Bildschirm nutzen
+
+Ist color = 1 und sind die Linux-Konsole-Control-Codes ausgewählt, aber
+der TERM-Umgebungseintrag ist nicht "con..." oder "linux", wird keine
+Farbe und Termcap verwendet.
+
+----------------------------------------------------------------------------
+
+4.1.6. Bildschirmattribute
+
+Abhängig vom ausgewählten Modus in "color" werden die Farb- oder
+Monochromattribute verwendet. Wichtig: Die Attribute für normalen Text und
+Control-Zeichen im Eingabeteil müssen verschieden sein, da sonst keine
+Control-Zeichen gesendet werden können.
+
+4.1.6.1. Farbattribute
+
+"attc_normal": Farbe des normalen Textes
+
+"attc_statline": Farbe der Statuszeile am unteren Bildschirmrand
+
+"attc_monitor": Farbe der Frame-Headers im Monitor
+
+"attc_cstatline": Farbe der Statuszeile des Kanals im Connect-Bildschirm
+
+"attc_controlchar": Farbe der Control-Zeichen im Eingabeteil
+
+"attc_remote": Farbe der Ausgaben von Remote-Funktionen
+
+"attc_special": Für spezielle Features.
+
+Die Attribute werden auf folgende Weise verschlüsselt:
+
+Bit     X     X     X     X     X     X     X     X
+Farbe Blinken BCo2  BCo1  BCo0  FCo3  FCo2  FCo1  FCo0
+(Bit 1 - Blinken, Bit 2-4 - Hintergrundfarben, Bit 5-8 - Vordergrundfarben)
+
+Blinken: 0: aus, 1: an
+
+Hintergrundfarben:
+        BCo2 BCo1 BCo0
+Schwarz	0    0    0
+Rot     0    0    1
+Grün    0    1    0
+Orange  0    1    1
+Blau    1    0    0
+Magenta 1    0    1
+Cyan    1    1    0
+Weiß    1    1    1
+
+Vordergrundfarben:
+              FCo3 FCo2 FCo1 FCo0
+Schwarz       0    0    0    0
+Rot           0    0    0    1
+Grün          0    0    1    0
+Orange        0    0    1    1
+Blau          0    1    0    0
+Magenta       0    1    0    1
+Cyan          0    1    1    0
+Weiß          0    1    1    1
+Grau          1    0    0    0
+Hellrot       1    0    0    1
+Hellgrün      1    0    1    0
+Gelb          1    0    1    1
+Hellblau      1    1    0    0
+Hellmagenta   1    1    0    1
+Hellcyan      1    1    1    0
+Hellweiß      1    1    1    1
+
+4.1.6.2. Monochromattribute
+
+"attm_normal": Normaler Text.
+
+"attm_statline": Hauptstatuszeile am unteren Bildschirmrand.
+
+"attm_monitor": Frame-Headers im Monitor.
+
+"attm_cstatline": Statuszeile des Kanals im Connect-Bildschirm.
+
+"attm_controlchar": Control-Zeichen im Eingabeteil.
+
+"attm_remote": Ausgaben von Remote-Funktionen.
+
+"attm_special": Für spezielle Features.
+
+Die Attribute werden auf folgende Weise verschlüsselt:
+
+Bit     X     X     X     X     X     X     X     X
+Farbe               Att5  Att4  Att3  Att2  Att1  Att0
+
+Att0: Standard		(termcap so/se)
+Att1: Unterstrichen	(termcap us/ue)
+Att2: Blinken		(termcap mb/me)
+Att3: Invers		(termcap mr/me)
+Att4: Fett		(termcap md/me)
+Att5: Halbhell		(termcap mh/me)
+
+0: aus, 1: ein
+
+----------------------------------------------------------------------------
+
+4.1.7. Packetsammel-Timeout
+
+"pty_timeout": Zeit zum Zusammenstellen eines Packets
+
+Alle von einer Shell oder Datenumleitung empfangenen Daten werden
+zwischengespeichert. Erreicht der Zwischenspeicher die maximale Packetgröße
+(256 Byte), wird der Inhalt gesendet. Nach jedem neuen Byte wird pty_timeout
+Sekunden auf das nächste gewartet. Wird in dieser Zeit kein Byte übertragen,
+wird der Inhalt des Zwischenspeichers gesendet, obwohl die maximale
+Packetlänge noch nicht erreicht wurde.
+
+----------------------------------------------------------------------------
+
+4.1.8. Zusätzliche Optionen
+
+Die folgenden Optionen sind für die Einstellung von TNT auf ein anderes
+Terminal oder Betriebssystem verfügbar. Für die Benutzung unter Linux werden
+beide auf 0 gesetzt.
+
+"auto_newline":
+1: Terminal setzt den Cursor in eine neue Zeile nach dem Erreichen des
+letzten Zeichens in einer Zeile.
+
+"supp_hicntl":
+1: Zeichen 128-160 werden durch einen "." ersetzt.
+
+----------------------------------------------------------------------------
+
+4.2. TNC-Konfigurationsdateien
+
+Beim Starten des Programms wird ein Kommandoscript ausgeführt, welches zum
+Einstellen einiger TNC-Parameter genutzt werden kann. Der Dateiname muß nach
+"tnt_upfile" in der Datei TNT.INI eingestellt werden.
+
+Um verschiedene Rufzeichen auf spezifischen Kanälen einzustellen, kann
+folgende Befehlssequenz benutzt werden:
+
+...
+CHANNEL 4
+MYCALL DL4YBG-4
+CHANNEL 5
+MYCALL DL4YBG-5
+CHANNEL 6
+MYCALL DL4YBG-6
+...
+
+Nachdem der "EXIT"-Befehl eingegeben wurde, wird ein anderes Kommandoscript
+vor dem Beenden des Programms ausgeführt, dessen Dateiname bei "tnt_downfile"
+in der Datei TNT.INI eingetragen werden muß.
+
+----------------------------------------------------------------------------
+
+4.3. Cookie-Datei
+
+Ist das zufällige Cookie-Senden aktiviert (Befehl COOKIE) und es connected
+jemand die Station, wird ein zufällig gewähltes Cookie aus der Cookie-Datei
+gesendet.
+
+Die Cookie-Datei besteht aus Cookies, welche durch eine Zeile mit einem "-"
+oder "%" als erstes Zeichen voneinander abgegrenzt sind (der Rest der Zeile
+wird ignoriert). Die minimale Größe eines Cookies beträgt 2048 Byte.
+
+Die Dateien aus dem "fortunes"-Packet, welches in den meisten
+Linux-Distributionen enthalten ist, können benutzt werden.
+
+Der Dateiname muß nach "tnt_cookiefile" in der Daten TNT.INI eingestellt
+werden.
+
+----------------------------------------------------------------------------
+
+4.4. Dateien für Remotebefehle
+
+Wird der Remotebefehl //HELP empfangen, wird eine Datei, welche unter
+"rem_help_file" eingestellt ist, gesendet.  Die Datei sollte einen Überblick
+und eine kurze Beschreibung der möglichen Remotebefehle enthalten.
+
+Wird der Remotebefehl //INFO empfangen, wird eine unter "rem_info_file" in
+der Datei TNT.INI eingestellte Datei gesendet. Diese sollte eine Beschreibung
+der Station und der benutzten Ausrüstung enthalten.
+
+Wird der Remotebefehl //NEWS empfangen, wird eine unter "news_file_name"
+eingestellte Datei gesendet. Diese sollte Neuigkeiten enthalten.
+
+----------------------------------------------------------------------------
+
+4.5. Dateien für Connecttexte
+
+Ist das Senden von Connecttexten aktiv (Befehl CONTEXT) und es connected
+jemand die Station, wird ein spezieller Connecttext gesendet, welcher der
+unter "tnt_ctextfile" angegebenen Datei entnommen wird. Makros sind erlaubt
+und werden entsprechend ausgeführt. Es ist möglich, einigen Usern einen
+persönlichen Connecttext zu senden. Um dies zu erreichen, muß eine Datei
+namens <Rufzeichen>.ctx in das Verzeichnis, welches unter "ctext_dir"
+eingestellt wurde, gelegt werden, wobei <Rufzeichen> das Rufzeichen des
+entsprechenden Users ist.
+
+----------------------------------------------------------------------------
+
+4.6. Dateien für die Namendatenbank und Routing-Scripts
+
+----------------------------------------------------------------------------
+
+4.6.1. Namendatenbank
+
+Für die Benutzung mit dem Connecttext wurde eine Namendatenbank eingebaut.
+Die Datenbank selbst ist in der Datei, welche unter "name_file_name"
+spezifiziert wurde, eingebaut.
+
+Alle Einträge in die Namendatenbank haben folgendes Format: T><Rufzeichen>
+<Name>.
+
+Wird der Befehl NAME oder der Remotebefehl //NAME benutzt, wird der
+entsprechend zu dem gerade auf dem aktuellen Kanal connecteten Rufzeichen
+gehörende Name eingestellt.
+
+----------------------------------------------------------------------------
+
+4.6.2. Routingdatenbank
+
+Die Routingdatenbank für Routing-Scripts ist in der Datei "route_file_name"
+in einem ähnlichen Format wie die Namendatenbank enthalten.
+
+Anders als die Namendatenbank wird die Routingdatenbank nicht von TNT auf den
+neusten Stand gebracht, so daß alle Änderungen mit einem Texteditor
+durchgeführt werden müssen.
+
+Die Einträge für das Routing können sich auf schon vorhandene Einträge
+beziehen, so daß es nicht nötig ist, für jedes Rufzeichen den vollständigen
+Pfad anzugeben. Der Pfad wird aus den einzelnen relevanten Einträgen
+zusammengesetzt.
+
+Wechselt man oft die Frequenz und den Einstiegsdigipeater, ist es sinnvoll,
+für jede Frequenz eine eigene Routingdatenbank anzulegen. Deshalb ist die
+Konstruktion <IF xxxxxx> und <END> eingebaut. Arbeitet man z.B. auf 438.000
+MHz, kann man alle Routing-Einträge für diese Frequenz folgendermaßen
+angeben:
+
+<IF 438.300>
+...
+<END>
+
+Alle Einträge, welche nicht durch IF-END eingschlossen sind, gelten auf allen
+Frequenzen. Die gerade benutzte Frequenz kann mit dem Befehl QRG eingestellt
+werden.
+
+Jeder Datenbankeintrag hat folgendes Format:
+
+Vor dem Rufzeichen steht ein Buchstabe, welcher den Typ der Station angibt:
+
+T: normaler User
+N: Netzwerk-Node
+
+Alle anderen Zeichen werden akzeptiert. Der einzige Unterschied besteht in
+der Behandlung des Rufzeichens im Routing-Script.
+
+Die Datenbank ist eine Textdatei, welche den folgenden ähnliche Einträge
+enthält:
+
+T> DL4YBG Mark
+-> Der Name des Sysops der Station DL4YBG ist Mark und es ist keine
+Routing-Information angegeben oder die Station kann direkt erreicht werden.
+
+T> DL7ZZZ Joe; N>DB0LUC T>DL7ZZZ
+-> Der Name des Sysops der Station DL7ZZZ ist Joe und die Station kann über
+den Digipeater DB0LUC erreicht werden.
+
+N>DB0BLO Digi 9k6
+->Der Digipeater DB0BLO kann direkt erreicht werden.
+
+N>DB0BER Digi Tempelhof; N>DB0BLO N>DB0BER
+-> Der Digipeater DB0BER kann über den Digipeater DB0BLO erreicht werden.
+
+N>DB0LUC Digi Luckau; N>DB0BER F>DB0BLN N>DB0LUC
+-> Der Digipeater kann von DB0BER aus via DB0BLN connected werden.
+
+----------------------------------------------------------------------------
+
+4.7. User-ID und Sicherheit
+
+Es ist jedem User möglich, sich mit dem Remotebefehl //SHELL oder durch den
+Sysop unter Benutzung des Befehls SHELL auf dem entsprechenden Kanal in das
+UNIX-System einzulogen. Das Rufzeichen der Station wird als User-ID
+verwendet. Gibt es eine solche User-ID noch nicht und ist "unix_new_user"
+nicht gesetzt, wird die User-ID "guest" genutzt. Da es zur Zeit keine
+sinnvolle Passwortsicherheit gibt, wird kein Passwort verwendet. Benutzen sie
+"unix_new_user" nicht, müssen entsprechende Einträge der User-IDs per Hand
+vorgenommen werden. Diese Einträge in /etc/passwd sollte so oder ähnlich
+aussehen:
+
+guest::407:109::/home/guest:
+dl4ybg::405:101::/home/dl4ybg:
+
+Die User-IDs dürfen nicht in /etc/shadow auftreten (nur wenn
+Shadow-Passwörter benutzt werden).
+
+Tip:
+Der User "guest" kann mit "useradd -m guest" angelegt werden. Danach muß
+/etc/passwd angepasst und der Eintrag in /etc/shadow (nur wenn
+Shadow-Passwörter verwendet werden) gelöscht werden. Versuchen sie vor dem
+Remote-Login einen Login von einem virtuellen Terminal aus.
+
+WICHTIG:
+Prüfen sie die Dateizugriffsrechte auf ihrem System und benutzen sie ein
+Passwort für Root, da sie ab nun nicht mehr allein sind.
+
+----------------------------------------------------------------------------
+
+4.8. Log-Datei für Resynchronisation
+
+Wird während der Benutzung von TNT regelmäßig die Resynchronisation
+gestartet, ist es sinnvoll, den Grund dafür zu finden. Dies kann durch das
+Einstellen von "resy_log_file" in TNT.INI geschehen. Es muß der volle Pfad
+angegeben werden. Wird das Feld freigelassen, wird kein Logfile geschrieben.
+Man sollte auf die Größe der Datei achten und sie ab und an zum
+Zurückgewinnen von Festplattenspeicher entfernen.
+
+----------------------------------------------------------------------------
+
+4.9. Datei für Tastaturmakros
+
+Beispiel FKEYS.TNT:
+
+#
+# Tastaturmakros
+#
+# XX:Text
+# XX::Befehl
+#
+# '*' am Ende einer Textzeile sendet danach ein CR
+#
+01::send .signature
+02:***end*
+03::c db0abc
+04::c db0zzz-8
+08::logblist
+09::blist
+10::xblist
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.10. Datei für die Passwortgenerierung
+
+Beispiel PW.TNT:
+
+# Beispiel-Passwortdatei
+# Alle Zeilen müssen folgendes Format haben:
+# DIEBOX:
+# <Rufzeichen> <Passworttyp> <Passwortdatei>
+# FLEXNET:
+# <Rufzeichen> <Passworttyp> <Geheimnummer> [PRIV-String]
+# THENET:
+# <Rufzeichen> <Passworttyp> <Passwortdatei> <Flags> <PRIV-String>
+# BAYCOM:
+# <Rufzeichen> <Passworttyp> <Passwortdatei> <Flags> [PRIV-String]
+# MD2:
+# <Rufzeichen> <Passworttyp> <Passwortdatei>
+#
+# DieBox DB0XXX
+DB0XXX-3 DIEBOX /work/tnt/db0xxx_3.pw
+# FlexNet DB0YYY
+DB0YYY FLEXNET 02345
+# FlexNet DB0YYZ-8 mit anderem Aktivierungsstring
+DB0YYZ-8 FLEXNET 02345 /SYSop
+# TheNet DB0ZZZ
+DB0ZZZ THENET /work/tnt/db0zzz.pw 0 SYS
+# TheNet DB0ZZA-2 mit 3 Versuchen
+DB0ZZA-2 THENET /work/tnt/db0zza_2.pw 1 SYS
+# TheNet DB0ZZB mit verstecktem Passwort
+DB0ZZB THENET /work/tnt/db0zzb.pw 2 SYS
+# TheNet DB0ZZC-15 mit verstecktem Passwort und 3 Versuchen
+DB0ZZC-15 THENET /work/tnt/db0zzc_15.pw 3 SYS
+# TheNet DB0ZZB-1 mit "perfect password hiding"
+DB0ZZB-1 THENET /work/tnt/db0zzb_1.pw 6 SYS
+# TheNet DB0ZZC-14 mit "perfect password hiding" und 3 Versuchen
+DB0ZZC-14 THENET /work/tnt/db0zzc_14.pw 7 SYS
+# Baycom DB0ZZE-5
+DB0ZZE-5 BAYCOM /work/tnt/db0zze_5.pw 0
+# Baycom DB0ZZD mit verstecktem Passwort und einem anderen Aktivierungsstring
+DB0ZZD BAYCOM /work/tnt/db0zzd.pw 2 SYS
+# Baycom DB0ZZD-1 mit "perfect password hiding" und anderem Aktivierungs-
+# string
+DB0ZZD-1 BAYCOM /work/tnt/db0zzd_1.pw 6 SYS
+# MD2-Passwort für DB0ZZF
+DB0ZZF MD2 /work/tnt/db0zzf.pw
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.11. Datei für die Sysop-Authentifikation
+
+Beispiel SYS.TNT:
+
+# Beispiel Zugangsbeschränkungs- und Sysopauthentifkationsdatei
+# Format:
+# <Rufzeichen> <Passwortdatei> <Sysop-Level>
+#
+# DL7ZZZ mit Root-Zugang
+DL7ZZZ /work/tnt/dl7zzz.pw 1
+# DL7ZZY ohne Root-Zugang
+DL7ZZY /work/tnt/dl7zzy.pw 0
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.12. Datei für das Sperren des Remotezugangs
+
+Beispiel NOREM.TNT:
+
+# Beispieldatei für das Sperren des Remotezugangs
+# Format:
+# <Rufzeichen mit SSID>
+#
+DB0GR
+DB0BLO-8
+DB0JES-3
+DB0TEM-8
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.13. Datei mit nicht für XConnects zugelassene Rufzeichen
+
+Beispiel NOTOWN.TNT:
+
+# Beispieldatei für Rufzeichen-SSID-Kombinationen, welche nicht als
+# Ausgangsrufzeichen für XConnects erlaubt sind
+# Format:
+# <Rufzeichen mit SSID>
+#
+DL4YBG
+DL4YBG-7
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.14. Datei mit FlexNet-Digipeatern
+
+Beispiel FLCHK.TNT:
+
+# Beispieldatei zum Ignorieren von FlexNet-Verbindungsqualitätschecks
+# Format:
+# <Rufzeichen mit SSID>
+#
+DB0BNO
+DB0BLN
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.15. Datei für AX25-Server-Zugang
+
+Beispiel NETPASS.TNT:
+
+# netpass.tnt - Datei
+# Die Syntax ist:
+# <Rufzeichen> <Passwort> <Autoconnect-Rufzeichen> <Level>
+#
+# Beispiele
+#
+# Die nächste Zeile setzt usr/pass=dl7zzz/geheim, kein Standardconnect,
+# Level=9.
+dl7zzz geheim none 9
+#
+# Die nächste Zeile setzt user/pass=dl7zzy/secret, Autoconnects immer zu
+# DB0ZZZ-8, Level=3. Das Autoconnect-Rufzeichen bedeutet, daß DL7ZZY niemand
+# anderes als DB0ZZZ-8 connecten kann (außer er hat Level=9).
+dl7zzy secret DB0ZZZ-8 3
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.16. Datei für Autostart beim Connect
+
+Beispiel AUTOSTRT.TNT:
+
+# Beispiel-Autostart-Datei
+# Format:
+# <Rufzeichen+SSID> <TNT-Befehl>
+#
+# Connect DL4YBG-5 -> Start des Convers-User-Clients
+dl4ybg-5 convers
+# Connect DL4YBG-12 -> Rückgabe des Kanalstatus
+dl4ybg-12 cs
+# Connect DL4YBG-13 -> Start einer UNIX-Shell
+dl4ybg-13 shell
+# Connect DL4YBG-14 -> Connect zum Convers-Server
+dl4ybg-14 socket unix:/tcp/sockets/convers
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.17. Datei für erweiterte Remote-Befehle
+
+Beispiel EXTREM.TNT:
+
+# Beispieldatei für erweiterte Remotebefehle
+# Format:
+# <Remotebefehl> <Zugrifsslevel> <signifikante Zeichen> <TNT-Befehl>
+#
+# //SCONvers: Connect des Convers-UNIX-Sockets
+sconvers 0 4 socket unix:/tcp/sockets/convers
+# //AXSERv: Connect des lokalen AX25-Servers auf Port 2001 (nur für Sysop)
+axserv 1 5 socket localhost:2001
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.18. Datei für BBS-Features
+
+Beispiel BOXENDER.TNT:
+
+#
+# Zusätzliche Strings zur Erkennung des Endes einer Mailbox-Message
+#
+# Format: "xy String"
+# x: 1=Message komplett; 2=Message abgebrochen
+# y: Wert von 1 bis 4 (bis zu 4 Strings möglicht)
+#
+# Ein Prompt einer Baycom-Box
+11 Help Dir Read Erase Check REPly Send Alter Quit
+# DIEBOX-Prompt, wenn das Auslesen abgebrochen wurde
+21 (H)elp (C)heck (L)ist (R)ead (S)end (E)rase (D)ir (U)sage (Q)uit
+# FlexNet-Reconnect
+22 *** reconnected to
+<EOF>
+
+Beispiel F6FBB.BOX:
+
+#
+# Definition von F6FBB-Mailheader für das MonitorCut-Feature von DP
+# Sie werden diese Einstellungen ändern müssen. Aber ändern Sie nie die
+# Reihenfolge der Einstellungen!
+# Die F6FBB-Software hat zwei grundlegende Typen von Mailheadern: Der erste
+# besteht aus fünf Zeilen, der zweite (und neuere) aus sieben. Zusätzlich
+# gibt es diese Header in vielen verschiedenen Sprachen. Deshalb müssen Sie
+# diese Datei an Ihre persönlichen Bedürfnisse anpassen.
+#
+# Stimmt das Header-Format Ihrer lokalen F6FBB-Box nicht mit diesen überein,
+# schreiben Sie mir eine Mail.
+#
+# Mit "#" beginnt eine Kommentarzeile. Die ersten vier unkommentierten Zeilen
+# werden als Stichworte angesehen, die nächsten 12 unkommentierten Zeilen
+# sind die in Ihrer lokalen F6FBB-Box benutzten Abkürzungen für die Monats-
+# namen.
+#
+# Ein alter und holländischer Header könnte so aussehen:
+#
+# Van : DC6OQ  voor IBM   @DL
+# Type/Status : B$
+# Datum/tijd  : 21-Mrt 13:55
+# Bericht #   : 72618
+# Titel       : hilfe aastor
+#
+# Nun die Definitionen:
+#
+# Erstes Wort im Header (alle Zeichen bis zum Absender-Rufzeichen):
+#Van :
+# Drittes Wort im Header #voor
+#
+# Ein neuer und deutscher Header könnte so aussehen:
+#
+# Von        : DG8NBR
+# Nach       : YAESU @EU
+# Typ/Status : B$
+# Datum      : 18-Jun 06:44
+# BID/MID    : 17630BDB0BOX
+# Meldung #  : 85385
+# Titel      : info > FT 530
+#
+# Nun die Definitionen:
+#
+# Bezeichner in der ersten Zeile:
+#Von          :
+# Bezeichner in der zweiten Zeile:
+#Nach        :
+#
+# Ein neuer und deutscher Header könnte so aussehen:
+#
+#Von         : DG1RFG
+#An          : WINGT@DL
+#Typ/Status  : BF
+#Datum/Zeit  : 28-Apr 08:26
+#BID (MID)   : DQKBUMDB0BLO
+#Msg #       : 457242
+#Titel       : TNX ! WinGT und Passwort wer...
+#
+# Nun die Definitionen:
+#
+# Bezeichner in der ersten Zeile:
+Von          :
+# Bezeichner in der zweiten Zeile:
+An           :
+#
+# Abkürzungen für die Monatsnamen (diese hängen auch von der verwendeten
+# Sprache ab):
+Jan
+Feb
+Mar
+Apr
+Mai
+Jun
+Jul
+Aug
+Sep
+Okt
+Nov
+Dez
+<EOF>
+
+----------------------------------------------------------------------------
+
+4.19. Konfigurationsdatei für TNTC
+
+Beispiel TNTC.INI:
+
+# Hauptverzeichnis
+tntc_dir /work/tnt
+# Socket für das Frontend
+frontend_socket unix:tntsock
+<EOF>
+
+----------------------------------------------------------------------------
+
+5. Zusätzliche Informationen
+
+----------------------------------------------------------------------------
+
+5.1. Kommandozeilenparameter
+
+Benutzung: tnt [-i <init-file>] [-l <log-file>] [-u] [-d]
+
+TNT hat vier Kommandozeilenparameter. Eine Datei nach -i wird als
+Initialisierungsdatei wie TNT.INI angenommen und eine Datei nach -l wird auf
+Kanal 1 wie mit dem Befehl LOGREC geöffnet. Die Option -l ist nützlich, falls
+TNT in der Zeit ohne Terminal Daten bekommt. Wurde das Programm nicht normal
+beendet und ist somit der serielle Port blockiert, kann das Lockfile mit -u
+ignoriert werden. Um TNT als Dämon ohne Terminal zu starten, muß der
+Parameter -d verwendet werden. Eine Verbindung zu TNT kann dann mit TNTC
+aufgebaut werden.
+
+Benutzung: tntc [-i <init-file>] [-s <tnt-socket>]
+
+TNTC hat zwei Kommandozeilenparameter. Eine Datei nach -i wird als
+Initialisierungsdatei wie TNTC.INI behandelt. Ein Socket nach -s wird
+anstelle des Eintrags "frontend_socket" in TNTC.INI verwendet.
+
+----------------------------------------------------------------------------
+
+5.2. TNT unter X11
+
+TNT benötigt zur Ausführung unter X11 einen XTERM oder eine RXVT-Konsole.
+Deshalb kann TNT von jeder XTERM- oder RXVT-Shell gestartet werden. Da XTERM
+keine <ALT>-Tastenkombinationen zuläßt, schlage ich die Benutzung von RXVT
+vor, welcher die gleiche Handhabung wie eine Linux-Konsole bietet. Ein Script
+"xtnt" kann benutzt werden, um ein neues Fenster für TNT zu erzeugen. Um die
+Parameter in "xtnt" zu ändern, lesen sie bitte im Handbucheintrag zu RXVT
+nach.
+
+----------------------------------------------------------------------------
+
+5.3. Portierung von TNT
+
+In config.h können einige Optionen (un)defined werden. Erzeugen Sie einen
+neuen Eintrag in config.h und ein neues Makefile für ihr Betriebssystem. Zur
+Zeit werden Linux und Interactive UNIX (ISC) unterstützt. Die Codes, welche
+durch Funktions- und spezielle Tasten generiert werden, sind in keys.h
+definiert und müssen angepaßt werden. Da oft nicht alle Tasten in
+/etc/termcap aufgelistet sind, werden die Keycodes auf diesem Weg definiert.
+War Ihr Porting erfolgreicht, senden Sie mir bitte Ihre Veränderungen. Sie
+werden in der nächsten Version eingebaut werden.
+
+----------------------------------------------------------------------------
+
+6. Danksagungen und Kontaktadressen
+
+Danke an Dieter, DK5SG / N0PRA für wampes. Der Quellcode enthält einige
+interessante Dinge und ich habe einige Teile der Shell-Funktionen entnommen.
+
+Danke an Joerg, DD8FR, für die Bereitstellung des Codes zur Makrobenutzung im
+Connecttext und zur Benutzung von mehr als 80 Zeichen pro Zeile.
+
+Patrick (ex DL7AUC), welcher TNT nach ISC Unix geportet und viele Ideen und
+zusätzlichen Code für das Socket-Feature beigetragen hat, starb bei einem
+Unfall. Seine Arbeit und Unterstützung wurde sehr geschätzt und wird vermißt
+werden. Er wird uns immer in Erinnerung bleiben.
+
+Danke an Joachim, DL8HBS (Autor von DigiPoint für ATARI), welcher mir den
+Sourcecode von DigiPoint zur Verfügung stellte. Danke auch für die Stunden
+der Diskussion und Planung beim Portieren von DPBox nach Linux und für die
+Unterstützung beim Debuggen.
+
+Danke an Gert, DK3NY, für die Implementierung der Passwortgenerierung für
+DIEBOX und verschiedene Bug-Berichte.
+
+Danke an Andreas, DK9HE, für die Analyse und Beseitigung des Startproblems,
+wenn TNT nicht von root aufgerufen wird.
+
+Danke an Werner, DL4NER, für den Code und die Ideen bei der
+FlexNet-Passwortgenerierung.
+
+Danke an Mario, DL5MLO, für die Bereitstellung des Codes für die alternative
+Statuszeile, das "insertmode"-Flag in TNT.INI, AUTO7PL und diverse Bugfixes.
+
+Danke an Oliver, DL8NEG, für den Code für das Baycom-Passwort, das "perfect
+password hiding" und für //RTT.
+
+Danke an Hansi, DL9RDZ, für einen Bug-Report über nicht erfolgreiches
+Socket-Connecten und die Lösung dafür.
+
+Danke an Claudio, IW0FBB, für den Code für das MD2-Passwort.
+
+Danke an Martik, DL3FCC, für die TeX-Version der Dokumentation (dies war der
+Auslöser, den Weg einer reinen ASCII-Dokumentation zu verlassen).
+
+Danke an Bruno, F1IRW und Daniel, F1RMB, für die französische Übersetzung der
+Dokumentation.
+
+Danke an Matthias, DL2SUT, für die Fehlerbehebungen im Dämon-Code.
+
+Der Code für YAPP basiert auf der Arbeit von Jeff Jacobsen, WA7MBL, Jonathan
+Naylor, G4KLX und S N Henson.
+
+Danke an Sanne Graaf für den Code für //RTT und //RING.
+
+Danke an Gerd, DK3NZ, und Jonny, DG4MII, für Bug-Reports.
+
+Danke an alle, die TNT getestet haben und mir ihre Erfahrungen damit
+geschildert haben.
+
+Und natürlich danke an Linus und alle aus der Linux-Community für dieses
+wunderbare Betriebssystem. Besonderer Dank gebührt Joseph H. Allen für den
+JOE-Editor und Dave Gillespie für den P2C Pascal-nach-C-Übersetzer.
+
+Wenn Sie Fragen haben, Kommentare oder Bug-Reports, schreiben Sie eine Mail:
+
+Ham Radio : DL4YBG @ DB0GR.#BLN.DEU.EU
+Internet  : wahlm@berlin.snafu.de
+
+73, Mark Wahl (DL4YBG)
+
+----------------------------------------------------------------------------
+
+A. Anhang
+
+----------------------------------------------------------------------------
+
+A.1. Statische Huffman-Kompressionstabelle
+
+Diese Tabelle stammt vom DK4NB für SP 9.00.
+
+      ASCII:  HUFFMAN                ASCII:  HUFFMANN
+
+      <  0>:  101010110010110        <128>:  100111111110110
+      <  1>:  101010101000010        <129>:  00100001
+      <  2>:  100111111100010        <130>:  100111111101110
+      <  3>:  101010110011110        <131>:  100111111100110
+      <  4>:  101010110001110        <132>:  111100000
+      <  5>:  101010101111110        <133>:  011111010111110
+      <  6>:  101010101110110        <134>:  011111010110110
+      <  7>:  101010101101010        <135>:  00111010010000
+      <  8>:  101010101011010        <136>:  101010110100000
+      <  9>:  1111001101             <137>:  101010110011100
+      < 10>:  101010101010010        <138>:  101010110011000
+      < 11>:  011111010110010        <139>:  101010110010100
+      < 12>:  101010101101110        <140>:  101010110010000
+      < 13>:  1111010                <141>:  101010110001100
+      < 14>:  101010101001010        <142>:  1010101101110
+      < 15>:  100111111111010        <143>:  101010110001000
+      < 16>:  100111111101010        <144>:  101010110000100
+      < 17>:  011111010111010        <145>:  101010110000000
+      < 18>:  101010110100010        <146>:  101010101111100
+      < 19>:  101010110011010        <147>:  101010101111000
+      < 20>:  101010110010010        <148>:  001110110
+      < 21>:  101010110001010        <149>:  101010101110100
+      < 22>:  101010110000010        <150>:  101010101110000
+      < 23>:  101010101111010        <151>:  101010101101100
+      < 24>:  101010101110010        <152>:  101010101101000
+      < 25>:  10101011011000         <153>:  10101011011001
+      < 26>:  101010110000110        <154>:  011111010011
+      < 27>:  101010101100110        <155>:  101010101100100
+      < 28>:  101010101011110        <156>:  101010101100000
+      < 29>:  101010101010110        <157>:  101010101011100
+      < 30>:  101010101001110        <158>:  101010101011000
+      < 31>:  101010101000110        <159>:  101010101010100
+
+      ASCII:  HUFFMAN                ASCII:  HUFFMANN
+
+           :  110                    <160>:  101010101010000
+          !:  001110101              <161>:  101010101001100
+          ":  1010101111             <162>:  101010101001000
+          #:  00000000011            <163>:  101010101000100
+          $:  011111010100           <164>:  101010101000000
+          %:  10101011010111         <165>:  100111111111100
+          &:  000000000000           <166>:  100111111111000
+          ':  10101011010110         <167>:  100111111110100
+          (:  011111000              <168>:  100111111110000
+          ):  001111001              <169>:  100111111101100
+          *:  01111101000            <170>:  100111111101000
+          +:  000000000001           <171>:  100111111100100
+          ,:  0001001                <172>:  100111111100000
+          -:  0111101                <173>:  011111010111100
+          .:  101110                 <174>:  011111010111000
+          /:  0011001                <175>:  0011101001011
+          0:  0010001                <176>:  011111010110100
+          1:  11110110               <177>:  011111010110000
+          2:  00111101               <178>:  101010110100011
+          3:  100111100              <179>:  101010110100001
+          4:  101111011              <180>:  101010110011111
+          5:  011111001              <181>:  101010110011101
+          6:  000000001              <182>:  101010110011011
+          7:  101010100              <183>:  101010110011001
+          8:  101111010              <184>:  101010110010111
+          9:  100111110              <185>:  101010110010101
+          ::  00000011               <186>:  101010110010011
+          ;:  1010101101111          <187>:  101010110010001
+          <:  1010101101101          <188>:  101010110001111
+          =:  001111000              <189>:  101010110001101
+          >:  001100000              <190>:  101010110001011
+          ?:  00000000001            <191>:  101010110001001
+
+      ASCII:  HUFFMAN                ASCII:  HUFFMANN
+
+          @:  011111010101           <192>:  101010110000111
+          A:  0011100                <193>:  101010110000101
+          B:  0111100                <194>:  101010110000011
+          C:  1001110                <195>:  101010110000001
+          D:  1111111                <196>:  101010101111111
+          E:  001001                 <197>:  101010101111101
+          F:  10111100               <198>:  101010101111011
+          G:  00000010               <199>:  101010101111001
+          H:  00000001               <200>:  101010101110111
+          I:  11110001               <201>:  101010101110101
+          J:  00000000010            <202>:  101010101110011
+          K:  00110001               <203>:  101010101110001
+          L:  11110010               <204>:  101010101101111
+          M:  0011010                <205>:  101010101101101
+          N:  0001110                <206>:  101010101101011
+          O:  0001111                <207>:  101010101101001
+          P:  1011111                <208>:  101010101100111
+          Q:  10101011101            <209>:  101010101100101
+          R:  0011111                <210>:  101010101100011
+          S:  000101                 <211>:  101010101100001
+          T:  0011011                <212>:  101010101011111
+          U:  111100111              <213>:  101010101011101
+          V:  111100001              <214>:  101010101011011
+          W:  00100000               <215>:  101010101011001
+          X:  11111100               <216>:  101010101010111
+          Y:  1001111110             <217>:  101010101010101
+          Z:  100111101              <218>:  101010101010011
+          [:  101010111001           <219>:  101010101010001
+          \:  001110111              <220>:  101010101001111
+          ]:  101010111000           <221>:  001110100111
+          ^:  10101011010101         <222>:  101010101001101
+          _:  0011101001010          <223>:  101010101001011
+
+      ASCII:  HUFFMAN                ASCII:  HUFFMANN
+
+          `:  10101011010100         <224>:  101010101001001
+          a:  10100                  <225>:  001100001
+          b:  000110                 <226>:  101010101000111
+          c:  100110                 <227>:  101010101000101
+          d:  01110                  <228>:  101010101000011
+          e:  010                    <229>:  101010101000001
+          f:  000001                 <230>:  100111111111111
+          g:  101011                 <231>:  100111111111101
+          h:  111110                 <232>:  100111111111011
+          i:  0110                   <233>:  100111111111001
+          j:  0011101000             <234>:  100111111110111
+          k:  11111101               <235>:  100111111110101
+          l:  00101                  <236>:  100111111110011
+          m:  101100                 <237>:  100111111110001
+          n:  1000                   <238>:  100111111101111
+          o:  101101                 <239>:  100111111101101
+          p:  0001000                <240>:  100111111101011
+          q:  011111010010           <241>:  100111111101001
+          r:  11100                  <242>:  100111111100111
+          s:  10010                  <243>:  100111111100101
+          t:  11101                  <244>:  100111111100011
+          u:  00001                  <245>:  100111111100001
+          v:  11110111               <246>:  011111010111111
+          w:  1010100                <247>:  011111010111101
+          x:  011111011              <248>:  011111010111011
+          y:  1111001100             <249>:  011111010111001
+          z:  0111111                <250>:  011111010110111
+          {:  10101011010010         <251>:  011111010110101
+          |:  0011101001001          <252>:  011111010110011
+          }:  10101011010011         <253>:  011111010110001
+          ~:  001110100110           <254>:  001110100100011
+      <127>:  100111111111110        <255>:  001110100100010
+
+----------------------------------------------------------------------------

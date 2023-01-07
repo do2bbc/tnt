@@ -1,0 +1,21 @@
+MAIN: Path where TNT with its files and subdirectorys will be installed in
+LOCK: Lockfile for TNT
+      This is splitted into two parts:
+      1) The path with the default-filename (.../LCK..)
+      2) The devicestring appended to this path under 1)
+      Normally you only type the path with "LCK.." on the end, the device
+      string will appended automaticly.
+      If you are using a software TNC, there will be an extra window, where
+      you will asked for the string which should be appended.
+TNTC: Adress of frontend-socket, if TNT will be started as daemon process,
+      and console will be connected later. This may be an unix-socket or
+      network (TCP/IP) socket.
+      A unix-socket is defined with complete filename,
+      eg "/usr/local/tnt/tntc-socket".
+      A TCP/IP-socket consists of this format: "<host>:<port>", where
+      host is either your own (localhost) or a remote-computer (valid URL/
+      hostname). Port is normally a value upwards 5000.
+BOX:  Filename of box-socket.
+      If you don't use dpbox, use "0" for filename.
+COOKIE: Filename of a valid cookie-file. If you have installed "fortunes"
+        you can use the startrek fortunes for example.

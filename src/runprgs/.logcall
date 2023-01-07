@@ -1,0 +1,3 @@
+ Shows informations about yourself or another station.
+ You can add valid callsigns as arguments, if you give no argument you will
+ get informations about yourself.

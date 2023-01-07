@@ -1,0 +1,26 @@
+La configuration concenant les utilisateurs Unix est obligatoire si vous 
+faire executer des programmes. TNT execute tous les programmes qui
+acceptent des entrees "stdin" et resultats "stdout". Chaque programme
+est execute avec des process differents, il est preferable d'avoir un
+identifiant utilisateur (user-ID).
+Il y a deux possibilites:
+
+1) Vous indiquez un seul user du style "guest" ou "prrun".
+   Toutes les stations pourront executer les programmes dans les limites 
+   droits attribues a l'utilisateur "guest" ou "prrun". Si vous indiquez
+   comme user "root", tous les programmes auront les memes droits..!
+   (a condition que TNT soit execute sous root)
+
+2) Vous creez un groupe du style "packet" et TNT cree un utilisateur
+   pour chaque station, automatiquement. Tous les utilisateurs du groupe
+   "packet" auront les droits pour executer les programmes executables
+   de TNT. (commande chown)
+
+Pour 1): Indiquer un user (option "USER") et valider "CREATE" avec "NO". 
+        (le user "USER" doit exister pour lancer les programmes)
+
+Pour 2): Valider "CREATE" avec "YES" et creer un groupe pour le packet.
+        Identifiant d'entree de ce groupe est fixe par "GID".
+        Puis indiquer quel est le plus petit user-ID pour un nouvel 
+        utilisateur cree par TNT. Normalement (sous Linux) une valeur
+        autour de "410" ne doit pas poser de problemes.

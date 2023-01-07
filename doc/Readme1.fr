@@ -1,0 +1,26 @@
+MAIN: Repertoire de base ou TNT installe ses fichiers et repertoires
+
+LOCK: Lockfile pour TNT (fichier qui indique que TNT est actif)
+      Il se divise en deux parties:
+      1) Le chemin avec le nom de fichier par defaut (.../LCK..)
+      2) L'identifiant du device ajoute a ce bom de fichier
+      Normalement vous avez juste a indiquer le chemin avec "LCK.." a
+      la fin, l'identifiant du device est ajoute automatiquement.
+      Si vous utilisez un TNC "soft", une autre fenetre vous demandera
+      l'identifiant a ajouter.
+
+TNTC: Adresse du socket, si TNT est lance en resident (tnt -d) puis
+      connecte plus tard (tntc). C'est certainement un unix-socket ou
+      un socket reseau (TCP/IP).
+      Un unix-socket est defini avec un nom de fichier complet,
+      du style "/usr/local/tnt/tntc-socket".
+      Un TCP/IP-socket se presente sous la forme: "<host>:<port>", ou
+      host est votre machine (localhost) ou une machine distante.
+      (valid URL/hostname). 
+      Le port a normalement une valeur superieure a 5000.
+
+BOX:  Nom de fichier correspondant au socket du DPBox.
+
+COOKIE: Nom du fichier contenant les cookies. Valable si vous avez
+        installe le package "fortunes", vous pouvez utiliser les 
+        "fortunes startrek" par exemple. 

@@ -1,0 +1,123 @@
+This is Info file tntdoc.info, produced by Makeinfo version 1.68 from
+the input file tntdoc.texinfo.
+
+   Documentation of TNT - A UNIX Packet-Radio Terminal Program
+
+   Copyright (C) 1993-1997 by Mark Wahl, DL4YBG
+
+
+Indirect:
+tntdoc.info-1: 215
+tntdoc.info-2: 46343
+tntdoc.info-3: 95350
+tntdoc.info-4: 142570
+
+Tag Table:
+(Indirect)
+Node: Top215
+Node: Introduction554
+Node: License copying warranty1128
+Node: About Packet Radio and TNT1972
+Node: Why this program?3288
+Node: What is needed?3893
+Node: Mailbox program DPBox5025
+Node: Setting up TNT6391
+Node: Screen layout8000
+Node: Virtual screens8203
+Node: Types of virtual screens9129
+Node: Main statusline10398
+Node: Keystrokes11846
+Node: Cursor movement and miscellaneous12791
+Node: Window movement and control15310
+Node: Screen switching16430
+Node: Keyboard macros18055
+Node: Commands in command mode19436
+Node: File transfer20021
+Node: Saving data to files20268
+Node: Sending files25425
+Node: File transfer methods27496
+Node: AutoBIN file transfer27718
+Node: YAPP file transfer29295
+Node: 7Plus file reception29978
+Node: Special connect text and files with macros Name-database30660
+Node: Shell Run Redirect and Sockets32521
+Node: Shell-login37474
+Node: Redirection39393
+Node: Running programs40353
+Node: Socket server41706
+Node: AX25-Server43329
+Node: Netcmd43823
+Node: Socket connect45394
+Node: Miscellaneous46343
+Node: Routing scripts52157
+Node: Using routing scripts54210
+Node: Call update57029
+Node: Extended monitor57677
+Node: Extended monitor description59186
+Node: Boxlist60855
+Node: General description61794
+Node: Using boxlist62640
+Node: Using boxlist keyboard macros63802
+Node: Recognized formats64275
+Node: DPBox-interface commands64971
+Node: Use of DPBox67910
+Node: Password generation commands71344
+Node: Remote-command permissions and access levels76490
+Node: Broadcast transmission/reception80751
+Node: TNC commands81704
+Node: Remote commands84401
+Node: Remote command listing84637
+Node: Sysop password validation (//SYSOP)88325
+Node: Extended remote commands90580
+Node: Other topics91739
+Node: Umlaut conversion92228
+Node: Logbook93450
+Node: Huffman compression94357
+Node: Handling Flexnet connection quality checks95350
+Node: Operating different software with same callsign96366
+Node: PACSAT broadcast operation97056
+Node: Autostart on connect98884
+Node: TNT as daemon/TNTC100035
+Node: Options at startup101940
+Node: Running under X11102862
+Node: Porting of TNT103426
+Node: Linux kernel AX.25 interface104097
+Node: Description of configuration files112504
+Node: Main configuration file113326
+Node: Serial and general configuration124434
+Node: Security127680
+Node: Directories Files and Sockets128469
+Node: Directories129034
+Node: Files130313
+Node: Sockets and Boxfiles132139
+Node: Lines of virtual screens133149
+Node: Display configuration135511
+Node: Screen attributes136172
+Node: Color attributes136650
+Node: Monochrome attributes138412
+Node: Packet assembly timeout139380
+Node: Additional options139959
+Node: TNT startup/shutdown file140457
+Node: Cookie file141851
+Node: Files for remote commands142570
+Node: Files for connect text145946
+Node: Files for names database and routing scripts147189
+Node: Names database147506
+Node: Routing database147973
+Node: User-Ids and security150541
+Node: Logfile for resynchronisation152107
+Node: File for keyboard macros152752
+Node: File for password generation153259
+Node: File for sysop authentification155210
+Node: File for remote commands disabling155754
+Node: File containing not own callsigns156195
+Node: File containing Flexnet digipeaters156671
+Node: File for AX25-server access157099
+Node: File for autostart on connect157884
+Node: File for extended remote commands158555
+Node: Files for BBS features159185
+Node: Configuration file for TNTC162315
+Node: Credits and Contact162645
+Node: Appendix165320
+
+End Tag Table

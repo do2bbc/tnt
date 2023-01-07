@@ -1,0 +1,16 @@
+/* Header fuer TNT-Runprogramme */
+
+/* Eincompilierter Pfad fuer INI Dateien*/
+#define TNT_INIT_PATH "@tnt_conf_dir@"
+
+/* Eincompilierter Run-Pfad, wird zB vom Runprogramm "hilfe" benoetigt */
+#define TNT_RUN_PATH "@tnt_bin_dir@"
+
+/* Eincompilierter Main-Pfad, wird zB vom Logbuchprogramm benoetigt */
+#define TNT_MAIN_PATH "@tnt_log_dir@"
+
+/* Makrodefinitionen fuer Enviromentvariablen */
+#define GET_CALLSIGN (char *) getenv("CALLSIGN")
+#define GET_LOGNAME (char *) getenv("LOGNAME")
+#define GET_CALLSSID (char *) getenv("CALLSSID")
+

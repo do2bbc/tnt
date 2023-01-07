@@ -1,0 +1,2 @@
+Bye et 73, %n
+Votre temps de connexion: %l

@@ -1,0 +1,1194 @@
+This is Info file tntdoc.info, produced by Makeinfo version 1.68 from
+the input file tntdoc.texinfo.
+
+   Documentation of TNT - A UNIX Packet-Radio Terminal Program
+
+   Copyright (C) 1993-1997 by Mark Wahl, DL4YBG
+
+
+File: tntdoc.info,  Node: Top,  Next: Introduction
+
+
+
+TNT - A UNIX Packet-Radio Terminal Program
+
+* Menu:
+
+* Introduction::
+* Setting up TNT::
+* Screen layout::
+* Keystrokes::
+* Commands in command mode::
+* TNC commands::
+* Remote commands::
+* Other topics::
+* Description of configuration files::
+* Credits and Contact::
+
+* Appendix::
+
+
+File: tntdoc.info,  Node: Introduction,  Next: Setting up TNT,  Prev: Top,  Up: Top
+
+Introduction
+************
+
+Version of TNT described
+========================
+
+   This documentation describes TNT V1.9 dated 99/08/14. The last
+update of the documentation was done at 99/08/04. The current
+maintainer of the English documentation of TNT is Christoph Berg, DF7CB
+(Email: df7cb@fsinfo.cs.uni-sb.de, Packet: df7cb@db0hom.#sar.deu.eu).
+
+* Menu:
+
+* License copying warranty::
+* About Packet Radio and TNT::
+* Why this program?::
+* What is needed?::
+* Mailbox program DPBox::
+
+
+File: tntdoc.info,  Node: License copying warranty,  Next: About Packet Radio and TNT,  Up: Introduction
+
+License, copying, warranty
+==========================
+
+TNT is Copyright (C) 1993-1997 by Mark Wahl, DL4YBG
+
+   This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation;
+
+   This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details (contained in file 'COPYING').
+
+   You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+
+File: tntdoc.info,  Node: About Packet Radio and TNT,  Next: Why this program?,  Prev: License copying warranty,  Up: Introduction
+
+About Packet Radio and TNT
+==========================
+
+   Packet-Radio is a special mode used by Radio Amateurs to transfer
+text and data. It is packet orientend and uses the AX.25-protocol (a
+special version of X.25 to fit Ham Radio needs).
+
+   There are some single board computers which implement the
+AX.25-protocol and contain the modem-interface to the
+radio-transceiver. The terminal or computer with terminalprogram is
+connected via a RS232-interface. These single board computers are
+called Terminal Node Controller (TNC).
+
+   For most of these TNCs a special software is available
+(WA8DED-Software or The Firmware by NORD><LINK) which can be switched
+to a special protocol (hostmode) at the RS232-interface. If hostmode is
+selected it is not possible to operate the TNC using a simple terminal,
+a computer with a special terminalprogram is needed.
+
+   The advantage of hostmode is that the terminalprogram can implement
+virtual screens for the different connections, the command mode and
+monitor mode.  All these will be displayed together on a normal
+terminal which leads to confusion of the operator.
+
+TNT is such a terminalprogram (TNT stands for TNc Terminalprogram).
+
+
+File: tntdoc.info,  Node: Why this program?,  Next: What is needed?,  Prev: About Packet Radio and TNT,  Up: Introduction
+
+Why this program?
+=================
+
+   There are some implementations of the AX.25-protocol available for
+UNIX (KA9Q, WAMPES, e.t.c.). They all use the TNC as a simple modem
+(KISS-mode) and have TCP/IP protocol implemented (using AX.25). But the
+operator frontend is very poor, there are no virtual screens and scroll
+back buffers.  So my intention was to write a program which has a
+powerful operator frontend and uses the TNC not as a modem but as a
+Terminal Node Controller.
+
+
+File: tntdoc.info,  Node: What is needed?,  Next: Mailbox program DPBox,  Prev: Why this program?,  Up: Introduction
+
+What's needed?
+==============
+
+   The program is developed for LINUX and a VT100-compatible terminal.
+It further needs a TNC with WA8DED-software or The Firmware by
+NORD><LINK connected to a serial port of the computer.  The Firmware by
+NORD><LINK is available for TNC2, all TNC2-clones and for AEA PK232 and
+PK88. WA8DED-software is available for TAPR-TNC1.
+
+   If you don't have a TNC with The Firmware or you don't want to change
+the Software of your TNC, TFKISS may be used. TFKISS is a program
+running under Linux, which emulates a TNC with The Firmware. It only
+needs a TNC running KISS or a device which behaves like a TNC using
+KISS.  TFKISS supports standart KISS, KISS with checksum (SMACK) and
+KISS with checksum used in Flexnet-digipeaters (RMNC-KISS).
+
+   Although LINUX is the development platform, a porting of TNT to
+other UNIXes shall be possible because no special functions are used.
+Other terminals can be used if they have at least line insert and line
+delete and an entry in /etc/termcap.
+
+
+File: tntdoc.info,  Node: Mailbox program DPBox,  Prev: What is needed?,  Up: Introduction
+
+Mailbox program DPBox
+=====================
+
+   Joachim, DL8HBS has written a very powerful packet radio program
+called DigiPoint for ATARI computers. It contains a packet radio host
+terminal, satellite calculations and a bulletin board system.
+
+   The BBS contains almost all features of the known BBS-systems and is
+capable of performing store and forward with many other systems
+including packed s&f with F6FBB-BBS's. In addition it can be filled by
+simply monitoring the frequency. So you will get an up-to-date mailbox
+without transmitting yourself.
+
+   So I decided to try a port of the BBS-part of DP to Linux. Joachim
+gave me his Pascal-sourcecode and I translated it with P2C by Dave
+Gillespie (contained in most Linux-distributions) to C. P2C did a
+terrific job, thanks Dave! Only some minor prework at the sources was
+needed and P2C created almost executable code. An unix socket interface
+was added on both sides, TNT and DPBox and the first successful tests
+were performed.
+
+   Many improvements were done since then, even the PACSAT broadcast
+transmitter/ receiver is included now. The combination TNT and DPBox is
+running currently in some german full time BBS's and performing good
+and stable. For more information please consult the DPBox-Documentation.
+
+
+File: tntdoc.info,  Node: Setting up TNT,  Next: Screen layout,  Prev: Introduction,  Up: Top
+
+Setting up TNT
+**************
+
+   Unless you did not get a binary distribution of TNT (e.g. with your
+favourite Linux distribution), you have to compile it yourself in order
+to run it.  First, get the packed file, usually called like
+tnt-<version>.tgz and unpack it into a suitable directory (e.g. ~/src):
+
+     $ cd ~/src
+     $ tar xzvf tnt-1.9.tgz
+
+Now you should have a directory tnt1.9; to compile, do the following:
+
+     $ cd tnt1.9
+     $ ./configure
+     $ make
+
+Execute the next step as root to install TNT under /usr/local.  If you
+want to install TNT into a different location, use `./configure
+--prefix=/other/dir' above.
+
+     # make install
+
+All you have to do now, is to set up a configuration file for TNT.  A
+setup program will guide you through the next steps.
+
+Other usefull options for configure are:
+
+`./configure --help'
+     Show all options.
+
+`./configure --disable-sound'
+     This will disable the sound features.
+
+`./configure --disable-english'
+     This will cause the installation process to use German instead of
+     English.
+
+`./configure --enable-dpboxt'
+     This option turns on the ability of TNT to act as a terminal for
+     DPBOX.
+
+`./configure --enable-ax25k'
+     If you want to use the Linux kernel AX.25 facilities, use that
+     switch.    Without it, the parts of code for addressing the kernel
+     will be left out.
+
+`./configure --enable-hibaud'
+     On Linux, this will turn on the ability, to use speeds higher than
+     38400   on the serial line to the TNC
+
+
+File: tntdoc.info,  Node: Screen layout,  Next: Keystrokes,  Prev: Setting up TNT,  Up: Top
+
+Screen layout
+*************
+
+* Menu:
+
+* Virtual screens::
+* Types of virtual screens::
+* Main statusline::
+
+
+File: tntdoc.info,  Node: Virtual screens,  Next: Types of virtual screens,  Up: Screen layout
+
+Virtual screens
+===============
+
+   In simple other programs all commands and the data for all channels
+are displayed on one screen. This is not easy to handle and often leads
+to confusion of the user. Therefore TNT uses a 'virtual' screen for
+every kind of data. Because only one real display is available the
+operator must choose which of the several virtual screens he wants to
+see. He can switch between them by using special codes or keys on the
+keyboard.
+
+   To see which screen and channel is active and to give global
+information a statusline is displayed at the bottom of the screen.
+
+   All virtual screens (or the two parts of the connect screen) can be
+configured larger than the real display on the screen. Therefore only a
+small window of the virtual screen is displayed. The window can be
+moved by the operator.
+
+
+File: tntdoc.info,  Node: Types of virtual screens,  Next: Main statusline,  Prev: Virtual screens,  Up: Screen layout
+
+Types of virtual screens
+========================
+
+   It is possible to operate several connection on the same frequency.
+Therefore a screen for every connection is implemented.  The connect
+screen is splitted to a part where all input is typed and a part where
+all received data will be displayed. A statusline with all information
+about the connection is located between these two parts.  Optionally
+some lines displaying the activity on the frequency can be displayed
+(command MONLINES, 'lines_moncon' in tnt.ini).
+
+   To change parameters or give commands to the TNC a command screen is
+available. To simplify operation all commands can be entered in the
+connect screens, too by using a colon (:) as the first character.
+
+   It is possible to monitor all activity of other stations on the
+frequency.  To display these information a monitor screen is available.
+
+   In addition there are some additional screens for special purposes.
+A screen for the heard stations list, for the extended monitor feature,
+for the online-help and for the box read generator.  If a link to DPBox
+is active, there is a screen for the box operator- console, too.
+
+
+File: tntdoc.info,  Node: Main statusline,  Prev: Types of virtual screens,  Up: Screen layout
+
+Main statusline
+===============
+
+   The statusline at the bottom of the screen shows the main status of
+the program. It shows the screen type (connect, command or monitor) and
+the current channel. In addition any open file (send or receive) on the
+current channel will be displayed.
+
+   If huffman compression is active on the selected channel CONNECT is
+replaced by CONN(H) and EXTMONI by EXTM(H).
+
+   In addition a 'P' will be displayed if the data output is paused, a
+'I' if insert mode is active. If the hostmode synchronisation is lost a
+'S' will be displayed. If the TNC was busy and a resend of data from
+the computer is done, a 'B' will be displayed. If a routing script is
+active a 'X' will be displayed.
+
+   If data is received on a channel which is not displayed the channel
+number will be displayed until it is switched to the connect screen of
+this channel.  If a connection is active on a channel it is displayed
+by a '+' at the channel position.
+
+   If a file is open on the displayed channel, a two-character file type
+identifier and the filename (only last 14 charcters) will be displayed
+in the statusline. Files which receive data will be displayed in the
+first file field, files which transmit data will be displayed in the
+second file field. The two-character file type identifier will be
+explained in the file command chapter.
+
+
+File: tntdoc.info,  Node: Keystrokes,  Next: Commands in command mode,  Prev: Screen layout,  Up: Top
+
+Keystrokes
+**********
+
+*Note*: The combination <ALT>-key generates the sequence <ESC>-key in
+the Linux console.  In some terminals under X11 (e.g. xterm) and on
+terminals that do not have a Meta/Alt key or handle it differently, one
+has to press <ESC> key by hand. Therefore to activate the monitor
+screen with X11 you have to type first <ESC> and then M instead of
+Alt-M.
+
+Footnotes for keys that can only be used in some parts of TNT:
+(*1) : Input part of connect or mailbox screen.
+(*2) : Command screen and input part of extended monitor screen.
+(*3) : Monitor screen, receive part of connect, extended monitor or
+       mailbox screen.
+(*4) : Command, boxlist, heard and help screen
+(*5) : Only on monitor screen
+
+* Menu:
+
+* Cursor movement and miscellaneous::
+* Window movement and control::
+* Screen switching::
+* Keyboard macros::
+
+
+File: tntdoc.info,  Node: Cursor movement and miscellaneous,  Next: Window movement and control,  Up: Keystrokes
+
+Cursor movement and miscellaneous
+=================================
+
+`CR, LF, <CTRL>M, <CTRL>J'
+     The line from the beginning up to the cursor position is
+     transmitted on   the current channel (*1) or will be transferred
+     to the command interpreter   (*2). If the first character is a
+     colon (":") (*1), the line will be sent   to the command
+     interpreter (without the colon). A colon as the first   character
+     of (*2) will be ignored and removed.    If WHOLElin is set to on,
+     the whole line will be used and the cursor   position is ignored.
+
+`Arrow key left, <CTRL>S'
+     Move the cursor one character to the left, if not on the start of
+     the line   (*1,*2).
+
+`Arrow key right, <CTRL>D'
+     Move the cursor one character to the right, if not on the end of
+     the line   (*1,*2).
+
+`Arrow key up, <CTRL>E'
+     Move the cursor one line up, if not on the top of the screen
+     (*1,*2,*4).
+
+`Arrow key down, <CTRL>X'
+     Move the cursor one line down, if not on the bottom of the screen
+     (*1,*2,*4).
+
+`<CTRL>A'
+     Move the cursor to the start of the line   (for command screen and
+     input part of connect screen).
+
+`<CTRL>F'
+     Move the cursor to the last non-space character of the line   (for
+     command screen and input part of connect screen).
+
+`INSERT, <CTRL>N'
+     Toggle insert-mode. If insert-mode is active a 'I' is displayed in
+     the   statusline at the bottom. In normal mode all characters are
+     overwritten,   in insert mode all characters from cursor position
+     to the end of the line   will be shifted one position right
+     (*1,*2).
+
+`DEL, <CTRL>H'
+     Delete character left of cursor and move cursor one position left.
+     If   insert-mode is active, all characters from cursor-position to
+     the end of   the line is moved one position left (*1,*2).
+
+`<CTRL>L'
+     The character at the cursor position will be deleted, all
+     characters right   of the cursor up to the end of the line will be
+     shifted one position left   (*1,*2).
+
+`<CTRL>Y'
+     Delete all characters from the cursor position to the end of the
+     line   (*1,*2).
+
+`<CTRL>V'
+     The pass character. If for example you want to send cntl-T to the
+     connected   station first type cntl-V and then a 'T'. A different
+     attribute of the   character shows that it is a control character
+     (*1). Note: you can also use   the CTRLTX command.
+
+
+File: tntdoc.info,  Node: Window movement and control,  Next: Screen switching,  Prev: Cursor movement and miscellaneous,  Up: Keystrokes
+
+Window movement and control
+===========================
+
+`<CTRL>R, Arrow key up (*5)'
+     Move the display window of the virtual screen one line up, if not
+     on top   of virtual screen (*3).
+
+`<CTRL>C, Arrow key down (*5)'
+     Move the display window of the virtual screen one line down, if
+     not on   bottom of virtual screen (*3).
+
+`Page up, <CTRL>W'
+     Move the display window of the virtual screen one page up, if not
+     on top   of virtual screen (*3,*4).
+
+`Page dwn, <CTRL>Z'
+     Move the display window of the virtual screen one page down, if
+     not on   bottom of virtual screen (*3,*4).
+
+`HOME'
+     Move to the beginning of the window (*3,*4).
+
+`END'
+     Move to the end of the window (*3,*4).
+
+`<CTRL>P, <ALT>P, <ESC>P'
+     Toggle stop of data-output on the current screen, only possible on
+     connect   and monitor screen. Stop is indicated by a 'P' in the
+     statusline at the   bottom (Monitor screen and receive part of
+     connect screen).
+
+
+File: tntdoc.info,  Node: Screen switching,  Next: Keyboard macros,  Prev: Window movement and control,  Up: Keystrokes
+
+Screen switching
+================
+
+`F1 - F9'
+     Switch to connect screen of channel 1 to 9. If the key is pressed
+     again   and the currently selected channel plus 10 exists, switch
+     to that channel.    (i.e. 2 two times F1 leads to channel 11).
+     If not, select the "low" channel.
+
+`F10'
+     Switch to connect screen of channel 0 (unproto channel). If
+     pressed again   switch to channel 10, 20, ... if they exist.
+
+`F11, <ALT>M, <ESC>M'
+     Switch to monitor screen, if in monitor screen switch back to last
+      selected screen.
+
+`F12, <ALT>C, <ESC>C'
+     Switch to command screen.
+
+`<ALT>Q, <ESC>Q'
+     Switch to connect screen of current channel.
+
+`TAB, <CTRL>I'
+     Select a new channel, a '??' as the channelnumber in the statusline
+      indicates this. A number between 00 to 99 for channels 00 to 99
+     must be   entered. Only existing channelnumbers are accepted. If
+     the extended   monitor is active, the channelnumber of the
+     extended monitor channel   (0 to 4) is selected instead of the
+     connect channel.
+
+`<ALT>H, <ESC>H'
+     Switch to help screen.
+
+`<ALT>X, <ESC>X'
+     Switch to extended monitor screen.
+
+`<ALT>S, <ESC>S'
+     Update heard stations list and display heard list screen.
+
+`<ALT>L, <ESC>L'
+     Switch to box read generator (only if activated on current
+     channel).    If already in read generator screen switch back to
+     screen before   selection.
+
+`<ALT>B, <ESC>B'
+     If DPBox is connected, switch to box operator console.
+
+
+File: tntdoc.info,  Node: Keyboard macros,  Prev: Screen switching,  Up: Keystrokes
+
+Keyboard macros
+===============
+
+`<ALT>0 - <ALT>9, <ESC>0 -<ESC>9'
+     User definable function keys for either text or commands.
+
+   With the keyboard macro feature some often used commands or texts
+can be executed or sent by a single keystroke.  You may define up to 10
+macros <ALT>0 to <ALT>9 or <ESC>0 to <ESC>9 with either text patterns
+or TNT commands in a file specified by 'func_key_file' in the init-file.
+
+   Each line has to begin with a two digit number specifying the number
+and a colon. (01: for <ALT>1 / <ESC>1, 10: for <ALT>0 / <ESC>0).  The
+macro text follows directly after the colon. If the last character of
+the line is an asterisk '*' a CR will be sent instead of it, otherwise
+no CR will be sent.  A TNT command must be preceeded by an additional
+colon, a CR is always appended to the command line.  The length of the
+text or command must not exceed the length of the line.
+
+   If the length of one line is not sufficient for your text or you
+want to send a text containing macros like time and callsign, use the
+commands SEND or MSEND specify a file to be read. To execute more than
+one command in a macro, use SENDCOM.
+
+   The keyboard macro file is loaded at startup. If you change this
+file during execution of TNT, you can reload the file with the command
+'kmacro'.
+
+
+File: tntdoc.info,  Node: Commands in command mode,  Next: TNC commands,  Prev: Keystrokes,  Up: Top
+
+Commands in command mode
+************************
+
+Most of the commands can be abbreviated, the upcase part of the command
+is mandatory.
+
+* Menu:
+
+* File transfer::
+* Special connect text and files with macros Name-database::
+* Shell Run Redirect and Sockets::
+* Miscellaneous::
+* Routing scripts::
+* Extended monitor::
+* Boxlist::
+* DPBox-interface commands::
+* Password generation commands::
+* Remote-command permissions and access levels::
+* Broadcast transmission/reception::
+
+
+File: tntdoc.info,  Node: File transfer,  Next: Special connect text and files with macros Name-database,  Up: Commands in command mode
+
+File transfer
+=============
+
+* Menu:
+
+* Saving data to files::
+* Sending files::
+* File transfer methods::
+
+
+File: tntdoc.info,  Node: Saving data to files,  Next: Sending files,  Up: File transfer
+
+Saving data to files
+--------------------
+
+`LOGQso <filename>'
+     A file will be openend and all transmitted and received data on
+     the selected   channel will be saved.  If no directory was
+     specified, the file will be   stored in 'download_dir'.  If
+     'download_dir' is not given, the current   directory is used. A CR
+     received will be translated to a LF and control-codes   will be
+     translated to ^X.  Umlaut-conversion will be done, too. The file
+     type   ID is 'RN', receive normal.
+
+`LOGRec <filename>'
+     Same as LOGQSO but only received data will be saved.    The file
+     type ID is 'RN', receive normal.
+
+`LOGSnd <filename>'
+     Same as LOGQSO but only transmitted data will be saved.    The
+     file type ID is 'RN', receive normal.
+
+`READ <filename>'
+     A file will be openend and all received data will be saved.    If
+     no directory was specified, the file will be stored in
+     'download_dir'.    If 'download_dir' is not given, the current
+     directory is used. Only a CR to LF   translation is done. READ
+     shall be used to receive 7PLUS files.    The file type ID is 'RP',
+     receive plain.
+
+`READBin <filename>'
+     Same as READ but no translation of characters is done.    The file
+     type ID is 'RB', receive binary.
+
+`READAbin <filename>'
+     Start receiving a file using the AutoBIN-protocol.    If no
+     directory was specified, the file will be stored in 'download_dir'.
+      If 'download_dir' is not given, the current directory is used.
+     The file type ID is 'RA', receive AutoBIN.
+
+`LOGAbin <filename>'
+     Same as READABIN except that at the end of transmission the
+     transfer   statistics are only displayed, but not sent (useful for
+     receiving binary   files from BBSs which get confused by the
+     statistics).    The file type ID is 'RQ', receive AutoBIN, quiet
+     mode.
+
+`READYapp [filename]'
+     Start receiving a file using the YAPP-protocol.    If no filename
+     was given, the name transmitted will be used, a directory
+     contained in the name will be removed.    If no directory was
+     specified, the file will be stored in 'download_dir'.    If
+     'download_dir' is not given, the current directory is used.    The
+     file type ID is 'RY', receive YAPP.
+
+`CLose'
+     Close an active receive-file.
+
+`LOGMon <filename>'
+     A file will be openend and all received data on the monitor screen
+     will be   saved. If no directory was specified, the file will be
+     stored in   'download_dir'. If 'download_dir' is empty, the
+     current directory is used.    A CR will be translated to a LF and
+     control-codes will be translated to ^X.    Umlaut-conversion will
+     be done, too.    The file type ID is 'RN', receive normal.
+
+`RDMON <filename>'
+     Same as LOGMON but only a CR to LF translation is done.    The
+     file type ID is 'RP', receive plain.
+
+`RDMONBin <filename>'
+     Same as RDMON but no translation of characters is done.    The
+     file type ID is 'RB', receive binary.
+
+`CLOSEMon'
+     Close the active receive-file on the monitor screen.
+
+`LOGXmon <filename> (on extended monitor screen)'
+`LOGXmon <xmon-channel> <filename> (on other screens)'
+     A file will be openend and all received data on the current (on
+     extended   monitor screen) or on the specified (on other screens)
+     extended monitor   channel will be saved.    If no directory was
+     specified, the file will be stored in 'download_dir'.    If
+     'download_dir' is not given, the current directory is used. A CR
+     will be   translated to a LF and control-codes will be translated
+     to ^X.    Umlaut-conversion will be done, too.    The file type ID
+     is 'RN', receive normal.
+
+`RDXMON <filename> (on extended monitor screen)'
+`RDXMON <xmon-channel> <filename> (on other screens)'
+     Same as LOGXMON but only a CR to LF translation is done.    The
+     file type ID is 'RP', receive plain.
+
+`RDXMONBi <filename> (on extended monitor screen)'
+`RDXMONBi <xmon-channel> <filename> (on other screen)'
+     Same as RDXMON but no translation of characters is done.    The
+     file type ID is 'RB', receive binary.
+
+`CLOSEXmo (on extended monitor screen)'
+`CLOSEXmo <xmon-channel> (on other screens)'
+     Close the active receive-file on the current (on extended monitor
+     screen)   or on the specified (on other screens) extended monitor
+     channel.
+
+`APPend [ON/OFF]'
+     Flag if data shall be appended to existing files   (only valid for
+     LOGQSO, LOGREC, LOGSND, LOGMON and LOGXMON).
+
+`AUTOBIn [ON/OFF]'
+     Flag if AutoBIN-receive shall start autonomously on reception of a
+     valid   AutoBIN-Header (AutoBIN-receive is performed in quiet mode
+     like started   with LOGABIN-command).
+
+`AUTOYApp [ON/OFF]'
+     Flag if YAPP-receive shall start autonomously on reception of a
+     valid   YAPP-Header.
+
+`AUTO7Pl [ON/OFF]'
+     Flag if 7Plus-receive shall start autonomously on reception of a
+     valid   7Plus-Header. To indicate 7Plus reception a file type ID
+     of 'A7' will   be displayed at the bottom statusline.
+
+
+File: tntdoc.info,  Node: Sending files,  Next: File transfer methods,  Prev: Saving data to files,  Up: File transfer
+
+Sending files
+-------------
+
+`SEND <filename>'
+     Send a file on the selected channel, a LF will be translated to CR.
+      If no directory was specified, the file will be fetched from
+     'upload_dir'.    If 'upload_dir' is not given, the current
+     directory is used.    SEND shall be used to send 7PLUS files.
+     The file type ID is 'TP', transmit plain.
+
+`SENDLog <filename>'
+     Same as SEND but control-codes will be translated to ^X and
+     Umlaut-conversion will be done.    The file type ID is 'TN',
+     transmit normal.
+
+`SENDBin <filename>'
+     Same as SEND but no LF to CR translation.    The file type ID is
+     'TB', transmit binary.
+
+`SENDAbin <filename>'
+     Send a file using the AutoBIN-protocol.    If no directory was
+     specified, the file will be fetched from 'upload_dir'.    If
+     'upload_dir' is not given, the current directory is used.    The
+     file type ID is 'TA', transmit autoBIN.
+
+`SENDQbin <filename>'
+     Same as SENDAbin, but it is not waited for #OK# after transmitting
+     the   #BIN#-header and the statistics are not transmitted.    The
+     file type ID is 'TQ', transmit autoBIN, quiet mode.
+
+`SENDYapp <filename>'
+     Send a file using the YAPP-protocol.    If no directory was
+     specified, the file will be fetched from 'upload_dir'.    If
+     'upload_dir' is not given, the current directory is used.    The
+     file type ID is 'TY', transmit YAPP.
+
+`MSEnd <filename>'
+     Send a file, using macros. The file is fetched from
+     'macrotext_dir' defined in the init-file.
+
+`BReak'
+     Abort sending of a file.
+
+`FPACLen'
+     Maximum packet length used for file sending. If SENDLog is used,
+     the   length is divided by two because of possible
+     Umlaut-conversion.    The allowed range is between 20 and 256
+     characters. If static huffman   compression is activated the
+     maximum value is reduced to 255 characters.    Changes are global
+     for all channels.
+
+
+File: tntdoc.info,  Node: File transfer methods,  Prev: Sending files,  Up: File transfer
+
+File transfer methods
+---------------------
+
+* Menu:
+
+* AutoBIN file transfer::
+* YAPP file transfer::
+* 7Plus file reception::
+
+
+File: tntdoc.info,  Node: AutoBIN file transfer,  Next: YAPP file transfer,  Up: File transfer methods
+
+AutoBIN file transfer
+.....................
+
+   To transfer binary files easily without much overhead but with a
+checksum, the AutoBIN-'protocol' was invented.  It is implemented in
+many PR-programs, including TNT and is widely used in Germany.  To use
+AutoBIN the commands SENDABIN, READABIN and LOGABIN are available for
+the operator and //WPRG and //RPRG for a remote user. In addition with
+AUTOBIN the protocol is autonomously //started after reception of a
+valid AutoBIN-header.
+
+   At the end of a successful transfer the elapsed time and the
+effective Baudrate is displayed. If a file was received, the received
+checksum and the calculated checksum will be displayed, too. Normally
+these statistical information will be send to the remote station, too.
+In case of LOGABIN or AUTOBIN enabled the statistical information will
+only be displayed (to avoid confusion of some BBSs). SENDABIN will
+transmit these statistics, too, while SENDQBIN does not, the latter
+also does not wait for a #OK# to start the transmission.
+
+   If the transfer was aborted, the connection was disconnected or the
+calculated checksum is not equal to the received checksum, the received
+file will be moved to a special directory (abin_dir). In addition the
+name is changed to a unique name. From time to time it is needed to
+clean up this directory.  Although in most cases these corrupted files
+are of no interest, for the rare cases where they are needed they are
+kept in this directory.
+
+
+File: tntdoc.info,  Node: YAPP file transfer,  Next: 7Plus file reception,  Prev: AutoBIN file transfer,  Up: File transfer methods
+
+YAPP file transfer
+..................
+
+   The AutoBIN-'protocol' is used widely in Germany. The rest of the
+world usually use the YAPP-protocol. From the technical point of view
+YAPP and its extension YAPP-C is the better approach to binary transfer
+and shall be preferred.
+
+   In TNT for YAPP the commands READYAPP and SENDYAPP are available, a
+remote user can use //RYAPP and //WYAPP. To enable the automatic
+reception of a YAPP-file, you can set AUTOYAPP to on. All files
+automatically received will be stored in 'yapp_dir' defined in tnt.ini.
+
+
+File: tntdoc.info,  Node: 7Plus file reception,  Prev: YAPP file transfer,  Up: File transfer methods
+
+7Plus file reception
+....................
+
+   7Plus is a program that encodes binary data into plain text that can
+be transmitted as mail without use of a special protocol. It also
+supports splitting a file into serveral chunks that will better fit the
+message sizes usually found in packet radio mails.
+
+   If you receive large numbers of 7Plus files, you might want to store
+them directly in a special directory without any mailbox output in
+between.  This can be done by setting AUTO7PL to on. All received 7Plus
+files will be stored in 'tnt_7plus_dir' defined in tnt.ini.
+
+
+File: tntdoc.info,  Node: Special connect text and files with macros Name-database,  Next: Shell Run Redirect and Sockets,  Prev: File transfer,  Up: Commands in command mode
+
+Special connect text and files with macros, Name-database
+=========================================================
+
+   In order to be able to send a special connect text to a connecting
+station, macros can be included in the connect text file.  The connect
+text file will be sent on a connect if CONTEXT was set to ON.  For
+default the connect text file (tnt_ctextfile) in the tnt directory will
+be used, but you can put for some users a personal connect text in the
+connect text directory (ctext_dir). The file must be named
+<callsign>.ctx .
+
+   In addition a file containing macros can be sent every time you like,
+not only on connect (command MSEND). All these files must reside in the
+macro text directory 'macrotext_dir'.
+
+   To be more personal and to help remembering the name of the operator
+of the remote station a name database is included.  A name can be
+entered by the operator using the NAME command or with //NAME given by
+the remote station.  If no name is specified after the command, the
+current name will be reported.
+
+Following macros are expanded, if found in a connect text or macro file:
+
+     %a: Last sysop activity
+     %b: Bell (^G)
+     %c: Call of other station
+     %d: Current date
+     %i: Include news-file ('news_file_name')
+     %k: Channel number
+     %l: Login time elapsed
+     %m: Prints the message set with :MSG
+     %n: Name of other station (extract from names database)
+     %o: Include a cookie
+     %s: Lifetime of TNT
+     %t: Current time
+     %v: Version of TNT running
+     %y: Call of own station
+     %z: Timezone
+     %?: Send a message if name of other station not contained in names database
+     %_: CR/LF
+     %%: '%' itself
+
+
+File: tntdoc.info,  Node: Shell Run Redirect and Sockets,  Next: Miscellaneous,  Prev: Special connect text and files with macros Name-database,  Up: Commands in command mode
+
+Shell, Run, Redirect and Sockets
+================================
+
+`SHell'
+     Open a shell on the current channel. The call sign of the remote
+     station   is used as a user-id. If the user-id does not exist in
+     the system, it   depends on 'unix_new_user', whether 'remote_user'
+     is used instead   (0) or the user-id is created (1).    All
+     received data on the current channel will be sent to the shell, all
+      data from the shell will be sent on the current channel.    All
+     line feed characters sent by the shell will be   translated to
+     carriage return . All carriage return characters   received from
+     the remote station will be translated to line feed   prior to
+     sending to the shell.
+     (This command is available only if TNT is invoked by root.)
+
+`TSHell'
+     Same as SHELL, but no conversion of linefeed and carriage return
+     will be   done.
+
+`ROOTSH'
+     Same as SHELL, but a shell with superuser privileges (root) is
+     started.
+
+`TROOTSH'
+     Same as ROOTSH, but no conversion of linefeed and carriage return
+     will be   done.
+
+`ENDShell'
+     End the shell on the current channel.
+
+`RUN <program>'
+     On the current channel the specified program will be executed.
+     All received data on the current channel will be used as standard
+     input   of the program, all data sent to standard output by the
+     program will be   sent on the current channel. Only programs
+     contained in 'tnt_bin_dir' can be   executed.    All line feed
+     characters sent by the program will be translated to   carriage
+     return. All carriage return characters received from the   remote
+     station will be translated to line feed prior to sending   to the
+     program.
+
+`RUNT <program>'
+     Same as RUN, but no conversion of linefeed and carriage return
+     will be   done.
+
+`ENDRun'
+     Abort execution of the program on the current channel.
+
+`REDir <device>'
+     Redirection of input/output.    All received data on the current
+     channel will be sent to <device>, all   data received from
+     <device> will be sent on the current channel.
+
+`ENDRedir'
+     End the redirection of the current channel.
+
+`SOCKCon <socket address>'
+     The socket specified will be connected and all data received from
+     the   socket will be transmitted on the current channel and vice
+     versa.    All line feed characters received from the socket will
+     be translated to   carriage return. All carriage return characters
+     received from the   remote station will be translated to line feed
+     prior to sending   to the socket.    More information can be found
+     in the chapter 'Detailled Description'.
+
+`TSOCKCon <socket address>'
+     Same as SOCKCON, but no conversion of linefeed and carriage return
+     will be   done.
+
+`ENDSOCKC'
+     End the socket connection on the current channel.
+
+`SOCket AXSERV <socket address>'
+     An AX25 server will be installed on the specified socket. From now
+     on   a connection to this socket is possible and after
+     authentification AX25-   connections can be started (for example
+     internet-access to packet radio).    More information can be found
+     in the chapter 'Detailled Description'.
+
+`SOCket AXSPEC <socket address>'
+     Same as SOCKET AXSERV, except data from the client to AX25 will be
+      transmitted directly on occurence of line feed or carriage
+     return without   waiting for 'pty_timeout'.
+
+`SOCket NETCMD <socket address> <default callsign>'
+     A Wampes-compatible AX25 server will be started on the specified
+     socket.    If no own callsign is given in the connect command the
+     default callsign   is used. More information can be found in the
+     chapter 'Detailled   Description'.
+
+`SOCKet'
+     List all running socket servers.
+
+`ENDSock <socket address>'
+     End the socket server on the specified socket address. All
+     connections to   the server are disconnected.
+
+`IFAce <socket-name>'
+     Build up a socket connection to an external program via an
+     UNIX-socket   <socket-name>.
+
+`ENDIFace <socket-name>'
+     Disconnect the socket connection to an external program via an
+     UNIX-socket   <socket-name>.
+
+`FINIFace <socket-name>'
+     Same as ENDIFACE, except that the external program get the command
+     to   terminate its execution.
+
+`ACTIf <socket-name>'
+     Activate the external program on the current channel using the
+     already   built up socket connection.
+
+`DEACtif <socket-name>'
+     Deactivate the external program on the current channel.
+
+`SNOCONN <string>'
+     String which will be sent, if a program was remotely activated via
+      the Interface and the activation was not successful.
+
+* Menu:
+
+* Shell-login::
+* Redirection::
+* Running programs::
+* Socket server::
+* Socket connect::
+
+
+File: tntdoc.info,  Node: Shell-login,  Next: Redirection,  Up: Shell Run Redirect and Sockets
+
+Shell-login
+-----------
+
+   TNT allows a remote user to log into UNIX as a normal user. All
+received data is treated as shell input, all data from the shell is
+transmitted to the remote station. To use the shell-login it is
+necessary to invoke TNT by the superuser root. Otherwise the
+shell-login is disabled. The shell can be started by the operator using
+command SHELL or TSHELL or by the remote station using command //SHELL
+or //TSHELL. It is possible to execute all programs which are permitted
+to use from the shell.
+
+   To be in line with the end of line convention used in Packet Radio,
+all line feed characters from the shell will be translated to carriage
+return and all received carriage return characters will be translated
+to line feed. This translation can be disabled by using the command
+TSHELL instead of SHELL or //TSHELL instead of //SHELL as a remote
+command.
+
+   At login time, it is checked, if the callsign of the remote station
+is a valid user name. If it does not exist, depending on
+'unix_new_user' in the initfile a new user-id is created or the user-id
+specified by 'remote_user' is used.  In all cases the callsign is
+stored on the environment variable 'CALLSIGN'.
+
+   For some configurations it is useful to be able to get a shell with
+root permissions. This can be done using the command ROOTSH and remote
+command //ROOTSH or command TROOTSH and remote command //TROOTSH for
+disabled CR/LF-translation. As giving superuser access to the system is
+very dangerous, extra care must be taken.
+
+   To increase performance, all data will be buffered. This means that
+data is not sent directly, but if the buffer contains 256 Bytes (the
+AX25 maximum packetlength) or if for a specific time no new characters
+were received.  This time ('pty_timeout') can be configured in the
+initialization file.
+
+
+File: tntdoc.info,  Node: Redirection,  Next: Running programs,  Prev: Shell-login,  Up: Shell Run Redirect and Sockets
+
+Redirection
+-----------
+
+   A connect screen of TNT does not accept any of the standart control
+characters used for screen oriented programs. If you use an AX25
+connection to work with such a program (for example using a TSHELL on
+another stations TNT) you can use redirection (command REDIR) to one of
+the Linux virtual consoles. Now all control codes are handled correctly
+and you can work with the program like you were directly connected to
+the remote system.
+
+   REDIR allows to redirect all data of an AX25-channel to any device
+which is known in the system. Examples are the Linux virtual consoles
+/dev/ttyX or one part of a tty/pty-pair.
+
+   There is no translation of the characters, all data received is given
+transparently to the device and vice versa. Like for the shell-login all
+data will be buffered before transmission.
+
+
+File: tntdoc.info,  Node: Running programs,  Next: Socket server,  Prev: Redirection,  Up: Shell Run Redirect and Sockets
+
+Running programs
+----------------
+
+   For users who are not familiar with UNIX, the use of a shell is quite
+complicated. Therefore a RUN command is implemented, which will execute
+a specified program using a shell. If you don't like running TNT under
+root-permissions and therefore the shell-login is disabled, the RUN
+command allows to execute specific programs by a remote station.
+
+   A special directory 'tnt_bin_dir' contains all executable programs.
+Programs in other directories cannot be executed by this command.
+Because no login is performed, the program is executed using the
+default user specified by 'remote_user'. If TNT was not invoked by the
+superuser, the user can't be changed and the program is started as the
+user running TNT.  The callsign of the user is stored in the
+environment variables 'CALLSIGN' and 'LOGNAME'. The callsign including
+the SSID will be available in the environment variable 'CALLSSID'.
+
+   In most cases it is wanted that the UNIX linefeed be translated to
+Packet-Radio carriage return and vice versa. If no translation of the
+characters sent and received by the program shall be done, the command
+RUNT must be used. Like for the shell login all data will be buffered
+before transmission.
+
+
+File: tntdoc.info,  Node: Socket server,  Next: Socket connect,  Prev: Running programs,  Up: Shell Run Redirect and Sockets
+
+Socket server
+-------------
+
+   If your system is used by several people or is part of a network,
+you may want to give access to Packet Radio to these users. Or you want
+to use programs on your system, which should be able to perform outgoing
+AX25-connects. To handle these requirements the socket server feature
+(command SOCKET) was implemented.
+
+   There are three type of servers, AXSERV, AXSPEC and NETCMD. AXSERV
+and AXSPEC are identical, both define an AX25-server, except for that
+AXSPEC does not use the usual buffering method for data described for
+shell-login, but sends data directly on occurence of a line feed or
+carriage return character. NETCMD is a Wampes-compatible server which
+allows the usage of programs designed for Wampes (like conversd)
+together with TNT.
+
+All types of servers need a socket address. This socket address can have
+different formats.
+
+  a. UNIX-sockets
+     The format for a UNIX-socket is 'unix:<socket path>' or
+     'local:<socket path>'. The path can be an absolute path beginning
+     with   '/' or a relative path to 'tnt_dir'.
+     Example:
+          unix:/tcp/sockets/convers
+
+  b. INET-sockets
+     The format for a INET-socket is '<address>:<port>'. <address> can
+     be   a hostname, an IP address or a '*' for any IP address. Port
+     can be any   valid port number or a name for a service from
+     /etc/services.
+     Example:
+          *:9600
+          199.199.10.10:telnet
+          foo.bar.com:2000
+
+* Menu:
+
+* AX25-Server::
+* Netcmd::
+
+
+File: tntdoc.info,  Node: AX25-Server,  Next: Netcmd,  Up: Socket server
+
+AX25-Server
+...........
+
+   A user can connect to this server with 'telnet <hostname>
+<portnumber>' and login with callsign and password. After a successful
+login the user is connected to the AX25-server and may use one channel
+of the TNC for Packet Radio connections. The usage is quite simple,
+help for the user is available.  The login information is kept in
+'sock_passfile' and is independent of the passwd file.
+
+
+File: tntdoc.info,  Node: Netcmd,  Prev: AX25-Server,  Up: Socket server
+
+Netcmd
+......
+
+   The Netcmd-server works compatible to Wampes. So after connect to the
+socket, the server is in command mode and accepts three commands: ASCII,
+BINARY and CONNECT. Any other input or wrong arguments lead to closing
+the connection.
+
+   ASCII selects a translation from line feed to carriage return before
+transmitting data on the AX25 side and vice versa. This is the default
+mode.
+
+BINARY selects a transparent connection without any character
+translation.
+
+   CONNECT starts an AX25 connection on a free channel. It needs
+additional parameters, the syntax is:
+     CONNECT <transport mode> <destination callsign> [source callsign]
+   The only valid value for 'transport mode' is AX25, other modes will
+lead to a closing of the connection. The destination callsign must not
+contain any digipeaters. TNT uses the xconnect-feature to build up the
+connection, therefore the path must be defined in the routing database.
+Normally the default callsign entered with the SOCKET command will be
+used. If a source callsign is given in the CONNECT command, this will
+be used instead.  There will be an automatic SSID-update to allow
+several connections with the same destination.
+
+   After a successful link setup the server will switch to data mode,
+all received data will be sent to the socket, all data from the socket
+will be transmitted on the AX25 side.
+
+   When the link setup was not successful, the socket connection will be
+simply disconnected without any further information.
+
+
+File: tntdoc.info,  Node: Socket connect,  Prev: Socket server,  Up: Shell Run Redirect and Sockets
+
+Socket connect
+--------------
+
+   You may have installed some socket servers on the system. To give
+Packet Radio users access to these, the socket connect feature is
+available.  The only Argument needed is the socket address of the
+socket which shall be connected. The socket address uses the same
+syntax as the socket server.
+
+   Like for the other UNIX-features there is an option to translate
+carriage return into line feed and vice versa (command SOCKCON, remote
+command //SOCKET) or the possibility for a transparent connection
+(command TSOCKCON, remote command //TSOCKET).
+
+   Because there is no access restriction to a socket, you have to be
+careful with this command. A full connectivity of all sockets shall be
+allowed only for a sysop. Users shall get only specific sockets by
+defining extended remote commands ('tnt_extremotefile').
+

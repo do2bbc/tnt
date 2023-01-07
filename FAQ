@@ -1,0 +1,157 @@
+TROUBLESHOOTING (Mini-FAQ)
+--------------------------
+
+Q: TNT won't compile on my system.
+A: Be sure that you did the right steps like descriped in "README".
+   If this doesn't help, please mail the errors your compiler produce to
+   > tnt-bugs@excelsior.kullen.rwth-aachen.de
+   (You can log this with "make 2> problem-log")
+   We worked hard to get a clean version which work on all systems. But we
+   had a lot of trouble with glibc2 based systems and different linux-
+   distributions. Maybe there are problems left, so inform us, even if you
+   can fix the problem by yourself.
+   This version was tested on:
+   -Linux 2.0.x, 2.1.x, 2.2.x, with libc5-, glibc2.0 and glibc2.1 based
+    systems. (Tested distributions: SuSE 5.2, 5.3, 6.0. Redhat 5.2, Debian
+    Potato).
+   -NetBSD
+   -Solaris (had some trouble with the snprintf()-function, which is only part
+             of GNU-libc. Please tell us if you encounter a problem).
+   -DEC Alpha? (not sure about this, but think it works well ;-), since Berndt
+                has adapted TNT to 64-bit)
+
+Q: I start TNT, but nothing happens, I just come back to the shell-prompt
+A: Maybe you are using the ax25k-version of TNT, and have no ax25-daemon
+   running. Or your axconfig is wrong.
+   You will find a message like this in your tnterr.log:
+   > axconfig: unable to open axports file
+   > tnt: no AX.25 port data configured
+
+Q: I try to start TNT, but gets a message that "tnt.ini" is in wrong
+   format.
+A: Maybe you updated from an old version, and don't updated tnt.ini.
+   A lot has changed in this version, so take a look at the examples-files.
+
+Q: Password generation does not longer work with RMNC/Flexnet
+A: With version 3.3h of RMNC/Flexnet you must use "THENET" generation
+   instead of "FLEXNET", so use the line
+   "FLXNOD THENET flxnod.pw 6 sys" in your pw.tnt file
+   (Thanks to f5ibh)
+
+Q: I do not like TNT installing completly over the filesystem
+A: TNT uses standard UNIX-filelocations in newer release. But you can use
+   some tricks to do anything you like:
+   a) If you like TNTs files in /usr/local/, but do not like the variable
+      files in /var, you can use
+      ./configure --localstatedir=/usr/local/var [--other-options...]
+      to use /usr/local/var instead of /var
+   b) If you want to install TNT for one user in your homedirectory use
+      ./configure --prefix=~/tnt --localstatedir=~/tnt [--other...]
+      (make sure that "~/tnt/" exists)
+   c) If you really like the old behavior (one directory /usr/local/tnt with
+      all files in it), you have to change "configure.in".
+      Look at the target *-*-linux* (or the target for your system) and
+      change all the definitions for tnt_xyz_dir (for example write
+      "tnt_main_dir=/usr/local/tnt").
+      After this you HAVE to call "autoconf" (make sure that autotools
+      are installed on your system) and then "./configure", "make" and
+      "make install".
+    d) NEW:
+       Because of the many requests TNT now has a flat option in configure.
+       If you liked the old behavior (installing TNT completly under
+				      /usr/local/tnt), just use this flags:
+       ./configure --prefix=/usr/local --enable-flat [--other...]
+       The "flat" option installs TNT completly under "$prefix/tnt/".
+  
+Q: I don't hear any sounds, but I configured TNT with --enable-sound
+A: There are several possibilites.
+   First check if you soft-enabled the soundeffects, with ":SOUND ON"
+   Check if your "sound.tnt" is in the right place, there will be no
+   error-message if TNT cannot find this file.
+   Take a look in your tnterr.log, maybe your sounddevice is busy, a sound-
+   file isn't found or the sound-player script is defect.
+   Are you sure that your soundcard works properly? Test it out with
+   "cat soundfile.au > /dev/audio", were soundfile.au should be a sun-audio
+   file. Or use some textfile, which should make some noisy sound ;-)
+
+Q: AX25 does not work, any connection coming from outside is disconnect at
+   once.
+A: Unfortunately the ax25 transmiter is still broken on several systems :-(
+   Maybe it is a good idea, to use tfkiss (with ax25 or net2kiss) instead.
+   (It may take some time, until ax25 works)
+   Please read the file "AX25-NOTES"
+ 
+Q: A remotestation send me a remote-command, but nothing happend.
+A: If there isn't any error-message, TNT maybe think that the remote station
+   is a node, digi or box. TNT would not allow any remotecommand coming from
+   such a station (except of //COMP).
+   Check the stationsname in the statusline and look at "routes.tnt", if
+   you find a "N>DB0XYZ" or "B>DB0XYZ" there, then TNT don't allow the command.
+   Maybe TNT doesn't notice that there isn't a connect to node, digi or box
+   any longer (I know that TheNet sometimes don't send a proper reconnected-
+   message). You can update the remotestation call with the ":CONC <call>"
+   command.
+
+Q: Remotestation cannot start any run-command.
+A: Be sure that you set the rights in "tnt.ini" properly. Each runprogramm
+   must run as a single-task on your UNIX-system, so must get specific
+   user and group-rights.
+   You can tell TNT which rights should be used in "tnt.ini". You have to
+   possibilites:
+   1) Each runprogram will run as a special user you create for your system,
+      eg. "prrun".
+   2) Each runprogram will run in a special group class, eg. "prrun". TNT
+      then will create new users (dependent on the callsign).
+   In most cases you should prefer the first possibility. Take a look at
+   the example "tnt.ini" file.
+
+Q: MD2 password generation does not work any longer
+A: The promptstring is not longer hardcoded, so you must define your
+   string in the pw.tnt (usually "MD2"). Take a look in the sample pw.tnt
+
+Q: I would like to use MD5 password generation
+A: No problem. MD5 is implemented in the current version. Just use MD5
+   instead of MD2 in the pw.tnt (see example)
+   
+Q: Newuser generation does not work, TNT even won't start.
+A: It is unsecure to use this function, so it was disabled by default.
+   You really should use a special user to run the runprograms.
+   If you still want to use unix_new_user, you must reconfigure and recompile
+   TNT with --enable-genuser.
+   If TNT won't start, because you still have definitions for "unix_new_user"
+   etc. you should comment out this lines, take a look at tnt.ini in
+   examples dir.
+   (BTW: If you really want use unix_new_user you should define maximum user-
+         ID TNT would use to create new users. use key "unix_user_max" for
+	 this, as you found in examples/tnt.ini)
+
+Q: Run-program terminates, though it doesn't seem to be finished.
+A: Look in your tnterr.log. All errormessages child-tasks of TNT produce
+   will be logged there.
+
+Q: It seems that I found a bug in TNT.
+A: Please report this to our mailinglist at
+      tnt-bugs@excelsior.kullen.rwth-aachen.de
+   It should be useful if you can include an errorreport, and if you can
+   reproduce the problem, so that we can find a solution fast, without
+   too much analysing the code ;-)
+
+Q: Where can I find new versions of TNT?
+A: There are several servers which mirrors TNT.
+   In most cases you find it at
+   > http://www.wspse.de
+   > ftp://ftp.wspse.de/pub/packet_radio/tnt
+   > ftp://ftp.wspse.de
+   > ftp://ftp.ping.net.au
+   If you want to be informed about new versions via email, why not
+   subscribe to our mailinglist.
+   Just send a mail to
+   > tnt-announce-request@excelsior.kullen.rwth-aachen.de
+   with the single word "SUBSCRIBE" in message-content.
+   (See README, and my homepage for details).
+
+   TNT is also available via anonymous CVS (look in the README), but notice
+   that CVS might not even compile.
+
+---Mini-FAQ---
+Updated: 2000/01/31, Matthias Hensler

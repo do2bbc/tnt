@@ -1,0 +1,132 @@
+Note: This is release of TNT 1.9, originally developed by Mark Wahl.
+This release is the work of several people. Take a look in ./doc/CHANGES
+for more information.
+
+---------------------------------------------------------------------
+QUICK-INSTALLATION, please read carefully
+
+To install TNT:
+  1) Type "./configure --help" to see the options you may be want to
+     change (for example sound-support is defaultly compiled in).
+  2) Type "./configure" or "./configure --[ARGS]" to configure TNT.
+     (For example "./configure --disable-sound" to compile TNT without
+     sound).
+  3) Type "make" to build TNT.
+  4) Type "make install" to install TNT.
+  5) Good Luck ;-)
+
+To uninstall TNT:
+  1) Type "make uninstall" to uninstall TNT.
+     You don't want to do this I think ;-) If you do, all files which were
+     installed (and only these) will be deleted.
+---------------------------------------------------------------------
+Configure-Options:
+  There are five options for TNT:
+  a) sound
+  b) ax25k
+  c) dpboxt
+  d) hibaud (only supported on linux-systems)
+  e) genuser
+
+ Defaultly only sound and english is activated.
+ To disable sound: ./configure --disable-sound
+ To enable ax25k:  ./configure --enable-ax25k   (or --enable-ax25k2)
+ To enable hibaud: ./configure --enable-hibaud
+ To enable newuser:./configure --enable-newuser
+ To enable dpboxt: ./configure --enable-dpboxt
+ (Note: the dpbox-terminal is broken at the moment, so compilation with
+        DPBOXT will fail!
+  Note2: DPBOXT will disappear in further versions, so use an old TNT
+         version, or wait for a new console, I will write if I have the
+         time to do so ;-)
+
+ Language: actually TNT supports
+ -en = english
+ -de = Deutsch
+ -fr = french
+ 
+ Enable your language with option "--with-language=xx", where xx is one of
+ en, de, fr.
+
+If your system does not include gettext, you should at the option
+"--with-included-gettext" to ./configure (mostly older or non-GNU systems).
+ 
+AX25-kernel support:
+If you want to use TNT with ax25-kernel support, the only thing to do, is
+configuring TNT with ax25k enabled.
+Please Note: you MUST have the axutils installed. TNT needs the ax25lib
+(libax25.a) and the include-files (there should exists in /usr/include/ax25
+for example). TNT searches for an include-dir named "ax25".
+If you compiled axutils, there must be a library "libax25.a". copy this file
+to /usr/lib or /usr/local/lib and run "ldconfig", so TNT can find this lib.
+
+With newer AX25-libs, you should use "--enable-ax25k2" instead of
+"--enable-ax25k"
+
+Please also read AX25-NOTES
+
+HIBAUD:
+Enable this, if you using a baudrate >38400 to your TNC. (Only supported on
+Linux).
+
+NEWUSER:
+Use this carefully. Generation of newusers it disable by default, because it
+is to unsecure. If you really want to use it, use this configure-option.
+Because of this, some things have changed in tnt.ini, so take a look at
+"tnt.ini" in examples-dir.
+
+Installation is easy: "./configure", "make" and "make install".
+After the installation is finished the program "tnt_setup" will be called.
+Here you can do some important settings for your tnc, boxsocket or your
+callsign. If you do not want this, just leave the program.
+
+INSTALL-LOCATIONS:
+------------------
+If you do not want to install in /usr/[local/]... and /var, you should
+call ./configure with --prefix= AND --localstatedir=
+
+For example: if you want to put TNT completly in your homedirectory under tnt
+use:
+./configure --prefix=~/tnt --localstatedir=~/tnt [--other-options...]
+
+For a really flat installation you can now use the --enable-flat option
+while configuring. Just set $prefix and activate --flat.
+For example: if you want to put TNT completly into /usr/local/tnt, just use:
+./configure --prefix=/usr/local/tnt --enable-flat [--other-options...]
+
+-------------------------------------------------------------------------
+IMPORTANT:
+TNT can now used by more than one user. Just install TNT as normal, and
+than create a dir ".tnt" in your homedirectory and put ALL the Configuration-
+files in it (tnt.ini and the *.tnt files).
+
+If you don't start TNT with a given directory explizit (with the -i option),
+TNT will search "tnt.ini" (or ".tntrc") in these places:
+First in your $HOME/.tnt directory, e.g.  /home/you/.tnt/tnt.ini
+Then in the current directory.
+After this TNT will look in the directory you installed TNT in (Note: the
+path in configure.h "TNT_INSTALL_PATH" will be hardcoded into TNT).
+At last TNT looks in /etc/tnt.ini
+
+The same thing is the "tntc.ini" (or ".tntrc"),
+---------------------------------------------------------------------
+NEW IN THIS VERSION: READ CAREFULLY!
+
+Some start-options of TNT have been changed, so it is possible that tnt
+won't start, because of a wrong tnt.ini.
+Maybe you should comment out the lines for new_user generation and the
+line for tnt_user_dir.
+Take a deep look at "tnt.ini" in example-dir, to figure out all of the
+changes.
+---------------------------------------------------------------------
+
+documentation of TNT can be found in /doc-dir.
+source-code is found in /src-dir.
+solaris-stuff is found in /doc/solaris-dir.
+examples-configuration files can be found in /examples-dir.
+
+for information about what has changed, take a look at /doc/CHANGES
+
+------------------------------------------------------------------------------
+Contents last checked by Boris Bruns.
+(WSPse, 31. Jan 2000)

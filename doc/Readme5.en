@@ -1,0 +1,27 @@
+The settings about unix-user is needed for the execution of run-programs.
+TNT will run every program which accepts input about "stdin" and outputs
+on "stdout". Each program will run as seperate process, so there must be
+an user-ID.
+There are two possibilities:
+1) You have an extra user, eg. "guest" or "prrun". Then every station can
+   call the runprogramms (which will run under the settings of the user
+   "guest" or "prrun").
+   If you are using "root", each program will have full rights! (of course
+   only if TNT was started as root).
+2) You create an extra group (eg. "packet") and let TNT create a new user
+   for each station (automaticly). Runprograms will have the rights of this
+   group.
+
+For 1): Define an user (option "USER") and set "CREATE" to "NO". (user "USER"
+        must exists to start runprograms).
+For 2): Set "CREATE" to "YES" and create a group for packet. Input ID of this
+        group in setting "GID".
+        Then you must define which will be the lowest user-ID of a new user
+        created by TNT. Normally (under linux) a value about "410" should
+        make no problems.
+	You must also define which will  be the highest user-ID TNT would
+	create. Defaultly a value of 4095 is used.
+	
+Note: Possibility 2 is very unsecure, so it is deactivated by default.
+      If you want to use this, you must compile TNT with GEN_NEW_USER
+      support.

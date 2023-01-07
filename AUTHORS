@@ -1,0 +1,31 @@
+Mark Wahl, DL4YBG <wahlm@berlin.snafu.de>
+ Initial version (till V1.1alpha6)
+
+Jonny, DH3MB
+ V1.1alpha13 to V1.3
+
+Matthias Hensler <wsp@gmx.de>
+ V1.1alpha3 to V1.9
+
+Hans Mayer, OE1SMC <hans.mayer@relay.bfl.at>
+ V1.3 to V1.9, Solaris-Port
+
+Berndt Josef Wulf, VK5ABN <wulf@ping.net.au>
+ V1.6 to V1.9, NetBSD-Port
+
+Ivica Smocic, 9A4GC
+ Fixed AX25K
+
+Walter Koch, DG9EP
+ Several things
+
+Christoph Berg, DF7CB
+ Documentation (including texinfo)
+
+Laurent Lalanne, F5SOH
+ Frenchtranslation
+
+And all the rest I forgot. Detailed list in ChangeLog and tntdoc
+
+Thanks to SuSE for contributing TNT and sending the actual issue of their
+Linux distribution.

@@ -1,0 +1,829 @@
+This is Info file tntdoc.info, produced by Makeinfo version 1.68 from
+the input file tntdoc.texinfo.
+
+   Documentation of TNT - A UNIX Packet-Radio Terminal Program
+
+   Copyright (C) 1993-1997 by Mark Wahl, DL4YBG
+
+
+File: tntdoc.info,  Node: Files for remote commands,  Next: Files for connect text,  Prev: Cookie file,  Up: Description of configuration files
+
+Files for remote commands
+=========================
+
+   If the remote command //help is received a file specified after
+'rem_help_file' in the init file is transmitted.  The file shall
+contain an overview and an explanation of the possible remote commands.
+
+   If the remote command //info is received a file specified after
+'rem_info_file' in the init file is transmitted.  The file shall
+contain a description of the station and the used equipment.
+
+   If the remote command //news is received a file specified after
+'news_file_name' in the init file is transmitted.  The file shall
+contain any news about the station.
+
+sample tntrem.hlp file:
+
+     TNT-Remote-Help
+                               ---------------
+     
+     The following commands are possible:
+     
+      //n <text>             Send text to channel n
+      //ACT                  Show last sysopactivty
+      //SESSION              Show the usagetime of this session/version
+      //ONACTIVITY <text>    Set text which will be send on sysopactivity
+      //CHat <ch/call><text> Send text to a channel or callsign
+      //MSG <ch/call> <text> Like CHat
+      //COMP on/off          Enable/disable huffman compression
+      //NAME <name>          Store name in database
+      //CSTAT                Show all active connections
+      //MHeard               Show list of all heard stations
+      //MHeard <nr/str>      Show <nr> entrys of MH oder search for <str>
+      //SHELL                Start a UNIX-shell session
+      //TSHELL               Start a UNIX-shell session without CR/LF translation
+      //RUN <program>        Execute a program
+      //RUNT <program>       Execute a program without CR/LF translation
+      //RUN                  Directory of all available programs
+      //BOX                  Start DigiPoint Box
+      //COOKIE               Send a cookie
+      //DIR <filter>         Show directory
+      //DIRLONG <filter>     Show directory in long format
+      //FREE                 Shows space on disks
+      //INFO                 Info about station
+      //HELP                 This help-information
+      //NEWS                 Display news about this station
+      //READ <file>          Read a file
+      //BREAK                Abort reading file
+      //WRITE <file>         Write file to disk
+      //CLOSE                End writing file
+      //WPRG <file>          Write file to disk using AUTOBIN-protocol
+      //WPRG <file> <rfile>  Same as above, but send back //RPRG <rfile>
+      //RPRG <file>          Read a file using AUTOBIN-protocol
+      //RPRG <file> <rfile>  Same as above, but send back //WPRG <rfile>
+      //WYAPP <file>         Write file to disk using YAPP-protocol
+      //RYAPP [file]         Read a file using YAPP-protocol
+      //VERSION              Show version of software
+      //ECHO <string>        Send back string
+      //TIME                 Send time
+      //RTT [timestring]     Calculate round trip timer
+      //RING                 Ring the bell (call for sysop)
+      //QUIT                 Disconnect with quittext
+      //DISC                 Disconnect
+     
+     The two slashes (//) must be entered at the beginning of a line.
+     
+     End of help-information
+     
+     <EOF>
+
+
+File: tntdoc.info,  Node: Files for connect text,  Next: Files for names database and routing scripts,  Prev: Files for remote commands,  Up: Description of configuration files
+
+Files for connect text
+======================
+
+   If connect text sending is active (command CONTEXT) and someone
+connects to the station, a connect text will be sent.  The connect text
+is fetched from the file specified after 'tnt_ctextfile'.  Any macros
+contained in the file will be expanded.
+
+sample ctext.tnt file:
+     This is %v
+     
+     Hello %n!
+     
+     Welcome at %y, channel %k, date %d, time %t %z
+     
+     A cookie for you:
+     ----------------------------------------------------------------------------
+     %o
+     ----------------------------------------------------------------------------
+     %?
+     %c de %y>
+     <EOF>
+
+   It is possible to send some users a personal connect text.  To do
+this, put a file called <callsign>.ctx into the directory specified
+after 'ctext_dir', where <callsign> is the call of the user.
+
+   Similary, the text 'tnt_qtextfile' will be sent when the connection
+is about to be terminated via the //QUIT remote command. Macros will be
+expanded. The text will not be sent when the //DISC command is used.
+
+
+File: tntdoc.info,  Node: Files for names database and routing scripts,  Next: User-Ids and security,  Prev: Files for connect text,  Up: Description of configuration files
+
+Files for names database and routing scripts
+============================================
+
+* Menu:
+
+* Names database::
+* Routing database::
+
+
+File: tntdoc.info,  Node: Names database,  Next: Routing database,  Up: Files for names database and routing scripts
+
+Names database
+--------------
+
+   For use with the connect text feature a names database is included.
+The database itself is contained in the file specified after
+'name_file_name'.
+
+All entries in the names database use the following format:
+     T>DL4YBG Mark
+
+The command NAME and the remote command //NAME will update the names
+database file.
+
+
+File: tntdoc.info,  Node: Routing database,  Prev: Names database,  Up: Files for names database and routing scripts
+
+Routing database
+----------------
+
+   For routing scripts the routing database is contained in a file with
+a similar layout like the names database. The filename of the routing
+database is specified after 'route_file_name'.
+
+   Unlike the names database file, the routing database is not updated
+by tnt, any updates have to be done with a text editor.
+
+   The entries for routing scripts can be recursive, it is not needed to
+specify the whole path for each callsign.  The path is assembled using
+the relevant entries in the database.
+
+   If you frequently change the frequency and the uplink digipeater, you
+may want to specify for every frequency a different routing database.
+Therefore <IF xxxxxx> and <END> is included.  If for example you
+operate on 438.300 Mhz, you can specify all routing information valid
+only on this frequency by:
+
+     <IF 438.300>
+     ...
+     <END>
+
+   All routing information which is not surrounded by <IF xxxxxx> and
+<END> is valid on all frequencies.  The frequency you are operating on
+can be specified using the command QRG.
+
+The format of each database entry is as follows:
+
+In front of the callsign a letter specifies the type of the station:
+     T : Normal user
+     N : Network node
+   All other characters are accepted.  The only difference is the
+treatment of the call in routing scripts.
+
+The database is a text file containing lines like the following:
+
+T>DL4YBG Mark
+     =>The name of the operator of station DL4YBG is Mark, no routing
+     information    given or station can be reached directly.
+
+T>DL7ZZZ Joe; N>DB0LUC T>DL7ZZZ
+     =>The name of the operator of station DL7ZZZ is Joe, the station
+     can be    connected from digipeater DB0LUC.
+
+N>DB0BLO Digi 9K6
+     => The digipeater DB0BLO can be connected directly.
+
+N>DB0BER Digi Tempelhof; N>DB0BLO N>DB0BER
+     => The digipeater DB0BER can be connected from digipeater DB0BLO.
+
+N>DB0LUC Digi Luckau; N>DB0BER F>DB0BLN N>DB0LUC
+     => The digipeater DB0LUC can be connected from digipeater DB0BER
+     via DB0BLN.
+
+sample routes.tnt file:
+     <IF 438.300>
+     N>DB0XYZ Digi xyz
+     B>DB0XYZ-8 Box xyz
+     N>DB0XYY Digi xyy; N>DB0XYZ N>DB0XYY
+     N>DB0XYW Digi xyw; N>DB0XYZ N>DB0XYW
+     <END>
+     <IF LINK23CM>
+     N>DB0XYX Digi xyx
+     N>DB0XYW Digi xyw; N>DB0XYX N>DB0XYW
+     <END>
+     # Now destinations independent of QRG
+     N>DB0XYV Digi xyv; N>DB0XYW N>DB0XYV
+     B>DB0XYV-3 Box xyv; N>DB0XYV B>DB0XYV-3
+     <EOF>
+
+
+File: tntdoc.info,  Node: User-Ids and security,  Next: Logfile for resynchronisation,  Prev: Files for names database and routing scripts,  Up: Description of configuration files
+
+User-Ids and security
+=====================
+
+   For every user it is possible to log into the UNIX-system by using
+//SHELL or if the operator uses the SHELL command for the channel.  The
+callsign of the connected station is used as the user name.  If there
+is no user name existing with this call sign and 'unix_new_user' is not
+set, the user name "guest" is used.  Because at the moment there is no
+security for the password, no passwords are used.  If you don't use
+'unix_new_user' you must prepare the user-ids of the authorized users
+yourself.  Therefore the entries in /etc/passwd shall look like:
+
+     guest::407:109:Guest user:/home/guest:
+     dl4ybg::405:101:Mark DL4YBG:/home/dl4ybg:
+
+These user-ids must not appear in /etc/shadow (if shadow passwords are
+used).
+
+   Hint: The user guest can be created using 'useradd -m guest', then
+/etc/passwd must be adapted and the password entry in /etc/shadow (if
+shadow passwords are used) must be erased. Try a login from a virtual
+terminal prior to logging in via remote command.
+
+   *Warning*: Using empty passwords (i.e. no characters between "::" as
+above is dangerous. If other people have access to your computer, either
+directly, over the internet (e.g. via telnet) or via packet radio, they
+can login onto your system!  Check file permissions on your system and
+use a password for root, now you are not alone any longer!
+
+
+File: tntdoc.info,  Node: Logfile for resynchronisation,  Next: File for keyboard macros,  Prev: User-Ids and security,  Up: Description of configuration files
+
+Logfile for resynchronisation
+=============================
+
+   If TNC resynchronisation during operation occurs frequently, it
+might be useful to track down the reason for it. Data received while
+syncronizing will be written to the file specified by 'resy_log_file'
+in the init-file. The full path to the file must be given.  If left
+blank no resync log file is written.  Have a look at the size of the
+resync file, it is advisable to remove it from time to time as it will
+grow.
+
+
+File: tntdoc.info,  Node: File for keyboard macros,  Next: File for password generation,  Prev: Logfile for resynchronisation,  Up: Description of configuration files
+
+File for keyboard macros
+========================
+
+sample fkeys.tnt:
+
+     #
+     # Function-Key-File
+     #
+     # XX:text
+     # XX::command
+     #
+     # '*' at end sends CR after a text
+     #
+     01::send .signature
+     02:***end*
+     03::c db0abc
+     04::c db0zzz-8
+     08::logblist
+     09::blist
+     10::xblist
+     <EOF>
+
+
+File: tntdoc.info,  Node: File for password generation,  Next: File for sysop authentification,  Prev: File for keyboard macros,  Up: Description of configuration files
+
+File for password generation
+============================
+
+sample pw.tnt:
+
+     # sample password file
+     # all lines must use the following format:
+     # DIEBOX:
+     # <callsign> <password-type> <password-file>
+     # FLEXNET:
+     # <callsign> <password-type> <secret-number> [priv-string]
+     # THENET:
+     # <callsign> <password-type> <password-file> <flags> <priv-string>
+     # BAYCOM:
+     # <callsign> <password-type> <password-file> <flags> [priv-string]
+     # MD2:
+     # <callsign> <password-type> <password-file>
+     # CLUSTER:
+     # <callsign> <password-type> <password-file> <flags>
+     #
+     # DieBox DB0XXX
+     DB0XXX-3 DIEBOX /work/tnt/db0xxx_3.pw
+     # FlexNet DB0YYY
+     DB0YYY FLEXNET 02345
+     # FlexNet DB0YYZ-8 with different activation string
+     DB0YYZ-8 FLEXNET 02345 /SYSop
+     # TheNet DB0ZZZ
+     DB0ZZZ THENET /work/tnt/db0zzz.pw 0 SYS
+     # TheNet DB0ZZA-2 with 3 tries
+     DB0ZZA-2 THENET /work/tnt/db0zza_2.pw 1 SYS
+     # TheNet DB0ZZB with password hiding
+     DB0ZZB THENET /work/tnt/db0zzb.pw 2 SYS
+     # TheNet DB0ZZC-15 with password hiding and 3 tries
+     DB0ZZC-15 THENET /work/tnt/db0zzc_15.pw 3 SYS
+     # TheNet DB0ZZB-1 with perfect password hiding
+     DB0ZZB-1 THENET /work/tnt/db0zzb_1.pw 6 SYS
+     # TheNet DB0ZZC-14 with perfect password hiding and 3 tries
+     DB0ZZC-14 THENET /work/tnt/db0zzc_14.pw 7 SYS
+     # Baycom DB0ZZE-5
+     DB0ZZE-5 BAYCOM /work/tnt/db0zze_5.pw 0
+     # Baycom DB0ZZD with password hiding and different activation string
+     DB0ZZD BAYCOM /work/tnt/db0zzd.pw 2 SYS
+     # Baycom DB0ZZD-1 with perfect password hiding and different activation string
+     DB0ZZD-1 BAYCOM /work/tnt/db0zzd_1.pw 6 SYS
+     # MD2 password for DB0ZZF
+     DB0ZZF MD2 /work/tnt/db0zzf.pw
+     <EOF>
+
+
+File: tntdoc.info,  Node: File for sysop authentification,  Next: File for remote commands disabling,  Prev: File for password generation,  Up: Description of configuration files
+
+File for sysop authentification
+===============================
+
+sample sys.tnt:
+
+     # sample access restriction and sysop authentification file
+     # format:
+     # <callsign> <password-file> <sysop-level>
+     #
+     # DL7ZZZ with root access
+     DL7ZZZ /work/tnt/dl7zzz.pw 1
+     # DL7ZZY with no root access
+     DL7ZZY /work/tnt/dl7zzy.pw 0
+     <EOF>
+
+
+File: tntdoc.info,  Node: File for remote commands disabling,  Next: File containing not own callsigns,  Prev: File for sysop authentification,  Up: Description of configuration files
+
+File for remote commands disabling
+==================================
+
+sample norem.tnt:
+
+     # sample file for remote commands disabling
+     # format:
+     # <callsign with SSID>
+     #
+     DB0GR
+     DB0BLO-8
+     DB0JES-3
+     DB0TEM-8
+     <EOF>
+
+
+File: tntdoc.info,  Node: File containing not own callsigns,  Next: File containing Flexnet digipeaters,  Prev: File for remote commands disabling,  Up: Description of configuration files
+
+File containing not own callsigns
+=================================
+
+sample notown.tnt:
+
+     # sample file for call/SSID-combinations which are not allowed as
+     # source callsign for xconnects
+     # format:
+     # <callsign with SSID>
+     #
+     DL4YBG
+     DL4YBG-7
+     <EOF>
+
+
+File: tntdoc.info,  Node: File containing Flexnet digipeaters,  Next: File for AX25-server access,  Prev: File containing not own callsigns,  Up: Description of configuration files
+
+File containing Flexnet digipeaters
+===================================
+
+sample flchk.tnt:
+
+     # sample file for ignoring Flexnet connection quality checks
+     # format:
+     # <callsign with SSID>
+     #
+     DB0BNO
+     DB0BLN
+     <EOF>
+
+
+File: tntdoc.info,  Node: File for AX25-server access,  Next: File for autostart on connect,  Prev: File containing Flexnet digipeaters,  Up: Description of configuration files
+
+File for AX25-server access
+===========================
+
+sample netpass.tnt:
+
+     # netpass.tnt - file
+     # Syntax is:
+     # CALL PASSWORD AUTOCONNECT-CALL LEVEL
+     #
+     # Examples
+     #
+     # Next line sets user/pass=dl7zzz/geheim, no default connect, level=9
+     dl7zzz geheim none 9
+     #
+     # Next line sets user/pass=dl7zzy/secret, autoconnects
+     # to DB0ZZZ-8 always, and he has command-access-level=3
+     # This autoconnect-callsign means that dl7zzy CAN'T connect
+     # any other station than DB0ZZZ-8 ! - Excluding if he has level=9 !
+     dl7zzy secret DB0ZZZ-8 3
+     <EOF>
+
+
+File: tntdoc.info,  Node: File for autostart on connect,  Next: File for extended remote commands,  Prev: File for AX25-server access,  Up: Description of configuration files
+
+File for autostart on connect
+=============================
+
+sample autostrt.tnt:
+
+     # sample autostart file
+     # format:
+     # <callsign+SSID> <tnt command>
+     #
+     # connect dl4ybg-5 -> start convers user-client
+     dl4ybg-5 convers
+     # connect dl4ybg-12 -> get a channel status
+     dl4ybg-12 cs
+     # connect dl4ybg-13 -> get a unix shell
+     dl4ybg-13 shell
+     # connect dl4ybg-14 -> connect to convers-server
+     dl4ybg-14 socket unix:/tcp/sockets/convers
+     <EOF>
+
+
+File: tntdoc.info,  Node: File for extended remote commands,  Next: Files for BBS features,  Prev: File for autostart on connect,  Up: Description of configuration files
+
+File for extended remote commands
+=================================
+
+sample extrem.tnt:
+
+     # sample file for extended remote commands
+     # format:
+     # <remote command> <access level> <significant chars> <tnt command>
+     #
+     # //SCONvers : connect convers (Unix-)socket
+     sconvers 0 4 socket unix:/tcp/sockets/convers
+     # //AXSERv : connect local ax25 server on port 2001 (only for sysop)
+     axserv 1 5 socket localhost:2001
+     <EOF>
+
+
+File: tntdoc.info,  Node: Files for BBS features,  Next: Configuration file for TNTC,  Prev: File for extended remote commands,  Up: Description of configuration files
+
+Files for BBS features
+======================
+
+sample boxender.tnt:
+
+     #
+     # additional strings to detect the end of a mailbox-message
+     #
+     # format: 'xy string'
+     # x: 1 = message complete, 2 = message aborted
+     # y: value from 1 to 4 (up to 4 strings)
+     #
+     # one prompt of baycom-box
+     11 Help Dir Read Erase Check REPly Send Alter Quit
+     # prompt of diebox, if message read cancelled
+     21 (H)elp (C)heck (L)ist (R)ead (S)end (E)rase (D)ir (U)sage (Q)uit
+     # flexnet-reconnect
+     22 *** reconnected to
+     <EOF>
+
+sample f6fbb.box:
+
+     #
+     # Definition of F6FBB-Fileheaders for the MonitorCut-Feature of DP
+     # YOU WILL HAVE TO ALTER THESE SETTINGS!
+     # BUT: NEVER CHANGE THE ORDER OF THE DEFINITIONS!
+     # Unfortunately, the f6fbb-soft has two basic types of fileheaders
+     # The first one consists of 5 lines, the second (and newer one) of 7.
+     # Additionally those headers exist in many different lingual versions.
+     # Therefore you are obliged to setup this file for your personal use...
+     #
+     # If the Header Format of your local F6FBB doesn't match to these,
+     # please write me a msg.
+     #
+     # THE '#' STARTS A COMMENT LINE... THE FIRST FOUR UNCOMMENTED LINES
+     # ARE KEPT AS THE KEYWORDS, THE FOLLOWING 12 UNCOMMENTED LINES ARE
+     # THE MONTH IDENTIFIERS AS USED IN YOUR LOCAL F6FBB-BOX
+     #
+     #
+     # An old-style (and dutch language) fbb-header may look like this:
+     #
+     # Van : DC6OQ  voor IBM   @DL
+     # Type/Status : B$
+     # Datum/tijd  : 21-Mrt 13:55
+     # Bericht #   : 72618
+     # Titel       : hilfe aastor
+     #
+     # Now the definitions:
+     #
+     # first word in header (all signs until the senders callsign):
+     Van :
+     # third word in header
+     voor
+     #
+     #
+     # A new-style (and german language) fbb-header may look like this:
+     #
+     # Von        : DG8NBR
+     # Nach       : YAESU @EU
+     # Typ/Status : B$
+     # Datum      : 18-Jun 06:44
+     # BID/MID    : 17630BDB0BOX
+     # Meldung #  : 85385
+     # Titel      : info > FT 530
+     #
+     # Now the definitions:
+     #
+     # Denotator in first line:
+     #Von        :
+     # Denotator in second line:
+     #Nach       :
+     #
+     #
+     #
+     # A new-style (and german language) fbb-header may look like this:
+     #
+     #Von         : DG1RFG
+     #An          : WINGT@DL
+     #Typ/Status  : BF
+     #Datum/Zeit  : 28-Apr 08:26
+     #BID (MID)   : DQKBUMDB0BLO
+     #Msg #       : 457242
+     #Titel       : TNX ! WinGT und Passwort wer...
+     #
+     # Now the definitions:
+     #
+     # Denotator in first line:
+     Von         :
+     # Denotator in second line:
+     An          :
+     #
+     #
+     #
+     # month identifiers as used in your local f6fbb-bbs:
+     # (they depend on the selected language, too)
+     #
+     Jan
+     Feb
+     Mar
+     Apr
+     Mai
+     Jun
+     Jul
+     Aug
+     Sep
+     Okt
+     Nov
+     Dez
+     
+     <EOF>
+
+
+File: tntdoc.info,  Node: Configuration file for TNTC,  Prev: Files for BBS features,  Up: Description of configuration files
+
+Configuration file for TNTC
+===========================
+
+sample tntc.ini:
+
+     # work/spool directory
+     tntc_dir /work/tnt/
+     # socket for frontend
+     frontend_socket unix:tntsock
+     <EOF>
+
+
+File: tntdoc.info,  Node: Credits and Contact,  Next: Appendix,  Prev: Description of configuration files,  Up: Top
+
+Credits and Contact
+*******************
+
+   Thanks to Dieter, DK5SG / N0PRA for wampes. The source code contains
+many interesting things and I took some parts of the shell-functions
+out of the wampes-code.
+
+   Thanks to Joerg, DD8FR for providing the code for macro expansion in
+the connect text and for using more than 80 characters per line.
+
+   Patrick (ex DL7AUC), who has ported TNT to ISC Unix and has
+contributed many ideas and additional code for the socket feature, lost
+his life in an accident. His work and support was very much appreciated
+and will be missed very much. He will always be remembered.
+
+   Thanks to Joachim, DL8HBS (author of DigiPoint for ATARI) for
+providing me with his sourcecode. Thanks also for the hours of
+discussing and planning the porting of the box-part of DP to Linux and
+for the support during the debugging sessions.
+
+   Thanks to Gert, DK3NY for the implementation of the password
+generation for DIEBOX-BBS's and for several bug reports.
+
+   Thanks to Andreas, DK9HE for analysing and fixing the startup
+problem if TNT was not invoked by root.
+
+Thanks to Werner, DL4NER for code and ideas for the FlexNet password
+generation.
+
+   Thanks to Mario, DL5MLO for providing the code for the alternative
+statusline, the 'insertmode'-flag in tnt.ini, AUTO7PL and several
+bugfixes.
+
+   Thanks to Oliver, DL8NEG for code for the baycom password, for
+perfect password hiding and for //RTT.
+
+   Thanks to Hansi, DL9RDZ for a bug report concerning unsuccessful
+socket connect and the solution for it.
+
+Thanks to Claudio, IW0FBB for code for the MD2 password.
+
+   Thanks to Martin, DL3FCC for providing a TeX-version of the
+documentation (this was the trigger to leave the path of a clean
+ASCII-doc).
+
+Thanks to Bruno, F1IRW and Daniel, F1RMB for the french translation of
+the documentation.
+
+Thanks to Matthias, DL2SUT for fixes in the daemon code.
+
+   The code for YAPP is based on work of Jeff Jacobsen, WA7MBL,
+Jonathan Naylor, G4KLX and S N Henson.
+
+Thanks to Sanne Graaf for code for //RTT and //RING.
+
+Thanks to Gerd, DK3NZ and Jonny, DG4MMI for bug reports.
+
+Thanks to all who have tested TNT and have given comments.
+
+   And last but not least thanks to Linus and all of the
+Linux-community for giving us a superb operating system.  Special
+thanks to Joseph H. Allen for the JOE-editor and Dave Gillespie for the
+P2C Pascal to C translator.
+
+If you have questions, comments or bug reports, just write a mail:
+
+     Ham Radio : DL4YBG @ DB0GR.#BLN.DEU.EU
+     Internet  : wahlm@berlin.snafu.de
+
+73, Mark Wahl (DL4YBG)
+
+
+File: tntdoc.info,  Node: Appendix,  Prev: Credits and Contact,  Up: Top
+
+Appendix
+********
+
+Static huffman compression table
+================================
+
+   This table was set up by DK4NB for SP 9.00
+
+
+           ASCII:  HUFFMAN                ASCII:  HUFFMANN
+     
+           <  0>:  101010110010110        <128>:  100111111110110
+           <  1>:  101010101000010        <129>:  00100001
+           <  2>:  100111111100010        <130>:  100111111101110
+           <  3>:  101010110011110        <131>:  100111111100110
+           <  4>:  101010110001110        <132>:  111100000
+           <  5>:  101010101111110        <133>:  011111010111110
+           <  6>:  101010101110110        <134>:  011111010110110
+           <  7>:  101010101101010        <135>:  00111010010000
+           <  8>:  101010101011010        <136>:  101010110100000
+           <  9>:  1111001101             <137>:  101010110011100
+           < 10>:  101010101010010        <138>:  101010110011000
+           < 11>:  011111010110010        <139>:  101010110010100
+           < 12>:  101010101101110        <140>:  101010110010000
+           < 13>:  1111010                <141>:  101010110001100
+           < 14>:  101010101001010        <142>:  1010101101110
+           < 15>:  100111111111010        <143>:  101010110001000
+           < 16>:  100111111101010        <144>:  101010110000100
+           < 17>:  011111010111010        <145>:  101010110000000
+           < 18>:  101010110100010        <146>:  101010101111100
+           < 19>:  101010110011010        <147>:  101010101111000
+           < 20>:  101010110010010        <148>:  001110110
+           < 21>:  101010110001010        <149>:  101010101110100
+           < 22>:  101010110000010        <150>:  101010101110000
+           < 23>:  101010101111010        <151>:  101010101101100
+           < 24>:  101010101110010        <152>:  101010101101000
+           < 25>:  10101011011000         <153>:  10101011011001
+           < 26>:  101010110000110        <154>:  011111010011
+           < 27>:  101010101100110        <155>:  101010101100100
+           < 28>:  101010101011110        <156>:  101010101100000
+           < 29>:  101010101010110        <157>:  101010101011100
+           < 30>:  101010101001110        <158>:  101010101011000
+           < 31>:  101010101000110        <159>:  101010101010100
+
+
+           ASCII:  HUFFMAN                ASCII:  HUFFMANN
+     
+                :  110                    <160>:  101010101010000
+               !:  001110101              <161>:  101010101001100
+               ":  1010101111             <162>:  101010101001000
+               #:  00000000011            <163>:  101010101000100
+               $:  011111010100           <164>:  101010101000000
+               %:  10101011010111         <165>:  100111111111100
+               &:  000000000000           <166>:  100111111111000
+               ':  10101011010110         <167>:  100111111110100
+               (:  011111000              <168>:  100111111110000
+               ):  001111001              <169>:  100111111101100
+               *:  01111101000            <170>:  100111111101000
+               +:  000000000001           <171>:  100111111100100
+               ,:  0001001                <172>:  100111111100000
+               -:  0111101                <173>:  011111010111100
+               .:  101110                 <174>:  011111010111000
+               /:  0011001                <175>:  0011101001011
+               0:  0010001                <176>:  011111010110100
+               1:  11110110               <177>:  011111010110000
+               2:  00111101               <178>:  101010110100011
+               3:  100111100              <179>:  101010110100001
+               4:  101111011              <180>:  101010110011111
+               5:  011111001              <181>:  101010110011101
+               6:  000000001              <182>:  101010110011011
+               7:  101010100              <183>:  101010110011001
+               8:  101111010              <184>:  101010110010111
+               9:  100111110              <185>:  101010110010101
+               ::  00000011               <186>:  101010110010011
+               ;:  1010101101111          <187>:  101010110010001
+               <:  1010101101101          <188>:  101010110001111
+               =:  001111000              <189>:  101010110001101
+               >:  001100000              <190>:  101010110001011
+               ?:  00000000001            <191>:  101010110001001
+
+
+           ASCII:  HUFFMAN                ASCII:  HUFFMANN
+     
+               @:  011111010101           <192>:  101010110000111
+               A:  0011100                <193>:  101010110000101
+               B:  0111100                <194>:  101010110000011
+               C:  1001110                <195>:  101010110000001
+               D:  1111111                <196>:  101010101111111
+               E:  001001                 <197>:  101010101111101
+               F:  10111100               <198>:  101010101111011
+               G:  00000010               <199>:  101010101111001
+               H:  00000001               <200>:  101010101110111
+               I:  11110001               <201>:  101010101110101
+               J:  00000000010            <202>:  101010101110011
+               K:  00110001               <203>:  101010101110001
+               L:  11110010               <204>:  101010101101111
+               M:  0011010                <205>:  101010101101101
+               N:  0001110                <206>:  101010101101011
+               O:  0001111                <207>:  101010101101001
+               P:  1011111                <208>:  101010101100111
+               Q:  10101011101            <209>:  101010101100101
+               R:  0011111                <210>:  101010101100011
+               S:  000101                 <211>:  101010101100001
+               T:  0011011                <212>:  101010101011111
+               U:  111100111              <213>:  101010101011101
+               V:  111100001              <214>:  101010101011011
+               W:  00100000               <215>:  101010101011001
+               X:  11111100               <216>:  101010101010111
+               Y:  1001111110             <217>:  101010101010101
+               Z:  100111101              <218>:  101010101010011
+               [:  101010111001           <219>:  101010101010001
+               \:  001110111              <220>:  101010101001111
+               ]:  101010111000           <221>:  001110100111
+               ^:  10101011010101         <222>:  101010101001101
+               _:  0011101001010          <223>:  101010101001011
+
+
+           ASCII:  HUFFMAN                ASCII:  HUFFMANN
+     
+               `:  10101011010100         <224>:  101010101001001
+               a:  10100                  <225>:  001100001
+               b:  000110                 <226>:  101010101000111
+               c:  100110                 <227>:  101010101000101
+               d:  01110                  <228>:  101010101000011
+               e:  010                    <229>:  101010101000001
+               f:  000001                 <230>:  100111111111111
+               g:  101011                 <231>:  100111111111101
+               h:  111110                 <232>:  100111111111011
+               i:  0110                   <233>:  100111111111001
+               j:  0011101000             <234>:  100111111110111
+               k:  11111101               <235>:  100111111110101
+               l:  00101                  <236>:  100111111110011
+               m:  101100                 <237>:  100111111110001
+               n:  1000                   <238>:  100111111101111
+               o:  101101                 <239>:  100111111101101
+               p:  0001000                <240>:  100111111101011
+               q:  011111010010           <241>:  100111111101001
+               r:  11100                  <242>:  100111111100111
+               s:  10010                  <243>:  100111111100101
+               t:  11101                  <244>:  100111111100011
+               u:  00001                  <245>:  100111111100001
+               v:  11110111               <246>:  011111010111111
+               w:  1010100                <247>:  011111010111101
+               x:  011111011              <248>:  011111010111011
+               y:  1111001100             <249>:  011111010111001
+               z:  0111111                <250>:  011111010110111
+               {:  10101011010010         <251>:  011111010110101
+               |:  0011101001001          <252>:  011111010110011
+               }:  10101011010011         <253>:  011111010110001
+               ~:  001110100110           <254>:  001110100100011
+           <127>:  100111111111110        <255>:  001110100100010
+
+

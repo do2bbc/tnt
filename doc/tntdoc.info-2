@@ -1,0 +1,1255 @@
+This is Info file tntdoc.info, produced by Makeinfo version 1.68 from
+the input file tntdoc.texinfo.
+
+   Documentation of TNT - A UNIX Packet-Radio Terminal Program
+
+   Copyright (C) 1993-1997 by Mark Wahl, DL4YBG
+
+
+File: tntdoc.info,  Node: Miscellaneous,  Next: Routing scripts,  Prev: Shell Run Redirect and Sockets,  Up: Commands in command mode
+
+Miscellaneous
+=============
+
+`CD <dir>'
+     Change the working directory to <dir>. If <dir> is empty, the
+     HOME-directory will be used.
+
+`CWD'
+     Displays the current working directory.
+
+`TNC <command>'
+     <command> is sent as a command to the TNC without any conversion.
+
+`CHANnel <x> or S <x>'
+     Switch to connect screen of channel x.    If included in a command
+     script, no changing of screens is performed,   it simply specifies
+     the channel used for the following commands.
+
+`CONCall <callsign>'
+     If the updated callsign in the statusline is corrupted by a connect
+      message in normal text, the callsign can be restored using this
+     command.
+
+`CStatus'
+     A list of all connected channels with starttime of connect and
+     callsigns   will be displayed.
+
+`SENDCom <filename>'
+     Execute a file containing TNC or external commands (command
+     script).
+
+`CBell [ON/OFF/OTHER]'
+     Beep if the state of a connection changes (connect bell). If
+     other, then   a beep will only be generated if a station connects
+     on a different than   the current channel.
+
+`INFObell [ON/OFF/OTHER]'
+     Beep if a new packet is received on any channel (information
+     bell). If   other, then a beep will only be generated if a new
+     packet is received on   a different than the current channel.
+
+`COOKie [ON/OFF]'
+     Send a cookie if connected from a remote station.
+
+`UMLaut [ON/OFF]'
+     Umlaut conversion.
+
+`CONText [ON/OFF]'
+     Send a special connect text, using macros, overrides COOKIE.
+
+`TXEcho [ON/OFF]'
+     Echo all sent data from input part to part with received data.
+
+`PTYEcho [ON/OFF]'
+     Echo all data received and send on a channel on which SHELL, RUN,
+     SOCKET   or REDIR is active.
+
+`CTRltx <character>'
+     Transmit a control character as if entered with <CTRL><character>
+     without TNT   handling it internally. E.g. use ':CTRLTX T' to
+     terminate a telnet-connection   on some NOS-systems
+
+`NAME <name>'
+     Set the name of the call on the current channel to <name>, if
+     <name> is   not specified, the stored name is displayed (only if
+     channel connected).
+
+`STIme'
+     Send time and date on the current channel.
+
+`SCOokie'
+     Send a cookie on the current channel.
+
+`MSG'
+     Set the message that will be sent with the %m macro.
+
+`TELL'
+     Send a line to all connected stations (except for types N> and B>
+     in routes.tnt).
+
+`DA, WEG, 600, KLO, GND'
+     Send texts from telltexte.tnt. (See detailled description.)
+
+`TIMESET'
+     Send time of computer to TNC.
+
+`DATESET'
+     Send date of computer to TNC.
+
+`RESYnc'
+     Displays the number of hostmode resynchronisations since program
+     start   and, if applicable, some additional information concerning
+     the problem.
+
+`LAYer3 [ON/OFF]'
+     Enables or disables the analysis of NETROM/TheNet headers (pid CF)
+     in   monitored frames.
+
+`HEArd [ON/OFF]'
+     Enables or Disables the heard list. If disabled, the heard list is
+     not   updated any longer.
+
+`KMAcro'
+     Reload the keyboard macro file 'func_key_file' defined in the
+     init-file.
+
+`WORDWrap [ON/OFF]'
+     Enables the wordwrap-function. An incomplete word at the end of
+     the line   will automatically be copied to the next line.
+
+`WHOLElin [ON/OFF]'
+     If set to on, the whole line will be transmitted, if set to off
+     only   the part of the line up to the current cursor position.
+
+`LINelen <value>'
+     Set the linelength at which additional input characters are
+     ignored or   wordwrap will be executed. This value shall normally
+     be set to 80   characters.    The default value can be specified
+     by 'input_linelen' in the init-file.
+
+`MONLines <value>'
+     If you like to see a part of the monitor screen on the connect
+     screen   the number of monitor lines can be specified here.    Set
+     to 0 if you don't want monitor lines.    The default value can be
+     specified by 'lines_moncon' in the init-file.
+
+`CONDiv <value>'
+     Changes the input/output-lines ratio on the connect screen. For
+     further   details see 'scr_divide' in the init-file.
+
+`XMONDiv <value>'
+     Changes the input/output-lines ratio on the extended monitor
+     screen. For   further details see 'xmon_scr_divide' in the
+     init-file.
+
+`MBOXDiv <value>'
+     Changes the input/output-lines ratio on the mailbox screen. For
+     further   details see 'mbscr_divide' in the init-file.
+
+`COMP [ON/OFF]'
+     Huffman compression is enabled/disabled on the current channel.
+     'CONN(H)'   in the bottom statusline indicates an enabled huffman
+     compression. If no   value is given the current status is returned.
+      To synchronize the switching to huffman compression between
+     local and   remote station the remote command //COMP shall be used
+     instead.
+
+`BSCRHold [ON/OFF]'
+     If enabled, no scrolling of the displayed window will be done if
+     the last   line of the screen buffer is not displayed (backscroll
+     active) and the   first displayed line is still in the screen
+     buffer.
+
+`TABExp [ON/OFF]'
+     If enabled, a TAB-character is expanded to position the cursor on
+     the next   tab-stop. A tab-stop is defined every 8 characters.
+     If disabled '^I' is displayed instead.
+
+`FREE'
+     This command will display the number of free buffers in the TNC.
+     The   command does not execute a '@B'-command, but it displays the
+     value   of the last periodical polling.
+
+`SIGNon'
+     Display version and copyright information of TNT.
+
+`LOGBOOK [ON/OFF]'
+     This command can disable the writing to the logbook-file.
+
+`EXit'
+     Leave TNT.
+
+`QUIT'
+     Leave TNTC without termination of the TNT-daemon.
+
+
+File: tntdoc.info,  Node: Routing scripts,  Next: Extended monitor,  Prev: Miscellaneous,  Up: Commands in command mode
+
+Routing scripts
+===============
+
+`XConnect [portheader:]<callsign>'
+     Start of a routing script for the specified callsign.    An active
+     script can be ended by using 'OFF' as callsign.    If a routing
+     script is active, a 'X' in the main statusline will be   displayed.
+      If the callsign is not found in the routing database, a simple
+     connect   is started.    If a multiport-TNC is used, a valid
+     portheader entered with command QRG   can be used in front of the
+     callsign to select the port where the first   connect shall be
+     started.    Using this command an automatic allocation of a free
+     SSID for the source   call is performed. So multiple connects to
+     the same digipeater are   possible.
+
+`QRG [<port> <frequency>] [portheader:]'
+     With this command the operating frequency of the program is
+     defined.    The specified frequency is used to select valid
+     routing data out of the   routing database.    <frequency> can be
+     any string up to 19 characters.    For TNCs with one port use 0 as
+     <port> and omit <portheader:>:     QRG 0 438.300   For
+     multiport-TNCs for each port a frequency and the portheader must be
+      defined:     QRG 0 438.300 1:     QRG 1 430.900 2:   Without
+     arguments the current frequency definition is displayed.
+
+`LSNOTOWN'
+     This command lists all callsigns for which an entry in
+     'tnt_notownfile'   was found. These callsigns are not allowed to
+     be used as source calls   for a xconnect. So you are able to
+     define some SSID's of your call which   TNT will not use (needed
+     if different software is operated with the same   callsign).
+
+`LDNOTOWN'
+     If 'tnt_notownfile' was changed while TNT is running, it can be
+     reloaded   with this command. A reload is necessary because TNT
+     only reads the   file at startup and copies the data to memory.
+
+* Menu:
+
+* Using routing scripts::
+* Call update::
+
+
+File: tntdoc.info,  Node: Using routing scripts,  Next: Call update,  Up: Routing scripts
+
+Using routing scripts
+---------------------
+
+   The structure of the Packet Radio Network is quite different
+compared to the internet. In the internet you can directly specify your
+destination and the routing will be done automatically.  In the Packet
+Radio Network there exist different systems with incompatible routing
+mechanisms. To connect to a destionation there may be needed several
+steps. Suppose the following example:
+
+   You want to connect DL7ZZZ which is standby on the frequency of the
+digipeater DB0LUC. Your local digipeater is DB0BLO.  Therefore your
+first command is to connect DB0BLO:
+     :c db0blo
+
+If the link setup was successful you will send the line
+     c db0ber
+
+to the digipeater which then will build up a connection to DB0BER,
+which is the next digipeater towards DB0LUC. If the connection is
+established, DB0BLO will send you the message:
+     *** connected to DB0BER'
+
+Now you enter the line
+     c db0luc db0bln
+
+which means DB0LUC can be reached from DB0BER via DB0BLN. DB0BLN is not
+connected, because it uses hop-to-hop acknowledge instead of simple
+digipeating. Now if the connection was successful, you get the line
+     BSUED:DB0BER> Connected to DB0LUC via DB0BLN
+
+and you can at last try to connect your destination with the line:
+     c dl7zzz
+
+The successful connection is indicated by the line
+     *** connected to DL7ZZZ
+
+   If you do this manually, you must look at your screen and after each
+successful connect-message you must enter the new line.  The
+connect-script facility (command XCONNECT) now does all these steps
+automatically, if you have given the routing information to the program.
+The routing information will be searched in the routing-database file
+(route_file_name) and reads for the example as follows:
+
+     T>DL7ZZZ Joe; N>DB0LUC T>DL7ZZZ
+     N>DB0LUC Digi Luckau; N>DB0BER F>DB0BLN N>DB0LUC
+     N>DB0BER Digi Tempelhof; N>DB0BLO N>DB0BER
+     N>DB0BLO Digi 9K6
+
+   As you can see the routing entries are recursive, you don't have to
+specify the whole routing for the destination.  The characters before
+the callsigns give the information to the connect script shall connect
+the digipeater ( N> ) or if the digipeater shall be used in the via
+path ( F>, D> ).  To identify a normal user T> is used, for mailboxes
+B> can be used.
+
+   Some programs used by normal users allow a connect with the command
+//c <callsign>. If you want to use such a user as part of your path,
+put a T> in front of the callsign and a '//c <callsign>'-line will be
+send by the routing script.
+
+   If you frequently change your operating frequency, you may want to
+use the QRG command and want to define routing data only valid for a
+special frequency ('<IF xxxx> <END>'-clause).
+
+
+File: tntdoc.info,  Node: Call update,  Prev: Using routing scripts,  Up: Routing scripts
+
+Call update
+-----------
+
+   If you use routing scripts or if you connect manually through a large
+number of digipeaters, you easily loose the orientation, where you are.
+Therefore, every 'connected to' line will update the callsign displayed
+in the statusline.
+
+   'reconnected to' lines will update the call in the statusline, too,
+but routing scripts will not send the next command line and the logbook
+call will not be updated.
+
+   If the callsign is changed by a 'connected to' string in normal text,
+it can be restored by using the CONCALL command.
+
+
+File: tntdoc.info,  Node: Extended monitor,  Next: Boxlist,  Prev: Routing scripts,  Up: Commands in command mode
+
+Extended monitor
+================
+
+`XMON [ON/OFF]'
+     Enables or Disables the extended monitor function. If disabled,
+     received   monitor frames are not analysed any longer.
+
+`EXTmon <call1> <call2> [<call3> <call4>] (extended monitor screen)'
+`EXTmon <xmon-channel> <call1> <call2> [<call3> <call4>] (other screens)'
+     On the current (extended monitor screen) or on the specified (other
+      screens) channel a connection shall be monitored.    If only
+     <call1> and <call2> is specified, frames from <call1> to <call2>
+     and <call2> to <call1> are monitored, otherwise frames from
+     <call1> to   <call2> and <call3> to <call4>.
+
+`EXTAmon <call1> <call2> [<call3> <call4>]'
+     Same as EXTMON except that the next free xmon-channel will be used.
+      The resulting channel will be displayed as command response.
+
+`ENDEXtm (extended monitor screen)'
+`ENDEXtm <xmon-channel> (other screens)'
+     The extended monitor on the current (extended monitor screen) or
+     the   specified (other screens) channel will be closed. The
+     connection will   be no longer monitored.
+
+`EXTComp [ON/OFF]'
+     Huffman compression is enabled/disabled on the current extended
+     monitor   screen. 'EXTM(H)' in the bottom statusline indicates an
+     enabled huffman   compression. If no value is given the current
+     status is returned.
+
+* Menu:
+
+* Extended monitor description::
+
+
+File: tntdoc.info,  Node: Extended monitor description,  Up: Extended monitor
+
+Extended monitor description
+----------------------------
+
+   The extended monitor feature allows the monitoring of specific
+connections on the frequency with automatic removal of headers and
+resent packets.  There are 5 (0 to 4) different extended monitor
+channels available.  <ALT>X or <ESC>X will switch to the extended
+monitor screens and TAB can be used to change the channel.
+
+   The command EXTMON is used to activate the extended monitor. If you
+have given the command from an extended monitor screen, the current
+channel will be taken. On other screens you must give the channel
+number as an additional parameter before specifying the callsigns.  The
+next free extended monitor channel will be taken if the command EXTAMON
+is used.
+
+   As command parameters you have to specify the callsigns of the
+connection you want to monitor. Normally this will be 2 callsigns and
+both directions will be monitored (in different attributes).
+
+   Using digipeaters like NETROM/TheNet or RMNC/Flexnet a connection is
+build up out of 2 connections. First the connection from station 1 to
+the digipeater (DL9xxx <> DB0xxx) and second the connection from the
+digipeater to station 2 (DL9xxx-15 <> DG1xxx). In most cases you can
+only monitor frames sent by the digipeater. In this case you can
+specify 4 callsigns (DB0xxx DL9xxx DL9xxx-15 DG1xxx) and both
+directions of the connection will be monitored in the extended monitor
+screen.
+
+   If the monitored connection is huffman-coded, decoding can be
+activated by command
+EXTCOMP.
+
+The extended monitoring can be finished by the ENDEXTM command.
+
+
+File: tntdoc.info,  Node: Boxlist,  Next: DPBox-interface commands,  Prev: Extended monitor,  Up: Commands in command mode
+
+Boxlist
+=======
+
+`LOGBlist'
+     On the current channel or on the mailbox screen a file is openend
+     and   all received data is saved. The command is similar to LOGREC
+     except   a unique filename is generated (in /tmp directory) and
+     the file will   be removed during exit of TNT.
+
+`BLIst [<filename>]'
+     On the current channel or on the mailbox screen the last active
+     file   is used for the boxlist screen and feature. If the file is
+     not closed   up to now, it will be closed.    Optionally a
+     filename can be specified. In this case this file will be   loaded
+     into the boxlist screen.
+
+`XBList'
+     Finish boxlist and close the boxlist screen on the current channel.
+
+* Menu:
+
+* General description::
+* Using boxlist::
+* Using boxlist keyboard macros::
+* Recognized formats::
+
+
+File: tntdoc.info,  Node: General description,  Next: Using boxlist,  Up: Boxlist
+
+General description
+-------------------
+
+   If you get a list of files from a BBS, you will have to write down
+the files you are interested in or you must store the list in a file
+and look through this file afterwards. In both cases you have to type
+the filename or number of the file to get it from the BBS.
+
+   The boxlist-feature allows to fetch a file from the BBS by selecting
+the file (with cursor keys) from the filelist and simply pressing CR.
+
+   If an Interface-connection to a DPBox is active and a 'check'-command
+with bulletin-ID in the list is given, all bulletins which are in the
+bulletin-ID pool of the DPBox are displayed with a special
+attribute/colour.  That means you get an overview about the bulletins
+already contained in your own BBS.
+
+
+File: tntdoc.info,  Node: Using boxlist,  Next: Using boxlist keyboard macros,  Prev: General description,  Up: Boxlist
+
+Using boxlist
+-------------
+
+How does it work?
+
+  a.    Before requesting the filelist open a logfile. If you are not
+     interested    in keeping the list, simply use the command
+     'logblist'. A temporary file    with a unique name will be used.
+     This file will be erased when you exit    TNT. If you want to keep
+     the list, use 'logrec <filename>'.
+
+  b.    If the end of the filelist is received, use the command 'blist'.
+       This command closes the logfile and loads it into the boxlist
+     screen.     If no file was open the last logfile on the current
+     channel will be    loaded into the boxlist screen.
+
+  c.    Use <ALT>L or <ESC>L to toggle connect and boxlist screen. In
+     boxlist    screen you can use the cursor commands to select a
+     file. Pressing CR    will send a read command to the BBS. All
+     already fetched files will be    displayed with a different
+     attribute.
+
+  d.    If you have read all files from the filelist you can close the
+     boxlist    screen by the command 'xblist'.
+
+
+
+File: tntdoc.info,  Node: Using boxlist keyboard macros,  Next: Recognized formats,  Prev: Using boxlist,  Up: Boxlist
+
+Using boxlist keyboard macros
+-----------------------------
+
+To use the boxlist feature without typing in the commands, it is
+advisable to use keyboard macros. For example:
+
+     <ALT>8 / <ESC>8 : 'logblist'
+     <ALT>9 / <ESC>9 : 'blist'
+     <ALT>0 / <ESC>0 : 'xblist'
+
+These keyboard macros are already included in the sample keyboard macro
+file.
+
+
+File: tntdoc.info,  Node: Recognized formats,  Prev: Using boxlist keyboard macros,  Up: Boxlist
+
+Recognized formats
+------------------
+
+At the moment the following list formats are recognized:
+
+  a. DIEBOX check
+
+     7 DL4BCU > TERMINE...16 24.09.94 DL      2214   5 2m
+     Mobilfuchsjagd I05 08.
+
+     =>R TERMINE 16
+
+  b. DIEBOX list
+
+     263 DL1ZAX 02.11.94 18:03   6763  DL-RUNDSPRUCH NR. 39/94
+
+     =>R 263
+
+  c. DIEBOX checklist with BID
+
+     85 DH3FBI > KENWOOD..423 055514DB0GV  DL   851   5 LF & VLF
+     Empfang mit TS-5
+
+     =>R KENWOOD 423
+
+  d. RUN C with option D=CRD$@L
+
+     DG0XC  DIGI......17 28.04.95 2845DB0BALWE DL      1 DB0BRO-1
+     wieder ok.
+
+     =>R DIGI 17
+
+
+File: tntdoc.info,  Node: DPBox-interface commands,  Next: Password generation commands,  Prev: Boxlist,  Up: Commands in command mode
+
+DPBox-interface commands
+========================
+
+`ACTBox'
+     Build up a socket connection to DPBox via an UNIX-socket specified
+      by 'box_socket' in the init-file.
+
+`DEACTBox'
+     Disconnect the socket connection to DPBox.
+
+`FINBox'
+     Disconnect the socket connection to DPBox and terminate DPBox.
+
+`BOX [callsign]'
+     Activate DPBox on the current channel using the already built up
+     socket connection. If a callsign is specified at the mailbox
+     console   this callsign is used for the boxsession instead of the
+     box callsign.
+
+`ENDBox'
+     Deactivate DPBox on the current channel.
+
+`AUTOBOx [ON/OFF]'
+     If activated, all connections are scanned for mail-headers. A valid
+      mail-header leads to saving the following mail. If the end is
+     reached,   the mail will be sent via the interface to DPBox.
+
+`MONBox [ON/OFF]'
+     If activated, all monitored frames are scanned for mail-headers.
+     A valid mail-header leads to an extended monitoring of the
+     connection.    If no frames are lost and the mail-end is reached,
+     the monitored mail   will be sent via the interface to DPBox.
+
+`LMONbox'
+     All mails which are currently received using the MONBOX-feature are
+      displayed.
+
+`SNOBOX <string>'
+     String which will be sent, if DPBox was remotely activated and the
+      activation was not successful.
+
+`SCANMBEA [<source> <destination> <own_call> <connectcall> [<timeout>]] [$]'
+     TNT can monitor mail-beacons and if it finds your call in it, it
+     can   activate store and forward to get your new mail.    To
+     activate this feature you have to give source and destination of
+     the   expected mail-beacon (which will be the callsign of your bbs
+     and MAIL as   destination), your own call (this call is searched
+     in the beacon data)   and a connectcall with an optional timeout.
+     The connection is built up   using the xconnect-feature giving
+     connectcall and timeout as parameters.    If the connection is
+     established store and forward will begin.    The command without
+     parameters will give the current data.    If you want to
+     deactivate this feature, give a '$' as a single argument.
+
+`LDBOXFil'
+     All files concerning the box configuration ('autobox_dir',
+     'tnt_boxender'   and 'f6fbb_box') will be reread. So changes in
+     these files can be made   without the need of leaving TNT.
+
+`ACCUIReq [ON/OFF]'
+     If ON, unproto list requests to the callsign defined by ACCUICal
+     will be   sent to DPBox. DPBox will then take the needed action.
+
+`ACCUICal <BBS-callsign>'
+     If an unproto list request is received with the callsign
+     (including SSID)   defined here, the request will be sent to
+     DPBox. To clear the callsign   the value '$' can be used.
+
+* Menu:
+
+* Use of DPBox::
+
+
+File: tntdoc.info,  Node: Use of DPBox,  Up: DPBox-interface commands
+
+Use of DPBox
+------------
+
+General description
+...................
+
+   DPBox is a daemon which is totally independent of TNT. The daemon
+must be activated before using any of the DPBox-commands of TNT.
+
+Using unix socket interface
+...........................
+
+   To build up the connection from TNT to DPBox the command 'actbox'
+must be used. If the connection shall be closed 'deactbox' must be used.
+
+   The command 'finbox' not only closes the connection like 'deactbox',
+it gives a termination command to the DPBox daemon.
+
+The unix socket name of DPBox must be defined in 'box_socket' in the
+initfile.
+
+Mailbox screen
+..............
+
+   If the connection to DPBox is activated, the mailbox screen (<ALT>B
+or <ESC>B) can be used as a sysop-console by executing the 'box'
+command.
+
+You can either 'quit' or give the command 'endbox' to end your sysop-
+session.
+
+   All features of a normal connect screen are provided including the
+boxlist.  In boxlist mode there is an additional feature. If you select
+a file and press 'e' instead of CR, the file will erased. 'k' for kill
+and 'l' for list are available, too. 't' generates a transfer line
+where you can add an new board name, '0' sets the lifetime of the
+message to 0.
+
+Using DPBox via Packet Radio
+............................
+
+   DPBox can be activated on a normal connect channel by the command
+'box', by the remote command //box or by connecting a channel which
+SSID of the callsign is equal to 'tnt_box_ssid' in the initfile.
+
+DPBox is activated only, if the channel is connected.
+
+The 'endbox' command, 'quit' to the box or a disconnect will terminate
+the box-session.
+
+Autobox and monbox feature
+..........................
+
+   If you set 'autobox' to on, all mails you will receive on any channel
+will be sent to DPBox and will be stored in the corresponding board.
+This includes personal mail and bulletins.
+
+   If you set 'monbox' to on and 'xmon' is on, all monitored frames
+will be searched for mail headers. If one is found, it is tried to
+receive the whole mail similar to the extended monitor function. If
+packets are lost or if any other error occurs, the mail is not accepted.
+If the mail was correctly received it will be sent to DPBox and will be
+stored in the corresponding board.  All bulletins and all personal mail
+which contains a callsign out of 'autobox_dir' as sender or receiver
+will be treated in this way.  All mails which will currently be
+received can be displayed with the 'lmonbox' command.
+
+Unproto list handling
+.....................
+
+   Unproto list handling, a feature know from F6FBB-BBS's,is now
+available together with DPBox 5.03.00 upwards. The BBS will send an
+unproto frame for every newly arrived mail. This frame contains a
+message number which can be used for a mail request by an user programm
+like TPK or TSTHOST.
+
+   If some unproto frames were lost, a listening station can request a
+resend of older messages. To send these requests to DPBox, you have to
+activate the feature using command ACCUIREQ und you have to define the
+BBS's callsign with command ACCUICAL. This callsign must be equal to
+the source-callsign of the unproto frames the BBS is sending.
+
+   All these configurations are needed to enable unproto list handling
+in a real BBS. The other direction, TNT handling unproto lists as a
+client like TPK or TSTHOST is not implemented up to now.
+
+
+File: tntdoc.info,  Node: Password generation commands,  Next: Remote-command permissions and access levels,  Prev: DPBox-interface commands,  Up: Commands in command mode
+
+Password generation commands
+============================
+
+`PRIV'
+     This command starts the password generation sequence. The command
+     is   rejected if the channel is not connected or the callsign of
+     the connected   station is not contained in 'tnt_pwfile'.    The
+     taken action is dependent on the type of the password generation
+     defined for the callsign.
+
+`LISTPRIV'
+     This command lists all callsigns for which an entry in 'tnt_pwfile'
+      was found. In addition for every callsign the type of password
+     generation   and the file containing the password data is listed.
+
+`LOADPRIV'
+     If 'tnt_pwfile' was changed while TNT is running, it can be
+     reloaded   with this command. A reload is necessary because TNT
+     only reads the   file at startup and copies the data to memory.
+
+General description
+-------------------
+
+   In the packet radio network many different password systems are used
+at the moment. Therefore a configuration file 'tnt_pwfile' is provided.
+In this file for any callsign including SSID a password type and a file
+containing the password can be defined. Depending on the password type
+a different action is taken and the contents of the password file are
+different.
+
+   Up to now only few password systems are implemented in TNT, but it is
+planned to increase the number of supported systems. If you have added
+any password system, please contribute!
+
+DIEBOX
+------
+
+   If the password type is DIEBOX, after a connect to the specified
+callsign was done, every text is scanned for the string 'Login: '. If
+the string was found, the following date and time is recorded and the
+scan for the string will be stopped.
+
+   If you invoke the command 'priv', a 4 character password will be
+generated out of the logintime and your password file and as a result
+'PRIV xxxx' will be sent (xxxx stands for generated password).
+
+   The password may contain CR and LF, CR, LF or none of both. TNT will
+detect this from the length of the file.
+
+FlexNet
+-------
+
+   If the password type is FLEXNET and the connection to the wanted
+station is established, the command 'priv' starts the password
+sequence. A string containing 'SYS' is sent to the remote station which
+will respond with a string like '(xyz) abcde>'. An answer is calculated
+out of this response together with the specified password. This answer
+is sent to the remote station and sysop-status will be available.
+
+   Unlike the other password systems the third value in the
+configuration file is not the filename where the password is stored,
+but directly the password number.
+
+   There is some other software which uses the same password algorithm
+as FlexNet, but need a different activation string than SYS. In this
+case a fourth (optional) value can be used to define this activation
+string.
+
+TheNet
+------
+
+   If the password type is TheNet and the connection to the wanted
+station is established, the command 'priv' starts the password
+sequence. A string defined by the fifth value in the configuration file
+is sent to the remote station which will respond with a string like
+'NODE:NO1DE: a b c d e' or simply 'a b c d e'. This response defines
+which characters out of the password file must be sent as an answer.
+This answer is generated and is sent to the remote station and sysop
+status will be available.
+
+The third value in the configuration file defines the file where the
+password is stored.
+
+   The fourth value in the configuration file defines if some additional
+features shall be used. If Bit 0 is set, the password generation is done
+3 times, but only one ramdomly selected time the password generation is
+correct. The other two 2 times a random string is sent instead of the
+right answer. If Bit 1 is set, the answer is hidden in a 72 character
+string.  If Bit 2 ist set, perfect hiding is used. This means that only
+characters out of the password string will be used to generate the
+line. Alternatively you can add a second line to the password file. In
+this case only characters out of this line will be used.
+
+   The TheNet-type password generation is used by other software, too
+(for example Baycom, DigiPoint).
+
+Baycom
+------
+
+   The Baycom password system is almost identical to TheNet, except
+that no activation string is needed and right after connect you will
+receive the 5 random numbers.
+
+   The syntax is the same as for TheNet, except the fifth parameter (the
+activation string) can be omitted. The default will be SYS. Because the
+string is needed only if you defined a special configuration for the
+user profile in BayBox, it is normally not of any importance.
+
+   There is another small difference to the TheNet syntax, the option
+'3 tries, where only one answer is correct', is not allowed.
+
+MD2
+---
+
+After connect a similar like the following string will be received:
+     XXXBBS> [ABCDEFGHIL]
+   Out of this string an answer is generated, the password algorithm
+used is 'RSA Data Security, Inc. MD2 Message Digest Algorithm'.
+
+
+File: tntdoc.info,  Node: Remote-command permissions and access levels,  Next: Broadcast transmission/reception,  Prev: Password generation commands,  Up: Commands in command mode
+
+Remote-command permissions and access levels
+============================================
+
+`REMOte [ON/OFF]'
+     Enables or disables remote commands for ALL channels. If disabled
+     commands   with status ALWAYS are not available.
+
+`REMAllow [ON/OFF]'
+     Enables or disables remote commands on the current channel. If
+     disabled   commands with status ALWAYS are available. This command
+     is allowed only if   connected. In addition the current status is
+     changed at a new connect   according to tnt_noremfile.
+
+`SETACC <remote-command> [NORMAL/SYSOP/ROOT/ALWAYS]'
+     defines which access-level a remote-station needs to execute a
+     remote-   command. NORMAL means the command is available for
+     everyone, commands with   SYSOP status only after a successful
+     validation with //sys. If the   root-sysop flag was set in
+     tnt_sysfile, commands with ROOT status are   available after
+     validation. The ALWAYS status means that this command   is
+     available even if the connected station is contained in
+     tnt_noremfile.
+
+`NOACC [ON/OFF]'
+     If set to ON, only remote stations contained in tnt_sysfile can
+     connect   the station. All other will receive the string defined
+     by SNOACC and will   be disconnected afterwards.
+
+`SNOACC <string>'
+     defines the string which is sent to a station not authorized to
+     connect.
+
+`LISTSYS'
+     This command lists all callsigns for which an entry in
+     'tnt_sysfile'   was found. In addition for every callsign the file
+     containing the password   data is listed and if the sysop-status
+     can be achieved after password   validation (0: not root-sysop, 1:
+     root-sysop).
+
+`LOADSYS'
+     If 'tnt_sysfile' was changed while TNT is running, it can be
+     reloaded   with this command. A reload is necessary because TNT
+     only reads the   file at startup and copies the data to memory.
+
+`LSTNOREM'
+     This command lists all callsigns for which an entry in
+     'tnt_noremfile'   was found. For these callsigns remote-commands
+     are disabled except the   commands with status ALWAYS. The
+     disabling of remote-commands remains   until the channel is
+     disconnected, so connecting or reconnecting to a   different
+     station will not enable remote-commands any more.    A change is
+     possible using the command REMALLOW.
+
+`LDNOREM'
+     If 'tnt_noremfile' was changed while TNT is running, it can be
+     reloaded   with this command. A reload is necessary because TNT
+     only reads the   file at startup and copies the data to memory.
+
+`LSTFLCHK'
+     This command lists all callsigns for which an entry in
+     'tnt_flchkfile'   was found. Connections from these callsigns will
+     get no connect-text, no   remote access and will not be linked to
+     DPBox or other programs using the   interface. In addition no
+     entry will be included in the logbook.
+
+`LDFLCHK'
+     If 'tnt_flchkfile' was changed while TNT is running, it can be
+     reloaded   with this command. A reload is necessary because TNT
+     only reads the   file at startup and copies the data to memory.
+
+`LSEXTREM'
+     This command lists all currently active extended remote commands,
+     their   access level, the number of significant characters and the
+     related   command with parameters. This data is read from
+     'tnt_extremotefile' at   startup of TNT.
+
+`LDEXTREM'
+     If 'tnt_extremotefile' was changed while TNT is running, it can be
+     reloaded   with this command. A reload is necessary because TNT
+     only reads the   file at startup and copies the data to memory.
+
+`AUTOStrt [ON/OFF]'
+     Enables or disables the autostart feature.
+
+`LSAUTOST'
+     This command lists all currently active callsign/SSID
+     combinations, for   which autostart commands are defined. This
+     data is read from   'tnt_autostartfile' at startup of TNT.
+
+`LDAUTOST'
+     If 'tnt_autostartfile' was changed while TNT is running, it can be
+     reloaded   with this command. A reload is necessary because TNT
+     only reads the   file at startup and copies the data to memory.
+
+
+File: tntdoc.info,  Node: Broadcast transmission/reception,  Prev: Remote-command permissions and access levels,  Up: Commands in command mode
+
+Broadcast transmission/reception
+================================
+
+`SENDBC <filename>'
+     The specified file will be sent using PACSAT broadcast protocol.
+
+`BCRQST [ON/OFF]'
+     If set to on, broadcast requests for missing data are generated,
+     if off   it is just waited for a retransmission.
+
+`SHPACSAT [ON/OFF]'
+     If set to on, broadcast frames are displayed, if off, no display
+     is done.
+
+`DECBCAST [ON/OFF]'
+     If set to on, broadcast-frames are decoded. If set to off,
+     broadcast   frames are not decoded.
+
+`BCRXstat'
+     Display of the already received or currently received files by the
+      broadcast receiver including some status information.
+
+`BCTXstat'
+     Display of the files currently transmitted by the broadcast
+     transmitter   including some status information.
+
+
+File: tntdoc.info,  Node: TNC commands,  Next: Remote commands,  Prev: Commands in command mode,  Up: Top
+
+TNC commands
+************
+
+   Most commands in hostmode consist of one character. It is difficult
+to remember the charcter for a not often needed command. Therefore more
+verbose command names were created for every TNC command. But it is
+still possible to use the original command characters.  Only the known
+commands are implemented, if you have a TNC software which has
+additional commands, the command 'TNC' must be used.
+
+   More information about the commands can be found in the
+documentation of the TNC software (TNC commands of NORD><LINK The
+Firmware 2.6a). Some of these commands are no longer existing in newer
+versions (TF 2.7).
+
+     DAMAdis,"B"     : DAMA timeout
+     Version,"V"     : Shows version of TNC-software
+     CHeck,"@T3"     : Connection timer T3
+     Connect,"C"     : Start connection
+     CText,"U"       : Response text if connect is received by TNC
+     DIGIpeat,"R"    : Digipeat function
+     Disconne,"D"    : End connection
+     DAYTIme,"K"     : Time and date functions
+     Frack,"F"       : Start value of round trip timer for retry timing
+     FUlldup,"@D"    : Fullduplex on modem side
+     MAXframe,"O"    : Maximum number of outstanding packets
+     Monitor,"M"     : Frequency monitor functions
+     MYcall,"I"      : Callsign of the local operator
+                       MYCALL sets the station's persistent call sign for this
+                       channel. "I" only affects the next connection, after
+                       which the call sign will be reset to MYCALL.
+                       A permanent MYCALL can be removed by using "$" as call
+                       sign. Using MYCALL or "I" on channel 0 will update all
+                       channel's permanent/current call sign.
+     Persist,"P"     : Persistance value for transmitter keyup
+     RESptime,"@T2"  : Delay before Info-frame will be confirmed (timer T2)
+     REtry,"N"       : Maximum number of retries
+     SLottime,"W"    : Slottime value for transmitter keyup
+     Txdelay,"T"     : Time after transmitter keyup to sending of data
+     USers,"Y"       : Number of channel open for connection
+     Xmitok,"X"      : Locking of transmitter
+     BUFfers,"@B"    : Free buffers of TNC
+     A1SRTT,"@A1"    : A1-value for smoothed round trip timer
+     A2SRTT,"@A2"    : A2-value for smoothed round trip timer
+     A3SRTT,"@A3"    : A3-value for smoothed round trip timer
+     IPOll,"@I"      : Packet length up to which I-Poll mode is used
+     VALcall,"@V"    : Check callsign in connect command
+
+All verbose commands can be abbreviated, the upcase part is mandatory.
+
+
+File: tntdoc.info,  Node: Remote commands,  Next: Other topics,  Prev: TNC commands,  Up: Top
+
+Remote commands
+***************
+
+* Menu:
+
+* Remote command listing::
+* Sysop password validation (//SYSOP)::
+* Extended remote commands::
+
+
+File: tntdoc.info,  Node: Remote command listing,  Next: Sysop password validation (//SYSOP),  Up: Remote commands
+
+Remote command listing
+======================
+
+   If remote is enabled the remote station can give some commands to
+the program. All remote commands start with a double slash '//'. This
+double slash must be entered directly at the beginning of a line,
+otherwise the command is not recognized.
+
+The following remote commands are recognized:
+
+   Information about the station/operator:
+      //ACT                  Show last sysop activity
+      //CSTAT                Show all active connections
+      //COOKIE               Send a cookie
+      //INFO                 Info about station
+      //HELP                 This help-information
+      //MHeard [n/string]    Show list of last n/matching string/all heard stations
+      //NAME <name>          Store name in database
+      //NEWS                 Display news about this station
+      //ONACTIVITY <text>    Set text which will be send on sysopactivity
+      //RING                 Ring the bell (call for sysop)
+      //SESSION              Show uptime of this TNT session/version
+      //TIME                 Send time
+      //VERSION              Show version of TNT
+
+   Connection control:
+      //n <text>             Send text to channel n
+      //CHat <n/call> <text> Send text to channel n/to call
+      //MSG <n/call> <text>  like CHat
+      //COMP on/off          Enable/disable huffman compression
+      //ECHO <string>        Send back string
+      //RTT [timestring]     Calculate round trip timer
+      //QUIT                 Disconnect after sending the quit text
+      //DISC                 Disconnect immediately
+
+   File transfer:
+      //DIR <filter>         Show directory
+      //DIRLONG <filter>     Show directory in long format
+      //FREE                 Shows space on disks
+      //READ <file>          Read a file
+      //BREAK                Abort reading file
+      //WRITE <file>         Write file to disk
+      //CLOSE                End writing file
+      //WPRG <file>          Write file to disk using AUTOBIN-protocol
+      //WPRG <file> <rfile>  Same as above, but send back //RPRG <rfile>
+      //RPRG <file>          Read a file using AUTOBIN-protocol
+      //RPRG <file> <rfile>  Same as above, but send back //WPRG <rfile>
+      //WYAPP <file>         Write file to disk using YAPP-protocol
+      //RYAPP <file>         Read a file using YAPP-protocol
+
+   System access:
+      //RUN <program>        Execute a program
+      //RUNT <program>       Execute a program without CR/LF translation
+      //RUN                  Directory of all available programs
+      //BOX                  Start DigiPoint Box
+     
+      //SYSOP                Start sysop password validation
+      //SHELL                Start a UNIX-shell session
+      //TSHELL               Start a UNIX-shell session without CR/LF translation
+      //COMMAND <command>    Execute a valid TNT command
+     
+      //ROOTSH               Start a shell with root-permissions
+      //TROOTSH              Same as above without CR/LF translation
+      //SOCKET <sock addr>   Start a connection to a socket
+      //TSOCKET <sock addr>  Same as above without CR/LF translation
+
+Default access levels for remote-commands
+=========================================
+
+   All remote commands are available for everyone (status NORMAL)
+except for //SHELL, //TSHELL, //ECHO, //COMMAND (status SYSOP),
+//ROOTSH, //TROOTSH, //SOCKET and //TSOCKET (status ROOT). The command
+//COMP is available if remote is disabled on the current channel
+(status ALWAYS). This default configuration can be changed by the
+command SETACC.
+
+
+File: tntdoc.info,  Node: Sysop password validation (//SYSOP),  Next: Extended remote commands,  Prev: Remote command listing,  Up: Remote commands
+
+Sysop password validation (//SYSOP)
+===================================
+
+   If the remote-command //sys is received, a sysop password validation
+sequence is started. TNT will pick 5 random numbers with values up to
+the length of the stored password string for the remote station.  The
+remote station must answer with the corresponding 5 characters.  The
+characters can be contained at every position inside a random string to
+make a hacking of the password more difficult. In addition there is no
+response if the //sys command was successful or not, the status is
+changed only internally.  Therefore it is advisable to send //sys 3 or
+more times with only one correct answer. This will make the hacking of
+the password quite impossible.  The algorithm used is compatible to the
+TheNet password validation.
+
+Shell with root-permissions (//ROOTSH)
+======================================
+
+   This command is very dangerous, please be sure that it is available
+only for the right people after password validation.  If you don't want
+to allow this command, set it to status ROOT and set the root-sysop
+flag in tnt_sysfile for all callsigns to 0.
+
+Socket connection (//SOCKET)
+============================
+
+   This command allows to connect to every socket in your system.
+Therefore it is quite dangerous, too. Change to a different status as
+ROOT is not recommended. If you want to allow the connect to specific
+sockets, use the extended remote commands ('tnt_extremotefile').
+
+Dangerous //ECHO command
+========================
+
+   There are some pirat bulletins floating around in the BBS-network
+which use the remote-command //ECHO to let you send a bulletin with
+offending contents.  Therefore I changed the access level of //ECHO to
+SYSOP level. If you put all the BBS's your are working with in
+tnt_noremfile or if you are using command REMALLOW to disable the
+remote commands on the channel you are connected to a BBS, you can
+change back the access level of //ECHO to NORMAL.  But be very careful
+with it! Otherwise there may be an offending bulletin forwarded
+worldwide with YOUR callsign as sender!
+
+
+File: tntdoc.info,  Node: Extended remote commands,  Prev: Sysop password validation (//SYSOP),  Up: Remote commands
+
+Extended remote commands
+========================
+
+   To easily add new remote commands an unknown remote command will be
+used as a parameter for //RUN. For example the command //FOOBAR will be
+translated to //RUN FOOBAR. If the program FOOBAR is existing in
+'tnt_bin_dir', it will be executed. If the program is not existing, the
+user will be informed about an invalid remote command.
+
+   The behaviour described in the last section allows an easy
+extenstion of the available remote commands by providing programs in
+the 'tnt_bin_dir'. If an extension is needed, which cannot be implemented
+with a program or the program needs specific parameters, the extended
+remote commands feature can be used.
+
+   A new extended remote command consists of a valid remote command plus
+parameters. In addition the access level and the number of significant
+characters is defined. All data is stored in 'tnt_extremotefile'.
+
+   The contents of this file can be displayed by command LSEXTREM. When
+the file was updated, it can be reread using command LDEXTREM.
+
+
+File: tntdoc.info,  Node: Other topics,  Next: Description of configuration files,  Prev: Remote commands,  Up: Top
+
+Other topics
+************
+
+* Menu:
+
+* Umlaut conversion::
+* Logbook::
+* Huffman compression::
+* Handling Flexnet connection quality checks::
+* Operating different software with same callsign::
+* PACSAT broadcast operation::
+* Autostart on connect::
+* TNT as daemon/TNTC::
+* Options at startup::
+* Running under X11::
+* Porting of TNT::
+* Linux kernel AX.25 interface::
+
+
+File: tntdoc.info,  Node: Umlaut conversion,  Next: Logbook,  Up: Other topics
+
+Umlaut conversion
+=================
+
+Display
+-------
+
+   If the LINUX-console control codes are used, for a display on the
+screen the IBM-characterset is used. No umlaut-conversion will be done.
+If termcap is used a received IBM-umlaut is converted depending on
+UMLAUT.  If UMLAUT is on, the IBM-umlaut is converted into the 8-bit
+Latin-1 umlaut.  If UMLAUT is off, it is converted to a two character
+representation ("ae").
+
+Sending text
+------------
+
+   If UMLAUT is off, all entered umlauts are converted to a two
+character representation ("ae"). If UMLAUT is on, umlauts will not be
+converted and sent as an IBM-umlaut.
+
+File-receive
+------------
+
+   Only log-files (LOGREC, LOGSND, LOGQSO, LOGMON and LOGXMON) are
+affected by umlaut conversion. If UMLAUT is on, the IBM-umlaut is
+converted into the 8-bit Latin-1 umlaut. If UMLAUT is off, it is
+converted to a two character representation ("ae").
+
+File-send
+---------
+
+   Only log-files (SENDLOG) are affected by umlaut conversion.  If
+UMLAUT is on, the 8-Bit Latin-1 umlaut is converted into the IBM-umlaut.
+If UMLAUT is off, it is converted to a two character representation
+("ae").
+
+
+File: tntdoc.info,  Node: Logbook,  Next: Huffman compression,  Prev: Umlaut conversion,  Up: Other topics
+
+Logbook
+=======
+
+   All connections performed by the station are written into a
+logbook-file.  Each line contains starttime and endtime of the
+connection and the callsign of the remote station. If the destination
+was connected directly only this call is logged, if the destination was
+connected using several digipeaters or by a routing script, the first
+digipeater used is logged, too.  The name of the logfile can be
+specified in the init-file (tnt_logbookfile).  The command LOGBOOK can
+be used to enable or disable the logbook function.
+
+Example:
+
+        Starttime   |    Endtime     |          Callsign
+     ------------------------------------------------------------------
+     16.03.94 18:08 | 16.03.94 18:09 | DB0BLO
+     17.03.94 21:32 | 17.03.94 21:37 | GEHREN:DB0LUC, Uplink: DB0BLO
+
+
+File: tntdoc.info,  Node: Huffman compression,  Next: Handling Flexnet connection quality checks,  Prev: Logbook,  Up: Other topics
+
+Huffman compression
+===================
+
+   The huffman data compression implemented in some other programs is
+available, too. It can be activated by the remote command //COMP or via
+command COMP. The compression will lead to a data reduction of about 30%
+for plain ASCII text. For binary files the compression is not useful.
+
+   To read a QSO in extended monitor which uses huffman compression the
+command EXTComp is provided.
+
+   The MONBOX feature detects huffman compression and will in most
+cases catch mails even if they are read in //COMP mode.
+
+   Compression is available only if tnt_comp in the configuration file
+is set.  In this case the maximum allowed packet length (file_paclen in
+configuration file, command FPACLEN) for file sending is 255 Bytes.
+
+The //comp - method was first used by DK4NB in SP 9.00, the translation
+table is his setup.
+

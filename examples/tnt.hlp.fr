@@ -1,0 +1,334 @@
+
+
+                        Aide rapide de TNT V1.8 
+                        -----------------------
+
+Combinaisons de touches
+-----------------------
+Les combinaisons de touches utilisant la touche <ALT> sont valides si TNT
+n'est sous Xwindows. Les combinaisons de touches avec <ESC> sont utilisees 
+en tapant sur <ESC> puis la lettre correspondante, elle fonctionnent sous X.
+
+Mouvement du curseur et divers
+------------------------------
+<Ctrl>S, Fleche gauche                  Curseur vers la gauche
+<Ctrl>D, Fleche droite                  Curseur vers la droite
+<Ctrl>E, Fleche haut (1)                Une ligne vers le haut
+<Ctrl>X, Flece bas (1)                  Une ligne vers le bas
+<Ctrl>A                                 Debut de la ligne
+<Ctrl>F                                 Fin de la ligne
+<Ctrl>L                                 Efface le caractere
+<Ctrl>Y                                 Efface jusqu'a la fin de la ligne
+<Ctrl>N, INSERT                         Passe en mode insertion
+<Ctrl>H, DEL                            Retour chariot (efface a gauche)
+<Ctrl>M, <Ctrl>J, CR, LF                Envoie la ligne courante
+<Ctrl>V                                 Caractere de passage 
+(1) uniquement en mode Commande, Connexion, mailbox et ecran monitor etendu.
+
+Mouvement des fenetres et controle
+----------------------------------
+<Ctrl>R, Fleche haut(2)                 La fenetre monte d'une ligne (4)
+<Ctrl>C, Fleche bas (2)                 La fenetre descend d'une ligne (4)
+<Ctrl>W, Page up                        La fenetre monte d'une page (4) 
+<Ctrl>Z, Page down                      La fenetre descend d'une page(4) 
+DEBUT                                   Haut de la fenetre (4)
+FIN                                     Bas de la fenetre  (4)
+<CTNL>P, <ESC>P, <ALT>P                 Arrete le defilement des trames (3)
+(2) uniquement dans MHeard, monitor, help et ecran box-list
+(3) uniquement en fenetre monitor et connexion
+(4) en mode Connexion, monitor etendu et ecran mailbox la fenetre de
+    reception se deplace (Haut/Bas)
+
+
+Bscule de ecrans
+----------------
+<ESC>M, <ALT>M, F11                     Ecran moniteur
+<ESC>C, <ALT>C, F12                     Ecran de commande
+<ESC>Q, <ALT>Q                          Ecran de connexion
+<ESC>B, <ALT>B                          Ecran mailbox
+<ESC>S, <ALT>S                          Ecran MHeard (stations entendues)
+<ESC>X, <ALT>X                          Ecran moniteur etendu
+<ESC>H, <ALT>H                          Ecran d'aide
+<ESC>L, <ALT>L                          Ecran Box-list
+F1 - F9                                 Ecran de connexion (canal 1-9/11-19...)
+F10                                     Ecran trames unproto (channel 0/10...)
+<Ctrl>I, TAB   (+numero)                Selection canal
+
+Racourcis clavier
+-----------------
+<ESC>0 - <ESC>9, <ALT>0 - <ALT>9        Definies par l'utilisateur
+
+
+Commandes TNC
+-------------
+DAMAdis,"B"     : DAMA timeout
+Version,"V"     : Affiche la version du logiciel TNC
+CHeck,"@T3"     : Timer de connexion T3
+Connect,"C"     : Lance une connexion
+CText,"U"       : Texte d'accueil si le TNC recoit une demande
+DIGIpeat,"R"    : Fonction repeteur
+Disconne,"D"    : Termine la connexion
+DAYTIme,"K"     : Fonctions Date et Heure
+Frack,"F"       : Temps entre l'envoi d'une trame et la confirmation du distant
+FUlldup,"@D"    : Full-duplex sur la partie modem
+MAXframe,"O"    : Nombre maximum emises en un seul passage
+Monitor,"M"     : Fonctions de moniteur
+MYcall,"I"      : Indicatif de l'operateur local
+                  Avec MYCALL l'indicatif est defini de facon permanente, avec
+		  "I", il est valable jusqu'a la prochaine deconnexion.
+		  Un MYCALL permanent peut etre enleve avec un "$" a la place
+		  de l'indicatif.
+Persist,"P"     : Valeur de persistence
+RESptime,"@T2"  : Delai avant qu'une trame d'info ne soit confirmee (timer T2)
+REtry,"N"       : Nombre maximum de repetitions
+SLottime,"W"    : Valeur de slottime
+Txdelay,"T"     : Temps entre le passage en Tx et l'envoi de donnees
+USers,"Y"       : Nombre de voies ouvertes aux connexions exterieures
+Xmitok,"X"      : Blocage de l'emetteur en emission
+BUFfers,"@B"    : Buffers libres du TNC
+A1SRTT,"@A1"    : Valeur timer A1
+A2SRTT,"@A2"    : Valeur timer A2
+A3SRTT,"@A3"    : Valeur timer A3
+IPOll,"@I"      : Longueur d'un packet en mode I-Pool
+VALcall,"@V"    : Verifie l'indicatif qui souhaite se connecter
+
+Toutes ces commandes peuvent etre abregees a la partie en majuscules.
+
+Commandes externes
+------------------
+Une majorite des commandes qui suivent peuvent etre abregees a leur valeur
+en majuscules, le reste de la commande est superflu (minuscules).
+
+Sauver des donnees dans un fichier
+----------------------------------
+LOGQso <nom_fichier>     : Sauve les donnees emises et recues dans un fichier
+LOGRec <nom_fichier>     : Sauve les donnees recues dans un fichier
+LOGSnd <nom_fichier>     : Sauve les donnees emises dans un fichier
+READ <nom_fichier>       : Sauve les donnees recues dans un fichier avec
+                           conversion CR->LF (pour fichers 7plus)
+READBin <nom_fichier>    : Sauve les donnees dans un fichier sans conversion                           translation
+READAbin <nom_fichier>   : Recoit un fichier avec le protocole AutoBIN
+LOGAbin <nom_fichier>    : Identique a READAbin mais sans les statistiques                        no sending of statistics at end of transfer
+                           (pour BOX-BIN)
+READYapp [nom_fichier]   : Recoit un fichier avec le protocole Yapp
+CLose                    : Ferme le fichier sur le canal courant
+LOGMon <nom_fichier>     : Sauve les donnees monitor dans un fichier
+RDMON <nom_fichier>      : Identique a LOGMon avec juste la conversion CR->LF
+RDMONBin <nom_fichier>   : Sauve le monitor dans un fichier sans conversion
+CLOSEMon                 : Ferme le fichier de sauvegarde monitor
+LOGXmon <nom_fichier> (sur l'ecran monitor etendu)
+LOGXmon <canal-xmon> <nom_fichier> (sur les autres ecrans)
+                         : Sauve toutes les donnees recues sur le monitor
+                           etendu dans un fichier
+RDXMON <nom_fichier>  (sur l'ecran monitor etendu)
+RDXMON <canal-xmon> <nom_fichier> (sur les autres ecrans)
+                         : Sauve toutes les donnees recues sur le monitor
+			   etendu dans un fichier, juste CR->LF conversion
+RDXMONBi <nom_fichier> (sur l'ecran monitor etendu)
+RDXMONBi <xmon-channel> <nom_fichier> (sur les autres ecrans)
+                         : Sauve toutes les donnees recues sur le monitor 
+			   etendu dans un fichier, sans conversion
+CLOSEXmo                 : Ferme le fichier de sauvegarde du monitor etendu
+CLOSEXmo <xmon-channel>  : Ferme le fichier de sauvegarde du monitor specifie
+APPend [ON/OFF]          : Possibilite de rajouter les chaines dans un fichier existant
+                           (valide uniquement pour LOGQSO, LOGREC, LOGSND, LOGMON et LOGXMON).
+AUTOBIn [ON/OFF]         : Lance une reception AutoBIN sur une entete correcte
+AUTOYApp [ON/OFF]        : Lance une reception Yapp sur une entete correcte
+AUTO7Pl [ON/OFF]         : Lance une reception 7Plus sur une entete corrcte
+
+Envoi de fichiers
+-----------------
+SENDLog <nom_fichier>       : Envoie un fichier
+SEND <nom_fichier>          : Envoie, juste une conversion LF->CR (pour 7PLUS)
+SENDBin <nom_fichier>       : Envoie un fichier, pas de conversion
+SENDAbin <nom_fichier>      : Envoie un fichier avec le protocole AutoBIN
+SENDQbin <nom_fichier>      : Envoie un fichier avec le protocole AutoBIN,
+                              (pas de statistiques)
+SENDYapp <nom_fichier>      : Envoie un fichier en protocole YAPP,
+                              (pas de statistiques)
+BReak                       : Annule la transmission du fichier
+FPACLen <valeur>            : Longueur maximum du paquet (20->256)
+
+Shell,Run et redirection
+------------------------
+SHell                    : Lance un shell
+TSHell                   : Lance un shell, pas de conversion  CR->LF
+ROOTSH                   : Lance un shell en root
+TROOTSH                  : Lance un shell root, pas de conversion CR->LF
+ENDShell                 : Termine un shell
+RUN <programme>          : Execute un programme
+RUNT <programme>         : Execute un programme, pas de conversion CR->LF
+ENDRun                   : Arrete un programme executable
+REDir <device>           : Redirige vers un device
+ENDRedir                 : Termine une redirection
+SOCKCon <adresse_socket>
+                         : Connecte un socket
+TSOCKCon <adresse_socket>
+                         : Connecte un socket, pas de conversion CR->LF
+ENDSOCKC                 : Fin de connexion au socket
+SOCket AXSERV <adresse_address>
+                         : Lance le serveur AX25
+SOCket AXSPEC <adresse_socket>
+                         : Lance le serveur AX25 sans pty_timeout
+SOCket NETCMD <adresse_socket> <indicatif_par_defaut>
+                         : Lance le serveur netcmd compatible Wampes
+ENDSock <adresse_socket> : Termine une connexion a un serveur socket
+
+Repertoires
+-----------
+CD <repertoire>          : Change de repertoire
+CWD                      : Visualise le repertoire courant
+
+Divers
+------
+//<commande>             : Force l'execution de la commande <commande> en local
+TNC <commande>           : Envoie la commande au TNT directement
+CHANnel <x> ou S <x>     : Bascule l'ecran de connexion sur a voie "x"
+CONCall <indicatif>      : Met a jour l'indicatif dans la barre de status
+CStatus                  : Liste les canaux connectes et les indicatifs
+SENDCom <nom_fichier>    : Envoie un script de commande
+CBell [ON/OFF/OTHER]     : Sonnerie de connexion
+INFObell [ON/OFF/OTHER]  : Sonnerie a chaque Rx de donnees sur une des voies
+RXBEll [ON/OFF]          : Sonnerie a chaque Rx de donnees en mode connecte
+SOUnd [ON/OFF]           : Joue les effets sonores (juste en version son)
+MCHkbin [ON/OFF]         : Visualise les trames binaires courtes
+COOKie [ON/OFF]          : Envoie un cookie a la connexion
+UMLaut [ON/OFF]          : Conversion Umlaut
+CONText [ON/OFF]         : Envoie un texte d'accueil special
+TXEcho [ON/OFF]          : Echo local de toutes les trames emises
+PTYEcho [ON/OFF]         : Echo des donnees tarnsmises en utilisant SHELL, RUN, SOCKET
+                           ou REDIR
+NAME <nom>               : Fixe ou visualise le nom d'un utilisateur
+STIme                    : Envoie l'heure du moment
+SCOokie                  : Envoie un cookie
+TIMESET                  : Fixe l'heure du TNC
+DATESET                  : Fixe la date du TNC
+RESYnc                   : Visualise le nombre de resynchros depuis le demarrage de TNT
+LAYer3 [ON/OFF]          : Analyse les entetes NETROM/TheNet
+HEArd [ON/OFF]           : Liste des stations disponible/non-disponible
+KMAcro                   : Recharge la macro clavier
+MSEnd <nom_fichier>      : Envoie un fichier contenant des macros speciales
+WORDWrap [ON/OFF]        : Cesure d'un mot en fin de ligne
+WHOLElin [ON/OFF]        : Permet l'envoi d'une ligne complete ou 
+                           du debut->dernier caractere
+LINelen <valeur>         : Longueur d'une ligne d'entree
+MONlines <valeur>        : Nombre de lignes de monitor sur l'ecran de connexion
+CONDiv <valeur>          : Rapport entre lignes Rx/Tx sur l'ecran de connexion
+XMONDiv <valeur>         : Rapport entre lignes Rx/Tx en monitor etendu
+MBOXDiv <valeur>         : Rapport entre ligne Rx/Tx dans l'ecran Mailbox
+COMP [ON/OFF]            : Compression Huffman
+BSCRHold [ON/OFF]        : Retour en arriere en zone entree/sortie
+TABExp [ON/OFF]          : Validation de la touche "Tab" (8 caracteres)
+FREE                     : Nombre de buffers disponibles sur le TNC
+SIGNon                   : Visualise le copyright et la version de TNT
+LOGBOOK [ON/OFF]         : Valide/Devalide le fichier Log
+CTRltx <caractere>       : Envoie un caractere de controle (ex: code 26 (^Z))
+EXit                     : Quitte TNT (apres confirmation)
+QUIT                     : Qitte TNTC sans arreter TNT resident
+MSG <texte>              : Visualise ou fixe le texte macro d'accueil
+TEll <text>              : Envoie un message a tous les canaux
+DA, WEG, 600, GND, KLO   : Envoie un texte special (voir tnt_tellfile)
+
+PGP / GnuPG
+-----------
+PGPAUTO [ON/OFF]          : Valide/devalide l'utilisation de PGP/GPG
+USEGPG [ON/OFF]           : Utilise GPG a la place de PGP
+PGPKEYAD [ON/OFF]         : Ajoute automatiquement les cles a votre fichier cles
+PGPEDIT <pgp-password>    : Lance l'editeur. Le fichier edite est signe 
+                           "PGP" puis envoye
+GPGEDIT <gpg-password>    : Identique a PGPEDIT, mais utilisant GnuPG(GPG)
+
+Scripts de routage
+------------------
+XConnect [portheader:]<indicatif>
+                         : Connecte un indicatif en utilisant le fichier 
+			   de routage
+QRG [<port> <frequence>] [portheader:]
+                         : Liste ou cree le(s) frequences actives
+LSNOTOWN                 : Liste les indicatifs rejetes 
+LDNOTOWN                 : Recharge le fichier des indicatifs en rejet
+
+
+Moniteur etendu et box-list
+----------------------------
+XMON [ON/OFF]            : Valide/devalide la fonction moniteur etendu
+EXTmon <indicatif1> <ind.2> [<ind.3> <ind4>] (ecran moniteur etendu)
+EXTmon <canal-xmon> <indicatif1> <ind.2> [<ind.3> <ind.4>] (autres ecrans)
+                         : Lance un monitoring etendu
+EXTAmon <indicatif1> <ind.2> [<ind.3> <ind.4>]
+                         : Lance un monitoring etendu dans l'ecran libre suivant
+ENDEXtm (ecran de monitor etendu)
+ENDEXtm <canal-xmon> (autres ecrans)
+                         : Termine un monitoring etendu
+EXTComp [ON/OFF]         : Compression Huffman en monitor etendu
+LOGBlist                 : Fichier temporaire de donnees Rx en liste messagerie
+BLIst [<nom_fichier>]    : Ferme et charge le dernier fichier actif
+XBList                   : Termine une liste de messagerie
+
+Commandes d'interface
+---------------------
+IFAce <nom_socket>       : Lance une connexion sur le socket 
+ENDIFace <nom_socket>    : Termine une connexion sur le socket
+FINIFace <nom_socket>    : Idem a ENDIFace mais le programme externe est arrete
+ACTIf <nom_socket>       : Active le programme externe avec le socket existant
+DEACtif <nom_socket>     : Desactive le programme sur le socket nomme
+SNOCONN <chainedecaract> : Message (caracteres) envoyes si l'activation echoue
+
+Commande interface DPBox
+------------------------
+ACTBox                   : Lance une connexion sur DPBox
+DEACTBox                 : Termine un connexion sur DPBox
+FINBox                   : Quitte DPBox et termine la connexion
+BOX                      : Active DPBox sur le canal courant
+ENDBox                   : Desactive DPBox sur le canal courant
+AUTOBOx [ON/OFF]         : Envoie tous les messages recus vers DPBox
+MONBox [ON/OFF]          : Envoie tous les messages monitor vers DPBox
+LMONbox                  : Visualise les messages monitor recus
+SNOBOX <chainede caract> : Message (caracteres) si la connexion echoue
+SCANMBEA [<source> <destination> <indicatif_source> <indicatif_destination> 
+         [<timeout>]] [$]
+                         : Espionne les balises messages pour la recuperation 
+			   des messages
+LDBOXFil                 : Recharge le fichier des indicatifs BBS
+ACCUIReq [ON/OFF]        : Redirection des requetes unproto vers DPBox
+ACCUICal <indicatif-BBS> : Requete des listes unprotos a ind.BBS et redirection vers DPBox
+
+Commandes de generation de mots de passe
+----------------------------------------
+PRIV                     : Genere un mot de passe
+LISTPRIV                 : Visualise les donnees de mot de passe
+LOADPRIV                 : Recharge le fichier des mots de passe
+
+Permissions des commandes a distance et niveaux d'acces
+-------------------------------------------------------
+REMOte [ON/OFF]          : Valide/devalide les commandes a distance
+REMAllow [ON/OFF]        : Valide/devalide les commandes a distance sur le 
+                           canal courant (uniquement en mode connecte)
+SETACC <commande_a_distance> [NORMAL/SYSOP/ROOT/ALWAYS]
+                         : Fixe le niveau d'acces pour la commande a distance
+NOACC [ON/OFF]           : Autorise la connexion uniquement au sysops
+SNOACC <string>          : Message pour les non-sysops quand NOACC = ON
+LISTSYS                  : Visualise les donnees de sysop
+LOADSYS                  : Recharge le fichier sysop
+LSTNOREM                 : Visualise les indicatifs non autorises en 
+                           commande a distance
+LDNOREM                  : Recharge les indicatifs sans commandes a distance
+LSTFLCHK                 : Visualise les indicatifs Flexnet faisant un 
+                           test qualite
+LDFLCHK                  : Recharge le fichier test qualite Flexnet
+LSEXTREM                 : Visualise toutes les commandes a distance etendues
+LDEXTREM                 : Recharge le fichier de commandes a distance etendues
+AUTOStrt [ON/OFF]        : Valide/devalide autostart
+LSAUTOST                 : Visualise tous les indicatifs autostart
+LDAUTOST                 : Recharge le fichier autostart
+
+Transmission/reception broadcast
+--------------------------------
+SENDBC <nom_fichier>     : Envoie un fichier en broadcast
+BCRQST [ON/OFF]          : Genere des requetes broadcast
+SHPACSAT [ON/OFF]        : Visualise les trames broadcast
+DECBCAST [ON/OFF]        : Decode les trames broadcast
+BCRXstat                 : Visualise l'etat du recepteur broadcast
+BCTXstat                 : Visualise l'etat de l'emetteur
+
+<EOF>

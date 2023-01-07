@@ -1,0 +1,18 @@
+TYP: Votre type de TNC. C'est un TNC reel sur port serie ou un 
+     emulateur de TNC (TFkiss).
+     Pour TFkiss il y a deux configurations possibles :
+     connection via un unix-socket ou via un socket-reseau.
+     (voir l'aide dans la partie "Configuration generale") 
+
+BAUD: Vitesse du port communication TNC<->Ordinateur
+     (seulement pour un TNC reel, pas avec soft TFkiss)
+
+DEVICE: Interface pour le TNC (hardware et software). 
+        Si vous utilisez un TNC reel (hardware) vous pouvez choisir
+        entre les ports serie 1 a 4.
+        Si vous utilisez TFkiss, vous devez indiquer un socket valide.
+        (meme style que pour le frontend-socket de tntc, voir l'aide)        
+
+CHAN: Nombre de canaux TNC controles par TNT. Si vous utilisez un TNC
+      reel, c'est normalement 10 ou 27, cela depend de l'eprom utilisee.
+      Par defaut TFkiss emule 50 canaux.

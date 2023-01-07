@@ -1,0 +1,19 @@
+CALL:  Votre indicatif pour le terminal.
+
+BOX:   Votre indicatif BBS type DPBox.
+
+COLOR: Configuration des couleurs. "0" correspond a un ecran monochrome
+       "1" configuration couleur de termcap pour un terminal de type "linux".
+       "2" configuration couleur.
+       "3" configuration de termcap pour un terminal "xterm" (fenetre Xwindows)
+       Par defaut: 2
+
+STAT:  Deux types de lignes d'etat. La ligne d'etat normale (Typ 0)
+       affiche des informations du style "packet reject, etc..)
+       La ligne d'etat informative affiche le nom et l'indicatif de la
+       station connectee.
+       Par defaut : Type 1 (Ligne d'etat informative)     
+
+RESY:  Valide ou non le fichier log de resynchro. Si il est valide, TNT
+       sauve les informations sur toutes les resynchro. C'est uniquement 
+       utile au debut pour voir le bon fonctionnement.

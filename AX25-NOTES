@@ -1,0 +1,56 @@
+Originally TNT was written for use with hostmode TNCs.
+Maybe you want to use the AX25 features of the Linux kernel.
+
+Well, TNT has an ax25-interface build in, but unfortunately there are
+many different systems and different axutils/axkernels.
+Because of this you might encounter problems while compiling TNT with
+AX25k support or running TNT with it.
+
+If you got problems while using AX25k interface you should try to find out
+why and maybe how to fix it. Unfortunately most of us use other
+configurations or do not use AX25k at all.
+
+When you really want to use AX25k you must check some things first:
+-make sure that you have a linux-kernel with AX25 support
+-make sure that you have installed the axutils correctly
+-continue only if your ax25-subsystem works fine
+
+To compile TNT with AX25k, just use one of the both options while
+running ./configure:
+--enable-ax25k
+--enable-ax25k2
+
+Use "--enable-ax25k" if you have the old axutils installed (in this case
+you might have to copy the config-dir of your axutils to
+"/usr/include/ax25" or other include-directory on your system).
+Otherwise if you have new axutils use "--enable-ax25k2" instead.
+
+TNT now might compile and run (after uncommenting ax25k_port in tnt.ini)
+with AX25k interface, congratulations.
+
+--------------------------------------------------------------------------
+
+OK, all of this failed and it do not work.
+Sorry, but you have been warned ;-)
+
+There is another option how to use TNT with your AX25 system, and it works
+100%.
+All you need is the program "net2kiss" (or similar programs) from your
+axutils tools and the hostmode emulator TFkiss (available from
+ftp://ftp.ping.net.au and ftp://ftp.wspse.de)
+
+First setup a pseudodevice with kissmode available by calling:
+net2kiss -i <ifname> <pty-device> &
+were <ifname> stands for the kernel AX25 network interface like "scc0",
+"bcsf0" or any other.
+were <pty-device> stands for a pseudoterminal like "/dev/ptya0"
+
+Then start TFkiss which uses "/dev/ttya0" (or any other end of your
+pseudodevice used in net2kiss) as kissdevice.
+
+After this just start TNT with using TFkiss. This should work fine and
+without any problems. CPU usage in this solution is only minor higher than
+with the native AX25 interface.
+
+net2kiss, TFkiss, TNT and DPbox is proved to use only small CPU on a P75
+(just some minutes per month).

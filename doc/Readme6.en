@@ -1,0 +1,8 @@
+TNT has an interface to support an ax25-kernel (on linux-systems).
+
+Options:
+PORT: AX25-port
+MONI: activate fullmoni-flag. If deactived (default) TNT only shows
+      received frames.
+      Activate if you want to see all frames (this will cause an high
+      systemload, because TNT must analysise ALL frames)

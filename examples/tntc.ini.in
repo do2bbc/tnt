@@ -1,0 +1,4 @@
+# work/spool directory
+tntc_dir @tnt_work_dir@
+# socket for frontend
+frontend_socket unix:tntsock

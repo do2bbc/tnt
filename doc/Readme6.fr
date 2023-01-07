@@ -1,0 +1,8 @@
+TNT possede une interface qui supporte le kernel ax25 (sous linux).
+Options:
+PORT: Port Ax25 (correspond au nom defini dans /etc/ax25/axports) 
+
+MONI: Activer fullmoni-flag. Si il est desactive, TNT visualise
+      uniquement les trames recues.
+      Si vous voulez l'activer, cela cree une grosse charge de 
+      travail.... TNT analyse TOUTES les trames. 

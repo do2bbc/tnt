@@ -1,0 +1,57 @@
+
+
+                    Aide des commandes a distance
+                    -----------------------------
+
+Les commandes suivantes sont reconnues :
+ //n <texte>                 envoie un texte sur la canal "n"
+ //ACT                       visualise la derniere activite sysop,
+ //SESSION                   visualise le temps d'utilisation de cette 
+                             version/session,
+ //ONACTIVITY <texte>        fixe le texte qui est envoye pendant une 
+                             activite sysop,
+ //CHat <n/indicatif> <txt>  envoie un texte a un canal ou un indicatif,
+ //MSG <n/indicatif> <txt>   similaire a CHat,
+ //COMP on/off               marche/arret de la compression Huffman,
+ //NAME <nom>                sauve le nom dans la base de donnee,
+ //CSTAT                     visualise toutes les connexions actives,
+ //MHeard                    visualise la liste des stations entendues,
+ //MHeard <nb/texte>         visualise les "nb" stations entendues ou 
+                             cherche "texte",
+ //SHELL                     lance une session shell UNIX,
+ //TSHELL                    lance une session shell Unix sans conversion CF/LF, 
+ //RUN <programme>           execute un programme,
+ //RUNT <programme>          execute un programme sans conversion des CR/LF,
+ //RUN                       affiche tous les programmes executables,
+ //BOX                       lance la messagerie DigiPoint,
+ //COOKIE                    envoi d'un cookie,
+ //DIR <filtre>              affiche le contenu du repertoire,
+ //DIRLONG <filtre>          affiche le contenu du repertoire en format long,
+ //FREE                      affiche l'espace disque restant,
+ //INFO                      informations sur la station,
+ //HELP                      affiche cette aide,
+ //NEWS                      affiche les nouvelles de la station,
+ //READ <fichier>            lis un fichier,
+ //BREAK                     arret de la lecture d'un fichier,
+ //WRITE <fichier>           ecrit un fichier sur le disque,
+ //CLOSE                     termine l'ecriture d'un fichier,
+ //WPRG <fichier>            ecrit un fichier sur le disque en utilisant le
+                             protocole AUTOBIN,
+ //WPRG <fichier> <rfichier> idem, mais retourne la commande //RPRG <rfichier>,
+ //RPRG <fichier>            lit un fichier en utilisant le protocole AUTOBIN,
+ //RPRG <fichier> <rfichier> idem, mais retourne la commande //WPRG <rfichier>,
+ //WYAPP <fichier>           ecrit le fichier sur le disque en utilisant le
+                             protocole Yapp,
+ //RYAPP <fichier>           lit le fichier en utilisant le protocole Yapp,			     
+ //VERSION                   affiche la version de ce logiciel,
+ //ECHO <texte>              renvoie le texte,
+ //TIME                      donne l'heure,
+ //RTT                       calcule le temps d'aller retour d'une trame,
+ //RING                      fait sonner (appelle le sysop),
+ //QUIT                      quitte le logiciel,
+ //DISC                      deconnecte "violemment".
+
+Les deux slashes (//) doivent etre entres en debut de lignes.
+
+Fin de l'aide sur les commandes a distance.
+
