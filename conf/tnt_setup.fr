@@ -1,0 +1,1088 @@
+#! /bin/sh
+#
+# Configuration Script for TNT
+#
+# Script-Version: 1.2/Francais
+# TNT-Version: 1.8
+#
+# Created: 10.03.1999 by Berndt Josef Wulf - wulf@ping.net.au
+# Updated: 17.04.1999 by Matthias Hensler - wsp@gmx.de
+# Updated: 28.03.1999 by Berndt Josef Wulf - wulf@ping.net.au
+#
+# Most parts of TNT_SETUP were copied from the original
+# INSTALL script written by Matthias Hensler - wsp@gmx.de
+#
+#
+# Globals
+
+tnt_main_dir=/usr/local
+tnt_work_dir=/var/spool/tnt
+tnt_conf_dir=/usr/local/share/tnt/conf
+tnt_doc_dir=/usr/local/share/tnt/doc
+tnt_log_dir=/var/log
+tnt_bin_dir=/usr/local/libexec/tnt
+
+CWAX25=0                # Menu support ax25?
+AX25PO=P3               # AX25 Port
+AX25FM=0                # AX25 Fullmoniflag (monitoring de tous les ports)
+SOUNDON=1	# Compile avec le son?
+# system dependent devices
+DEVICE1=/dev/ttyS0
+DEVICE2=/dev/ttyS1
+DEVICE3=/dev/ttyS2
+DEVICE4=/dev/ttyS3
+
+# Appendstrings for lockfilestring
+DEV_STR1=ttyS0
+DEV_STR2=ttyS1
+DEV_STR3=ttyS2
+DEV_STR4=ttyS3
+
+# default configuration
+TERMCALL=EMPTY		# Term Callsign
+BOXCALL=EMPTY		# Box Callsign
+BAUD=9600               # Default Baud-Rate
+DEVICE=$DEVICE1         # Default Device
+SOFTTNC=0               # Default TNC-Type
+DEF_LCK_STR=/var/spool/lock/LCK.. # Default Lockfilestring
+DEF_ADD_STR=$DEV_STR1   # Default Addstring for Lockfile
+TNCCHAN=10              # Default TNC-Channels
+TNCREDBUF=5             # Default First Channel with reduced backscroll
+REMOTEUSER=root         # Default Remoteuser
+UNIXNEWUSER=1           # Default Create New User
+UNIXFIRSTUID=410        # Default Lowest Userid for New User
+UNIXLASTUID=4095        # Default Highest Userid for New User
+UNIXGID=101             # Default Group ID for New User
+HEARTENTRY=50           # Calls in Heartlist
+LINES_MONITOR=500       # Lines for Monitor
+LINES_INPUT=100         # Lines for Input on Connectscreen
+LINES_OUTPUT=900        # Lines for Output on Connectscreen
+LINES_R_INPUT=50        # Lines for Input (reduced)
+LINES_R_OUTPUT=600      # Lines for Output (reduced)
+LINES_BOXOUT=500        # Lines for Mailbox
+MON_LINES=5             # Screendevide
+COLOR=2                 # Color on
+ALTSTAT=1               # Alternate Status on
+
+FRONTEND=localhost:5002 # Frontendsocket
+BOXFRONT=/usr/local/box/stat/socket
+COOKIE=/usr/share/fortune/startrek
+ENABLE_RESY=#
+
+DEFTYP0=$DEVICE1
+DEFTYP1=/usr/local/tfkiss/socket
+DEFTYP2=localhost:5001
+
+LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
+
+show_docs()
+{
+  while [ 1 ] ; do
+    dialog --title "Voir la documentation" \
+           --backtitle "Selection" \
+           --menu "Que voulez-vous savoir?" 10 60 4 \
+           DOC "Documentation sur TNT" \
+           CHANGES "Changes" \
+           COPYING "Copyrightinformations" \
+           INFO "Infos sur TNT-Setup" \
+           2>/tmp/$$
+    if [ ! $? = 0 ] ; then
+      return
+    fi
+    read WHICH < /tmp/$$
+    case "$WHICH" in
+      DOC) dialog --title "TNT-Documentation" \
+                  --backtitle "Lire..." \
+                  --textbox ${tnt_doc_dir}/tnt.doc 24 80;;
+      CHANGES) dialog --title "TNT-Changes" \
+                      --backtitle "Lire..." \
+                      --textbox ${tnt_doc_dir}/CHANGES 24 80;;
+      COPYING) dialog --title "Copyrightinformations" \
+                      --backtitle "Lire..." \
+                      --textbox ${tnt_doc_dir}/COPYING 24 80;;
+      INFO) dialog --title "Info" \
+                   --backtitle "Lire..." \
+                   --msgbox "TNT-Setup V1.1\nWritten by Matthias Hensler\nCopyright WSPse 1998/99\neMail: wsp@gmx.de\n\nLicenced under GPL\n" 11 35;;
+    esac
+  done
+}
+sel_baud_rate()
+{
+  dialog --title "Selection de la vitesse en bauds" \
+         --menu "Defaut: $BAUD" 13 40 6 \
+         1200 "Baud" \
+         2400 "Baud" \
+         4800 "Baud" \
+         9600 "Baud" \
+         19200 "Baud" \
+         38400 "Baud" \
+         2>/tmp/$$
+  if [ $? = 0 ] ; then
+    read BAUD < /tmp/$$
+  fi
+}
+
+sel_color()
+{
+  dialog --title "Configuration des couleurs" \
+         --menu "Defaut: $COLOR" 11 60 4 \
+         0 "Monochrome" \
+         1 "Couleurs si terminaltyp = Linux" \
+         2 "Couleurs" \
+         3 "Couleurs si terminaltyp = Xterm" \
+         2>/tmp/$$
+  if [ $? = 0 ] ; then
+    read COLOR < /tmp/$$
+  fi
+}
+
+global_menu()
+{
+  while [ 1 ] ; do
+    dialog --title "Configuration fichiers" \
+           --backtitle "Selection..." \
+           --menu "Choix:" 15 80 8 \
+           MAIN "Repertoire principal: ${tnt_main_dir}" \
+           LOCK "Lockfile : $LOCKFILE" \
+           TNTC "Frontend : $FRONTEND" \
+           BOX "Socket BBS : $BOXFRONT" \
+           COOKIE "Fichier Cookie: $COOKIE" \
+           MENU "Retour au menu principal" \
+           HELP "Un peu d'aide" \
+           2>/tmp/$$
+    if [ ! $? = 0 ] ; then
+      return
+    fi
+    read WHICH < /tmp/$$
+    case "$WHICH" in
+      HELP) dialog --textbox ${tnt_doc_dir}/Readme1.fr 24 80;;
+      MENU) return;;
+      MAIN) dialog --inputbox "Repertoire principal pour TNT" 8 80 "${tnt_main_dir}" 2>/tmp/$$
+            if [ $? = 0 ] ; then
+              read tnt_main_dir < /tmp/$$
+            fi;;
+      LOCK) dialog --inputbox "Lockfile pour TNT (sans Device)" 8 80 "$DEF_LCK_STR" 2>/tmp/$$
+            if [ $? = 0 ] ; then
+              read DEF_LCK_STR < /tmp/$$
+              LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
+            fi
+            if [ ! "$SOFTTNC" = "0" ] ; then
+              dialog --inputbox "String appended to lockfile" 8 80 "$DEF_ADD_STR" 2>/tmp/$$
+              if [ $? = 0 ] ; then
+                read DEF_ADD_STR < /tmp/$$
+                LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
+              fi
+            fi;;
+      TNTC) dialog --inputbox "Frontendsocket pour la console TNT" \
+            8 80 "$FRONTEND" 2>/tmp/$$
+            if [ $? = 0 ] ; then
+              read FRONTEND < /tmp/$$
+            fi;;
+      BOX) dialog --inputbox "Socket pour la BBS (si elle existe)" \
+           8 80 "$BOXFRONT" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read BOXFRONT < /tmp/$$
+           fi;;
+      COOKIE) dialog --inputbox "Fichier Cookie (ex: fortunepackage, startrek..) ;-)" \
+              8 80 "$COOKIE" 2>/tmp/$$
+              if [ $? = 0 ] ; then
+                read COOKIE < /tmp/$$
+              fi;;
+    esac
+  done
+}
+
+sel_ax25()
+{
+  while [ 1 ] ; do
+    dialog --title "Support Ax25" \
+           --backtitle "Selection..." \
+           --menu "Choix" 11 75 4 \
+           PORT "Port Ax25 : $AX25PO" \
+           MONI "Fullmoniflag: $AX25FM" \
+           MENU "Retour au menu principal" \
+           HELP "Un peu d'aide" \
+           2>/tmp/$$
+    if [ ! $? = 0 ] ; then
+      return
+    fi
+    read WHICH < /tmp/$$
+    case "$WHICH" in
+      HELP) dialog --textbox ${tnt_doc_dir}/Readme6.fr 25 80;;
+      MENU) return;;
+      PORT) dialog --inputbox "Port ax25" 8 80 \
+            "$AX25PO" 2>/tmp/$$
+            if [ $? = 0 ] ; then
+              read AX25PO < /tmp/$$
+            fi;;
+      MONI) if [ "$AX25FM" = "0" ] ; then
+              AX25FM=1
+            else
+              AX25FM=0
+            fi;;
+    esac
+  done
+}
+
+sel_tnc_type()
+{
+  dialog --title "Type de TNC" \
+         --backtitle "Selection..." \
+         --menu "Choix:" 10 60 3 \
+         TYP0 "TNC reel sur port serie" \
+         TYP1 "TFKISS sur Unix-socket" \
+         TYP2 "TFKISS sur network-socket" \
+         2>/tmp/$$
+  if [ ! $? = 0 ] ; then
+    return
+  fi
+  read WHICH < /tmp/$$
+  case "$WHICH" in
+    TYP0) SOFTTNC=0
+          DEF_ADD_STR=DEV_STR1
+          LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
+          DEVICE=$DEFTYP0;;
+    TYP1) SOFTTNC=1
+          DEF_ADD_STR="stnc-sock"
+          LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
+          DEVICE=$DEFTYP1;;
+    TYP2) SOFTTNC=2
+          DEF_ADD_STR="stnc-netw"
+          LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
+          DEVICE=$DEFTYP2;;
+  esac
+}
+
+sel_tnc_device()
+{
+  if [ "$SOFTTNC" = "0" ] ; then
+    dialog --title "Interface TNC" \
+           --backtitle "Selection..." \
+           --menu "Choix:" 11 70 4 \
+           COM1 "1ere interface ($DEVICE1)" \
+           COM2 "2eme interface ($DEVICE2)" \
+           COM3 "3eme interface ($DEVICE3)" \
+           COM4 "4eme interface ($DEVICE4)" \
+           2>/tmp/$$
+    if [ ! $? = 0 ] ; then
+      return
+    fi
+    read WHICH < /tmp/$$
+    case "$WHICH" in
+      COM1) DEVICE=$DEVICE1
+            DEF_ADD_STR=$DEV_STR1;;
+      COM2) DEVICE=$DEVICE2
+            DEF_ADD_STR=$DEV_STR2;;
+      COM3) DEVICE=$DEVICE3
+            DEF_ADD_STR=$DEV_STR3;;
+      COM4) DEVICE=$DEVICE4
+            DEF_ADD_STR=$DEV_STR4;;
+    esac
+    LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
+    return
+  fi
+  dialog --inputbox "Socket pour le TNC" 8 80 "$DEVICE" 2>/tmp/$$
+  if [ $? = 0 ] ; then
+    read DEVICE < /tmp/$$
+  fi
+}
+
+tnc_menu()
+{
+  while [ 1 ] ; do
+    case "$SOFTTNC" in
+      0) TYPDES="real TNC";;
+      1) TYPDES="TFKISS on Unix-socket";;
+      2) TYPDES="TFKISS on network-socket";;
+    esac
+    dialog --title "Configuration TNC" \
+           --backtitle "Selection..." \
+           --menu "Choix:" 13 70 6 \
+           TYP "Type de TNC: $SOFTTNC ($TYPDES)" \
+           BAUD "Vitesse en Baud (uniquement TNC reel (Typ 0): $BAUD" \
+           DEVICE "Interface TNC (device): $DEVICE" \
+           CHAN "Nombre de canaux sur le TNC: $TNCCHAN" \
+           MENU "Retour au menu principal" \
+           HELP "Un peu d'aide" \
+           2>/tmp/$$
+    if [ ! $? = 0 ] ; then
+      return
+    fi
+    read WHICH < /tmp/$$
+    case "$WHICH" in
+      HELP) dialog --textbox ${tnt_doc_dir}/Readme2.fr 24 80;;
+      MENU) return;;
+      BAUD) sel_baud_rate;;
+      CHAN) dialog --inputbox "Nombre de canaux sur le TNC (defaut: 10)" \
+            8 80 "$TNCCHAN" 2>/tmp/$$
+            if [ $? = 0 ] ; then
+              read TNCCHAN < /tmp/$$
+            fi;;
+      TYP) sel_tnc_type;;
+      DEVICE) sel_tnc_device;;
+    esac
+  done
+}
+
+scroll_menu()
+{
+  while [ 1 ] ; do
+    dialog --title "Configuration des buffers d'ecran" \
+           --backtitle "Selection..." \
+           --menu "Select:" 18 70 11 \
+           RED "1er canal avec des buffers reduits: $TNCREDBUF" \
+           MH "Nombre d'entrees dans la liste MHeard: $HEARTENTRY" \
+           MONITOR "Nombre de lignes en monitor : $LINES_MONITOR" \
+           INPUT "Nombre de lignes dans la zone d'entree *haut*: $LINES_INPUT" \
+           OUTPUT "Nombre de lignes dans la partie reception *milieu*: $LINES_OUTPUT" \
+           R_IN "Lignes partie entree (reduit) *haut*: $LINES_R_INPUT" \
+           R_OUT "Lignes partie reception (reduit) *milieu*: $LINES_R_OUTPUT" \
+           BOX "Nombre de lignes partie mailbox (BBS): $LINES_BOXOUT" \
+           MON "Nombre de lignes monitor *bas*: $MON_LINES" \
+           MENU "Retour au menu principal" \
+           HELP "Un peu d'aide" \
+           2>/tmp/$$
+    if [ ! $? = 0 ] ; then
+      return
+    fi
+    read WHICH < /tmp/$$
+    case "$WHICH" in
+      HELP) dialog --textbox ${tnt_doc_dir}/Readme3.fr 24 80;;
+      MENU) return;;
+      RED) dialog --inputbox "1er canal avec buffers reduits" 8 80 "$TNCREDBUF" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read TNCREDBUF < /tmp/$$
+           fi;;
+      MH) dialog --inputbox "Nombre d'entrees dans la liste MHeard" 8 80 "$HEARTENTRY" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read HEARTENTRY < /tmp/$$
+           fi;;
+      MONITOR) dialog --inputbox "Nombre de lignes en monitor" 8 80 "$LINES_MONITOR" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read LINES_MONITOR < /tmp/$$
+           fi;;
+      INPUT) dialog --inputbox "Nombre de lignes en zone d'entree *haut*" 8 80 "$LINES_INPUT" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read LINES_INPUT < /tmp/$$
+           fi;;
+      OUTPUT) dialog --inputbox "Nombre de lignes dans la partie reception *milieu*" 8 80 "$LINES_OUTPUT" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read LINES_OUTPUT < /tmp/$$
+           fi;;
+      R_IN) dialog --inputbox "Lignes partie entree (reduit) *haut*" 8 80 "$LINES_R_INPUT" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read LINES_R_INPUT < /tmp/$$
+           fi;;
+      R_OUT) dialog --inputbox "Lignes partie reception (reduit) *milieu*" 8 80 "$LINES_R_OUTPUT" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read LINES_R_OUTPUT < /tmp/$$
+           fi;;
+      BOX) dialog --inputbox "Nombre de lignes partie mailbox (BBS)" 8 80 "$LINES_BOXOUT" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read LINES_BOXOUT < /tmp/$$
+           fi;;
+      MON) dialog --inputbox "Nombre de lignes monitor *bas*" 8 80 "$MON_LINES" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read MON_LINES < /tmp/$$
+           fi;;
+    esac
+  done
+}
+
+term_menu()
+{
+  while [ 1 ] ; do
+    case "$COLOR" in
+      0) COLDEF="monochrom";;
+      1) COLDEF="Termcap [LINUX]";;
+      2) COLDEF="Color";;
+      3) COLDEF="Termcap [XTERM]";;
+    esac
+    if [ "$ENABLE_RESY" = "#" ] ; then
+      RESY="No"
+    else
+      RESY="Yes"
+    fi
+    dialog --title "Configuration generale" \
+           --backtitle "Selection..." \
+           --menu "Choix:" 14 55 7 \
+           CALL "Votre indicatif: $TERMCALL" \
+           BOX "Votre indicatif BBS (DPBox) : $BOXCALL" \
+           COLOR "Configuration couleurs: $COLOR ($COLDEF)" \
+           STAT "Type de ligne d'etat: $ALTSTAT" \
+           RESY "Fichier log de resynchro: $RESY" \
+           MENU "Retour au menu principal" \
+           HELP "Un peu d'aide" \
+           2>/tmp/$$
+    if [ ! $? = 0 ] ; then
+      return
+    fi
+    read WHICH < /tmp/$$
+    case "$WHICH" in
+      HELP) dialog --textbox ${tnt_doc_dir}/Readme4.fr 24 80;;
+      MENU) return;;
+      CALL) dialog --inputbox "Indicatif terminal" 8 40 "$TERMCALL" 2>/tmp/$$
+            if [ $? = 0 ] ; then
+              read TERMCALL < /tmp/$$
+            fi;;
+      BOX) dialog --inputbox "Indicatif DPBox" 8 40 "$BOXCALL" 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read BOXCALL < /tmp/$$
+           fi;;
+      COLOR) sel_color;;
+      STAT) dialog --menu "Ligne d'etat" 9 40 2 \
+                   TYP1 "Ligne d'etat normale" \
+                   TYP2 "Ligne d'etat informative" 2>/tmp/$$
+            if [ $? = 0 ] ; then
+              read WHICH < /tmp/$$
+              if [ "$WHICH" = "TYP1" ] ; then
+                ALTSTAT=0
+              else
+                ALTSTAT=1
+              fi
+            fi;;
+      RESY) dialog --menu "Fichier log de resynchro" 9 40 2 \
+                   ON "Fichier log ON" \
+                   OFF "Fichier log OFF" 2>/tmp/$$
+            if [ $? = 0 ] ; then
+              read WHICH < /tmp/$$
+              if [ "$WHICH" = "ON" ] ; then
+                ENABLE_RESY=
+              else
+                ENABLE_RESY=#
+              fi
+            fi;;
+    esac
+  done
+}
+
+unix_menu()
+{
+  while [ 1 ] ; do
+    if [ "$UNIXNEWUSER" = "1" ] ; then
+      UNIXDEF="Yes"
+    else
+      UNIXDEF="No"
+    fi
+    dialog --title "Configuration Unix" \
+           --backtitle "Selection..." \
+           --menu "Choix:" 13 50 6 \
+           USER "Remoteuser: $REMOTEUSER" \
+           CREATE "Creer de nouveaux utilisateurs: $UNIXDEF" \
+           UID "User-ID de depart: $UNIXFIRSTUID" \
+           GID "Group-ID: $UNIXGID" \
+           MENU "Retour au menu principal" \
+           HELP "Un peu d'aide" \
+           2>/tmp/$$
+    if [ ! $? = 0 ] ; then
+      return
+    fi
+    read WHICH < /tmp/$$
+    case "$WHICH" in
+      HELP) dialog --textbox ${tnt_doc_dir}/Readme5.fr 24 80;;
+      MENU) return;;
+      USER) dialog --inputbox "Utilisateurs Unix pour lancer des programmes (Attention avec \"root\")" 8 60 2>/tmp/$$
+            if [ $? = 0 ] ; then
+              read REMOTEUSER < /tmp/$$
+            fi;;
+      CREATE) dialog --menu "Creer de nouveaux utilisateurs?" 9 45 2 \
+                     YES "creer nouveau UID" \
+                     NO "utiliser le remoteuser" 2>/tmp/$$
+              if [ $? = 0 ] ; then
+                read WHICH < /tmp/$$
+                if [ "$WHICH" = "YES" ] ; then
+                  UNIXNEWUSER=1
+                else
+                  UNIXNEWUSER=0
+                fi
+              fi;;
+      UID) dialog --inputbox "User-ID de depart" 8 40 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read UNIXFIRSTUID < /tmp/$$
+           fi;;
+      GID) dialog --inputbox "Group-ID" 8 40 2>/tmp/$$
+           if [ $? = 0 ] ; then
+             read UNIXGID < /tmp/$$
+           fi;;
+    esac
+  done
+}
+
+write_ini()
+{
+  EAX25="# "
+  if [ "$CWAX25" = "1" ] ; then
+    EAX25=""
+  fi
+  echo "\
+# definit si select() doit etre utilise, normalement a 1, mettre a 0, si vous 
+# utilisez un vieux noyau (select() produit ici une charge CPU plus 
+# importante).
+use_select 0
+
+# --------------------------------------------------------------------------
+
+# 0 pour un TNC reel sur le port serie, 1 pour TFKiss sur un socket UNIX
+#                                       2 pour TFKiss sur un autre socket
+soft_tnc $SOFTTNC
+
+# Port serie sur lequel le TNC est connecte, socket UNIX de TFKiss ou 
+# autre socket pour TFKiss
+#
+device $DEVICE
+
+# fichier de verrouillage pour le port serie ou TFKiss
+tnt_lockfile $LOCKFILE
+
+# Vitesse du port RS232 utilise, uniquement pour un TNC reel connecte
+speed $BAUD
+
+#
+# parametres de temps pour l'interface a tfkiss (soft_tnc est a 1)
+# 1: temps d'attente fixe (10ms) entre chaque paquet hostmode envoye a tfkiss
+fixed_wait 1
+
+#
+# si fixed_wait == 0, nombre de caractere envoyes a tfkiss avant que TNT ne
+# passe sont temps d'attente de 10ms 
+amount_wait 20
+
+# --------------------------------------------------------------------------
+
+# nombre de voies du TNC
+tnc_channels $TNCCHAN
+
+# premiere voie avec un buffer de lignes reduit
+r_channels $TNCREDBUF
+
+# --------------------------------------------------------------------------
+
+# active la table de compression statique Huffman (//COMP)
+tnt_comp 1
+
+# essaie de decompresse les trames dans la fenetre monitor
+moni_decomp 1
+
+# devalide les trames binaires
+moni_chkbin 1
+
+# taille des paquets pour le transfert de fichiers
+file_paclen 255
+
+# mettre a 1 pour deconnecter tous les canaux au demarrage
+disc_on_start 0
+
+# --------------------------------------------------------------------------
+
+# UNIX-user pour la permission distante
+remote_user $REMOTEUSER
+
+# Si a 1, de nouveaux utilisateurs pourront etre crees, si a 0, tout nouvel
+# utilisateur sera loggue comme l'utilisateur defini par 'remote_user'.
+unix_new_user $UNIXNEWUSER
+
+# plus petit identifiant-utilisateur pour la creation de nouveaux 
+# utilisateurs
+unix_first_uid $UNIXFIRSTUID
+
+# identifiant de groupe pour les nouveaux utilisateurs
+unix_user_gid $UNIXGID
+
+# --------------------------------------------------------------------------
+
+# timeout pour l'assemblage des paquets (en secondes) pour SHELL/REDIR et 
+# interface
+pty_timeout 2
+
+# --------------------------------------------------------------------------
+
+# mis a 1 pour la requete des entetes R: pour la commande read de la liste
+# de messagerie
+blist_add_plus 0
+
+# --------------------------------------------------------------------------
+
+# SSID de DPBox (une voie avec ce SSID doit exister dans le TNC !)
+#tnt_box_ssid 7
+
+# Indicatif et SSID de DPBox (Un canal avec cet indicatif doit exister
+# dans le TNC!)
+# (Si ce parametre est utilise, 'tnt_box_ssid' est ignore)
+#tnt_box_call $BOXCALL
+
+# SSID pour connecter le node (en develloppement)
+#tnt_node_ssid 9
+
+# Indicatif et SSID pour connecter le node (en develloppement)
+#tnt_node_call
+
+# --------------------------------------------------------------------------
+
+# Repertoire de travail/spool
+tnt_work_dir /var/spool/tnt
+# Repertoire de configuration
+tnt_conf_dir /usr/local/share/tnt/conf
+# Repertoire documentation
+tnt_doc_dir /usr/local/share/tnt/doc
+# Repertoire log de TnT
+tnt_log_dir /var/log
+# Repertoire process ID et socket 
+tnt_proc_dir /var/run
+# Repertoire commandes a distance
+remote_dir remote/
+# Repertoire des textes d'accueil
+ctext_dir ctext/
+# Repertoire pour les fichiers autobin corrompus
+abin_dir abin/
+# Repertoire pour les envois
+upload_dir up/
+# Repertoire pour la reception
+download_dir down/
+# Repertoire pour les fichiers 7plus
+tnt_7plus_dir 7plus/
+# Repertoire pour les fichiers Yapp
+yapp_dir yapp/
+# Repertoire des programmes executables
+tn_bin_dir /usr/local/libexec/tnt
+# Repertoire home pour les nouveaux utilisateurs
+unix_user_dir tntusers/
+# Repertoire pour les textes macro
+macrotext_dir macro/
+# Repertoire pour les fichiers broadcast de messagerie
+tnt_bcnewmaildir bcast/newmail/
+# Repertoire pour les fichiers broadcast
+tnt_bcsavedir bcast/save/
+# repertoire pour les fichiers broadcast temporaires
+tnt_bctempdir /tmp/
+# Repertoire pour les fichiers audio Uniquement si compile avec TNT_Sound!!
+" > ${tnt_conf_dir}/tnt.ini
+
+if [ $SOUNDON = 1 ]; then
+  echo "\
+tnt_sound_dir /usr/local/share/tnt/sounds
+" >> ${tnt_conf_dir}/tnt.ini
+else
+  echo "\
+#tnt_sound_dir /usr/local/share/tnt/sounds
+" >> ${tnt_conf_dir}/tnt.ini
+fi
+
+  echo "\
+# Fichier d'envoi
+tnt_upfile tnt.up
+# Fichier de reception
+tnt_downfile tnt.dwn
+# Fichier contenant l'identifiants de  processus
+proc_file tnt.pid
+# Fichier d'information  (//info)
+rem_info_file tntrem.inf
+# Fichier distant d'aide (//help)
+rem_help_file tntrem.hlp.fr
+# Fichier d'aide tnt
+tnt_help_file tnt.hlp.fr
+# Fichier de cookie
+tnt_cookiefile $COOKIE
+# Fichier des noms d'utilsateurs
+name_file_name names.tnt
+# Fichier de routes
+route_file_name routes.tnt
+# Fichier de nouvelles (//news)
+news_file_name news.tnt
+# Texte d'accueil
+tnt_ctextfile ctext.tnt
+# Texte d'adieu... 
+tnt_qtextfile qtext.tnt
+# Fichier carnet de trafic
+tnt_logbookfile tnt.log
+# Fichier de mots de passe
+tnt_pwfile pw.tnt
+# Fichier d'acces sysop
+tnt_sysfile sys.tnt
+# Fichier indicatifs avec les commandes distantes inactives
+tnt_noremfile norem.tnt
+# Fichier indicatifs faisant le test de qualite FlexNet
+tnt_flchkfile flchk.tnt
+# Fichier indicatifs en reject
+tnt_notownfile notown.tnt
+# Fichier de log des resyncronisations
+$ENABLE_RESY resy_log_file resy.log
+# Fichier log des broadcast
+bcast_log_file bcast.log
+# Fichier de mot de passe du socket
+sock_passfile netpass.tnt
+# Fichier pour les macros clavier
+func_key_file fkeys.tnt
+# Fichier pour les commandes a distance etendues
+tnt_extremotefile extrem.tnt
+# Fichier pour Autostart au demarrage
+tnt_autostartfile autostrt.tnt
+# Fichier pour definir les textes "tell"
+tnt_tellfile telltexte.tnt
+# Fichier de log pour les sessions de TNT
+tnt_sessionlog /var/log/tntsession_status
+# Fichier pour effets sonores
+" >> ${tnt_conf_dir}/tnt.ini
+
+if [ $SOUNDON = 1 ]; then
+  echo "\
+tnt_soundfile sounds.tnt
+" >> ${tnt_conf_dir}/tnt.ini
+else
+  echo "\
+#tnt_soundfile sounds.tnt
+" >> ${tnt_conf_dir}/tnt.ini
+fi
+
+  echo "\
+# Socket pour Digipoint Box
+box_socket $BOXFRONT
+# Repertoire pour les nouveaux messages
+newmaildir newmail/
+# Fichier gardant les folders monitorises
+autobox_dir autobox.dir
+# Fichier pour le texte de fin du bbs
+tnt_boxender boxender.tnt
+# Fichier de definition pour F6FBB BBS
+f6fbb_box f6fbb.box
+# Socket pour le node tnt (en developpement)
+#node_socket /usr/local/tntnode/socket
+# socket pour frontend
+frontend_socket $FRONTEND
+
+# --------------------------------------------------------------------------
+
+# longueur maximum d'une ligne entree
+input_linelen 80
+
+# Mis a 1 si le mode insertion doit etre actif apres le demarrage
+insertmode 1
+
+# nombre maximum d'entrees dans la liste des stations entendues
+num_heardentries $HEARTENTRY
+
+# nombre de lignes de retour
+
+# dans l'ecran de commande
+lines_command 30
+# dans l'ecran moniteur
+lines_monitor $LINES_MONITOR
+
+# partie entree des ecrans de connexion
+lines_input $LINES_INPUT
+# partie sortie des ecrans de connexion
+lines_output $LINES_OUTPUT
+# partie entree des ecrans de connexion (retour reduit)
+lines_r_input $LINES_R_INPUT
+# partie sortie des ecrans de connexion (retour reduit)
+lines_r_output $LINES_R_OUTPUT
+# ratio des lignes d'entree/sortie sur l'ecran reel (connexion)
+scr_divide 5
+# lignes moniteur sur les ecrans de connexion
+lines_moncon $MON_LINES
+
+# partie entree de l'ecran messagerie
+lines_mbinput 10
+# partie sortie de l'ecran messagerie
+lines_mboutput $LINES_BOXOUT
+# ratio des lignes d'entree/sortie sur l'ecran reel (messagerie)
+mbscr_divide 8
+
+# partie entree des ecrans de moniteur etendu
+lines_xmon_pre 10
+# partie sortie des ecrans de moniteur etendu
+lines_xmon 250
+# ratio des lignes d'entree/sortie sur l'ecran reel (moniteur etendu)
+xmon_scr_divide 5
+
+# --------------------------------------------------------------------------
+
+# 0: monochrome, 
+# 1: utilise les attributs couleur si TERM = 'linux' ou 
+#    'conXXX', sinon, utilise les attributs monochrome et termcap, 
+# 2: utilise les attributs couleur
+# 3: utilise les attributs couleur et termcap si TERM = "xterm"
+color $COLOR
+
+# 0: n'utilise pas le termcap, 1: utilise le termcap
+termcap 1
+# 1: autre ligne de statut superieure
+altstat $ALTSTAT
+
+# --------------------------------------------------------------------------
+
+# attributs pour la couleur
+
+# caracteres normaux
+attc_normal 0x47
+# caracteres dans la ligne de statut du haut
+attc_statline 0x3A
+# caracteres dans les entetes moniteur
+attc_monitor 0x4A
+# caracteres dans la ligne de statut
+attc_cstatline 0x74
+# caracteres de controle
+attc_controlchar 0x07
+# reponses de la station distante
+attc_remote 0x4F
+# fonctions speciales
+attc_special 0x0F
+# couleur pour le port 1
+attc_monport1 0x4B
+# couleur pour le port 2
+attc_monport2 0x43
+
+# --------------------------------------------------------------------------
+
+# attributs pour le noir et blanc
+
+# caracteres normaux
+attm_normal 0x00
+# caracteres dans la ligne de statut du haut
+attm_statline 0x10
+# caracteres des entetes moniteur
+attm_monitor 0x10
+# caracteres dans la ligne de statut
+attm_cstatline 0x10
+# caracteres de controle
+attm_controlchar 0x10
+# reponse de la station distante ainsi que votre propre texte envoye
+attm_remote 0x10
+# fonctions speciales
+attm_special 0x10
+# couleur pour le port 1
+attm_monport1 0x10
+# couleur pour le port 2
+attm_monport2 0x08
+
+# --------------------------------------------------------------------------
+
+# ces valeurs de doivent pas etre changees en utilisant LINUX
+# 1: le terminal place le curseur sur une nouvelle ligne apres chaque
+# caractere sur la derniere colonne
+auto_newline 0
+
+# 1: n'affiche pas les caracteres 128-160
+supp_hicntl 0
+
+# --------------------------------------------------------------------------
+
+# AX25 Port uniquement si TNT est compile avec ax25k 
+# (nom du port dans /etc/axports)
+$EAX25 ax25k_port $AX25PO
+
+# Fullmoniflag :"0" visualise les trames recues  
+#               "1" visualise toutes les trames (charge processeur importante)
+$EAX25 fullmoni_flag $AX25FM
+" >> ${tnt_conf_dir}/tnt.ini
+}
+
+write_up()
+{
+  echo "\
+# Texte de connexion
+ctext 0 <texte> (0=Off, 1=On, 2=Autre //Q pour TNC en mode terminal)
+# Monitoring
+m uisc
+# Nombre de canaux
+y $TNCCHAN
+
+my $TERMCALL
+i $TERMCALL
+
+# Sonnerie sur les paquets recus
+infobell on
+# Conversion umlaut
+umlaut off
+# Ajout de chaines dans les fichiers log
+append on
+wordwrap on
+wholelin on
+# timestamp
+k 2
+
+# Mise a l'heure/date du tnc
+timeset
+dateset
+
+#defauts:
+s 0
+tx 30                   # TX-Delay
+@t3 14000
+ret 15
+actb                    # active mailbox
+qrg 0 link              # QRG pour premier canal
+tnc o 4                 # Maxframes
+f 400                   # Fracktime
+p 32                    # Persistance
+@t2 150
+w 10
+r 1
+x 1                     # XMITOK on
+tnc n 20
+tnc @i 100
+tnc @d 0
+remote on               # Valide les commandes a distance
+cont on                 # Ctext on
+setacc echo normal      # Autorise la commande a distance "//echo"
+autoya on               # Autorise le protocole YAPP automatique
+auto7pl on              # Autorise la reception 7plus automatique
+monl $MON_LINES         # Nombre de lignes dans l'ecran de connexion
+cookie on               # Autorise les cookies
+snobox Mailbox non active
+snoacc Commandes devalidees
+
+s 0
+my $TERMCALL
+s 9
+my $BOXCALL
+s 10
+my $BOXCALL
+
+# Cree by tntsetup (WSPse)
+" > ${tnt_conf_dir}/tnt.up
+}
+
+write_smpl()
+{
+  echo "\
+ctext 2 Terminal de $TERMCALL off. Laissez un  msg et //Q
+m n
+y 1
+" > ${tnt_conf_dir}/tnt.dwn
+
+  echo "\
+# Config pour TNTC, cree par tntsetup (WSPse)
+# Repertoire principal de travail/spool
+tntc_dir ${tnt_proc_dir}
+# socket pour frontend
+frontend_socket $FRONTEND
+" > ${tnt_conf_dir}/tntc.ini
+
+  echo "\
+# Fichier d'exemple pour TNT-Telltextfile (a partir de TNT1.1a7)
+# Commandes ":DA", ":WEG", ":600", ":KLO" and ":GND" envoient un texte
+# sur tous les canaux et changent le texte pour la macro %m dans le Ctext
+#
+# Si le texte est "0", rien ne se passe
+#
+# Si le second texte est "1", la macro est effacee.
+#
+# Ex: "1 Je suis de retour" - envoie ce texte sur tous les canaux si ":DA" 
+#     "2 0" - ... sans que la macro %m ne soit changee ou,
+#     "2 1" - ... et la macro %m est effacee.
+#
+# 1+2 pour DA, 3+4 pour WEG, 5+6 pour 600, 7+8 pour KLO, 9+10 pour GND
+# Le 1er texte est envoie surtous les canaux connectes et le second est 
+# utilise pour la macro %m
+#
+# Voici les macros qui peuvent etre utilisees dans la 1ere ligne :
+# %n - ?? nom de la station distante, %c - indicatif de la station distante,
+# %k - canal sur lequel est connectee la station distante, %t - heure,
+# %g ou %b - Sonnerie (Ctrl-G)
+#
+# Messages pour DA
+1 Je suis de retour! [%t] %g
+2 Bonjour, je suis la !
+#
+# Messages pour WEG
+3 Je suis parti! [%t]
+4 Je ne suis pas disponible. Laisser un message sur $BOXCALL
+#
+# Messages pour 600
+5 Un moment je suis au 600
+6 Le sysop est au telephone.
+#
+# Messages pour KLO
+# les stations qui se connectent apres n'ont pas a savoir que j'y suis....
+7 Je dois aller aux toilettes...
+8 0
+#
+# Messages for GND
+9 %n, je reviens dans un moment...
+10 L'operateur est occupe a autre chose
+#
+#
+# (C) WSPse 1998
+" > ${tnt_conf_dir}/telltexte.tnt
+}
+
+create_tnt()
+{
+  dialog --title "Lisez avec attention!" \
+         --backtitle "Selection..." \
+         --yesno "C'est SUR? Si le fichier existe dans \"${tnt_conf_dir}\",\nca va peut etre ecraser des donnees. Cette etape reecrit\nquelques fichiers d'initialisation de TNT.
+		\nLa configuration existante est compromise...\nRepondre YES si vous etes totalement sur (ou vous avez fait des copies)!" 11 78
+  if [ ! $? = 0 ] ; then
+    return
+  fi
+
+  dialog --title "Creation" \
+         --backtitle "Patientez..." \
+         --infobox "Cree les fichiers d'initialisation" 3 40
+
+  write_ini             # Mainini-File (tnt.ini)
+  write_up              # TNC-inifile
+  write_smpl            # Samplefiles
+
+  dialog --title "Installation terminee" \
+         --backtitle "WSPse 1998/99 - wsp@gmx.de" \
+         --msgbox "L'installation est terminee\nSi vous avez des questions, envoyez un msg a:\nwsp@gmx.de - Matthias Hensler\n\nBonne chance avec TNT\nWSPse 1998/99" 13 60
+
+  exit 0
+}
+
+# ---MAIN-----------------------------------------------------------------
+
+dialog --title "TNT-SETUP" \
+       --backtitle "(C) WSPse 1998/99 - Created by Matthias Hensler - eMail: wsp@gmx.de" \
+       --msgbox "         TNT-Setup V1\n
+               \n Programme d'installation pour\n Terminal Packet TNT sous Linux.\n TNT est ecrit par Mark Wahl et\n      Matthias Hensler\n   TNT-Setup est ecrit par\n       Matthias Hensler" 13 35
+
+# ---Mainmenu---
+
+  while [ 1 ] ; do
+    if [ "$CWAX25" = "1" ] ; then
+      dialog --title "Menu principal" \
+             --backtitle "Selection..." \
+             --menu "Choix:" 16 70 9 \
+             GLOBAL "Configuration fichiers (repertoires, etc)" \
+             TNC "Configuration TNC" \
+             AX25 "Configuration Ax25" \
+             BACKSCROLL "Configuration d'ecran" \
+             TERM "Configuration generale" \
+             UNIX "Configuration utilisateur Unix" \
+             DOC "Voir la documentation" \
+             INSTALL "Sauver la configuration" \
+             EXIT "Quitter le programme" \
+             2>/tmp/$$
+    else
+      dialog --title "Menu principal" \
+             --backtitle "Selection..." \
+             --menu "Choix" 15 70 8 \
+             GLOBAL "Configuration fichiers (repertoires, etc)" \
+             TNC "Configuration TNC" \
+             BACKSCROLL "Configuration d'ecran" \
+             TERM "Configuration generale" \
+             UNIX "Configuration utilisateur Unix" \
+             DOC "Voir la documentation" \
+             INSTALL "Sauver la configuration" \
+             EXIT "Quitter le programme" \
+             2>/tmp/$$
+    fi
+    if [ ! $? = 0 ] ; then
+      exit
+    fi
+
+    read WHICH < /tmp/$$
+    case "$WHICH" in
+      EXIT) exit;;
+      DOC) show_docs;;
+      INSTALL) create_tnt;;
+      GLOBAL) global_menu;;
+      BACKSCROLL) scroll_menu;;
+      TNC) tnc_menu;;
+      TERM) term_menu;;
+      UNIX) unix_menu;;
+      AX25) sel_ax25;;
+    esac
+  done
