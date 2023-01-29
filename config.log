@@ -1,0 +1,521 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:597: checking for non-GNU ld
+configure:632: checking if the linker (/bin/ld) is GNU ld
+GNU ld (GNU Binutils for Debian) 2.35.2
+configure:696: checking host system type
+configure:717: checking target system type
+configure:735: checking build system type
+configure:772: checking for a BSD compatible install
+configure:825: checking whether build environment is sane
+configure:882: checking whether make sets ${MAKE}
+configure:928: checking for working aclocal
+configure:941: checking for working autoconf
+configure:954: checking for working automake
+configure:967: checking for working autoheader
+configure:980: checking for working makeinfo
+configure:999: checking for gcc
+configure:1112: checking whether the C compiler (gcc  ) works
+configure:1128: gcc -o conftest    conftest.c  1>&5
+configure:1125:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ 1125 | main(){return(0);}
+      | ^~~~
+configure:1154: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:1159: checking whether we are using GNU C
+configure:1168: gcc -E conftest.c
+configure:1187: checking whether gcc accepts -g
+configure:1220: checking for strerror in -lcposix
+configure:1239: gcc -o conftest -g -O2   conftest.c -lcposix   1>&5
+/usr/bin/ld: cannot find -lcposix
+collect2: error: ld returned 1 exit status
+configure: failed program was:
+#line 1228 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char strerror();
+
+int main() {
+strerror()
+; return 0; }
+configure:1273: checking for a BSD compatible install
+configure:1326: checking whether make sets ${MAKE}
+configure:1354: checking how to run the C preprocessor
+configure:1375: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1434: checking for ANSI C header files
+configure:1447: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1514: gcc -o conftest -g -O2   conftest.c  1>&5
+configure: In function 'main':
+configure:1509:67: warning: implicit declaration of function 'exit' [-Wimplicit-function-declaration]
+ 1509 | if (XOR (islower (i), ISLOWER (i)) || toupper (i) != TOUPPER (i)) exit(2);
+      |                                                                   ^~~~
+configure:1509:67: warning: incompatible implicit declaration of built-in function 'exit'
+configure:1505:1: note: include '<stdlib.h>' or provide a declaration of 'exit'
+ 1504 | #include <ctype.h>
+  +++ |+#include <stdlib.h>
+ 1505 | #define ISLOWER(c) ('a' <= (c) && (c) <= 'z')
+configure:1510:1: warning: incompatible implicit declaration of built-in function 'exit'
+ 1510 | exit (0); }
+      | ^~~~
+configure:1510:1: note: include '<stdlib.h>' or provide a declaration of 'exit'
+configure:1543: checking for fcntl.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for strings.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for sys/ioctl.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for sys/time.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for unistd.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for signal.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for string.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for ctype.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for time.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for dirent.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for sys/stat.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for sys/types.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for sys/wait.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for errno.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for libintl.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1543: checking for locale.h
+configure:1553: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:1580: checking for main in -lncurses
+configure:1595: gcc -o conftest -g -O2   conftest.c -lncurses   1>&5
+configure:1667: checking for gettext in -lintl
+configure:1686: gcc -o conftest -g -O2   conftest.c -lintl  -lncurses  1>&5
+configure:1679:6: warning: conflicting types for built-in function 'gettext'; expected 'char *(const char *)' [-Wbuiltin-declaration-mismatch]
+ 1679 | char gettext();
+      |      ^~~~~~~
+/usr/bin/ld: cannot find -lintl
+collect2: error: ld returned 1 exit status
+configure: failed program was:
+#line 1675 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char gettext();
+
+int main() {
+gettext()
+; return 0; }
+configure:1732: checking for shared library run path origin
+configure:1769: checking for ranlib
+configure:1797: checking for working const
+configure:1851: gcc -c -g -O2  conftest.c 1>&5
+configure:1872: checking for inline
+configure:1886: gcc -c -g -O2  conftest.c 1>&5
+configure:1882:10: warning: return type defaults to 'int' [-Wimplicit-int]
+ 1882 | } $ac_kw foo() {
+      |          ^~~
+configure:1912: checking for off_t
+configure:1945: checking for size_t
+configure:1980: checking for working alloca.h
+configure:1992: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:2013: checking for alloca
+configure:2046: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:2215: checking for stdlib.h
+configure:2225: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:2215: checking for unistd.h
+configure:2215: checking for sys/stat.h
+configure:2215: checking for sys/types.h
+configure:2254: checking for getpagesize
+configure:2282: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:2307: checking for working mmap
+configure:2468: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:2399:7: error: conflicting types for 'malloc'
+ 2399 | char *malloc();
+      |       ^~~~~~
+In file included from configure:2347:
+/usr/x86_64-linux-gnu/include/stdlib.h:539:14: note: previous declaration of 'malloc' was here
+  539 | extern void *malloc (size_t __size) __THROW __attribute_malloc__
+      |              ^~~~~~
+configure: In function 'main':
+configure:2438:24: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+ 2438 |  data2 += (pagesize - ((int) data2 & (pagesize - 1))) & (pagesize - 1);
+      |                        ^
+configure: failed program was:
+#line 2315 "configure"
+#include "confdefs.h"
+
+/* Thanks to Mike Haertel and Jim Avera for this test.
+   Here is a matrix of mmap possibilities:
+	mmap private not fixed
+	mmap private fixed at somewhere currently unmapped
+	mmap private fixed at somewhere already mapped
+	mmap shared not fixed
+	mmap shared fixed at somewhere currently unmapped
+	mmap shared fixed at somewhere already mapped
+   For private mappings, we should verify that changes cannot be read()
+   back from the file, nor mmap's back from the file at a different
+   address.  (There have been systems where private was not correctly
+   implemented like the infamous i386 svr4.0, and systems where the
+   VM page cache was not coherent with the filesystem buffer cache
+   like early versions of FreeBSD and possibly contemporary NetBSD.)
+   For shared mappings, we should conversely verify that changes get
+   propogated back to all the places they're supposed to be.
+
+   Grep wants private fixed already mapped.
+   The main things grep needs to know about mmap are:
+   * does it exist and is it safe to write into the mmap'd area
+   * how to use it (BSD variants)  */
+#include <sys/types.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#if HAVE_STDLIB_H
+# include <stdlib.h>
+#endif
+
+#if HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
+
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+
+/* This mess was copied from the GNU getpagesize.h.  */
+#ifndef HAVE_GETPAGESIZE
+
+/* Assume that all systems that can run configure have sys/param.h.  */
+# ifndef HAVE_SYS_PARAM_H
+#  define HAVE_SYS_PARAM_H 1
+# endif
+
+# ifdef _SC_PAGESIZE
+#  define getpagesize() sysconf(_SC_PAGESIZE)
+# else /* no _SC_PAGESIZE */
+#  ifdef HAVE_SYS_PARAM_H
+#   include <sys/param.h>
+#   ifdef EXEC_PAGESIZE
+#    define getpagesize() EXEC_PAGESIZE
+#   else /* no EXEC_PAGESIZE */
+#    ifdef NBPG
+#     define getpagesize() NBPG * CLSIZE
+#     ifndef CLSIZE
+#      define CLSIZE 1
+#     endif /* no CLSIZE */
+#    else /* no NBPG */
+#     ifdef NBPC
+#      define getpagesize() NBPC
+#     else /* no NBPC */
+#      ifdef PAGESIZE
+#       define getpagesize() PAGESIZE
+#      endif /* PAGESIZE */
+#     endif /* no NBPC */
+#    endif /* no NBPG */
+#   endif /* no EXEC_PAGESIZE */
+#  else /* no HAVE_SYS_PARAM_H */
+#   define getpagesize() 8192	/* punt totally */
+#  endif /* no HAVE_SYS_PARAM_H */
+# endif /* no _SC_PAGESIZE */
+
+#endif /* no HAVE_GETPAGESIZE */
+
+#ifdef __cplusplus
+extern "C" { void *malloc(unsigned); }
+#else
+char *malloc();
+#endif
+
+int
+main()
+{
+	char *data, *data2, *data3;
+	int i, pagesize;
+	int fd;
+
+	pagesize = getpagesize();
+
+	/*
+	 * First, make a file with some known garbage in it.
+	 */
+	data = malloc(pagesize);
+	if (!data)
+		exit(1);
+	for (i = 0; i < pagesize; ++i)
+		*(data + i) = rand();
+	umask(0);
+	fd = creat("conftestmmap", 0600);
+	if (fd < 0)
+		exit(1);
+	if (write(fd, data, pagesize) != pagesize)
+		exit(1);
+	close(fd);
+
+	/*
+	 * Next, try to mmap the file at a fixed address which
+	 * already has something else allocated at it.  If we can,
+	 * also make sure that we see the same garbage.
+	 */
+	fd = open("conftestmmap", O_RDWR);
+	if (fd < 0)
+		exit(1);
+	data2 = malloc(2 * pagesize);
+	if (!data2)
+		exit(1);
+	data2 += (pagesize - ((int) data2 & (pagesize - 1))) & (pagesize - 1);
+	if (data2 != mmap(data2, pagesize, PROT_READ | PROT_WRITE,
+	    MAP_PRIVATE | MAP_FIXED, fd, 0L))
+		exit(1);
+	for (i = 0; i < pagesize; ++i)
+		if (*(data + i) != *(data2 + i))
+			exit(1);
+
+	/*
+	 * Finally, make sure that changes to the mapped area
+	 * do not percolate back to the file as seen by read().
+	 * (This is a bug on some variants of i386 svr4.0.)
+	 */
+	for (i = 0; i < pagesize; ++i)
+		*(data2 + i) = *(data2 + i) + 1;
+	data3 = malloc(pagesize);
+	if (!data3)
+		exit(1);
+	if (read(fd, data3, pagesize) != pagesize)
+		exit(1);
+	for (i = 0; i < pagesize; ++i)
+		if (*(data + i) != *(data3 + i))
+			exit(1);
+	close(fd);
+	unlink("conftestmmap");
+	exit(0);
+}
+
+configure:2492: checking whether we are using the GNU C Library 2.1 or newer
+configure:2912: checking for iconv
+configure:2930: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:2991: checking for msgfmt
+configure:3026: checking for gmsgfmt
+configure:3063: checking for xgettext
+configure:3100: checking for msgmerge
+configure:3163: checking for argz.h
+configure:3173: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:3163: checking for limits.h
+configure:3173: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:3163: checking for locale.h
+configure:3163: checking for nl_types.h
+configure:3173: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:3163: checking for malloc.h
+configure:3173: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:3163: checking for stddef.h
+configure:3173: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:3163: checking for stdlib.h
+configure:3163: checking for string.h
+configure:3163: checking for unistd.h
+configure:3163: checking for sys/param.h
+configure:3173: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:3204: checking for feof_unlocked
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for fgets_unlocked
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for getc_unlocked
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for getcwd
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for getegid
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for geteuid
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for getgid
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for getuid
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for mempcpy
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3216:6: warning: conflicting types for built-in function 'mempcpy'; expected 'void *(void *, const void *, long unsigned int)' [-Wbuiltin-declaration-mismatch]
+ 3216 | char $ac_func();
+      |      ^~~~~~~
+configure:3204: checking for munmap
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for putenv
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for setenv
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for setlocale
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for stpcpy
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3216:6: warning: conflicting types for built-in function 'stpcpy'; expected 'char *(char *, const char *)' [-Wbuiltin-declaration-mismatch]
+ 3216 | char $ac_func();
+      |      ^~~~~~
+configure:3204: checking for strcasecmp
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3216:6: warning: conflicting types for built-in function 'strcasecmp'; expected 'int(const char *, const char *)' [-Wbuiltin-declaration-mismatch]
+ 3216 | char $ac_func();
+      |      ^~~~~~~~~~
+configure:3204: checking for strdup
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3216:6: warning: conflicting types for built-in function 'strdup'; expected 'char *(const char *)' [-Wbuiltin-declaration-mismatch]
+ 3216 | char $ac_func();
+      |      ^~~~~~
+configure:3204: checking for strtoul
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for tsearch
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for __argz_count
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for __argz_stringify
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3204: checking for __argz_next
+configure:3232: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3261: checking for iconv declaration
+configure:3286: gcc -c -g -O2  conftest.c 1>&5
+configure:3310: checking for nl_langinfo and CODESET
+configure:3322: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3345: checking for LC_MESSAGES
+configure:3357: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure:3383: checking for bison
+configure:3416: checking version of bison
+configure:3443: checking whether NLS is requested
+configure:3467: checking whether included gettext is requested
+configure:3487: checking for GNU gettext in libc
+configure:3502: gcc -o conftest -g -O2   conftest.c -lncurses  1>&5
+configure: In function 'main':
+configure:3498:8: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+ 3498 | return (int) gettext ("") + _nl_msg_cat_cntr + *_nl_domain_bindings
+      |        ^
+configure:4386: checking whether to enable flat install locations
+configure:4441: checking for dirent.h that defines DIR
+configure:4454: gcc -c -g -O2 -DTNT_LINUX  conftest.c 1>&5
+configure:4479: checking for opendir in -ldir
+configure:4498: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -ldir  -lncurses  1>&5
+/usr/bin/ld: cannot find -ldir
+collect2: error: ld returned 1 exit status
+configure: failed program was:
+#line 4487 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char opendir();
+
+int main() {
+opendir()
+; return 0; }
+configure:4562: checking for ANSI C header files
+configure:4666: checking for sys/wait.h that is POSIX.1 compatible
+configure:4711: checking for errno.h
+configure:4711: checking for fcntl.h
+configure:4711: checking for sys/ioctl.h
+configure:4711: checking for sys/signal
+configure:4721: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:4717:10: fatal error: sys/signal: No such file or directory
+ 4717 | #include <$ac_hdr>
+      |          ^~~~~~~~~   
+compilation terminated.
+configure: failed program was:
+#line 4716 "configure"
+#include "confdefs.h"
+#include <sys/signal>
+configure:4711: checking for sys/time.h
+configure:4711: checking for termcap.h
+configure:4721: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:4711: checking for termio.h
+configure:4721: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:4711: checking for unistd.h
+configure:4749: checking for working const
+configure:4824: checking for pid_t
+configure:4857: checking for size_t
+configure:4890: checking for uid_t in sys/types.h
+configure:4924: checking whether time.h and sys/time.h may both be included
+configure:4938: gcc -c -g -O2 -DTNT_LINUX  conftest.c 1>&5
+configure:4959: checking whether struct tm is in sys/time.h or time.h
+configure:4972: gcc -c -g -O2 -DTNT_LINUX  conftest.c 1>&5
+configure:4995: checking whether gcc needs -traditional
+configure:5041: checking return type of signal handlers
+configure:5063: gcc -c -g -O2 -DTNT_LINUX  conftest.c 1>&5
+configure:5082: checking whether utime accepts a null argument
+configure:5103: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5095:1: warning: return type defaults to 'int' [-Wimplicit-int]
+ 5095 | main() {
+      | ^~~~
+configure: In function 'main':
+configure:5097:1: warning: implicit declaration of function 'exit' [-Wimplicit-function-declaration]
+ 5097 | exit(!(stat ("conftestdata", &s) == 0 && utime("conftestdata", (long *)0) == 0
+      | ^~~~
+configure:5097:1: warning: incompatible implicit declaration of built-in function 'exit'
+configure:5095:1: note: include '<stdlib.h>' or provide a declaration of 'exit'
+ 5094 | #include <sys/stat.h>
+  +++ |+#include <stdlib.h>
+ 5095 | main() {
+configure:5097:42: warning: implicit declaration of function 'utime'; did you mean 'futimens'? [-Wimplicit-function-declaration]
+ 5097 | exit(!(stat ("conftestdata", &s) == 0 && utime("conftestdata", (long *)0) == 0
+      |                                          ^~~~~
+      |                                          futimens
+configure:5129: checking for getcwd
+configure:5129: checking for gettimeofday
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5129: checking for mkdir
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5129: checking for mktime
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5129: checking for select
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5129: checking for socket
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5129: checking for strdup
+configure:5129: checking for strerror
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5129: checking for strstr
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5141:6: warning: conflicting types for built-in function 'strstr'; expected 'char *(const char *, const char *)' [-Wbuiltin-declaration-mismatch]
+ 5141 | char $ac_func();
+      |      ^~~~~~
+configure:5138:1: note: 'strstr' is declared in header '<string.h>'
+ 5137 | #include <assert.h>
+  +++ |+#include <string.h>
+ 5138 | /* Override any gcc2 internal prototype to avoid an error.  */
+configure:5129: checking for strtoul
+configure:5129: checking for usleep
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5129: checking for srandom
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5129: checking for index
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5141:6: warning: conflicting types for built-in function 'index'; expected 'char *(const char *, int)' [-Wbuiltin-declaration-mismatch]
+ 5141 | char $ac_func();
+      |      ^~~~~
+configure:5129: checking for memmove
+configure:5157: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lncurses  1>&5
+configure:5141:6: warning: conflicting types for built-in function 'memmove'; expected 'void *(void *, const void *, long unsigned int)' [-Wbuiltin-declaration-mismatch]
+ 5141 | char $ac_func();
+      |      ^~~~~~~
+configure:5138:1: note: 'memmove' is declared in header '<string.h>'
+ 5137 | #include <assert.h>
+  +++ |+#include <string.h>
+ 5138 | /* Override any gcc2 internal prototype to avoid an error.  */
+configure:5233: checking for cmdtool
+configure:5233: checking for editor
+configure:5275: checking whether to enable sound support
+configure:5306: checking which language to use from {en de fr}
+configure:5332: checking whether to enable support for DPBOXT
+configure:5355: checking whether to enable newuser generation
+configure:5379: checking whether to enable ax25 kernel support
+configure:5565: checking whether to enable ax25 kernel v2.2.x support
+configure:5584: checking for working netax25/ax25.h header file
+configure:5610: checking for working netrom/netrom.h header file
+configure:5636: checking for working netrose/rose.h header file
+configure:5663: checking for ax25_config_load_ports in -lax25
+configure:5682: gcc -o conftest -g -O2 -DTNT_LINUX   conftest.c -lax25  -lncurses  -lax25 1>&5
+configure:5705: checking for netax25/procutils.h
+configure:5715: gcc -E  conftest.c >/dev/null 2>conftest.out
+configure:5753: checking whether to enable HIBAUD
