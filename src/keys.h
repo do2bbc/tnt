@@ -148,6 +148,7 @@ static struct func_keys special_keys[] = {
  {"\0330",	2,10},		/* ALT-0 */
  {"\033-",	2,11},		/* ALT-- */
  {"\033=",	2,12}		/* ALT-= */
+
 };
 
 #define NUMFUNC 119 /* number key definitions */

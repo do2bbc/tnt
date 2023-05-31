@@ -21,14 +21,14 @@ extern int charconv;
 extern int ibm_umlaut_flag;
 
 static struct codeconv_tab codeconv_tab[] = {
-  {0x8E,0xC4,'A','e'}, /* Ae */
-  {0x99,0xD6,'O','e'}, /* Oe */
-  {0x9A,0xDC,'U','e'}, /* Ue */
-  {0x84,0xE4,'a','e'}, /* ae */
-  {0x94,0xF6,'o','e'}, /* oe */
-  {0x81,0xFC,'u','e'}, /* ue */
-  {0xE1,0xDF,'s','s'}, /* ss */
-  {0x9E,0xDF,'s','s'}, /* ss atari */
+  {0x84,0x84,'A','e'}, /* Ae */
+  {0x96,0x96,'O','e'}, /* Oe */
+  {0x9C,0x9C,'U','e'}, /* Ue */
+  {0xA4,0xA4,'a','e'}, /* ae */
+  {0xB6,0xB6,'o','e'}, /* oe */
+  {0xBC,0xBC,'u','e'}, /* ue */
+  {0x9F,0x9F,'s','s'}, /* ss */
+  {0xDF,0xDF,'s','s'}, /* ss atari */
   {0,0,0,0}
 };
 
@@ -118,12 +118,12 @@ char *newcode2;
   
   for (i = 0; (codeconv_tab[i].conv_code != 0); i++) {
     if (code == codeconv_tab[i].conv_code) {
-      if (!umlaut) {
+      if (umlaut) {
         *newcode1 = codeconv_tab[i].conv_code1;
         *newcode2 = codeconv_tab[i].conv_code2;
         return(2);
       }
-      else if (!charconv) {
+      else if (charconv) {
         *newcode1 = codeconv_tab[i].code;
         return(1);
       }

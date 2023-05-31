@@ -11,15 +11,15 @@
 #define MINCOLS 80
 #define MAXCOLS 160
 
-#define BELL	  '\007'
-#define BS        '\010'
-#define TAB       '\011'
-#define LF	  '\012'
-#define CR	  '\015'
-#define ESC	  '\033'
-#define SPACE	  ' '
-#define DEL	  '\177'
-#define ESC2	  '\233'
+#define BELL	'\007'
+#define BS	'\010'
+#define TAB	'\011'
+#define LF	'\012'
+#define CR	'\015'
+#define ESC	'\033'
+#define SPACE	'\040'
+#define DEL	'\177'
+#define ESC2	'\233'
 
 struct window {
   char *window_buffer;	/* pointer to buffer for window data */

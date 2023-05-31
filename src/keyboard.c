@@ -1278,9 +1278,9 @@ char *ch;
         sel_help();
         break;
 #ifdef USE_IFACE
-      case C_MAILBOX:
+/*      case C_MAILBOX:
         sel_mailbox();
-        break;
+        break; */
 #endif
 #ifndef DPBOXT    
       case C_CHANNEL:
@@ -1364,7 +1364,7 @@ char *ch;
         if ((wordwrap_flag) && (pre_lineend(act_channel)))
           input_len = pre_wordwrap(act_channel,input_str);
         if(*ch >= 0x80) {
-          cnt = conv_local_to_umlaut(*ch, &newch1, &newch2);
+          cnt = conv_local_to_umlaut(*ch,&newch1,&newch2);
           if (cnt) {
             pre_charout(act_channel, newch1);
             if(cnt==2) {

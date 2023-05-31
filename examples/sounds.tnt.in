@@ -15,7 +15,7 @@
 
 # your soundplayer. some example handling with my "play"
 # should be in $PATH when complete path is not explicitly given
-0 @tnt_sound_dir@/play
+0 /usr/bin/aplay
 
 # Each soundfile will be expanded to tnt_sound_dir, if path isn't explicitly
 # given!

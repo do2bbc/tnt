@@ -500,4 +500,5 @@ struct staterr {
 #include <netax25/ax25.h>
 #include <netax25/axconfig.h>
 #endif
+
 #include <time.h>
