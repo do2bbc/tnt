@@ -1,18 +1,25 @@
-dnl configure.in for tnt, 2002/11/17
-AC_INIT(src/main.c)
-AC_CANONICAL_SYSTEM
-AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(tnt,1.9.2)
+dnl configure.ac for tnt, 2002/11/17
+AC_PREREQ([2.69])
+AC_INIT([tnt], [1.9.2])
+AC_CONFIG_SRCDIR([src/main.c])
+AC_CONFIG_HEADERS([config.h])
+AC_CANONICAL_HOST
+AM_INIT_AUTOMAKE([foreign])
+AC_CONFIG_MACRO_DIRS([m4])
+AC_USE_SYSTEM_EXTENSIONS
+
+AH_TEMPLATE([ENABLE_NLS], [Define to 1 if NLS is requested.])
+AH_TEMPLATE([HAVE_CATGETS], [Define as 1 if you have catgets and don't want to use GNU gettext.])
+AH_TEMPLATE([HAVE_GETTEXT], [Define as 1 if you have gettext and don't want to use GNU gettext.])
+AH_TEMPLATE([HAVE_LC_MESSAGES], [Define if your locale.h file contains LC_MESSAGES.])
 
 dnl Available languages
 ALL_LINGUAS="de fr"
 
 AC_PROG_CC
-AC_ISC_POSIX
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
-AC_HEADER_STDC
 AC_CHECK_HEADERS(fcntl.h strings.h sys/ioctl.h sys/time.h unistd.h \
 		 signal.h string.h ctype.h time.h dirent.h sys/stat.h \
 		 sys/types.h sys/wait.h errno.h libintl.h locale.h)
@@ -47,7 +54,7 @@ tnt_proc_dir=${prefix}/tnt
 tnt_bin_dir=${prefix}/libexec/tnt
 tnt_sound_dir=${prefix}/tnt/sounds
 
-case "$target" in
+case "$host" in
 	*-*-netbsd*)
 		CFLAGS="$CFLAGS -DTNT_NETBSD"
 		AC_DEFINE([DIR_STRING],"ls -la ",[Command to list directory])
@@ -167,7 +174,7 @@ case "$target" in
 	;;
 
 	*)
-		AC_MSG_ERROR("$target is currently not supported")
+		AC_MSG_ERROR("$host is currently not supported")
 	;;
 
 esac
@@ -218,7 +225,6 @@ AC_SUBST(tnt_sound_dir)
 
 dnl Checks for header files.
 AC_HEADER_DIRENT
-AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_HEADERS(errno.h fcntl.h sys/ioctl.h sys/signal sys/time.h termcap.h termio.h unistd.h)
 
@@ -227,13 +233,10 @@ AC_C_CONST
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_UID_T
-AC_HEADER_TIME
 AC_STRUCT_TM
 dnl AC_CHECK_TYPE(u_int32_t, unsigned long)
 
 dnl Checks for library functions.
-AC_PROG_GCC_TRADITIONAL
-AC_TYPE_SIGNAL
 AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(getcwd gettimeofday mkdir mktime select socket strdup strerror strstr strtoul usleep srandom index memmove)
 
@@ -358,7 +361,7 @@ AC_ARG_ENABLE(ax25k2, [ --enable-ax25k2              use the Linux AX25 Kernel 2
 
 		dnl Checks for working glibc 2.1 headers (stolen fm ax25-apps)
 		AC_MSG_CHECKING(for working netax25/ax25.h header file)
-		AC_HEADER_EGREP(ax25_fwd_struct, netax25/ax25.h, has_ax25=yes, has_ax25=no)
+		AC_EGREP_HEADER(ax25_fwd_struct, netax25/ax25.h, has_ax25=yes, has_ax25=no)
 		if test "$has_ax25" = "yes" ; then
 			AC_DEFINE([HAVE_NETAX25_AX25_H],1,[if we have NETAX25_AX25_H])
 			AC_MSG_RESULT(yes)
@@ -366,7 +369,7 @@ AC_ARG_ENABLE(ax25k2, [ --enable-ax25k2              use the Linux AX25 Kernel 2
 			AC_MSG_RESULT(no)
 		fi
 			AC_MSG_CHECKING(for working netrom/netrom.h header file)
-			AC_HEADER_EGREP(unsigned int ndigis, netrom/netrom.h, has_netrom=yes, has_netrom=no)
+			AC_EGREP_HEADER(unsigned int ndigis, netrom/netrom.h, has_netrom=yes, has_netrom=no)
 		if test "$has_netrom" = "yes" ; then
 			AC_DEFINE([HAVE_NETROM_NETROM_H],1,[have we the netrom headers])
 			AC_MSG_RESULT(yes)
@@ -374,7 +377,7 @@ AC_ARG_ENABLE(ax25k2, [ --enable-ax25k2              use the Linux AX25 Kernel 2
 			AC_MSG_RESULT(no)
 		fi
 			AC_MSG_CHECKING(for working netrose/rose.h header file)
-			AC_HEADER_EGREP(rose_facilities_struct, netrose/rose.h, has_rose=yes, has_rose=no)
+			AC_EGREP_HEADER(rose_facilities_struct, netrose/rose.h, has_rose=yes, has_rose=no)
 		if test "$has_rose" = "yes" ; then
 			AC_DEFINE([HAVE_NETROSE_ROSE_H],1,[have we the rose headers])
 			AC_MSG_RESULT(yes)
@@ -414,13 +417,27 @@ AC_DEFINE_UNQUOTED([TNT_MAIN_PATH], "${tnt_log_dir}", [path for logfiles])
 AC_SUBST(cwax25)
 AC_SUBST(gennewuser)
 
-AC_OUTPUT(conf/tnt_setup.de conf/tnt_setup.en conf/tnt_setup.fr \
-	  conf/Makefile doc/Makefile doc/solaris/Makefile \
-	  examples/sounds.tnt examples/tnt.ini examples/tntc.ini \
-	  examples/sounds/Makefile examples/Makefile \
-	  intl/Makefile po/Makefile.in \
-	  src/Makefile src/runprgs/tntrun.h src/runprgs/Makefile \
-	  Makefile)
-  
-AC_MSG_RESULT("---- Check ok. Type now \"make\" to compile and then \"make install\" to install.")
+AC_CONFIG_FILES([
+	conf/tnt_setup.de
+	conf/tnt_setup.en
+	conf/tnt_setup.fr
+	conf/Makefile
+	doc/Makefile
+	doc/solaris/Makefile
+	examples/sounds.tnt
+	examples/tnt.ini
+	examples/tntc.ini
+	examples/sounds/Makefile
+	examples/Makefile
+	intl/Makefile
+	po/Makefile.in
+	src/Makefile
+	src/runprgs/tntrun.h
+	src/runprgs/Makefile
+	Makefile
+])
+
+AC_OUTPUT
+
+AC_MSG_NOTICE([---- Check ok. Type now "make" to compile and then "make install" to install.])
 

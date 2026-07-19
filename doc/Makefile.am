@@ -8,8 +8,8 @@ setupdoc_DATA	= Readme1.de Readme2.de Readme3.de Readme4.de Readme5.de Readme6.d
 		  ax25krnl.doc iface.doc tnt.doc.de tnt.doc.en tnt.doc.fr \
 		  tntdoc.dvi tntdoc.html
 
-infodir		= @infodir@
-info_DATA 	= tntdoc.info tntdoc.info-1 tntdoc.info-2 tntdoc.info-3 tntdoc.info-4
+tntinfodir	= @infodir@
+tntinfo_DATA 	= tntdoc.info tntdoc.info-1 tntdoc.info-2 tntdoc.info-3 tntdoc.info-4
 
-EXTRA_DIST	= FILES tntdoc.texi $(setupdoc_DATA) $(info_DATA)
+EXTRA_DIST	= FILES tntdoc.texi $(setupdoc_DATA) $(tntinfo_DATA)
 

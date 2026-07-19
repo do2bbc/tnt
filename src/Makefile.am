@@ -46,11 +46,11 @@ tnt_SOURCES = ax25dump.c \
 	      xmon.h \
 	      yapp.c
 
-tntc_sources = tntc.c tnt.h
+tntc_SOURCES = tntc.c tnt.h
 
 LIBS = @INTLLIBS@ @LIBS@
 tnt_LDADD = @INTLLIBS@
 tntc_LDADD = @INTLLIBS@
 localedir = $(datadir)/locale
-INCLUDES = @CPPFLAGS@ -I../intl -DLOCALEDIR=\"$(localedir)\" -funsigned-char
+AM_CPPFLAGS = @CPPFLAGS@ -I../intl -DLOCALEDIR=\"$(localedir)\" -funsigned-char
 
