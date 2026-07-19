@@ -5,11 +5,12 @@ use_select 1
 # --------------------------------------------------------------------------
 
 # 0 for real TNC at serial port, 1 for TFKISS on a UNIX-socket,
-# 2 for TFKISS on other socket
+# 2 for TFKISS on network socket (TCP),
+# 3 for AX25UDP on network socket (UDP)
 soft_tnc 0
 
-# serial port to which TNC is connected, UNIX-socket of TFKISS or
-# other socket for TFKISS
+# serial port to which TNC is connected, UNIX-socket of TFKISS,
+# network socket for TFKISS (host:port) or AX25UDP (host:port)
 device /dev/ttyS0
 
 # lockfile for serial port or TFKISS

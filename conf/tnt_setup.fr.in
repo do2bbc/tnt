@@ -183,10 +183,11 @@ sel_tnc_type()
 {
   dialog --title "Type de TNC" \
          --backtitle "Selection..." \
-         --menu "Choix:" 10 60 3 \
+         --menu "Choix:" 11 60 4 \
          TYP0 "TNC reel sur port serie" \
          TYP1 "TFKISS sur Unix-socket" \
          TYP2 "TFKISS sur network-socket" \
+         TYP3 "AX25UDP sur network-socket" \
          2>/tmp/$$
   if [ ! $? = 0 ] ; then
     return
@@ -205,6 +206,10 @@ sel_tnc_type()
           DEF_ADD_STR="stnc-netw"
           LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
           DEVICE=$DEFTYP2;;
+        TYP3) SOFTTNC=3
+          DEF_ADD_STR="stnc-udp"
+          LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
+          DEVICE=$DEFTYP3;;
   esac
 }
 
@@ -249,6 +254,7 @@ tnc_menu()
       0) TYPDES="real TNC";;
       1) TYPDES="TFKISS on Unix-socket";;
       2) TYPDES="TFKISS on network-socket";;
+      3) TYPDES="AX25UDP on network-socket";;
     esac
     dialog --title "Configuration TNC" \
            --backtitle "Selection..." \
@@ -478,11 +484,11 @@ use_select 0
 # --------------------------------------------------------------------------
 
 # 0 pour un TNC reel sur le port serie, 1 pour TFKiss sur un socket UNIX
-#                                       2 pour TFKiss sur un autre socket
+# 2 pour TFKiss sur socket reseau (TCP), 3 pour AX25UDP sur socket reseau (UDP)
 soft_tnc $SOFTTNC
 
-# Port serie sur lequel le TNC est connecte, socket UNIX de TFKiss ou 
-# autre socket pour TFKiss
+# Port serie sur lequel le TNC est connecte, socket UNIX de TFKiss,
+# socket reseau pour TFKiss (hote:port) ou AX25UDP (hote:port)
 #
 device $DEVICE
 
