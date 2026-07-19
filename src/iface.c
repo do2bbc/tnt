@@ -362,7 +362,7 @@ static void queue_if_data(int iface,int len,char *buffer)
   }
   else {
     if ((res = write(if_list[iface].sockfd,
-                   buffer,len+HEAD_LEN)) < len+HEAD_LEN) {
+                   buffer,len+HEAD_LEN)) < (int)(len+HEAD_LEN)) {
       close_iface(iface,0,1,1);
       return;
     }
@@ -426,9 +426,7 @@ void check_uireq(char *buffer)
 
 /* Set permanent mycall */
 void cmd_accuicall(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -517,7 +515,8 @@ int iface;
         strcat(hlpstr,p1str);
         queue_cmd_data(con_channel,X_COMM,strlen(hlpstr),M_CMDSCRIPT,hlpstr);
         update_owncall(con_channel,p1str);
-        sprintf(hlpstr,"%s%s %d",h2,p2str,rec_command->data.connect.timeout);
+        snprintf(hlpstr, sizeof(hlpstr), "%.15s%.200s %d",
+           h2, p2str, rec_command->data.connect.timeout);
         cmd_xconnect_ext(2,iface,usernr,
                      con_channel,strlen(hlpstr),M_CONNECT,hlpstr);
       }
@@ -739,7 +738,7 @@ int iface;
   header.len = len;
   memcpy(buffer,(char *)&header,HEAD_LEN);
   memcpy(buffer + HEAD_LEN,buf,len);
-  if ((res = write(if_list[iface].sockfd,buffer,len+HEAD_LEN)) < len+HEAD_LEN) {
+  if ((res = write(if_list[iface].sockfd,buffer,len+HEAD_LEN)) < (int)(len+HEAD_LEN)) {
     close_iface(iface,0,1,1);
     return;
   }
@@ -764,7 +763,7 @@ char *buf;
   header.len = len;
   memcpy(buffer,(char *)&header,HEAD_LEN);
   memcpy(buffer + HEAD_LEN,buf,len);
-  if ((res = write(if_list[iface].sockfd,buffer,len+HEAD_LEN)) < len+HEAD_LEN) {
+  if ((res = write(if_list[iface].sockfd,buffer,len+HEAD_LEN)) < (int)(len+HEAD_LEN)) {
     close_iface(iface,0,1,1);
     return;
   }
@@ -984,7 +983,7 @@ char *str;
   }
   else {
     if ((res = write(if_list[iface].sockfd,
-                   buffer,len+HEAD_LEN)) < len+HEAD_LEN) {
+                   buffer,len+HEAD_LEN)) < (int)(len+HEAD_LEN)) {
       close_iface(iface,0,1,1);
       return;
     }
@@ -1039,7 +1038,7 @@ int iface;
   bufptr = buffer;
   remain = len;
   while (remain) {
-    if (if_list[iface].status < HEAD_LEN) {
+    if (if_list[iface].status < (int)HEAD_LEN) {
       *(((char *)&if_list[iface].header) + if_list[iface].status) = *bufptr;
       if_list[iface].status++;
       remain--;
@@ -1088,11 +1087,8 @@ void sigalarm()
 
 /* install link to other program */
 void cmd_iface(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int sockfd;
@@ -1176,11 +1172,8 @@ char *str;
 
 /* cut link to other program */
 void cmd_endiface(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int iface;
@@ -1208,11 +1201,8 @@ char *str;
 
 /* finish execution of other program */
 void cmd_finiface(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int iface;
@@ -1249,8 +1239,7 @@ int par1;
 int par2;
 int par3;
 int channel;
-int len;
-int mode;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int iface;
@@ -1365,11 +1354,8 @@ char *str;
 
 /* deactivate link to other program */
 void cmd_deactiface(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int iface;
@@ -1585,10 +1571,8 @@ void cmd_actbox(par1,par2,channel,len,mode,str)
 int par1;
 int par2;
 int channel;
-int len;
-int mode;
-char *str;
-{
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   /* MH: dpbox shouldn't be activated, if user don't want it */
   if(strcmp(box_socket, "0") != 0)
     cmd_iface(par1,par2,channel,strlen(box_socket),mode,box_socket);
@@ -1599,10 +1583,8 @@ void cmd_deactbox(par1,par2,channel,len,mode,str)
 int par1;
 int par2;
 int channel;
-int len;
-int mode;
-char *str;
-{
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   cmd_endiface(par1,par2,channel,strlen(box_socket),mode,box_socket);
 }
 
@@ -1611,10 +1593,8 @@ void cmd_finbox(par1,par2,channel,len,mode,str)
 int par1;
 int par2;
 int channel;
-int len;
-int mode;
-char *str;
-{
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   cmd_finiface(par1,par2,channel,strlen(box_socket),mode,box_socket);
 }
 
@@ -1623,8 +1603,7 @@ void cmd_box(par1,par2,channel,len,mode,str)
 int par1;
 int par2;
 int channel;
-int len;
-int mode;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int i;
@@ -1644,10 +1623,8 @@ void cmd_endbox(par1,par2,channel,len,mode,str)
 int par1;
 int par2;
 int channel;
-int len;
-int mode;
-char *str;
-{
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   cmd_deactiface(par1,par2,channel,strlen(box_socket),mode,box_socket);
 }
 

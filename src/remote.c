@@ -315,7 +315,7 @@ struct sysoplist **sysoplist_ptr;
   
   if (strlen(str1) > 9) return(1); /* callsign maximum 9 characters */
   sysoplist_wrk = (struct sysoplist *)malloc(sizeof(struct sysoplist));
-  for (i=0;i<strlen(str1);i++) {
+  for (i=0;i<(int)strlen(str1);i++) {
     sysoplist_wrk->callsign[i] = toupper(str1[i]);
   }
   sysoplist_wrk->callsign[i] = '\0';
@@ -387,7 +387,6 @@ static void load_sysfile()
   }
   fclose(sys_file_fp);
   if (file_corrupt) {
-    if (line == NULL) line[0] = '\0';
     cmd_display(M_COMMAND,0,
       _("WARNING: sysfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
@@ -446,7 +445,7 @@ static void load_noremfile()
           if (strlen(line) <= 9) {
             noremlist_wrk = 
               (struct noremlist *)malloc(sizeof(struct noremlist));
-            for (i=0;i<strlen(line);i++) {
+            for (i=0;i<(int)strlen(line);i++) {
               noremlist_wrk->callsign[i] = toupper(line[i]);
             }
             noremlist_wrk->callsign[i] = '\0';
@@ -470,7 +469,6 @@ static void load_noremfile()
   }
   fclose(norem_file_fp);
   if (file_corrupt) {
-    if (line == NULL) line[0] = '\0';
     cmd_display(M_COMMAND,0,
       _("WARNING: noremfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
@@ -529,7 +527,7 @@ static void load_flchkfile()
           if (strlen(line) <= 9) {
             flchklist_wrk = 
               (struct flchklist *)malloc(sizeof(struct flchklist));
-            for (i=0;i<strlen(line);i++) {
+            for (i=0;i<(int)strlen(line);i++) {
               flchklist_wrk->callsign[i] = toupper(line[i]);
             }
             flchklist_wrk->callsign[i] = '\0';
@@ -553,7 +551,6 @@ static void load_flchkfile()
   }
   fclose(flchk_file_fp);
   if (file_corrupt) {
-    if (line == NULL) line[0] = '\0';
     cmd_display(M_COMMAND,0,
       _("WARNING: flchkfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
@@ -612,7 +609,7 @@ static void load_notownfile()
           if (strlen(line) <= 9) {
             notownlist_wrk = 
               (struct notownlist *)malloc(sizeof(struct notownlist));
-            for (i=0;i<strlen(line);i++) {
+            for (i=0;i<(int)strlen(line);i++) {
               notownlist_wrk->callsign[i] = toupper(line[i]);
             }
             notownlist_wrk->callsign[i] = '\0';
@@ -636,7 +633,6 @@ static void load_notownfile()
   }
   fclose(notown_file_fp);
   if (file_corrupt) {
-    if (line == NULL) line[0] = '\0';
     cmd_display(M_COMMAND,0,
       _("WARNING: notownfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
@@ -698,7 +694,7 @@ static void load_autostartfile()
           i = 0;
           while ((*ptr == ' ') || (*ptr == TAB)) ptr++;
           while ((*ptr != ' ') && (*ptr != TAB) && 
-                 (*ptr != '\0') && (i < 10)) {
+               (*ptr != '\0') && (i < (int)(sizeof(callsign) - 1))) {
             callsign[i] = toupper(*ptr);
             ptr++;
             i++;
@@ -736,7 +732,6 @@ static void load_autostartfile()
   }
   fclose(autostart_file_fp);
   if (file_corrupt) {
-    if (line == NULL) line[0] = '\0';
     cmd_display(M_COMMAND,0,
       _("WARNING: autostartfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
@@ -861,7 +856,6 @@ static void load_extremotefile()
   }
   fclose(extremote_file_fp);
   if (file_corrupt) {
-    if (line == NULL) line[0] = '\0';
     cmd_display(M_COMMAND,0,
       _("WARNING: extremotefile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
@@ -1069,7 +1063,7 @@ int len;
       ptr2 = strrchr(ptr1,'\\');
       if (ptr2 == NULL) ptr2 = ptr1;
       sprintf(filename,"%s%s",tnt_7plus_dir,ptr2);
-      for (i = 0;i < strlen(filename);i++)
+      for (i = 0;i < (int)strlen(filename);i++)
         filename[i] = tolower(filename[i]);
 
       i = 1;
@@ -1125,7 +1119,7 @@ int len;
   char *pcInfo;
   int typ;
   int errflag;
-  int result;
+  int tmpfd;
 
   if (rx_file[channel].type == RX_PGP) {
     /* already receiving file, just check for endstring */
@@ -1142,9 +1136,13 @@ int len;
       close_rxfile2(channel,0,0);
 
       strcpy(tmpstdoutname,"/tmp/tnt_pgp_out.XXXXXX");
-      mktemp(tmpstdoutname); /* NO mkstemp() ! Think about it! */
+      tmpfd = mkstemp(tmpstdoutname);
+      if (tmpfd >= 0)
+        close(tmpfd);
       strcpy(tmpstderrname,"/tmp/tnt_pgp_err.XXXXXX");
-      mktemp(tmpstderrname); /* NO mkstemp() ! Think about it! */
+      tmpfd = mkstemp(tmpstderrname);
+      if (tmpfd >= 0)
+        close(tmpfd);
 
           if( typ == PGP_PUBLIC_KEY_BLOCK && !pgpkeyadd_flag ) {
               rem_data_display(channel,"(these keys will _not_ be added to your keyring)\r");
@@ -1182,7 +1180,7 @@ int len;
       strcat(cmdline,tmpstderrname);
 
           rem_data_display(channel,pcInfo); /* show "calling ..." */
-      result = system(cmdline);
+      system(cmdline);
 
           /* show output of gpg/pgp */
       rem_datei_display(channel,tmpstdoutname);
@@ -1205,7 +1203,9 @@ int len;
   if( typ ) { /* start recording pgp-data */
       /* Get tmp. filename */
       strcpy(filename,"/tmp/tnt_pgp.XXXXXX");
-      mktemp(filename); /* NO mkstemp() ! Think about it! */
+      tmpfd = mkstemp(filename);
+      if (tmpfd >= 0)
+        close(tmpfd);
       open_logfile(RX_PGP,RX_RCV,channel,strlen(filename),
                    M_CONNECT,filename);
       errflag = (rx_file[channel].type != RX_PGP);
@@ -1231,12 +1231,13 @@ int len;
   int start_bin;
   int umw;
   char tmpstr[10];
-  int flag;
+  int flag = 0;
   char *ptr;
   char file_str[256];
   int i;
   int fd;
   int display;
+  int tmpfd;
   
   display = 0;
 
@@ -1290,34 +1291,40 @@ int len;
   if (start_bin) {
     switch (umw) {
     case 1:
-      sprintf(rx_file[channel].binheader,"#BIN#%d",rx_file[channel].len);
+      snprintf(rx_file[channel].binheader, sizeof(rx_file[channel].binheader),
+               "#BIN#%d", rx_file[channel].len);
       break;
     case 2:
-      sprintf(rx_file[channel].binheader,"#BIN#%d#|%d",rx_file[channel].len,
-              rx_file[channel].crc);
+      snprintf(rx_file[channel].binheader, sizeof(rx_file[channel].binheader),
+               "#BIN#%d#|%d", rx_file[channel].len, rx_file[channel].crc);
       break;
     case 3:
-      sprintf(rx_file[channel].binheader,"#BIN#%d#|%d#$%s",rx_file[channel].len,
-              rx_file[channel].crc,date_str);
+      snprintf(rx_file[channel].binheader, sizeof(rx_file[channel].binheader),
+           "#BIN#%d#|%d#$%.19s", rx_file[channel].len,
+           rx_file[channel].crc, date_str);
       break;
     case 4:
       if (strlen(filename) > 45) {
         ptr = delete_path(filename);
       }
-      else
+        else {
         ptr = filename;
-      sprintf(rx_file[channel].binheader,"#BIN#%d#|%d#$%s#%s",
-              rx_file[channel].len,rx_file[channel].crc,date_str,ptr);
+        }
+        snprintf(rx_file[channel].binheader, sizeof(rx_file[channel].binheader),
+              "#BIN#%d#|%d#$%.19s#%.29s", rx_file[channel].len,
+              rx_file[channel].crc, date_str, ptr);
       break;
     }
     /* try to open file with received name */
     if (umw != 4) {
       sprintf(filename,"%sabinXXXXXX",download_dir);
-      mktemp(filename);
+      tmpfd = mkstemp(filename);
+      if (tmpfd >= 0)
+        close(tmpfd);
       ptr = strrchr(filename,'/') + 1;
     }
     else {
-      for (i=0;i<strlen(filename);i++) {
+      for (i=0;i<(int)strlen(filename);i++) {
         filename[i] = tolower(filename[i]);
       }
       ptr = delete_path(filename);
@@ -1325,7 +1332,9 @@ int len;
       if ((fd = open(file_str,O_RDONLY)) != -1) {
         close(fd);
         sprintf(filename,"%sabinXXXXXX",download_dir);
-        mktemp(filename);
+        tmpfd = mkstemp(filename);
+        if (tmpfd >= 0)
+          close(tmpfd);
         ptr = strrchr(filename,'/') + 1;
       }
     }
@@ -1367,7 +1376,7 @@ int autost;
   struct extremotelist *extremotelist_wrk;
   int invalid;
   int result;
-  int flag;
+  int flag = 0;
   char *str;
   int par2;
   int mode;
@@ -1409,7 +1418,7 @@ int autost;
     if (extremotelist_root != NULL) {
       extremotelist_wrk = extremotelist_root;
       while (extremotelist_wrk != NULL) {
-        if (strlen(com_string) >= extremotelist_wrk->minlen) {
+        if ((int)strlen(com_string) >= extremotelist_wrk->minlen) {
           if (strncmp(extremotelist_wrk->commstring,
                       com_string,strlen(com_string)) == 0) {
             level = extremotelist_wrk->level;
@@ -1502,7 +1511,7 @@ int autost;
       if (strstr(remote_list[j].string,com_string)
           == remote_list[j].string) {
         /* string found, now check if length valid */
-        if (strlen(com_string) >= remote_list[j].len) {
+        if ((int)strlen(com_string) >= remote_list[j].len) {
           found = 1;
         }
       }
@@ -1600,7 +1609,10 @@ int len;
           cmd_display(M_REMOTE,channel,rem_send_abort,1);
         }
         else {
-          sprintf(ans_str,"%s%s",rem_send_abort,rem_newlin_str);
+            strncpy(ans_str, rem_send_abort, sizeof(ans_str) - 1);
+            ans_str[sizeof(ans_str) - 1] = '\0';
+            strncat(ans_str, rem_newlin_str,
+              sizeof(ans_str) - 1 - strlen(ans_str));
           rem_data_display(channel,ans_str);
         }
         return(0);
@@ -1635,12 +1647,8 @@ int len;
 }
 
 static void rem_echo(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str;
 {
   int flag;
   char ans_str[256];
@@ -1653,13 +1661,8 @@ char *str;
 }
 
 static void rem_ring(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
   int flag;
   char ans_str[MAXCHAR];
   int ans_len;
@@ -1684,47 +1687,43 @@ char *str;
 }
 
 void rem_session(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
   time_t tnt_session;
   time_t session_time;
   int ans_len;
   char tmp_str[MAXCHAR];
   char ans_str[MAXCHAR*2];
+  int used;
 
   tnt_session = time(&tnt_session);
   session_time = tnt_session - tnt_startup;
-  sprintf(ans_str,_("<TNT>: Lifetime of this session: %ldd %ldh %ldm %lds%s"),
+  used = snprintf(ans_str, sizeof(ans_str),
+                  _("<TNT>: Lifetime of this session: %ldd %ldh %ldm %lds%s"),
                   (session_time / 86400), ((session_time / 3600)%24),
                   ((session_time / 60)%60), (session_time % 60),
                   rem_newlin_str);
 
   session_time = (tnt_session - tnt_startup) + session_sek;
-  sprintf(tmp_str,_("       Lifetime of TNT:          %ldd %ldh %ldm %lds%s"),
-                  (session_time / 86400), ((session_time / 3600)%24),
-                  ((session_time / 60)%60), (session_time % 60),
-                  rem_newlin_str);
-  ans_len = sprintf(ans_str,"%s%s",ans_str,tmp_str);
+  snprintf(tmp_str, sizeof(tmp_str),
+           _("       Lifetime of TNT:          %ldd %ldh %ldm %lds%s"),
+           (session_time / 86400), ((session_time / 3600)%24),
+           ((session_time / 60)%60), (session_time % 60),
+           rem_newlin_str);
+  if (used < 0) used = 0;
+  if (used >= (int)sizeof(ans_str)) used = (int)sizeof(ans_str) - 1;
+  snprintf(ans_str + used, sizeof(ans_str) - used, "%s", tmp_str);
+  ans_len = strlen(ans_str);
 
   rem_data_display(channel, ans_str);
   queue_cmd_data(channel,X_DATA,ans_len,0,ans_str);
 }
 
 void rem_act(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
-  char ans_str[MAXCHAR];
-  char tmp_str[20];
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
+  char ans_str[MAXCHAR * 2];
+  char tmp_str[32];
   time_t diffsec;
   time_t acttime;
   int days, hour, min;
@@ -1738,21 +1737,20 @@ char *str;
   hour = (diffsec / 3600) % 24;
   min  = (diffsec / 60)   % 60;
   diffsec %= 60;
-  if(days>0) sprintf(tmp_str,"%dd %dh %dm %lds",days,hour,min,diffsec);
-  else if(hour>0) sprintf(tmp_str,"%dh %dm %lds",hour,min,diffsec);
-  else if(min>0) sprintf(tmp_str,"%dm %lds",min,diffsec);
-  else sprintf(tmp_str, _("%ld seconds.") ,diffsec);
-  ans_len = sprintf(ans_str,"%s%s%s",ans_str,tmp_str,rem_newlin_str);
+  if(days>0) snprintf(tmp_str,sizeof(tmp_str),"%dd %dh %dm %lds",days,hour,min,diffsec);
+  else if(hour>0) snprintf(tmp_str,sizeof(tmp_str),"%dh %dm %lds",hour,min,diffsec);
+  else if(min>0) snprintf(tmp_str,sizeof(tmp_str),"%dm %lds",min,diffsec);
+  else snprintf(tmp_str,sizeof(tmp_str), _("%ld seconds.") ,diffsec);
+  snprintf(ans_str + strlen(ans_str), sizeof(ans_str) - strlen(ans_str),
+           "%s%s", tmp_str, rem_newlin_str);
+  ans_len = strlen(ans_str);
   rem_data_display(channel,ans_str);
   queue_cmd_data(channel,X_DATA,ans_len,0,ans_str);
 }
 
 void rem_setmsg(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   char ans_str[MAXCHAR];
@@ -1773,17 +1771,15 @@ char *str;
 }
 
 void rem_rtt(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
 {
   int flag;
-  char tmpstr[MAXCHAR], ans_str[MAXCHAR];
+  char ans_str[MAXCHAR];
   int ans_len;
-  char *p1, *p2;
+  char *p2;
   char hour, min, sec;
   struct tm *timep;
   time_t t;
@@ -1802,7 +1798,7 @@ char *str;
   }
   strcpy(ans_str, str);
   if (len >= 41) { 
-    p1 = strtok(ans_str, "$");
+    strtok(ans_str, "$");
     p2 = strtok(NULL, " ");
     if (p2 != NULL)  {
       tmplong = strtoul(p2, NULL, 10);
@@ -1827,7 +1823,7 @@ char *str;
     t = time(&t);
     timep = localtime(&t);
     sprintf(ans_str, "//ECHO //RTT Link time $%ld (%02d.%02d.%04d %02d:%02d:%02d)",
-            (unsigned int)t, timep->tm_mday, timep->tm_mon+1, timep->tm_year+1900,
+              (long)t, timep->tm_mday, timep->tm_mon+1, timep->tm_year+1900,
             timep->tm_hour, timep->tm_min, timep->tm_sec);
   }
   strcat(ans_str, rem_newlin_str);
@@ -1837,13 +1833,8 @@ char *str;
 }
 
 static void rem_version(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
   int flag;
   char ans_str[MAXCHAR];
   int ans_len;
@@ -1856,13 +1847,8 @@ char *str;
 }
 
 void rem_time(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
   struct tm *timestr;
   time_t timeval;
   char tmpstr[40];
@@ -1899,13 +1885,8 @@ int channel;
 
 /* send disc */
 static void rem_disc(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
   ch_stat[channel].queue_act = 0; /* Keine Auftraege mehr bearbeiten */
   end_comp(channel);
   queue_cmd_data(channel,X_COMM,1,M_CMDSCRIPT,"D");
@@ -1913,13 +1894,9 @@ char *str;
 
 /* send qtext and disc, some routines stolen from DL4YBG */
 static void rem_quit(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   char string[260];
   char tmpname[20];
   int result;
@@ -2000,13 +1977,9 @@ char *str;
 }
 
 static void rem_info(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int x_par1,x_par2;
   char ans_str[160];
   int ans_len;
@@ -2019,13 +1992,9 @@ char *str;
 }
 
 static void rem_help(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int x_par1,x_par2;
   char ans_str[160];
   int ans_len;
@@ -2038,13 +2007,9 @@ char *str;
 }
 
 static void rem_news(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int x_par1,x_par2;
   char ans_str[160];
   int ans_len;
@@ -2060,8 +2025,7 @@ void rem_dir(par1,par2,channel,len,mode,str)
 int par1;
 int par2;
 int channel;
-int len;
-int mode;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int x_par1;
@@ -2110,13 +2074,10 @@ char *str;
 }
 
 static void rem_free(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
+int par1 __attribute__((unused));int par2;
 int channel;
-int len;
-int mode;
-char *str;
-{
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int x_par1;
   int ans_len;
   char string[MAXCHAR];
@@ -2144,10 +2105,8 @@ void rem_cookie(par1,par2,channel,len,mode,str)
 int par1;
 int par2;
 int channel;
-int len;
-int mode;
-char *str;
-{
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int x_par1;
   int ans_len;
   char tmpname[20];
@@ -2270,13 +2229,10 @@ int channel;
 
 /* send the ctext */
 void rem_ctext(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
+int par1 __attribute__((unused));int par2;
 int channel;
-int len;
-int mode;
-char *str;
-{
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int x_par1;
   int ans_len;
   char string[160];
@@ -2337,9 +2293,7 @@ char *str;
 
 /* update names file */
 void rem_name(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -2385,11 +2339,9 @@ char *str;
 
 /* send a macro-textfile */
 void cmd_msend(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
+int par1 __attribute__((unused));int par2;
 int channel;
-int len;
-int mode;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int x_par1;
@@ -2448,9 +2400,7 @@ char *str;
 
 /* huffman en/decoding */
 void cmd_comp(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -2544,11 +2494,8 @@ char *str;
 
 /* display/change access level for remote commands */
 void cmd_setacc(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int i;
@@ -2561,7 +2508,7 @@ char *str;
   res = sscanf(str,"%s %s",com_string,tmpstr);
   if (res) {
     /* find string in remote-command-list */
-    for (i=0;i<strlen(com_string);i++)
+    for (i=0;i<(int)strlen(com_string);i++)
       com_string[i] = toupper(com_string[i]);
     found = 0;
     j = 0;
@@ -2569,7 +2516,7 @@ char *str;
       if (strstr(remote_list[j].string,com_string)
           == remote_list[j].string) {
         /* string found, now check if length valid */
-        if (strlen(com_string) >= remote_list[j].len) {
+        if ((int)strlen(com_string) >= remote_list[j].len) {
           found = 1;
         }
       }
@@ -2577,7 +2524,7 @@ char *str;
     }
     if (found) {
       if (res == 2) {
-        for (i=0;i<strlen(tmpstr);i++)
+        for (i=0;i<(int)strlen(tmpstr);i++)
           tmpstr[i] = toupper(tmpstr[i]);
         if (strncmp("NORMAL",tmpstr,strlen(tmpstr)) == 0) {
           remote_list[j].access_level = 0;
@@ -2652,13 +2599,8 @@ short tnt_random(short low, short hiw)
 
 /* password for sysop-permissions */
 void cmd_sysop(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
   char ans_str[MAXCHAR];
   int ans_len;
   int i;
@@ -2737,13 +2679,9 @@ char *str;
 
 /* reload password file */
 void cmd_loadsys(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   clear_sysfile();  
   load_sysfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -2752,15 +2690,11 @@ char *str;
 
 /* list password file data */
 void cmd_listsys(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   struct sysoplist *sysoplist_wrk;
-  char disp_line[83];
+  char disp_line[256];
   
   if (sysoplist_root == NULL) {
     cmd_display(mode,channel, _("No lines found"),1);
@@ -2768,9 +2702,9 @@ char *str;
   }
   sysoplist_wrk = sysoplist_root;
   while (sysoplist_wrk != NULL) {
-    sprintf(disp_line,"%s %s %d",
-            sysoplist_wrk->callsign, sysoplist_wrk->sys_file,
-            sysoplist_wrk->access_level);
+    snprintf(disp_line, sizeof(disp_line), "%.9s %.79s %d",
+         sysoplist_wrk->callsign, sysoplist_wrk->sys_file,
+         sysoplist_wrk->access_level);
     cmd_display(mode,channel,disp_line,1);
     sysoplist_wrk = sysoplist_wrk->next;
   }
@@ -2853,9 +2787,7 @@ void rem_nobox(int channel)
 
 /* execute tnt command from remote */
 void cmd_command(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -2865,13 +2797,9 @@ char *str;
 
 /* reload no remote file */
 void cmd_ldnoremo(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   clear_noremfile();  
   load_noremfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -2880,15 +2808,11 @@ char *str;
 
 /* list no remote file data */
 void cmd_lstnorem(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   struct noremlist *noremlist_wrk;
-  char disp_line[83];
+  char disp_line[256];
   
   if (noremlist_root == NULL) {
     cmd_display(mode,channel, _("No lines found"),1);
@@ -2925,13 +2849,9 @@ int channel;
 
 /* reload flexnet-check file */
 void cmd_ldflchk(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   clear_flchkfile();  
   load_flchkfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -2940,13 +2860,9 @@ char *str;
 
 /* list flexnet-check file data */
 void cmd_lstflchk(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   struct flchklist *flchklist_wrk;
   char disp_line[83];
   
@@ -2986,13 +2902,9 @@ int channel;
 
 /* reload not-own-calls file */
 void cmd_ldnotown(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   clear_notownfile();  
   load_notownfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -3001,13 +2913,9 @@ char *str;
 
 /* list not-own-calls file data */
 void cmd_lsnotown(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   struct notownlist *notownlist_wrk;
   char disp_line[83];
   
@@ -3042,13 +2950,9 @@ int is_notown(char *callsign)
 
 /* reload autostart file */
 void cmd_ldautostart(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   clear_autostartfile();  
   load_autostartfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -3057,14 +2961,10 @@ char *str;
 
 /* list autostart data */
 void cmd_lsautostart(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
-  char disp_line[83];
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
+  char disp_line[256];
   int found;
   struct autostartlist *autostartlist_wrk;
   
@@ -3072,8 +2972,8 @@ char *str;
   autostartlist_wrk = autostartlist_root;
   while (autostartlist_wrk != NULL) {
     found = 1;
-    sprintf(disp_line,"%-9.9s %s",autostartlist_wrk->callsign,
-                                  autostartlist_wrk->commstring);
+    snprintf(disp_line, sizeof(disp_line), "%-9.9s %.240s",
+         autostartlist_wrk->callsign, autostartlist_wrk->commstring);
     cmd_display(mode,channel,disp_line,1);
     autostartlist_wrk = autostartlist_wrk->next;
   } 
@@ -3104,13 +3004,9 @@ int do_autostart(char *callsign,int channel)
 
 /* reload extended remote commands file */
 void cmd_ldextrem(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   clear_extremotefile();  
   load_extremotefile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -3119,15 +3015,11 @@ char *str;
 
 /* list extended remote commands file data */
 void cmd_lsextrem(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   struct extremotelist *extremotelist_wrk;
-  char disp_line[83];
+  char disp_line[256];
   char level[10];
   char commstring[9];
   int i;
@@ -3179,7 +3071,8 @@ char *str;
     }
     commstring[8] = '\0';
     
-    sprintf(disp_line,"%s %s %s",commstring,level,extremotelist_wrk->command);
+    snprintf(disp_line, sizeof(disp_line), "%.8s %.2s %.199s", commstring, level,
+         extremotelist_wrk->command);
     cmd_display(mode,channel,disp_line,1);
     extremotelist_wrk = extremotelist_wrk->next;
   }
@@ -3187,13 +3080,10 @@ char *str;
 
 /* show channelstatus */
 void cmd_chanstat(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
+int par1 __attribute__((unused));int par2;
 int channel;
-int len;
-int mode;
-char *str;
-{
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int x_par1;
   int ans_len;
   char tmpname[20];
@@ -3241,9 +3131,9 @@ char *str;
             i,ch_stat[i].curcall,destcall,tmpstr);
         }
         else {
-          sprintf(hs,
-            "  %2.2d      %-9.9s > %-9.9s   %s",
-            i,ch_stat[i].curcall,destcall,tmpstr);
+          snprintf(hs, sizeof(hs),
+                   "  %2.2d      %-9.9s > %-9.9s   %.31s",
+                   i, ch_stat[i].curcall, destcall, tmpstr);
           cmd_display(mode,channel,hs,1);
         }
       }
@@ -3374,11 +3264,8 @@ void queue_tellmsg(char *tmp_msg) /* Msg auf alle Kanaele ausgeben */
 }
 
 void cmd_tellmsg(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   if(strlen(str)==0) {
@@ -3440,72 +3327,48 @@ int mode;
 }
 
 void rem_tell_da(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if(queue_tellinfo(1,channel,mode) ==1)
      cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
 void rem_tell_weg(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if(queue_tellinfo(3,channel,mode) ==1)
     cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
 void rem_tell_600(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if(queue_tellinfo(5,channel,mode) ==1)
     cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
 void rem_tell_klo(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if(queue_tellinfo(7,channel,mode) ==1)
     cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
 void rem_tell_gnd(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if(queue_tellinfo(9,channel,mode) ==1)
     cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
 void rem_onactiv(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str;
 {
   char ans_str[MAXCHAR];
 
@@ -3546,12 +3409,8 @@ void rem_sendonact()
 }
 
 void rem_chat(par1,par2,channel,len,mode,str) /* Chatten */
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str;
 {
   int port;
   char rem_port_info[10];
@@ -3576,7 +3435,7 @@ char *str;
   }
   from_call[6]='\0';
 
-  for(i=0; i<strlen(str); i++) {
+  for(i=0; i<(int)strlen(str); i++) {
     if(str[i]==' ') { rem_port_info[i]='\0'; break; }
     rem_port_info[i]=toupper(str[i]);
     if(i==6) {
@@ -3588,7 +3447,7 @@ char *str;
 
   i++;
   rem_port_info[i]='\0';
-  for(j=0; i<strlen(str); i++) {
+  for(j=0; i<(int)strlen(str); i++) {
     chat_text[j]=str[i];
     j++;
   }
@@ -3721,12 +3580,9 @@ int play_sound(int sound_nr)
 #endif
 
 void rem_heardlist(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
+int par1 __attribute__((unused));int par2;
 int channel;
-int len;
-int mode;
-char *str;
+int len __attribute__((unused));int mode __attribute__((unused));char *str;
 {
   char tmpname[20];
   char tmpname2[20];
@@ -3772,7 +3628,7 @@ char *str;
         sprintf(tmp_str, _("[All entries listed]\n"));
       write(fd1, tmp_str, strlen(tmp_str));
     } else {
-      for(i=0;i<strlen(str);i++) str[i]=toupper(str[i]);
+      for(i=0;i<(int)strlen(str);i++) str[i]=toupper(str[i]);
 
       i=0;
       while(fgets(tmp_str, 98, tmp_mh) != NULL) {

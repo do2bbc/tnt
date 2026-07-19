@@ -383,6 +383,7 @@ void ix2string(time_t zeit, char *timestring)
 /* switch between normal and broadcast sendqueue */
 void ibcastswitchtobc(short tnc, boolean y)
 {
+  (void)tnc;
   if (y)
     send_queue_type = SQ_BCAST;
   else
@@ -393,6 +394,7 @@ void ibcastswitchtobc(short tnc, boolean y)
 void ibcastpoppid(short tnc)
 {
   char tmp_str[257];
+  (void)tnc;
   
   sprintf(tmp_str,"@Ppush");
   queue_cmd_data(0,X_COMM,strlen(tmp_str),M_PUSHPOP,tmp_str);
@@ -401,6 +403,7 @@ void ibcastpoppid(short tnc)
 /* save pid for later use */
 void ibcastpushpid(short tnc)
 {
+  (void)tnc;
   queue_cmd_data(0,X_COMM,2,M_PUSHPOP,"@P");
 }
 
@@ -408,6 +411,7 @@ void ibcastpushpid(short tnc)
 void ibcastpopmonstat(short tnc)
 {
   char tmp_str[257];
+  (void)tnc;
   
   sprintf(tmp_str,"Mpush");
   queue_cmd_data(0,X_COMM,strlen(tmp_str),M_PUSHPOP,tmp_str);
@@ -416,6 +420,7 @@ void ibcastpopmonstat(short tnc)
 /* save monitor state for later use */
 void ibcastpushmonstat(short tnc)
 {
+  (void)tnc;
   queue_cmd_data(0,X_COMM,1,M_PUSHPOP,"M");
 }
 
@@ -423,6 +428,7 @@ void ibcastpushmonstat(short tnc)
 void ibcastpopunproto(short tnc)
 {
   char tmp_str[257];
+  (void)tnc;
   
   sprintf(tmp_str,"Cpush");
   queue_cmd_data(0,X_COMM,strlen(tmp_str),M_PUSHPOP,tmp_str);
@@ -431,6 +437,7 @@ void ibcastpopunproto(short tnc)
 /* save old unproto call for later use */
 void ibcastpushunproto(short tnc)
 {
+  (void)tnc;
   queue_cmd_data(0,X_COMM,1,M_PUSHPOP,"C");
 }
 
@@ -465,6 +472,7 @@ void ibcastprotokollcall(char *string)
 void ibcastsetpid(short tnc, short pid)
 {
   char tmp_str[257];
+  (void)tnc;
   
   sprintf(tmp_str,"@P%d",pid);
   queue_cmd_data(0,X_COMM,strlen(tmp_str),M_PUSHPOP,tmp_str);
@@ -474,6 +482,7 @@ void ibcastsetpid(short tnc, short pid)
 void ibcastsetmonstat(short tnc, char *monstr)
 {
   char tmp_str[257];
+  (void)tnc;
   
   sprintf(tmp_str,"M%s",monstr);
   queue_cmd_data(0,X_COMM,strlen(tmp_str),M_PUSHPOP,tmp_str);
@@ -483,6 +492,7 @@ void ibcastsetmonstat(short tnc, char *monstr)
 void ibcastsetunproto(short tnc, char *unprstr)
 {
   char tmp_str[257];
+  (void)tnc;
   
   sprintf(tmp_str,"C%s",unprstr);
   queue_cmd_data(0,X_COMM,strlen(tmp_str),M_PUSHPOP,tmp_str);
@@ -492,6 +502,7 @@ void ibcastsetunproto(short tnc, char *unprstr)
 void ibcastsend(short channel, short len, u_char *buffer)
 {
   int flag;
+  (void)channel;
   
   flag = 0;
   queue_cmd_data(0,X_DATA,len,flag,(char *)buffer);
@@ -500,9 +511,8 @@ void ibcastsend(short channel, short len, u_char *buffer)
 /* get number of free buffers and continue transmission */
 void ibcasttncbuffer(bccbtype callback, short tnc)
 {
-  short dummychan;
+  (void)tnc;
   
-  dummychan = 0;
   func_callback = callback;
   queue_cmd_data(0,X_COMM,2,M_PUSHPOP,"@B");
 }
@@ -510,6 +520,7 @@ void ibcasttncbuffer(bccbtype callback, short tnc)
 /* return number of unproto channel */
 short ibcastmonchan(short tnc)
 {
+  (void)tnc;
   return(0);
 }
 
@@ -540,7 +551,7 @@ boolean ibcastcreaterequests()
 
 /* the following procedure is 'create_status2' from box_sub.c */
 
-/* Dies ist speziell fÅr den Broadcast - Empfang */
+/* Dies ist speziell fÔøΩr den Broadcast - Empfang */
 
 void ibcastcreatestatus(boolean hierarchicals, char *dest, char *absender,
 		    time_t rxdate, time_t expire_time, long size, char msgtype,
@@ -574,7 +585,7 @@ void ibcastcreatestatus(boolean hierarchicals, char *dest, char *absender,
 
   strcpy(w, absender);
   k = strpos2(w, "@", 1);
-  if (k > 0)   /* bei Pacsats sind auch Absender mit @bbs Åblich */
+  if (k > 0)   /* bei Pacsats sind auch Absender mit @bbs ÔøΩblich */
     cut(w, k - 1);
   del_blanks(w);
   cut(w, 6);
@@ -599,7 +610,7 @@ void ibcastcreatestatus(boolean hierarchicals, char *dest, char *absender,
   int2str(lifetime, hs);
   lspacing(hs, 3);
 
-  lint2str(size + 180, w);   /* 180 Bytes fÅr Header... */
+  lint2str(size + 180, w);   /* 180 Bytes fÔøΩr Header... */
   lspacing(w, 6);
   sprintf(hs + strlen(hs), " %s Bytes", w);
 
@@ -627,6 +638,7 @@ short ibcasthuffpacker(boolean encode,char *s1,char *s2, boolean crlfconv)
 
 boolean ibcastcheckbid(char *bid_string)
 {
+  (void)bid_string;
   return(true); /* BID always ok */
 }
 
@@ -733,13 +745,12 @@ void bc_timing()
 /* callback, if normal file transmitted */
 void cbsf(long file_id)
 {
+  (void)file_id;
   cmd_display(M_COMMAND,0,"Broadcast-transmission finished",1);
 }
 
 void send_bcfile(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -756,7 +767,7 @@ char *str;
   }
   BcastViaPath[0] = '\0';
   file_id = 0;
-  for (i=0;i<strlen(str);i++) {
+  for (i=0;i<(int)strlen(str);i++) {
     crcfcs((u_char)str[i],&file_id);
   }
   dstr[0] = '\0';

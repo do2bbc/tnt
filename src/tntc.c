@@ -133,7 +133,7 @@ struct sockaddr *build_sockaddr(const char *name, int *addrlen)
     addr.si.sin_addr.s_addr = INADDR_ANY;
   } else if (!strcmp(host_name, "loopback")) {
     addr.si.sin_addr.s_addr = inet_addr("127.0.0.1");
-  } else if ((addr.si.sin_addr.s_addr = inet_addr(host_name)) == -1) {
+  } else if ((addr.si.sin_addr.s_addr = inet_addr(host_name)) == INADDR_NONE) {
     struct hostent *hp = gethostbyname(host_name);
     endhostent();
     if (!hp) return 0;
@@ -179,7 +179,7 @@ int read_init_file(argc,argv)
 int argc;
 char *argv[];
 {
-  FILE *init_file_fp;
+  FILE *init_file_fp = NULL;
   int file_end;
   int file_corrupt;
   char line[82];
@@ -187,7 +187,6 @@ char *argv[];
   char str2[82];
   char tmp_str[MAXCHAR];
   int rslt;
-  int warning;
   int wrong_usage;
   char *str_ptr;
   int scanned;
@@ -227,8 +226,6 @@ char *argv[];
     return(1);
   }
   
-  warning = 0;
-
 /* WSPse: Try to find a tntc configuration file (9.3.1999) */
   if (explized_ini == 1) {    /* Explizites File angegeben */
     if (!(init_file_fp = fopen(tntc_initfile,"r"))) {
@@ -328,7 +325,6 @@ char *argv[];
   }
   fclose(init_file_fp);
   if (file_corrupt) {
-    if (line == NULL) line[0] = '\0';
     printf(_("ERROR: %s is in wrong format, wrong line:\n%s\n\n"),
            tntc_initfile,line);
     return(1);

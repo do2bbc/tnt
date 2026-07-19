@@ -337,10 +337,8 @@ static void yapp_lineout(yapptype *yapp, char *string)
 static void yapp_buffout(yapptype *yapp, char *buffer, int size)
 {
   char *ptr;
-  int count;
   
   ptr = buffer;
-  count = size;
   while (size) {
     yapp_chout(yapp,*ptr);
     ptr++;
@@ -546,8 +544,12 @@ static int yapp_download_data(yapptype *yapp)
       if ((reaslen > 0) && (reaslen <= yapp->buflen - 2)) {
         strcat(reason,", Reason: ");
         abolen = strlen(reason);
-        strncat(reason,&yapp->buffer[2],reaslen);
-        reason[abolen+reaslen] = '\0';
+        if (reaslen > (int)sizeof(reason) - 1 - abolen)
+          reaslen = (int)sizeof(reason) - 1 - abolen;
+        if (reaslen > 0) {
+          memcpy(reason + abolen, &yapp->buffer[2], reaslen);
+          reason[abolen + reaslen] = '\0';
+        }
       }
     } 
     Write_Status(yapp,reason);
@@ -844,8 +846,12 @@ static int yapp_upload_data(yapptype *yapp)
       if ((reaslen > 0) && (reaslen <= yapp->buflen - 2)) {
         strcat(reason,", Reason: ");
         abolen = strlen(reason);
-        strncat(reason,&yapp->buffer[2],reaslen);
-        reason[abolen+reaslen] = '\0';
+        if (reaslen > (int)sizeof(reason) - 1 - abolen)
+          reaslen = (int)sizeof(reason) - 1 - abolen;
+        if (reaslen > 0) {
+          memcpy(reason + abolen, &yapp->buffer[2], reaslen);
+          reason[abolen + reaslen] = '\0';
+        }
       }
     } 
     Write_Status(yapp,reason);

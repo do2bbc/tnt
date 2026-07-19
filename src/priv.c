@@ -3,8 +3,7 @@
    For license details see documentation
    Procedures for remote passwords (priv.c)
 
-   created: Mark Wahl DL4YBG 94/12/21
-   updated: Mark Wahl DL4YBG 97/02/01
+  created: Mark Wahl DL4YBG 94/12/21
    updated: Mark Wahl DL4YBG 97/08/01
    fixed: Matthias Hensler WS1LS 98/04/12
    updated: Johann Hanne DH3MB 98/12/28
@@ -126,7 +125,7 @@ struct calllist **calllist_ptr;
   }
   if (!found) return(1);
   calllist_wrk = (struct calllist *)malloc(sizeof(struct calllist));
-  for (i=0;i<strlen(str1);i++) {
+  for (i=0;i<(int)strlen(str1);i++) {
     calllist_wrk->callsign[i] = toupper(str1[i]);
   }
   calllist_wrk->callsign[i] = '\0';
@@ -216,7 +215,6 @@ static void load_pwfile()
   }
   fclose(pw_file_fp);
   if (file_corrupt) {
-    if (line == NULL) line[0] = '\0';
     cmd_display(M_COMMAND,0,
       _("WARNING: pwfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
@@ -488,7 +486,7 @@ int len;
           tmpstr[0] = '\0';
           i = 0;
           while(i < 5) {
-            if (tn_val[i] > strlen(buffer_tmp))
+            if (tn_val[i] > (int)strlen(buffer_tmp))
               error = 1;
             else
               ch = buffer_tmp[tn_val[i]-1];
@@ -575,7 +573,7 @@ int len;
           tmpstr[0] = '\0';
           i = 0;
           while(i < 4) {
-            if (tn_val[i] > strlen(buffer_tmp))
+            if (tn_val[i] > (int)strlen(buffer_tmp))
               error = 1;
             else
               ch = buffer_tmp[tn_val[i]-1];
@@ -669,7 +667,7 @@ int len;
           tmpstr[0] = '\0';
           i = 0;
           while(i < 5) {
-            if (tn_val[i] > strlen(buffer_tmp))
+            if (tn_val[i] > (int)strlen(buffer_tmp))
               error = 1;
             else
               ch = buffer_tmp[tn_val[i]-1];
@@ -984,7 +982,7 @@ int mode;
     fclose(fd);
     pw_stat[channel].pass_wait = 1;
     pw_stat[channel].tries = 30;
-/*  strcpy(tmpstr,"MD2"); /* Missing MD2, fixed on 10.04.98 by WS1LS */
+/*  strcpy(tmpstr,"MD2"); */ /* Missing MD2, fixed on 10.04.98 by WS1LS. */
     strcpy(tmpstr,pw_stat[channel].entry->priv_string); /* DG2GCC 03.01.2000 */
     strcat(tmpstr,rem_newlin_str);
     len = strlen(tmpstr);
@@ -1096,13 +1094,9 @@ int mode;
 
 /* reload password file */
 void cmd_loadpriv(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   clear_pwfile();  
   load_pwfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -1111,18 +1105,14 @@ char *str;
 
 /* list password file data */
 void cmd_listpriv(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   struct calllist *calllist_wrk;
   int i;
   int found;
   char pwtype[20];
-  char disp_line[83];
+  char disp_line[256];
   
   if (calllist_root == NULL) {
     cmd_display(mode,channel, _("No lines found"),1);
@@ -1132,7 +1122,7 @@ char *str;
   while (calllist_wrk != NULL) {
     i = 0;
     found = 0;
-    while ((!found) && (pwmodes[i].pwtype != NULL)) {
+      while ((!found) && (pwmodes[i].pwtype[0] != '\0')) {
       if (pwmodes[i].pwmode == calllist_wrk->pwmode) {
         found = 1;
         strcpy(pwtype,pwmodes[i].pwtype);
@@ -1146,26 +1136,26 @@ char *str;
     
     switch (calllist_wrk->pwmode) {
     case PW_DIEBOX:
-      sprintf(disp_line,"%s %s %s",
+      snprintf(disp_line, sizeof(disp_line), "%.9s %.19s %.79s",
               calllist_wrk->callsign, pwtype, calllist_wrk->pw_file);
       break;
     case PW_FLEXNET:
     case PW_MD2:
     case PW_MD5:
-      sprintf(disp_line,"%s %s %s %s",
+      snprintf(disp_line, sizeof(disp_line), "%.9s %.19s %.79s %.79s",
               calllist_wrk->callsign, pwtype, calllist_wrk->pw_file,
               calllist_wrk->priv_string);
       break;
     case PW_BAYCOM:
     
     case PW_CLUSTER:	/* fuer DXCluster */
-      sprintf(disp_line,"%s %s %s %s",
+      snprintf(disp_line, sizeof(disp_line), "%.9s %.19s %.79s %.79s",
       	      calllist_wrk->callsign, pwtype, calllist_wrk->pw_file,
       	      calllist_wrk->priv_string);
       break;
     
     case PW_THENET:
-      sprintf(disp_line,"%s %s %s %d %s",
+      snprintf(disp_line, sizeof(disp_line), "%.9s %.19s %.79s %d %.79s",
               calllist_wrk->callsign, pwtype, calllist_wrk->pw_file,
               calllist_wrk->flags,calllist_wrk->priv_string);
       break;
@@ -1177,13 +1167,9 @@ char *str;
 
 /* generate password */
 void cmd_priv(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if (ch_stat[channel].conn_state != CS_CONN) {
     cmd_display(mode,channel, _("Only while connected"),1);
     return;

@@ -875,7 +875,7 @@ char *str2;
   else if (strcmp(str1,"tnt_box_call") == 0) {
     if (strlen(str2) > 9) return(1);
     strcpy(tnt_box_call,str2);
-    for (tmp=0;tmp<strlen(tnt_box_call);tmp++)
+    for (tmp=0;tmp<(int)strlen(tnt_box_call);tmp++)
       tnt_box_call[tmp] = toupper(tnt_box_call[tmp]);
     return(0);
   }
@@ -1084,13 +1084,9 @@ static int update_filenames()
 }
 
 void list_filenames(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   cmd_display(mode,channel,"List of all configured filenames:",1);
   cmd_display(mode,channel,tnt_work_dir,1);
   cmd_display(mode,channel,tnt_conf_dir,1);
@@ -1175,7 +1171,7 @@ int argc;
 char *argv[];
 int *unlock;
 {
-  FILE *init_file_fp;
+  FILE *init_file_fp = NULL;
   int file_end;
   int file_corrupt;
   char line[82];
@@ -1502,7 +1498,6 @@ int *unlock;
   }
   fclose(init_file_fp);
   if (file_corrupt) {
-    if (line == NULL) line[0] = '\0';
     printf(_("ERROR: %s is in wrong format, wrong line:\n%s\n"
            "       a lot of stuff has changed in TNT 1.9, maybe you are\n"
            "       using an old configuration file, please take a look at\n"

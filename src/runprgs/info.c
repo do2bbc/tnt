@@ -218,7 +218,7 @@ int main (void)
   if(procstream != NULL) {
     printf("\nPartition-/Filesysteminfos:\n");
     while( (tmp = fgetc(procstream)) != EOF) putchar(tmp);
-    fclose(procstream);
+    pclose(procstream);
   }
 
   procstream = popen("w", "r");
@@ -226,7 +226,7 @@ int main (void)
     printf("\nUsers on this system (logged-in):\n");
     while( ((tmp = fgetc(procstream)) !=EOF) && (tmp != '\n'));
     while( (tmp = fgetc(procstream)) != EOF) putchar(tmp);
-    fclose(procstream);
+    pclose(procstream);
   }
 
   printf("\nby WSPse, V" CUR_VER "/" CUR_DAT "\n\n");

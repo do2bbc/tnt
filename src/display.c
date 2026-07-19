@@ -15,6 +15,38 @@
 #include "xmon.h"
 #endif
 
+static void append_char(char *dst, size_t dst_size, char ch)
+{
+  size_t len = strlen(dst);
+
+  if (len + 1 < dst_size) {
+    dst[len] = ch;
+    dst[len + 1] = '\0';
+  }
+}
+
+static void append_spaces(char *dst, size_t dst_size, int count)
+{
+  size_t len;
+  int i;
+
+  if (count <= 0) return;
+  len = strlen(dst);
+  for (i = 0; (i < count) && (len + 1 < dst_size); i++) {
+    dst[len++] = ' ';
+  }
+  dst[len] = '\0';
+}
+
+static void append_limited(char *dst, size_t dst_size, const char *src, size_t max_src)
+{
+  size_t len = strlen(dst);
+
+  if (len + 1 < dst_size) {
+    snprintf(dst + len, dst_size - len, "%.*s", (int)max_src, src);
+  }
+}
+
 /* external function declarations */
 extern int act_abin_rx();
 extern int act_yapp_tx();
@@ -227,7 +259,7 @@ static char *ax_state_alt[] = {
 void statlin_update()
 {
   int i,j;
-  char tmp;
+  char tmp = '*';
   char *tmpstr;
   int channel;
   char ch_str[5];
@@ -254,7 +286,7 @@ void statlin_update()
       tmp = '*';
     break;  
   }
-  strncat(tmpstr,&tmp,1);
+  append_char(tmpstr, COLS + 2, tmp);
   if (act_mode == M_MAILBOX) {
     strcat(tmpstr,"**************");
   }
@@ -263,7 +295,7 @@ void statlin_update()
   }
   show_rxfile(act_channel,tmpstr);
   tmp = '*';
-  strncat(tmpstr,&tmp,1);
+  append_char(tmpstr, COLS + 2, tmp);
   show_txfile(act_channel,tmpstr);
   for (i=strlen(tmpstr);i<COLS+1;i++) {
     tmpstr[i] = '*';
@@ -288,7 +320,6 @@ void statlin_update()
     else
       tmp = '*';
     break;
-      strncat(tmpstr,&tmp,1);
   case M_COMMAND:
     strcpy(tmpstr,"\015*Cmd*");
     if (resync)
@@ -366,7 +397,7 @@ void statlin_update()
     break;  
 #endif
   }
-  strncat(tmpstr,&tmp,1);
+  append_char(tmpstr, COLS + 2, tmp);
 #ifdef USE_IFACE
   if ((act_mode == M_MAILBOX) && (!chan_flag)) {
     strcat(tmpstr,"******");
@@ -433,7 +464,7 @@ void statlin_update()
       if (ch_stat[i].not_disp) {
         strip_call_log(call_sign, i);
         if( strncmp(call_sign, "CHANNE", 6) == 0) {
-          sprintf(ch_str, "%2d", i);
+          snprintf(ch_str, sizeof(ch_str), "%02d", i % 100);
           strcat(tmp_call, ch_str);
           strcat(tmp_call, ":DSC");
         } else {
@@ -443,19 +474,19 @@ void statlin_update()
       }
       else if (ch_stat[i].state) {
         strip_call_log(call_sign, i);
-        for(j=0; j<strlen(call_sign); j++) {
+        for(j=0; j<(int)strlen(call_sign); j++) {
           ch_str[0] = tolower(call_sign[j]);
-          strncat(tmp_call, &ch_str[0], 1);
+          append_char(tmp_call, sizeof(tmp_call), ch_str[0]);
         }
         for(tmp=strlen(call_sign); tmp<6; tmp++) strcat(tmp_call, " ");
       }
       else {
-        sprintf(ch_str, "%2d", i);
+        snprintf(ch_str, sizeof(ch_str), "%02d", i % 100);
         strcat(tmp_call, ch_str);
         strcat(tmp_call, ":===");
       }
     }
-    for(j=0; j<strlen(tmp_call); j++) {
+      for(j=0; j<(int)strlen(tmp_call); j++) {
       if(tmp_call[j] == '-') tmp_call[j] = '\0';
     while(strlen(tmp_call) < 6) strcat(tmp_call, " ");
     }
@@ -581,15 +612,15 @@ int channel;
       snd_frms = ch_stat[channel].snd_frms + ch_stat[channel].snd_queue_frms;
       if (snd_frms > 9) {
         tmp = snd_frms/10+'0';
-        strncat(stat_str,&tmp,1);
+        append_char(stat_str, COLS + 2, tmp);
         tmp = snd_frms%10+'0';
-        strncat(stat_str,&tmp,1);
+        append_char(stat_str, COLS + 2, tmp);
         tmp = SPACE;
-        strncat(stat_str,&tmp,1);
+        append_char(stat_str, COLS + 2, tmp);
       }
       else {
         tmp = snd_frms+'0';
-        strncat(stat_str,&tmp,1);
+        append_char(stat_str, COLS + 2, tmp);
         strcat(stat_str," *");
       }
     }
@@ -598,9 +629,9 @@ int channel;
     if (ch_stat[channel].unacked) {
       strcat(stat_str," U=");
       tmp = ch_stat[channel].unacked+'0';
-      strncat(stat_str,&tmp,1);
+      append_char(stat_str, COLS + 2, tmp);
       tmp = SPACE;
-      strncat(stat_str,&tmp,1);
+      append_char(stat_str, COLS + 2, tmp);
     }
     else strcat(stat_str,"*****");
     strcat(stat_str,"**");
@@ -608,25 +639,25 @@ int channel;
       strcat(stat_str," R=");
       if (ch_stat[channel].tries > 9) {
         tmp = ch_stat[channel].tries/10+'0';
-        strncat(stat_str,&tmp,1);
+        append_char(stat_str, COLS + 2, tmp);
         tmp = ch_stat[channel].tries%10+'0';
-        strncat(stat_str,&tmp,1);
+        append_char(stat_str, COLS + 2, tmp);
         tmp = SPACE;
-        strncat(stat_str,&tmp,1);
+        append_char(stat_str, COLS + 2, tmp);
       }
       else {
         tmp = ch_stat[channel].tries+'0';
-        strncat(stat_str,&tmp,1);
+        append_char(stat_str, COLS + 2, tmp);
         strcat(stat_str," *");
       }
     }
     else strcat(stat_str,"******");
     strcat(stat_str,"** ");
 
-    if (ch_stat[channel].disp_call[0] == '\0')   
-      strncat(stat_str,ch_stat[channel].call,40);
+    if (ch_stat[channel].disp_call[0] == '\0')
+      append_limited(stat_str, COLS + 2, ch_stat[channel].call, 40);
     else
-      strncat(stat_str,ch_stat[channel].disp_call,40);
+      append_limited(stat_str, COLS + 2, ch_stat[channel].disp_call, 40);
     if ((stat_len = strlen(stat_str)) < (COLS + 1)) {
       strncat(stat_str,
               " ***************************************"
@@ -665,10 +696,10 @@ int channel;
     strcat(stat_str,"Ch:");            /* CH:*/
                                        /* ChannelNr einblenden */    
     tmp = channel/10+'0';              /* HighByte */
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     
     tmp = channel%10+'0';              /* LowByte */
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     
     strcat(stat_str," Stat:");          /* Stat: */ 
     strcat(stat_str,ax_state_alt[ch_stat[channel].state & 0x0f]);
@@ -676,16 +707,16 @@ int channel;
     /* Wenn Name vorhanden, Name ausgeben */
     if (ch_stat[channel].name[0] != '\0')
       {
-       strncat(stat_str,ch_stat[channel].name,20);
+       append_limited(stat_str, COLS + 2, ch_stat[channel].name, 20);
        tmp = ':'; 
-       strncat(stat_str,&tmp,1);
+      append_char(stat_str, COLS + 2, tmp);
       }
     
     /*Distant call */
     strip_call_log(tmpstring,channel);
     if (strncmp(tmpstring,"CHANNEL",7) != 0)
        strcat(stat_str,tmpstring);
-    strncat(stat_str,"          ",(9 - strlen(tmpstring)));
+     append_spaces(stat_str, COLS + 2, 9 - (int)strlen(tmpstring));
     
     /* Leerzeichen einfuegen */
     if ((stat_len = strlen(stat_str)) < (COLS - 26))
@@ -707,14 +738,14 @@ int channel;
     if (ch_stat[channel].curcall[0] != '\0')
      {
       /* Currcall ausgeben */
-      strncat(stat_str,ch_stat[channel].curcall,9);
-      strncat(stat_str,"         ",(9 - strlen(ch_stat[channel].curcall)));
+      append_limited(stat_str, COLS + 2, ch_stat[channel].curcall, 9);
+      append_spaces(stat_str, COLS + 2, 9 - (int)strlen(ch_stat[channel].curcall));
      }
      else
      {
       /* MyCall ausgeben */
-      strncat(stat_str,ch_stat[channel].mycall,9);
-      strncat(stat_str,"         ",(9 - strlen(ch_stat[channel].mycall)));
+      append_limited(stat_str, COLS + 2, ch_stat[channel].mycall, 9);
+      append_spaces(stat_str, COLS + 2, 9 - (int)strlen(ch_stat[channel].mycall));
      }                      
      
     /* Linkstatus */  
@@ -724,25 +755,25 @@ int channel;
     snd_frms = ch_stat[channel].snd_frms + ch_stat[channel].snd_queue_frms;
     /*High Nibble */
     tmp = snd_frms/10+'0';
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     tmp = snd_frms%10+'0';
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     tmp = '|';
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     
     /* UnAck */
     tmp = ch_stat[channel].unacked/10+'0';
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     tmp = ch_stat[channel].unacked%10+'0';
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     tmp = '|';
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     
     /* Retries */
     tmp = ch_stat[channel].tries/10+'0';
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     tmp = ch_stat[channel].tries%10+'0';
-    strncat(stat_str,&tmp,1);
+    append_char(stat_str, COLS + 2, tmp);
     
   }
   win_stringout(stat_str,&statwin[channel],0);
@@ -993,7 +1024,6 @@ char *buffer;
 {
   int len;
   char *hlpbuffer;
-  
   if (output_screen(channel)) {
     if ((infobell_flag == 1) ||
         ((infobell_flag == 2) && ((act_channel != channel) ||
@@ -1132,8 +1162,7 @@ int get_port(char *buffer)
 }
 
 void moni_display(channel,buffer)
-int channel;
-char *buffer;
+int channel __attribute__((unused));char *buffer;
 {
   int port;
   
@@ -1170,8 +1199,7 @@ int check_bin(char *buffer)
 
 
 void moni_display_len(channel,buffer)
-int channel;
-char *buffer;
+int channel __attribute__((unused));char *buffer;
 {
   char decomp_buffer[257];
   char comp_info[MAXCHAR];
@@ -1312,8 +1340,7 @@ char *str;
 }
 
 int cmd_newline(channel,str)
-int channel;
-char *str;
+int channel __attribute__((unused));char *str;
 {
   int len;
   char tmpstr[MAXCOLS+1];
@@ -1330,8 +1357,7 @@ char *str;
 }
 
 void cmd_charout(channel,ch)
-int channel;
-char ch;
+int channel __attribute__((unused));char ch;
 {
   if (cmdwin.column < input_linelen-1) {
     win_charout_cntl(ch,&cmdwin);
@@ -1342,8 +1368,7 @@ char ch;
 }
 
 void cmd_charout_nobnd(channel,ch)
-int channel;
-char ch;
+int channel __attribute__((unused));char ch;
 {
   win_charout_cntl(ch,&cmdwin);
 }
@@ -1656,7 +1681,6 @@ void init_help()
 {
   char helpfile[160];
   int helpfd;
-  int file_len;
   int end;
   int len2;
   char buf[BUFSIZE];
@@ -1676,12 +1700,10 @@ void init_help()
   }
   
   /* counting number of LFs in file to get number of lines */
-  file_len = 0;
   lines = 0;
   end = 1;
   while (end) {
     len2 = read(helpfd,buf,BUFSIZE);
-    file_len += len2;
     for (i=0;i<len2;i++) {
       if (buf[i] == '\n') lines++;
     }

@@ -948,7 +948,7 @@ int cscript;
     while ((com_list[j].ext_com != -1) && !found) {
       if (strstr(com_list[j].string,com_string) == com_list[j].string) {
         /* string found, now check if length valid */
-        if (strlen(com_string) >= com_list[j].len) {
+          if ((int)strlen(com_string) >= com_list[j].len) {
           found = 1;
         }
       }
@@ -998,13 +998,9 @@ int cscript;
 }
 
 void exit_tnt(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
 #ifndef DPBOXT
   if (mode == M_REMOTE) {
     if (ax25k_active) {
@@ -1027,13 +1023,9 @@ char *str;
 
 #ifndef DPBOXT
 void quit_tnt(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if (!tnt_daemon || (tnt_daemon && !frontend_active)) {
     cmd_display(mode,channel, _("Invalid command"),1);
     return;
@@ -1167,7 +1159,7 @@ char *ch;
     for (i = 0; (i < num_func) && (!found); i++) {
       if (strstr(spec_keys[i].code,func_str) == spec_keys[i].code) {
         found = 1;
-        if (strlen(spec_keys[i].code) == (esc_flag + 1)) {
+        if ((int)strlen(spec_keys[i].code) == (esc_flag + 1)) {
           esc_flag = 0;
           if (spec_keys[i].sel_channel == 2) {
 #ifdef DPBOXT
@@ -1647,13 +1639,9 @@ char *ch;
 
 #ifndef DPBOXT
 static void cmd_settime(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   struct tm *timestr;
   time_t timeval;
   char tmpstr[11];
@@ -1667,13 +1655,9 @@ char *str;
 }
 
 static void cmd_setdate(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   struct tm *timestr;
   time_t timeval;
   char tmpstr[11];
@@ -1689,13 +1673,12 @@ char *str;
 
 static void cmd_flag(par1,par2,channel,len,mode,str)
 int par1;
-int par2;
-int channel;
+int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
 {
-  int *flag;
+  int *flag = NULL;
   int i;
   char ch;
   
@@ -1883,15 +1866,14 @@ char *str;
 
 static void cmd_value(par1,par2,channel,len,mode,str)
 int par1;
-int par2;
-int channel;
+int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
 {
-  int *value;
-  int max;
-  int min;
+  int *value = NULL;
+  int max = 0;
+  int min = 0;
   char rslt_str[MAXCHAR];
   int val;
   int res;
@@ -1962,14 +1944,13 @@ char *str;
 
 static void cmd_string(par1,par2,channel,len,mode,str)
 int par1;
-int par2;
-int channel;
+int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
 {
 #ifndef DPBOXT
-  char *chgstr;
+  char *chgstr = rem_noacc_str;
   
   switch (par1) {
   case S_NOACC:
@@ -2001,9 +1982,7 @@ char *str;
 #ifndef DPBOXT
 /* Set permanent mycall */
 static void cmd_mycall(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -2050,9 +2029,7 @@ char *str;
 
 /* Send TNC command */
 static void cmd_tnc(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -2071,11 +2048,8 @@ char *str;
 
 /* Change directory */
 static void cmd_chdir(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int result;
@@ -2095,13 +2069,9 @@ char *str;
 
 /* Display working directory */
 static void cmd_cwdir(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   char dir[MAXCHAR];
   
   if (getcwd(dir,MAXCHAR) == NULL) {
@@ -2115,13 +2085,9 @@ char *str;
 #ifndef DPBOXT
 /* Display number of resyncs up to now */
 static void cmd_resync(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   char number[MAXCHAR];
   
   sprintf(number, _("Resyncs: %d"),resync_count);
@@ -2162,13 +2128,9 @@ char *str;
 
 /* Display number of free buffers */
 static void cmd_free(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   char number[20];
   
   sprintf(number,"%d",free_buffers);
@@ -2177,25 +2139,17 @@ char *str;
 
 /* show signon (TNT-version) */
 static void cmd_signon(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   cmd_display(mode,channel,signon,1);
 }
 #endif
 
 /* DH3MB: send a control-character */
 static void cmd_ctrltx(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode __attribute__((unused));char *str;
 { char tx_buf[2];
   tx_buf[0]=toupper(str[0]);
   if(tx_buf[0]>='@' && tx_buf[0]<='Z') {
@@ -2211,13 +2165,9 @@ char *str;
 
 /* Read in keyboard-macros file */
 static void cmd_kmacro(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int x;
   FILE *fp;
   char tmp[100], tmp2[100];
@@ -2252,9 +2202,7 @@ char *str;
 
 /* Select a screen */
 static void cmd_selscreen(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -2265,7 +2213,7 @@ char *str;
   
   if (len) {
     screen = strdup(str);
-    for (i=0;i<strlen(screen);i++) screen[i] = toupper(screen[i]);
+    for (i=0;i<(int)strlen(screen);i++) screen[i] = toupper(screen[i]);
     i = 0;
     while (screen_list[i].screen[0] != '\0') {
       cmplen = screen_list[i].scrlen;
@@ -2302,10 +2250,8 @@ char *str;
  * dg9ep 98-99 */
 static void cmd_gpgpedit(par1,par2,channel,len,mode,str)
 int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int result;
@@ -2417,16 +2363,23 @@ char *str;
   strcpy(lastGPGPEDITfilename,tmpeditname);
 
   if( par1 != GPGP_PLAIN ) {
+    int tmpfd;
+
     /* tempfile for stdout */
     strcpy(tmpstdoutname,"/tmp/tnt_pgpso.XXXXXX");
-    /* somebody changed here mktemp() to mkstemp(). This is WRONG! */
-    mktemp(tmpstdoutname); /* NO mkstemp() ! */
+    tmpfd = mkstemp(tmpstdoutname);
+    if (tmpfd >= 0)
+      close(tmpfd);
     /* tempfile for stderr */
     strcpy(tmpstderrname,"/tmp/tnt_pgpse.XXXXXX");
-    mktemp(tmpstderrname); /* NO mkstemp() ! */
+    tmpfd = mkstemp(tmpstderrname);
+    if (tmpfd >= 0)
+      close(tmpfd);
     /* tempfile for outfile (.asc) */
     strcpy(ascfilename,"/tmp/tnt_pgpo.XXXXXX");
-    mktemp(ascfilename); /* NO mkstemp() !  */
+    tmpfd = mkstemp(ascfilename);
+    if (tmpfd >= 0)
+      close(tmpfd);
 
     strcpy(sPass,getpass(_("*** Enter your passphrase: ")));
     if (sPass[0] == 0) { 
@@ -2492,7 +2445,6 @@ char *str;
        memset(tmppwfilename, 0, sizeof(tmppwfilename));
     }
     memset(cmdline, 0, sizeof(cmdline));
-    memset(str, 0, sizeof(str));
     memset(sPass, 0, sizeof(sPass));
 
     /* Ausgabe von gpgp anzeigen */

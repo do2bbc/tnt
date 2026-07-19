@@ -972,7 +972,7 @@ int crlfconv;
     destbufptr = destbuf;
     ptr = (char *)&size;
     /* send length */
-    for (i=0;i<sizeof(size);i++) {
+    for (i=0;i<(int)sizeof(size);i++) {
       if (wri_char(*ptr++) == EOF) {
         error = 1;
         break;
@@ -1059,10 +1059,10 @@ int crlfconv;
   srcbufptr = srcbuf;
   srclen = 0;
   srcbuflen = size;
-  if (srcbuflen < sizeof(packsize)) return(1);
+  if (srcbuflen < (long)sizeof(packsize)) return(1);
   /* get length */
   ptr = (char *)&packsize;
-  for (i=0;i<sizeof(packsize);i++) {
+  for (i=0;i<(int)sizeof(packsize);i++) {
     *ptr++ = read_char();
   }
   if (packsize == 0) return(1);

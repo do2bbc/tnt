@@ -375,8 +375,8 @@ int channel;
 char *destcall;
 {
   int i;
-  char srccall_ssid[10];
-  char srccall[10];
+  char srccall_ssid[13];
+  char srccall[13];
   char destcall_strip[10];
   char *dashptr;
   int call_ok;
@@ -391,7 +391,7 @@ char *destcall;
   call_ok = 1;  
   /* copy own call */
   strcpy(srccall_ssid,ch_stat[channel].curcall);
-  for (i=0;i<strlen(srccall_ssid);i++)
+  for (i=0;i<(int)strlen(srccall_ssid);i++)
     srccall_ssid[i] = toupper(srccall_ssid[i]);
   strcpy(srccall,srccall_ssid);
   /* cut into call and ssid */
@@ -489,8 +489,7 @@ static void sigalarm()
 int init_serial(serstr,speed,speedflag,unlock)
 char *serstr;
 unsigned int speed;
-int speedflag;
-int unlock;
+int speedflag __attribute__((unused));int unlock;
 {
   int l;
   char c;
@@ -1649,7 +1648,7 @@ void action_on_connect(int channel)
 
   if (ch_stat[channel].sendcook) {
     ssid=0;
-    for(i=0;i<strlen(ch_stat[channel].curcall);i++) {
+    for(i=0;i<(int)strlen(ch_stat[channel].curcall);i++) {
       if(ch_stat[channel].curcall[i]=='-') {
         ssid=atoi(&ch_stat[channel].curcall[i+1]);
         break;
@@ -2108,7 +2107,7 @@ static int send_cmd_data()
         }
         if ((channel == 0) && (len == 5) && (flag == M_PUSHPOP)) {
           if (strncmp((*buffer_root)->data,"Cpush",5) == 0) {
-            sprintf(new_buffer,"C%s",pushed_unproto);
+            snprintf(new_buffer, sizeof(new_buffer), "C%s", pushed_unproto);
             new_buffer_len = strlen(new_buffer);
           }
         }
@@ -2162,7 +2161,7 @@ static int send_cmd_data()
         if ((channel == 0) && (len == 1) && (flag == M_PUSHPOP))
           req_info = RQ_MONSTAT;
         else if ((channel == 0) && (len == 5) && (flag == M_PUSHPOP)) {
-          sprintf(new_buffer,"M%s",pushed_monstat);
+          snprintf(new_buffer, sizeof(new_buffer), "M%.255s", pushed_monstat);
           new_buffer_len = strlen(new_buffer);
         }
         break;
@@ -2179,7 +2178,7 @@ static int send_cmd_data()
         else if (len == 6) {
           if (((*buffer_root)->data[1] == 'B') &&
               (channel == 0) && (flag == M_PUSHPOP)) {
-            sprintf(new_buffer,"@B%s",pushed_monstat);
+            snprintf(new_buffer, sizeof(new_buffer), "@B%.254s", pushed_monstat);
             new_buffer_len = strlen(new_buffer);
           }
 #endif
@@ -2315,8 +2314,7 @@ int *state;
 }
 
 int calc_maxframes(channel)
-int channel;
-{
+int channel __attribute__((unused));{
   int max_frames;
   int conn_channels;
   int i;

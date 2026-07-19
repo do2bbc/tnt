@@ -108,8 +108,6 @@ static int cur_always_vis;
 static int no_attr;
 char *_tptr = NULL;
 
-static char *strptr;
-
 void frontend_exit();
 void real_window_down();
 
@@ -1059,10 +1057,18 @@ char ch2;
     else strcat(str,"24;");
     strcat(str,"3");
     tch = (ch & 07)+'0';
-    strncat(str,&tch,1);
+    {
+      size_t len = strlen(str);
+      str[len] = tch;
+      str[len + 1] = '\0';
+    }
     strcat(str,";4");
     tch = ((ch >> 4) & 07)+'0';
-    strncat(str,&tch,1);
+    {
+      size_t len = strlen(str);
+      str[len] = tch;
+      str[len + 1] = '\0';
+    }
     strcat(str,"m");
   }
   else if (!no_attr) {

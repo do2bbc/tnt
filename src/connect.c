@@ -146,9 +146,9 @@ char *chanstr;
   while (qrg_info[i].qrg[0] != '\0') {
     if ((qrg_info[i].port_str[0] != '\0') && (chanstr[0] != '\0')) {
       strcpy(tmp1,chanstr);
-      for (j=0;j<strlen(tmp1);j++) tmp1[j] = toupper(tmp1[j]);
+      for (j=0;j<(int)strlen(tmp1);j++) tmp1[j] = toupper(tmp1[j]);
       strcpy(tmp2,qrg_info[i].port_str);
-      for (j=0;j<strlen(tmp2);j++) tmp2[j] = toupper(tmp2[j]);
+      for (j=0;j<(int)strlen(tmp2);j++) tmp2[j] = toupper(tmp2[j]);
       if (strcmp(tmp1,tmp2) == 0) {
         *qrgpos = i;
         return;
@@ -174,9 +174,9 @@ char *chanstr;
     if (strcmp(qrg,qrg_info[i].qrg) == 0) {
       if (chanstr[0] != '\0') {
         strcpy(tmp1,chanstr);
-        for (j=0;j<strlen(tmp1);j++) tmp1[j] = toupper(tmp1[j]);
+        for (j=0;j<(int)strlen(tmp1);j++) tmp1[j] = toupper(tmp1[j]);
         strcpy(tmp2,qrg_info[i].port_str);
-        for (j=0;j<strlen(tmp2);j++) tmp2[j] = toupper(tmp2[j]);
+        for (j=0;j<(int)strlen(tmp2);j++) tmp2[j] = toupper(tmp2[j]);
         if (strcmp(tmp1,tmp2) == 0) {
           *qrgpos = i;
           return(1);
@@ -223,9 +223,9 @@ void get_qrg_from_chanstr(char *qrg, char *chanstr)
   while (qrg_info[i].qrg[0] != '\0') {
     if (qrg_info[i].port_str[0] != '\0') {
       strcpy(tmp1,chanstr);
-      for (j=0;j<strlen(tmp1);j++) tmp1[j] = toupper(tmp1[j]);
+      for (j=0;j<(int)strlen(tmp1);j++) tmp1[j] = toupper(tmp1[j]);
       strcpy(tmp2,qrg_info[i].port_str);
-      for (j=0;j<strlen(tmp2);j++) tmp2[j] = toupper(tmp2[j]);
+      for (j=0;j<(int)strlen(tmp2);j++) tmp2[j] = toupper(tmp2[j]);
       if (strcmp(tmp1,tmp2) == 0) {
         strcpy(qrg, qrg_info[i].qrg);
         return;
@@ -241,8 +241,7 @@ void get_qrg_from_chanstr(char *qrg, char *chanstr)
 
 static int route_call(channel,len,mode,str,nextlink,callflag,qrgpos,chanstr)
 int channel;
-int len;
-int mode;
+int len __attribute__((unused));int mode;
 char *str;
 int nextlink;
 int callflag;
@@ -573,7 +572,7 @@ char *str;
     cmd_display(mode,channel,xc_inv_call_text,1);
     return;
   }
-  for (i = 0; i < strlen(call); i++) {
+  for (i = 0; i < (int)strlen(call); i++) {
     call[i] = toupper(call[i]);
   }
   if (xc_stat[channel].active) {
@@ -891,11 +890,8 @@ char *call2;
 }
 
 void cmd_concall(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int i;
@@ -908,7 +904,7 @@ char *str;
     cmd_display(mode,channel, _("Invalid callsign"),1);
     return;
   }
-  for (i=0;i<strlen(ch_stat[channel].disp_call);i++)
+  for (i=0;i<(int)strlen(ch_stat[channel].disp_call);i++)
     ch_stat[channel].disp_call[i] = toupper(ch_stat[channel].disp_call[i]);
   strcpy(ch_stat[channel].log_call,ch_stat[channel].disp_call);
   if (altstat) {
@@ -921,9 +917,7 @@ char *str;
 }
 
 void cmd_qrg(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -941,7 +935,8 @@ char *str;
     else {
       i = 0;
       while ((qrg_info[i].qrg[0] != '\0') && (i < MAXQRGS)) {
-        sprintf(ans_str,"<%d> %s (%s)",i,qrg_info[i].qrg,qrg_info[i].port_str);
+        snprintf(ans_str, sizeof(ans_str), "<%d> %.50s (%.10s)",
+                 i, qrg_info[i].qrg, qrg_info[i].port_str);
         cmd_display(mode,channel,ans_str,1);
         i++;
       }
@@ -978,7 +973,7 @@ char *str;
           return;
         }
         strcpy(qrg_info[i].qrg,qrg);
-        for (j=0;j<strlen(qrg_info[i].qrg);j++)
+        for (j=0;j<(int)strlen(qrg_info[i].qrg);j++)
           qrg_info[i].qrg[j] = toupper(qrg_info[i].qrg[j]);
         if (res == 3)
           strcpy(qrg_info[i].port_str,port_str);

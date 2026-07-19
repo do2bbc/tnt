@@ -90,14 +90,12 @@ void upper(char *s);
 
 
 static boolean badname(dummy)
-char *dummy;
-{
+char *dummy __attribute__((unused));{
   return(false);
 }
 
 static boolean check_double(dummy)
-char *dummy;
-{
+char *dummy __attribute__((unused));{
   return(true);
 }
 
@@ -354,11 +352,9 @@ static void create_pattern(char *txt, char *ps)
 
 static boolean compare_pattern(char *ps, char *pattern)
 {
-  boolean Result;
   short x, l1, l2;
   char c;
 
-  Result = false;
   x = 1;
   l1 = strlen(pattern);
   l2 = strlen(ps);
@@ -421,7 +417,7 @@ boolean callsign(char *rubrik)
     return ret;
   }
   if (strpos2(cs, "REQ", 1) == 1) {
-    ret = true;   /*FÅr REQDIR usw.*/
+    ret = true;   /*FÔøΩr REQDIR usw.*/
     return ret;
   }
   if (!strcmp(cs, "WP")) {
@@ -455,7 +451,7 @@ boolean exist(char *name)
                  
 void cut(char *s, short newlength)
 {
-  if (strlen(s) > newlength) {
+  if ((newlength >= 0) && (strlen(s) > (size_t)newlength)) {
     s[newlength] = '\0';
   }
 }
@@ -614,7 +610,7 @@ void string_to_file(short *handle, char *line_, boolean crlf)
   if (*handle == -1)
     return;
   err = write(*handle, line, strlen(line));
-  if (err != strlen(line)) {
+  if (err != (ssize_t)strlen(line)) {
     close(*handle);
     *handle = -1;
   }
@@ -622,8 +618,8 @@ void string_to_file(short *handle, char *line_, boolean crlf)
     write(*handle, crlfarr, 1);
 }
 
-/* Holt nÑchstes Wort aus "inp" und lîscht */
-/* dieses dort, Leerzeichen werden Åberlesen  */
+/* Holt nÔøΩchstes Wort aus "inp" und lÔøΩscht */
+/* dieses dort, Leerzeichen werden ÔøΩberlesen  */
 
 void get_word(char *inp, char *outp)
 {
@@ -669,7 +665,7 @@ void get_word(char *inp, char *outp)
 
 void del_leadblanks(char *s)
 {
-  /*Lîscht fÅhrende Leerzeichen in "s"*/
+  /*LÔøΩscht fÔøΩhrende Leerzeichen in "s"*/
   short x, k, i;
   char c;
 
@@ -687,7 +683,7 @@ void del_leadblanks(char *s)
 
 void del_lastblanks(char *s)
 {
-  /*Lîscht letzte Leerzeichen*/
+  /*LÔøΩscht letzte Leerzeichen*/
   short k;
   char c;
 
@@ -823,7 +819,8 @@ static boolean sfboxheader(char *zeile)
   if (count_words(hzeile) <= 5)
     return true;
   if (bulletin_moncut) {
-    sprintf(hzeile, "%s %s", w2, strcpy(STR5, hzeile));
+    strcpy(STR5, hzeile);
+    snprintf(hzeile, sizeof(hzeile), "%s %.254s", w2, STR5);
     sf_rx_emt(0, hzeile);
   }
   return Result;
@@ -991,7 +988,7 @@ void separate_status(char *status_, char *ziel, char *absender, char *mbx,
 DG9FDA > ATARI    18.03.93 16:55 29 Zeilen 1502 Bytes #90 @ALLE
 BID : 0833DB0SIFH7
 {Read: Callsigns...}
-Subj: DP = DAS PR-Programm fÅr ST
+Subj: DP = DAS PR-Programm fÔøΩr ST
 Path: !DB0PIC!DB0RBS!DB0LX!DB0AAA!DB0MWE!DB0KCP!OE9XPI!DB0CZ!DB0FRB!DB0GE!
       !DB0LJ!DB0SGL!DB0EAM!DB0SIF!
 From: DG9FDA @ DB0SIF.DEU.EU
@@ -1044,7 +1041,7 @@ Path: !DB0HB!DB0HBS!DB0EAM!DB0SIF!DB0HOM!DB0GE!HB9EAS!HB9OS!DB0KCP!DB0AAB!
       !DB0FSG!DB0LNA!DB0RGB!DB0BOX!
 de DG8NBR @ DB0BOX
 
-hallo ft 530 user,                      tnx fÅrs lesen.ich beabsichtige den kauf
+hallo ft 530 user,                      tnx fÔøΩrs lesen.ich beabsichtige den kauf
 
 Von        : DG8NBR
 Nach       : YAESU @EU
@@ -1055,8 +1052,8 @@ Meldung #  : 85385
 Titel      : info > FT 530
 
 R:930618/0427z @DB0HB  [NORD><LINK HAMBURG, JO43XP, OP:DF4HR/DL6HAZ]
-R:930618/0535l @DB0HBS.#HH.DEU.EU [€≤±∞BBS-Hamburg,JO43TN,DB-ST,OP:DL8XAW∞±≤€]
-R:930617/2247z @DB0EAM.DEU.EU [Kassel JO41PI TheBox 1˙9 OP:DB8AS]
+R:930618/0535l @DB0HBS.#HH.DEU.EU [€≤ÔøΩÔøΩBBS-Hamburg,JO43TN,DB-ST,OP:DL8XAWÔøΩÔøΩÔøΩÔøΩ]
+R:930617/2247z @DB0EAM.DEU.EU [Kassel JO41PI TheBox 1ÔøΩ9 OP:DB8AS]
 R:930617/2244z @:DB0SIF.DEU.EU
 R:930617/2244z @:DB0HOM.#SAR.DEU.EU
 R:930617/2243z @DB0GE.#SL.DEU.EU [BBS Saarbruecken, DieBox 1.9]
@@ -1070,7 +1067,7 @@ R:930617/2041z @:DB0RGB.#BAY.DEU.EU
 R:930617/1841z @DB0BOX [DIE BOX in NUERNBERG JN59NJ, OP: DC3YC]
 de DG8NBR @ DB0BOX
 
-hallo ft 530 user,                      tnx fÅrs lesen.ich beabsichtige den kauf
+hallo ft 530 user,                      tnx fÔøΩrs lesen.ich beabsichtige den kauf
 
 */
 
@@ -1220,7 +1217,7 @@ Titel       : hilfe aastor
 	if (fbb_fromfield[1] == zeile[1]) {
 	  if (strpos2(zeile, fbb_fromfield, 1) == 1) {
 	    x = strpos2(zeile, fbb_tofield, 1);
-	    if (x > strlen(fbb_fromfield) + 4) {
+      if (x > (short)(strlen(fbb_fromfield) + 4)) {
 	      strcpy(hs, zeile);
 	      strdelete((void *)hs, x, strlen(fbb_tofield));
 	      strdelete((void *)hs, 1, strlen(fbb_fromfield));
@@ -1343,8 +1340,8 @@ static short boxender(char *zeile)
     }
   }
   if (be == 0) {
-    if ((zeile[0] == '(') && (strlen(zeile) > 3)) {
-      if (strpos2(zeile, "->", 1) == strlen(zeile) - 1)   /*Baycom*/
+    if ((zeile[0] == '(') && ((int)strlen(zeile) > 3)) {
+      if (strpos2(zeile, "->", 1) == (int)strlen(zeile) - 1)   /*Baycom*/
 	be = 1;
     }
   }
@@ -1367,13 +1364,14 @@ static void boxcutstart(short chan, char *zeile)
   WITH->bcutct++;
   int2str(WITH->bcutct, hs);
   int2str(chan,hs2);
-  sprintf(WITH->bcutname, "%sBOXCUT%s.%s", newmaildir, hs2, hs);
+  snprintf(WITH->bcutname, sizeof(WITH->bcutname), "%.218sBOXCUT%.15s.%.15s",
+           newmaildir, hs2, hs);
   WITH->bcutchan = creat(WITH->bcutname, FC_FILE);
   if (WITH->bcutchan == -1)
     return;
   WITH->boxcut = true;
   del_callextender(chan, WITH->bcutcall);
-  sprintf(hs, "%s %s", dpreadoutmagic, WITH->bcutcall);
+  snprintf(hs, sizeof(hs), "%s %s", dpreadoutmagic, WITH->bcutcall);
   string_to_file(&WITH->bcutchan, hs, true);
   strcpy(hs, zeile);
   switch (typ) {
@@ -1450,6 +1448,7 @@ static void abort_multibox(short monbox_ch, short err)
   char hs[257];
   struct monbox_info *WITH;
   char STR5[257];
+  (void)err;
 
   WITH = &monbox_info[monbox_ch];
   if (WITH->fd != -1)
@@ -1971,8 +1970,7 @@ char *buffer;
 
 /* cancel xmon because of error */
 void cancel_monbox(xmon_ch,monbox_ch)
-int xmon_ch;
-int monbox_ch;
+int xmon_ch __attribute__((unused));int monbox_ch;
 {
   abort_multibox(monbox_ch,255);
 }
@@ -2161,13 +2159,9 @@ void exit_monbox()
 }
 
 void cmd_ldboxfil(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int monbox_flag_save;
   
   monbox_flag_save = monbox_flag;
@@ -2178,13 +2172,9 @@ char *str;
 }
 
 void cmd_monboxlist(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   int monbox_channel;
   char call_str[MAXCOLS+1];
   char srccall[MAXCHAR];
@@ -2198,7 +2188,8 @@ char *str;
     if (moni->active) {
       active = 1;
       fill_xmon_call(moni->xmon_ch,srccall,destcall);
-      sprintf(call_str,"<%d>: %s > %s ",monbox_channel,srccall,destcall);
+       snprintf(call_str, sizeof(call_str), "<%d>: %.9s > %.9s ",
+         monbox_channel, srccall, destcall);
       strncat(call_str,dash_str,COLS - 1 - strlen(call_str));
       cmd_display(mode,channel,call_str,1);
       cmd_display(mode,channel,moni->kopf,1);
@@ -2462,11 +2453,8 @@ void check_mbeacon(char *buffer)
 }
 
 void cmd_scanmbeacon(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int error;
@@ -2501,6 +2489,7 @@ char *str;
     break;
   case 4:
     timeout = 120;
+      /* fall through */
   case 5:
     if ((strlen(srccall) <= 9) && (strlen(destcall) <= 9) && 
         (strlen(concall) <= 9) && (strlen(owncall) <= 6)) {

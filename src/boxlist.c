@@ -9,7 +9,6 @@
 
 #include "tnt.h"
 #include "boxlist.h"
-
 /* external function declarations */
 extern void beep();
 extern void check_bid();
@@ -168,6 +167,8 @@ static void load_blcmdfile()
   int append;
   int allowed;
 
+  blcmdlist_wrk = NULL;
+
   strcpy(file_str,tnt_blcmdfile);
   if (!(blcmd_file_fp = fopen(file_str,"r"))) {
     /* no file present, exit */
@@ -221,6 +222,8 @@ static void load_blcmdfile()
             file_corrupt = 1;
             continue;
           }
+          if (append)
+            blcmdlist_wrk = blcmdlist_cur;
           boxline_type = BOXLINE_UNKNOWN;
           switch (toupper(line[1])) {
           case '*':
@@ -294,7 +297,6 @@ static void load_blcmdfile()
   }
   fclose(blcmd_file_fp);
   if (file_corrupt) { 
-    if (line == NULL) line[0] = '\0';
     cmd_display(M_COMMAND,0,
       _("WARNING: blcmdfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
@@ -327,13 +329,9 @@ static void clear_blcmdfile()
 
 /* reload boxlist command file */
 void cmd_ldblcmd(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   clear_blcmdfile();
   load_blcmdfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -342,14 +340,10 @@ char *str;
 
 /* list boxlist command data */
 void cmd_lsblcmd(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
-  char disp_line[83]; 
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
+  char disp_line[256]; 
   int found;
   struct blcmdlist *blcmdlist_wrk;
   struct blcmdstr *blcmdstr_wrk;
@@ -401,13 +395,15 @@ char *str;
     }
     allowed = '#';
     if (blcmdlist_wrk->allowed) allowed = '!';
-    sprintf(disp_line,"%c%c%c%c%c%s",appl_char,boxline_char,keyflag,key,
-            allowed,blcmdlist_wrk->blcmd->command);
+        snprintf(disp_line, sizeof(disp_line), "%c%c%c%c%c%s",
+           appl_char, boxline_char, keyflag, key,
+           allowed, blcmdlist_wrk->blcmd->command);
     cmd_display(mode,channel,disp_line,1);
     blcmdstr_wrk = blcmdlist_wrk->blcmd->next;
     while (blcmdstr_wrk != NULL) {
-      sprintf(disp_line,"%c%c%c%c%c%s",'X',boxline_char,keyflag,key,
-              allowed,blcmdstr_wrk->command);
+          snprintf(disp_line, sizeof(disp_line), "%c%c%c%c%c%s",
+             'X', boxline_char, keyflag, key,
+             allowed, blcmdstr_wrk->command);
       cmd_display(mode,channel,disp_line,1);
       blcmdstr_wrk = blcmdstr_wrk->next;
     }
@@ -429,7 +425,7 @@ static int extract_board_number(char *file, char *board, int *number)
 
   line_ok = 1;
   str = strdup(file);  
-  for (i=0;i<strlen(str);i++) {
+  for (i=0;i<(int)strlen(str);i++) {
     if (str[i] == '.') str[i] = ' ';
   }
   res = sscanf(str,"%s %d",board,number);
@@ -512,19 +508,16 @@ static int boxline_analysis(char *str, struct boxline_result *boxline_ptr,
     boxline_ptr->msg_nr = check_nr;
     strncpy(boxline_ptr->call,call,6);
     boxline_ptr->call[6] = '\0';
-    strncpy(boxline_ptr->board,rubrik,8);
-    boxline_ptr->board[8] = '\0';
+    snprintf(boxline_ptr->board, sizeof(boxline_ptr->board), "%.8s", rubrik);
     boxline_ptr->number = number;
-    strncpy(boxline_ptr->date,date,8);
-    boxline_ptr->date[8] = '\0';
+    snprintf(boxline_ptr->date, sizeof(boxline_ptr->date), "%.8s", date);
     boxline_ptr->time[0] = '\0';
     strncpy(boxline_ptr->bid,bid,12);
     boxline_ptr->bid[12] = '\0';
-    strncpy(boxline_ptr->mbx,mbx,8);
-    boxline_ptr->mbx[8] = '\0';
+    snprintf(boxline_ptr->mbx, sizeof(boxline_ptr->mbx), "%.6s", mbx);
     boxline_ptr->bytes = bytes;
     boxline_ptr->lt = lt;
-    strncpy(boxline_ptr->mbx,title,MAXCOLS);
+    strncpy(boxline_ptr->title,title,MAXCOLS);
     boxline_ptr->title[MAXCOLS] = '\0';
     boxline_ptr->start_col = 0;
     boxline_ptr->num_col = COLS - 1;
@@ -553,7 +546,7 @@ DG0XC  DIGI......17 28.04.95 2845DB0BALWE DL      1 DB0BRO-1 wieder ok.
   if (line_ok) {
     /* if call contains only numbers, it is a DIEBOX-list */
     line_ok = 0;
-    for (i=0;i<strlen(call);i++) {
+    for (i=0;i<(int)strlen(call);i++) {
       if (isalpha(call[i])) line_ok = 1;
     }
   }
@@ -566,19 +559,16 @@ DG0XC  DIGI......17 28.04.95 2845DB0BALWE DL      1 DB0BRO-1 wieder ok.
     boxline_ptr->msg_nr = -1;
     strncpy(boxline_ptr->call,call,6);
     boxline_ptr->call[6] = '\0';
-    strncpy(boxline_ptr->board,rubrik,8);
-    boxline_ptr->board[8] = '\0';
+    snprintf(boxline_ptr->board, sizeof(boxline_ptr->board), "%.8s", rubrik);
     boxline_ptr->number = number;
-    strncpy(boxline_ptr->date,date,8);
-    boxline_ptr->date[8] = '\0';
+    snprintf(boxline_ptr->date, sizeof(boxline_ptr->date), "%.8s", date);
     boxline_ptr->time[0] = '\0';
     strncpy(boxline_ptr->bid,bid,12);
     boxline_ptr->bid[12] = '\0';
-    strncpy(boxline_ptr->mbx,mbx,8);
-    boxline_ptr->mbx[8] = '\0';
+    snprintf(boxline_ptr->mbx, sizeof(boxline_ptr->mbx), "%.6s", mbx);
     boxline_ptr->bytes = bytes;
     boxline_ptr->lt = -1;
-    strncpy(boxline_ptr->mbx,title,MAXCOLS);
+    strncpy(boxline_ptr->title,title,MAXCOLS);
     boxline_ptr->title[MAXCOLS] = '\0';
     boxline_ptr->start_col = 0;
     boxline_ptr->num_col = COLS - 1;
@@ -612,7 +602,7 @@ DG0XC  DIGI......17 28.04.95 2845DB0BALWE DL      1 DB0BRO-1 wieder ok.
     boxline_ptr->mbx[0] = '\0';
     boxline_ptr->bytes = bytes;
     boxline_ptr->lt = -1;
-    strncpy(boxline_ptr->mbx,title,MAXCOLS);
+    strncpy(boxline_ptr->title,title,MAXCOLS);
     boxline_ptr->title[MAXCOLS] = '\0';
     boxline_ptr->start_col = 0;
     boxline_ptr->num_col = COLS - 1;
@@ -641,7 +631,7 @@ KENWOOD.....0 KEPLER......3 KW..........0 LINKTRX.....0 LINUX.......0
     pos = 0;
     i = 0;
     first = 1;
-    while ((pos < res) && (i < strlen(str))) {
+    while ((pos < res) && (i < (int)strlen(str))) {
       if ((str[i] != ' ') && (first)) {
         dir[pos].start_col = i;
         first = 0;
@@ -659,7 +649,7 @@ KENWOOD.....0 KEPLER......3 KW..........0 LINKTRX.....0 LINUX.......0
 
     pos = 0;
     i = 0;
-    while ((pos < res) && (i < strlen(str)) && (i < column)) {
+    while ((pos < res) && (i < (int)strlen(str)) && (i < column)) {
       if (str[i] == ' ') pos++;
       i++;
     }
@@ -983,6 +973,7 @@ static void blist_analyse_line(int channel, char func, int flag)
   int res;
   int number;
   int end;
+  (void)flag;
 
 #ifdef DPBOXT
   win_charout_cntl(C_EOLINE,&mbboxlistwin);
@@ -1128,13 +1119,9 @@ static void add_tempfilename(char *tmpname)
 
 /* open a temporary file for boxlist */
 void cmd_logblist(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   char *tmpname;
   struct tmpname_entry *newentry;
   struct tmpname_entry *listentry;
@@ -1204,8 +1191,7 @@ static void scan_for_board(char *buffer,int len)
 /* par1 = 1: no check whether boxlist already open (be careful) */
 void cmd_blist(par1,par2,channel,len,mode,str)
 int par1;
-int par2;
-int channel;
+int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -1441,13 +1427,9 @@ char *str;
 #if defined(USE_IFACE) || defined(DPBOXT)
 /* restore last saved boxlist contents */
 void cmd_blrestore(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if (next_blist_save) {
     if (mbboxlist_file.type != -1) {
       close_window(&mbboxlistwin);
@@ -1485,13 +1467,9 @@ char *str;
 
 /* show number of save buffers */
 void cmd_showblsv(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   char buffer[80];
   
   sprintf(buffer, _("Number of used save buffers: %d"),next_blist_save);
@@ -1500,13 +1478,9 @@ char *str;
 
 /* flush all save buffers */
 void cmd_blflush(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   while (next_blist_save) {
     close_window(&blistsavewin[next_blist_save-1]);
     next_blist_save--;
@@ -1517,13 +1491,9 @@ char *str;
 
 /* finish boxlist */
 void cmd_xblist(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   struct boxlist_file *blfile;
 
 #if defined(USE_IFACE) && (! defined(DPBOXT))
@@ -1715,8 +1685,7 @@ int alloc_boxlist()
 #if defined(USE_IFACE) || defined(DPBOXT)
 void cmd_xbox(par1,par2,channel,len,mode,str)
 int par1;
-int par2;
-int channel;
+int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;

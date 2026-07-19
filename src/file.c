@@ -272,8 +272,7 @@ char *str;
 #ifndef DPBOXT
 void close_txfile(channel,report)
 int channel;
-int report;
-{
+int report __attribute__((unused));{
   if (tx_file[channel].type != -1) {
     close(tx_file[channel].fd);
     if (tx_file[channel].type == TX_YAPP) {
@@ -310,8 +309,7 @@ int channel;
 
 void close_rxfile2(channel,report,rename)
 int channel;
-int report;
-int rename;
+int report __attribute__((unused));int rename;
 {
   if (rx_file[channel].type != -1) {
     close(rx_file[channel].fd);
@@ -688,14 +686,10 @@ char *str;
 
 void close_file(par1,par2,channel,len,mode,str)
 int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
 #ifndef DPBOXT
-  int error;
   char abort_str[] = "#ABORT#\r";
   int flag;
 #endif
@@ -714,7 +708,6 @@ char *str;
 #endif
 #ifndef DPBOXT
   if (par1) mode = M_CMDSCRIPT;
-  error = 0;
   if (rx_file[channel].type == -1) {
     cmd_display(mode,channel, _("No file open"),1);
     return;
@@ -741,8 +734,7 @@ void open_monfile(type,flag,channel,len,mode,str)
 int type;
 int flag;
 int channel;
-int len;
-int mode;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int file_flags;
@@ -784,13 +776,9 @@ char *str;
 }
 
 void close_monfile(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if (rx_file_mon.type == -1) {
     cmd_display(mode,channel,"No file open",1);
     return;
@@ -803,8 +791,7 @@ void open_xmonfile(type,flag,channel,len,mode,str)
 int type;
 int flag;
 int channel;
-int len;
-int mode;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int file_flags;
@@ -864,11 +851,8 @@ char *str;
 }
 
 void close_xmonfile(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int screen;
@@ -1403,12 +1387,7 @@ int *state;
 }
 
 void open_comscript(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel __attribute__((unused));int len __attribute__((unused));int mode __attribute__((unused));char *str;
 {
   int dummy;
 
@@ -1501,7 +1480,7 @@ char *str;
   int end;
   int len2;
   char buf[BUFSIZE];
-  char ans_str[MAXCHAR];
+  char ans_str[257];
   int flag1;
   int i, j;
   char ch;
@@ -1511,6 +1490,7 @@ char *str;
   int res;
   char filename[80];
   char *slashptr;
+  int slash_len;
   int size;
   yapptype *yapp;
   char path_str[3][MAXCOLS+1]; /* DH3MB */
@@ -1567,7 +1547,8 @@ char *str;
     if (tx_file[channel].fd == -1) {
       /* file does not exist: change all chars to lower case and try again */
       if (errno != EACCES) {
-        for (j = strlen(path_str[i]); j < strlen(tx_file[channel].name); j++) {
+        for (j = (int)strlen(path_str[i]);
+             j < (int)strlen(tx_file[channel].name); j++) {
           ch = *(tx_file[channel].name+j);
           if ((ch > 0x40) && (ch < 0x5b)) {
             ch |= 0x20;
@@ -1625,7 +1606,7 @@ char *str;
   case TX_ABINQ:
     if (res == 2) {
       if (strcmp(tmpstr,"`") != 0) {
-        sprintf(ans_str,"//WPRG %s\015",tmpstr);
+        snprintf(ans_str, sizeof(ans_str), "//WPRG %.247s\015", tmpstr);
         rem_data_display(channel,ans_str);
         queue_cmd_data(channel,X_DATA,strlen(ans_str),flag1,ans_str);
       }
@@ -1654,10 +1635,12 @@ char *str;
       slashptr = tx_file[channel].name;
     else
       slashptr++;
-    for (i=0;i<strlen(slashptr);i++)
+    slash_len = strlen(slashptr);
+    for (i=0; (i < (int)sizeof(filename) - 1) && (i < slash_len); i++)
       filename[i] = toupper(slashptr[i]);
-    filename[strlen(slashptr)] = '\0';
-    sprintf(ans_str,"#BIN#%d#|%d#$1EDEADF0#%s\015",file_len,crc,filename);
+    filename[i] = '\0';
+    snprintf(ans_str, sizeof(ans_str), "#BIN#%d#|%d#$1EDEADF0#%.79s\015",
+             file_len, crc, filename);
     rem_data_display(channel,ans_str);
     queue_cmd_data(channel,X_DATA,strlen(ans_str),flag1,ans_str);
     break;
@@ -1700,13 +1683,9 @@ char *str;
 }
 
 void break_send(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   if (tx_file[channel].type == -1) {
     cmd_display(mode,channel, _("Sending no file"),1);
   }

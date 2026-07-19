@@ -83,12 +83,12 @@ void init_log()
     disable_logging();
     return;
   }
-  if (write(fd,loghead,strlen(loghead)) < strlen(loghead)) {
+  if (write(fd,loghead,strlen(loghead)) < (ssize_t)strlen(loghead)) {
     disable_logging();
     close(fd);
     return;
   }
-  if (write(fd,logdelim,strlen(logdelim)) < strlen(logdelim)) {
+  if (write(fd,logdelim,strlen(logdelim)) < (ssize_t)strlen(logdelim)) {
     disable_logging();
     close(fd);
     return;
@@ -104,9 +104,9 @@ int channel;
 {
   char logstr[LOG_LINELEN];
   char tmpstr[LOG_LINELEN];
-  char qualstr[10];
   struct tm *cvtime;
   int fd;
+  int avail;
   char tmpname[2*LOG_LINELEN];
   
   if (!logbook_flag) return;
@@ -118,29 +118,24 @@ int channel;
     return;
   }
   /* generate the logline */
-  strcpy(logstr,"");
-  strcpy ( tmpstr, ch_stat[channel].mycall ) ; 
-  strcat ( tmpstr, "     " ) ; 
-  strncat ( logstr, tmpstr, (size_t)10 ) ;
-  strncat ( logstr, qrg_info[(int)0].qrg , (size_t)7 );
-  if(strlen(qrg_info[(int)0].qrg) < 7)
-    strncat( logstr, "       ", 7-strlen(qrg_info[(int)0].qrg) );
-  strcat ( logstr, " ") ; 
+  snprintf(logstr, sizeof(logstr), "%-10.10s%-7.7s ",
+           ch_stat[channel].mycall, qrg_info[(int)0].qrg);
   cvtime = localtime(&ch_stat[channel].start_time);
   strftime(tmpstr,sizeof(tmpstr),"%d.%m.%y %R | ",cvtime);
-  strcat(logstr,tmpstr);
+  strncat(logstr, tmpstr, sizeof(logstr) - strlen(logstr) - 1);
   cvtime = localtime(&ch_stat[channel].end_time);
   strftime(tmpstr,sizeof(tmpstr),"%d.%m.%y %R | ",cvtime);
-  strcat(logstr,tmpstr);
+  strncat(logstr, tmpstr, sizeof(logstr) - strlen(logstr) - 1);
   if (ch_stat[channel].log_call[0] != '\0') {
-    strcat(logstr,ch_stat[channel].log_call);
-    strcat(logstr,", Uplink: ");
+    strncat(logstr, ch_stat[channel].log_call, sizeof(logstr) - strlen(logstr) - 1);
+    strncat(logstr, ", Uplink: ", sizeof(logstr) - strlen(logstr) - 1);
   }
-  sprintf(qualstr,"%%.%us\n",LOG_LINELEN - strlen(logstr) - 2);
-  sprintf(tmpstr,qualstr,ch_stat[channel].call);
-  strcat(logstr,tmpstr);
+  avail = LOG_LINELEN - (int)strlen(logstr) - 2;
+  if (avail < 0) avail = 0;
+  snprintf(tmpstr, sizeof(tmpstr), "%.*s\n", avail, ch_stat[channel].call);
+  strncat(logstr, tmpstr, sizeof(logstr) - strlen(logstr) - 1);
   /* logline available in logstr */
-  if (write(fd,logstr,strlen(logstr)) < strlen(logstr)) {
+  if (write(fd,logstr,strlen(logstr)) < (ssize_t)strlen(logstr)) {
     disable_logging();
     close(fd);
     return;

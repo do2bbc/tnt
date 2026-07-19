@@ -386,7 +386,7 @@ static void BcastProtokoll(char *txt)
 {
   char TEMP[256];
 
-  sprintf(TEMP, "PACSAT: %s", txt);
+  snprintf(TEMP, sizeof(TEMP), "PACSAT: %.247s", txt);
   bcastprotokollcall(TEMP);
 }
 
@@ -546,6 +546,7 @@ static boolean gen_bcstfile(u_int32_t fid, unsigned short ftype, char *name1,
   unsigned short x, idx, hp, fsb, csb, bob;
   boolean is_bbs;
   PACSAT_FILEINFO *WITH;
+  (void)bbs_msgtype;
 
   Result = false;
   is_bbs = (*bbs_destination != '\0');
@@ -1526,6 +1527,7 @@ static void send_bcast_1(short chan, short num_free)
   char TEMP[256];
   char STR1[256];
   unsigned short FORLIM;
+  (void)chan;
 
   if (pactxroot != NULL) {
     freebuf = num_free;
@@ -1811,6 +1813,7 @@ static boolean rearrange_holes(long offset, unsigned short size,
 
 static boolean in_holelist(long offset, unsigned short size, holelisttype **hp)
 {
+  (void)size;
   if (*hp != NULL) {
     while (offset >= (*hp)->offset + (*hp)->len && (*hp)->next != NULL)
       *hp = (*hp)->next;
@@ -1824,6 +1827,7 @@ static long get_filesize(pacrxdesc *tp, unsigned short size, u_char *info)
 {
   long Result, fsiz;
   unsigned short idx, y, z, len, sel;
+  int avail;
   char ufname[256];
   char dest[256];
   char file_name[9];
@@ -1859,20 +1863,26 @@ static long get_filesize(pacrxdesc *tp, unsigned short size, u_char *info)
 
     case PH_USER_FILE_NAME:
       len = info[idx + 1];
-      if (idx + len + 2 <= size)
-	z = len;
+      avail = (int)size - (int)idx - 2;
+      if (avail < 0)
+        avail = 0;
+      if ((int)len <= avail)
+        z = len;
       else
-	z = size - idx - 2;
+        z = (unsigned short)avail;
       for (y = 1; y <= z; y++)
 	ufname[y - 1] = info[idx + y + 1];
       ufname[z] = '\0';
       break;
 
     case PH_FILE_NAME:
-      if (idx + 10 <= size)
-	z = 8;
+      avail = (int)size - (int)idx - 2;
+      if (avail < 0)
+        avail = 0;
+      if (8 <= avail)
+        z = 8;
       else
-	z = size - idx - 2;
+        z = (unsigned short)avail;
       for (y = 1; y <= z; y++)
 	file_name[y - 1] = info[idx + y + 1];
       file_name[z] = '\0';
@@ -1880,10 +1890,13 @@ static long get_filesize(pacrxdesc *tp, unsigned short size, u_char *info)
       break;
 
     case PH_FILE_EXT:
-      if (idx + 5 <= size)
-	z = 3;
+      avail = (int)size - (int)idx - 2;
+      if (avail < 0)
+        avail = 0;
+      if (3 <= avail)
+        z = 3;
       else
-	z = size - idx - 2;
+        z = (unsigned short)avail;
       for (y = 1; y <= z; y++)
 	file_ext[y - 1] = info[idx + y + 1];
       file_ext[z] = '\0';
@@ -1896,10 +1909,13 @@ static long get_filesize(pacrxdesc *tp, unsigned short size, u_char *info)
     case PH_DESTINATION:
       tp->is_bbs_file = true;
       len = info[idx + 1];
-      if (idx + len + 2 <= size)
-	z = len;
+      avail = (int)size - (int)idx - 2;
+      if (avail < 0)
+        avail = 0;
+      if ((int)len <= avail)
+        z = len;
       else
-	z = size - idx - 2;
+        z = (unsigned short)avail;
       for (y = 1; y <= z; y++)
 	dest[y - 1] = info[idx + y + 1];
       dest[z] = '\0';
@@ -2045,6 +2061,7 @@ static void resp_request(u_int32_t file_id, unsigned short blocksize,
   pactxdesc *tp;
   u_int32_t start;
   unsigned short idx, len;
+  (void)blocksize;
 
   if (pactxroot == NULL)
     return;
@@ -2635,13 +2652,9 @@ void _bcast_init(void)
 /* End. */
 
 void cmd_bcrxstat(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   pacrxdesc *pacrxptr;
   char tmpstr[256];
   char timestring[20];
@@ -2708,13 +2721,9 @@ char *str;
 }
 
 void cmd_bctxstat(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   pactxdesc *pactxptr;
   char tmpstr[256];
   char timestring[20];

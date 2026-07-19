@@ -216,8 +216,7 @@ const char *name;
 
 struct passwd *getpasswdentry(name, create)
 const char *name;
-int create;
-{
+int create __attribute__((unused));{
 #ifdef GEN_NEW_USER
   FILE *fp;
   char bitmap[unix_user_max];
@@ -295,7 +294,7 @@ char *str;
   char *env = 0;
   char slave[MAXCHAR];
   int i;
-  struct passwd *pw;
+  struct passwd *pw = NULL;
   struct termios termios;
   char envcall[30];
 #ifdef LOGIN_PROCESS
@@ -417,11 +416,8 @@ char *str;
 
 /* redirect the current channel */
 void cmd_redir(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
 
@@ -473,7 +469,7 @@ char *str;
   char tmpcall[10];
   char slave[MAXCHAR];
   int i;
-  struct passwd *pw;
+  struct passwd *pw = NULL;
   struct termios termios;
   char command[256];
   char *ptr;
@@ -628,7 +624,7 @@ struct sockaddr *build_sockaddr(const char *name, int *addrlen)
     addr.si.sin_addr.s_addr = INADDR_ANY;
   } else if (!strcmp(host_name, "loopback")) {
     addr.si.sin_addr.s_addr = inet_addr("127.0.0.1");
-  } else if ((addr.si.sin_addr.s_addr = inet_addr(host_name)) == -1) {
+  } else if ((addr.si.sin_addr.s_addr = inet_addr(host_name)) == INADDR_NONE) {
     struct hostent *hp = gethostbyname(host_name);
     endhostent();
     if (!hp) return 0;
@@ -652,14 +648,14 @@ static void strtolower(char *str)
 {
   int i;
   
-  for (i=0;i<strlen(str);i++) str[i] = tolower(str[i]);
+  for (i=0;i<(int)strlen(str);i++) str[i] = tolower(str[i]);
 }
 
 static void strtoupper(char *str)
 {
   int i;
   
-  for (i=0;i<strlen(str);i++) str[i] = toupper(str[i]);
+  for (i=0;i<(int)strlen(str);i++) str[i] = toupper(str[i]);
 }
 
 /* this procedure converts all EOL-sequences CR,CR/LF,LF to a single CR */ 
@@ -736,8 +732,7 @@ void cmd_sockconn(par1,par2,channel,len,mode,str)
 int par1;
 int par2;
 int channel;
-int len;
-int mode;
+int len __attribute__((unused));int mode;
 char *str;
 {
   struct sockaddr *saddr;
@@ -776,9 +771,7 @@ char *str;
 }
 
 void cmd_socket(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -959,7 +952,7 @@ int len;
             /* here special level for mail delivery, level=99 allows any ext.
                command via '::command' (to open logfiles or uploads) */
             if (buffer[1] == ':') {
-              strncpy(tmpstr,&buffer[2],sizeof(tmpstr));
+              snprintf(tmpstr, sizeof(tmpstr), "%s", &buffer[2]);
               i = strlen(tmpstr) - 1;
               /* strip off LF or CR at end of input */
               while (tmpstr[i] == '\n' || tmpstr[i] == '\r') {
@@ -1251,9 +1244,9 @@ int len;
       write_socket(active_socket,strlen(tmp),tmp,0);
     }
     else {
-      for (i=0;i<strlen(buffer);i++)
+      for (i=0;i<(int)strlen(buffer);i++)
         if (buffer[i]==' ') break;
-      if (i<strlen(buffer) || (strcmp(active_socket->connect,"none"))) {
+      if (i<(int)strlen(buffer) || (strcmp(active_socket->connect,"none"))) {
         con_channel = find_free_channel();
         if (con_channel == -1) {
           sprintf(tmp, _("* no free channel left * %s "), CMDPT);
@@ -1935,11 +1928,8 @@ LISTEN_SOCKET *listen_socket;
 
 /* close a socket and all connections using it */
 void cmd_endsock(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int found;
@@ -1969,13 +1959,9 @@ char *str;
 
 /* close a shell or redir on the current channel */
 void cmd_endshell(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
-{
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
+char *str __attribute__((unused));{
   close_shell2(channel,1,0,mode);
 }
 

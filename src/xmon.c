@@ -536,7 +536,7 @@ char *buffer;
   char *ptr;
   char viacall[10][8];
   char i_nbr_ch;
-  int i_nbr;
+  int i_nbr = 0;
   char fm_str[] = "fm ";
   char to_str[] = "to ";
   char via_str[] = "via ";
@@ -921,7 +921,7 @@ char *string;
   int i;
   
   sum = 0;
-  for (i=0;i<strlen(string);i++) {
+  for (i=0;i<(int)strlen(string);i++) {
     sum += string[i];
   }
   return(sum);
@@ -1016,10 +1016,8 @@ int xmon_ch;
 
 void cmd_extmon(par1,par2,channel,len,mode,str)
 int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int screen;
@@ -1034,8 +1032,8 @@ char *str;
   int xmon_ch2;
   int sum1;
   int sum2;
-  int sum3;
-  int sum4;
+  int sum3 = 0;
+  int sum4 = 0;
   int diffcall;
   char temptext[MAXCHAR];
   int found;
@@ -1124,20 +1122,20 @@ char *str;
     cmd_display(mode,channel,xmon_noxmon_txt,1);
     return;
   }
-  for (i=0;i<strlen(call1);i++) {
+  for (i=0;i<(int)strlen(call1);i++) {
     call1[i] = toupper(call1[i]);
   }
   sum1 = gensum(call1);
-  for (i=0;i<strlen(call2);i++) {
+  for (i=0;i<(int)strlen(call2);i++) {
     call2[i] = toupper(call2[i]);
   }
   sum2 = gensum(call2);
   if (diffcall) {
-    for (i=0;i<strlen(call3);i++) {
+    for (i=0;i<(int)strlen(call3);i++) {
       call3[i] = toupper(call3[i]);
     }
     sum3 = gensum(call3);
-    for (i=0;i<strlen(call4);i++) {
+    for (i=0;i<(int)strlen(call4);i++) {
       call4[i] = toupper(call4[i]);
     }
     sum4 = gensum(call4);
@@ -1224,11 +1222,8 @@ char *str;
 }
  
 void cmd_endextmon(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
+int len __attribute__((unused));int mode;
 char *str;
 {
   int screen;
@@ -1270,9 +1265,7 @@ char *str;
 }
 
 void cmd_extcomp(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
+int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
 int len;
 int mode;
 char *str;
@@ -1280,7 +1273,7 @@ char *str;
   int screen;
   int i;
   int found;
-  int comp;
+  int comp = 0;
 
   if (mode != M_EXTMON) {
     cmd_display(mode,channel,xmon_ill_txt,1);

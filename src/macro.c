@@ -265,8 +265,8 @@ int macro_getname(char *call,char *name)
     }
     *cptr1=0;
     if(i) {
-      strncpy(name,cptr,i+1);
-      name[i+1] = '\0';
+      memcpy(name,cptr,i);
+      name[i] = '\0';
     }
     else  strcpy(name,call);
     return TNT_OK;
@@ -309,7 +309,7 @@ int find_line_for_call(char *call,char *line)
     /* get a line from file */
     c = getbyte(fd);
     i = 0;
-    while((i < MAXCHAR) && (c != '\n') && (c != EOF)) {
+    while((i < (MAXCHAR - 1)) && (c != '\n') && (c != EOF)) {
       callline[i++] = c;
       c = getbyte(fd);
     }
@@ -439,7 +439,7 @@ int delete_line_for_call(char *call)
     }
     if ((!found) && (c != EOF)) {
       strcat(callline,"\n");
-      if (write(fd2,callline,strlen(callline)) < strlen(callline)) {
+      if (write(fd2,callline,strlen(callline)) < (ssize_t)strlen(callline)) {
         close(fd);
         close(fd2);
         unlink(newnamesfile);
@@ -469,7 +469,7 @@ int add_line_for_call(char *call,char *name)
   if (fd < 0) return(1);
 
   sprintf(tempstr,"T>%s %.50s\n",call,name);
-  if (write(fd,tempstr,strlen(tempstr)) < strlen(tempstr)) {
+  if (write(fd,tempstr,strlen(tempstr)) < (ssize_t)strlen(tempstr)) {
     close(fd);
     return(1);
   }

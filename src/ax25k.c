@@ -214,7 +214,7 @@ static void ax_monitor();
 static void ax_extcomm();
 static void ax_tries();
 static void ax_frack();
-/* static void ax_digipeat(); /* as J. Wasserbauer said, need to be confirmed */
+/* static void ax_digipeat(); */ /* As J. Wasserbauer said, need to be confirmed. */
 static void ax_maxframe();
 static void ax_txdelay();
 static void ax_persist();
@@ -230,7 +230,7 @@ static struct tnc_comm tnc_comm[] = {
   {'N',ax_tries},
   {'O',ax_maxframe},
   {'P',ax_persist},
-/*  {'R',ax_digipeat},   /* J. Wasserbauer... */
+/*  {'R',ax_digipeat}, */   /* J. Wasserbauer... */
   {'T',ax_txdelay},
   {'W',ax_slottime},
   {'@',ax_extcomm},
@@ -1672,8 +1672,8 @@ int change;
   if ((dev = ax25_config_get_dev(port)) == NULL)
           return -1;
 
-  /*sprintf(path, PROC_AX25_SYSCTL_DIR"/%s/%s", dev, AXParamTable[value_nr]);
-    /* as introduced by J. Wasserbauer */
+   /* sprintf(path, PROC_AX25_SYSCTL_DIR"/%s/%s", dev, AXParamTable[value_nr]);
+     as introduced by J. Wasserbauer */
   sprintf(path, "/proc/sys/net/ax25/%s/%s", dev, AXParamTable[value_nr]);
 
   if (!change)
@@ -1840,7 +1840,7 @@ static void ax_maxframe(int channel,char *data,int len)
 static void ax_digipeat(int channel,char *data,int len)
 {
   ax_value(channel,data,len,AX25_VALUES_DIGI,-1,0,3);
-}  /* as above: J. Wasserbauer ;-) */
+  }  as above (J. Wasserbauer).
 
 static void ax_backoff(int channel,char *data,int len)
 {
