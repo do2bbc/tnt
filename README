@@ -5,6 +5,27 @@ for more information.
 ---------------------------------------------------------------------
 QUICK-INSTALLATION, please read carefully
 
+Build requirements (required for a standard build):
+   - gcc (C compiler)
+   - make
+   - autoconf + automake (only needed if you regenerate build scripts)
+   - ncurses development files (libncurses + headers)
+   - gettext tools (xgettext, msgfmt)
+
+Optional/feature-specific libraries:
+   - AX.25 support (--enable-ax25k or --enable-ax25k2):
+      requires ax25 headers and libax25 (from axutils/libax25 packages)
+   - Included gettext fallback:
+      if your system gettext is missing, use --with-included-gettext
+
+Typical package names on Linux:
+   - Debian/Ubuntu:
+      sudo apt install build-essential autoconf automake libncurses-dev gettext
+   - Fedora/RHEL:
+      sudo dnf install gcc make autoconf automake ncurses-devel gettext
+   - Arch Linux:
+      sudo pacman -S base-devel autoconf automake ncurses gettext
+
 To install TNT:
   1) Type "./configure --help" to see the options you may be want to
      change (for example sound-support is defaultly compiled in).
