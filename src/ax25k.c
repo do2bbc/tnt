@@ -1840,7 +1840,8 @@ static void ax_maxframe(int channel,char *data,int len)
 static void ax_digipeat(int channel,char *data,int len)
 {
   ax_value(channel,data,len,AX25_VALUES_DIGI,-1,0,3);
-  }  as above (J. Wasserbauer).
+}
+*/ /* as above (J. Wasserbauer). */
 
 static void ax_backoff(int channel,char *data,int len)
 {
