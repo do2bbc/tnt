@@ -1,0 +1,78 @@
+# Build artifacts and object files
+*.o
+*.a
+*.so
+*.lo
+*.la
+*.dylib
+
+# Executables
+src/tnt
+src/tntc
+src/runprgs/help
+src/runprgs/info
+src/runprgs/logcall
+
+# Generated files from configure
+Makefile
+Makefile.in
+config.status
+config.cache
+config.log
+configure.lineno
+config.status.lineno
+config.h
+config.h.in~
+stamp-h
+stamp-h.in
+stamp-h1
+
+# Autotools generated files
+autom4te.cache/
+.deps/
+.libs/
+
+# Generated locale files
+po/Makefile.in.in~
+po/stamp-cat-id
+po/cat-id-tbl.c
+po/POTFILES
+intl/Makefile
+intl/po2tbl.sed
+
+# Build system files (generated from templates)
+conf/Makefile
+conf/tnt_setup.de
+conf/tnt_setup.en
+conf/tnt_setup.fr
+doc/Makefile
+doc/solaris/Makefile
+examples/Makefile
+examples/sounds/Makefile
+examples/tnt.ini
+examples/sounds.tnt
+examples/tntc.ini
+po/Makefile
+po/Makefile.in
+src/Makefile
+src/runprgs/Makefile
+src/runprgs/tntrun.h
+
+# Dependency files
+src/runprgs/.deps/
+src/.deps/
+
+# Temporary files
+*~
+*.bak
+*.swp
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Operating system
+.DS_Store
+Thumbs.db
