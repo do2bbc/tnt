@@ -329,12 +329,12 @@ char *argv[];
 
   errfd = open(tnt_errlog,O_RDWR|O_CREAT|O_APPEND,0600);
   if (errfd == -1) {
-    printf(_("ERROR: cannot create/open file for errorlog: %s\n"),tnt_errlog);
-    exit(1);
+    fprintf(stderr,_("WARNING: cannot create/open file for errorlog: %s\n"),tnt_errlog);
   }
-  
-  dup2(errfd,STDERR_FILENO);
-  close(errfd);
+  else {
+    dup2(errfd,STDERR_FILENO);
+    close(errfd);
+  }
     
   if (!tnt_daemon) {
     if (term_init("",0,0))
