@@ -23,6 +23,7 @@ clean-local:
 	rm -f info
 
 install-exec-hook:
+	$(MKDIR_P) "$(DESTDIR)$(tntbindir)"
 	ln -sf tnt-info $(DESTDIR)$(tntbindir)/info
 
 uninstall-hook:

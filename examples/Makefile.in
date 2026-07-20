@@ -614,7 +614,6 @@ installdirs-am:
 	done
 install-exec: install-exec-recursive
 install-data: install-data-recursive
-uninstall: uninstall-recursive
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
@@ -730,6 +729,12 @@ install:
 	@for i in $(exmpfiles); \
   	do \
 		$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(exmpdir)/$$i.ex; \
+	done;
+
+uninstall:
+	@for i in $(exmpfiles); \
+ 	do \
+		rm -f $(DESTDIR)$(exmpdir)/$$i.ex; \
 	done;
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

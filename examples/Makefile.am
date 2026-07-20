@@ -47,3 +47,9 @@ install:
 		$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(exmpdir)/$$i.ex; \
 	done;
 
+uninstall:
+	@for i in $(exmpfiles); \
+ 	do \
+		rm -f $(DESTDIR)$(exmpdir)/$$i.ex; \
+	done;
+

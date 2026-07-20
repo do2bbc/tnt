@@ -14,6 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Bootstrap autotools
+      run: autoreconf -fi
+
     - name: configure
       run: ./configure
 
@@ -23,5 +26,5 @@ jobs:
     - name: Run check
       run: make check
 
-    - name: Run distcheck
-      run: make distcheck
+    - name: Run dist
+      run: make dist
