@@ -6291,6 +6291,220 @@ fi
 
 
 
+
+
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking for a C dialect compatible with legacy function declarations" >&5
+printf %s "checking for a C dialect compatible with legacy function declarations... " >&6; }
+if test ${tnt_cv_cc_legacy_dialect+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+tnt_cv_cc_legacy_dialect=none
+for tnt_cc_flag in -std=gnu99 -std=c99; do
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS $tnt_cc_flag"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  tnt_cv_cc_legacy_dialect=$tnt_cc_flag
+		 CFLAGS=$tnt_save_CFLAGS
+		 break
+else case e in #(
+  e) CFLAGS=$tnt_save_CFLAGS ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+done
+ ;;
+esac
+fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_legacy_dialect" >&5
+printf '%s\n' "$tnt_cv_cc_legacy_dialect" >&6; }
+if test "x$tnt_cv_cc_legacy_dialect" != xnone; then
+	CFLAGS="$CFLAGS $tnt_cv_cc_legacy_dialect"
+fi
+
+
+
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wno-implicit-int" >&5
+printf %s "checking whether $CC supports -Wno-implicit-int... " >&6; }
+if test ${tnt_cv_cc_flag__Wno_implicit_int+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS -Wno-implicit-int"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  tnt_cv_cc_flag__Wno_implicit_int=yes
+else case e in #(
+  e) tnt_cv_cc_flag__Wno_implicit_int=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+	CFLAGS=$tnt_save_CFLAGS
+	 ;;
+esac
+fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wno_implicit_int" >&5
+printf '%s\n' "$tnt_cv_cc_flag__Wno_implicit_int" >&6; }
+	if test "x$tnt_cv_cc_flag__Wno_implicit_int" = xyes
+then :
+  CFLAGS="$CFLAGS -Wno-implicit-int"
+fi
+
+
+
+
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wno-old-style-definition" >&5
+printf %s "checking whether $CC supports -Wno-old-style-definition... " >&6; }
+if test ${tnt_cv_cc_flag__Wno_old_style_definition+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS -Wno-old-style-definition"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  tnt_cv_cc_flag__Wno_old_style_definition=yes
+else case e in #(
+  e) tnt_cv_cc_flag__Wno_old_style_definition=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+	CFLAGS=$tnt_save_CFLAGS
+	 ;;
+esac
+fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wno_old_style_definition" >&5
+printf '%s\n' "$tnt_cv_cc_flag__Wno_old_style_definition" >&6; }
+	if test "x$tnt_cv_cc_flag__Wno_old_style_definition" = xyes
+then :
+  CFLAGS="$CFLAGS -Wno-old-style-definition"
+fi
+
+
+
+
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wno-error=implicit-function-declaration" >&5
+printf %s "checking whether $CC supports -Wno-error=implicit-function-declaration... " >&6; }
+if test ${tnt_cv_cc_flag__Wno_error_implicit_function_declaration+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS -Wno-error=implicit-function-declaration"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  tnt_cv_cc_flag__Wno_error_implicit_function_declaration=yes
+else case e in #(
+  e) tnt_cv_cc_flag__Wno_error_implicit_function_declaration=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+	CFLAGS=$tnt_save_CFLAGS
+	 ;;
+esac
+fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wno_error_implicit_function_declaration" >&5
+printf '%s\n' "$tnt_cv_cc_flag__Wno_error_implicit_function_declaration" >&6; }
+	if test "x$tnt_cv_cc_flag__Wno_error_implicit_function_declaration" = xyes
+then :
+  CFLAGS="$CFLAGS -Wno-error=implicit-function-declaration"
+fi
+
+
+
+
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wno-implicit-function-declaration" >&5
+printf %s "checking whether $CC supports -Wno-implicit-function-declaration... " >&6; }
+if test ${tnt_cv_cc_flag__Wno_implicit_function_declaration+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS -Wno-implicit-function-declaration"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  tnt_cv_cc_flag__Wno_implicit_function_declaration=yes
+else case e in #(
+  e) tnt_cv_cc_flag__Wno_implicit_function_declaration=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+	CFLAGS=$tnt_save_CFLAGS
+	 ;;
+esac
+fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wno_implicit_function_declaration" >&5
+printf '%s\n' "$tnt_cv_cc_flag__Wno_implicit_function_declaration" >&6; }
+	if test "x$tnt_cv_cc_flag__Wno_implicit_function_declaration" = xyes
+then :
+  CFLAGS="$CFLAGS -Wno-implicit-function-declaration"
+fi
+
+
+
+
 { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 printf %s "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
 set x ${MAKE-make}
