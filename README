@@ -11,6 +11,7 @@ Build requirements (required for a standard build):
    - autoconf + automake (only needed if you regenerate build scripts)
    - ncurses development files (libncurses + headers)
    - gettext tools (xgettext, msgfmt)
+   - dialog, for the interactive tnt_setup configuration scripts
 
 Optional/feature-specific libraries:
    - AX.25 support (--enable-ax25k or --enable-ax25k2):
@@ -20,13 +21,13 @@ Optional/feature-specific libraries:
 
 Typical package names on Linux:
    - Debian/Ubuntu:
-      sudo apt install build-essential autoconf automake libncurses-dev gettext
+      sudo apt install build-essential autoconf automake libncurses-dev gettext dialog
    - Fedora/RHEL:
-      sudo dnf install gcc make autoconf automake ncurses-devel gettext
+      sudo dnf install gcc make autoconf automake ncurses-devel gettext dialog
    - Arch Linux:
-      sudo pacman -S base-devel autoconf automake ncurses gettext
+      sudo pacman -S base-devel autoconf automake ncurses gettext dialog
    - Raspberry Pi OS / Debian on Raspberry Pi:
-      sudo apt install build-essential autoconf automake libncurses-dev gettext
+      sudo apt install build-essential autoconf automake libncurses-dev gettext dialog
 
 To install TNT:
   1) Type "./configure --help" to see the options you may be want to

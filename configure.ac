@@ -111,7 +111,7 @@ case "$host" in
 		cfg=conf/netbsd.cfg
 		tnt_main_dir=${prefix}
 		tnt_work_dir=${localstatedir}/spool/tnt
-		tnt_conf_dir=${prefix}/share/tnt/conf
+		tnt_conf_dir=${sysconfdir}/tnt
 		tnt_doc_dir=${prefix}/share/doc/tnt
 		tnt_log_dir=${localstatedir}/log
 		tnt_proc_dir=${localstatedir}/run
@@ -135,7 +135,7 @@ case "$host" in
 		cfg=conf/netbsd.cfg
 		tnt_main_dir=${prefix}
 		tnt_work_dir=${localstatedir}/spool/tnt
-		tnt_conf_dir=${prefix}/share/tnt/conf
+		tnt_conf_dir=${sysconfdir}/tnt
 		tnt_doc_dir=${prefix}/share/doc/tnt
 		tnt_log_dir=${localstatedir}/log
 		tnt_proc_dir=${localstatedir}/run
@@ -159,7 +159,7 @@ case "$host" in
 		cfg=conf/linux.cfg
                 tnt_main_dir=${prefix}
                 tnt_work_dir=${localstatedir}/spool/tnt
-                tnt_conf_dir=${prefix}/share/tnt/conf
+		tnt_conf_dir=${sysconfdir}/tnt
                 tnt_doc_dir=${prefix}/share/tnt/doc
                 tnt_log_dir=${localstatedir}/log
 		tnt_proc_dir=${localstatedir}/run
@@ -450,6 +450,8 @@ AC_ARG_ENABLE(hibaud, [ --enable-hibaud              use hibaud-rate (>38400), o
 	AC_MSG_RESULT(no)
 ])
 
+eval "tnt_conf_dir=\"$tnt_conf_dir\""
+
 AC_DEFINE_UNQUOTED([TNT_INIT_PATH], "${tnt_conf_dir}", [path for configuration])
 AC_DEFINE_UNQUOTED([TNT_RUN_PATH], "${tnt_bin_dir}", [path for runprograms])
 AC_DEFINE_UNQUOTED([TNT_MAIN_PATH], "${tnt_log_dir}", [path for logfiles])
@@ -475,6 +477,10 @@ AC_CONFIG_FILES([
 	src/runprgs/tntrun.h
 	src/runprgs/Makefile
 	Makefile
+])
+
+AC_CONFIG_COMMANDS([setup-scripts-mode], [
+	chmod +x conf/tnt_setup.de conf/tnt_setup.en conf/tnt_setup.fr
 ])
 
 AC_OUTPUT

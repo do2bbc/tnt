@@ -8702,7 +8702,7 @@ printf '%s\n' "#define HAVE_CRTSCTS 1" >>confdefs.h
 		cfg=conf/netbsd.cfg
 		tnt_main_dir=${prefix}
 		tnt_work_dir=${localstatedir}/spool/tnt
-		tnt_conf_dir=${prefix}/share/tnt/conf
+		tnt_conf_dir=${sysconfdir}/tnt
 		tnt_doc_dir=${prefix}/share/doc/tnt
 		tnt_log_dir=${localstatedir}/log
 		tnt_proc_dir=${localstatedir}/run
@@ -8748,7 +8748,7 @@ printf '%s\n' "#define HAVE_CRTSCTS 1" >>confdefs.h
 		cfg=conf/netbsd.cfg
 		tnt_main_dir=${prefix}
 		tnt_work_dir=${localstatedir}/spool/tnt
-		tnt_conf_dir=${prefix}/share/tnt/conf
+		tnt_conf_dir=${sysconfdir}/tnt
 		tnt_doc_dir=${prefix}/share/doc/tnt
 		tnt_log_dir=${localstatedir}/log
 		tnt_proc_dir=${localstatedir}/run
@@ -8794,7 +8794,7 @@ printf '%s\n' "#define HAVE_CRTSCTS 1" >>confdefs.h
 		cfg=conf/linux.cfg
                 tnt_main_dir=${prefix}
                 tnt_work_dir=${localstatedir}/spool/tnt
-                tnt_conf_dir=${prefix}/share/tnt/conf
+		tnt_conf_dir=${sysconfdir}/tnt
                 tnt_doc_dir=${prefix}/share/tnt/doc
                 tnt_log_dir=${localstatedir}/log
 		tnt_proc_dir=${localstatedir}/run
@@ -10390,6 +10390,8 @@ esac
 fi
 
 
+eval "tnt_conf_dir=\"$tnt_conf_dir\""
+
 
 cat >>confdefs.h <<_ACEOF
 #define TNT_INIT_PATH "${tnt_conf_dir}"
@@ -10410,6 +10412,9 @@ _ACEOF
 
 
 ac_config_files="$ac_config_files conf/tnt_setup.de conf/tnt_setup.en conf/tnt_setup.fr conf/Makefile doc/Makefile doc/solaris/Makefile examples/sounds.tnt examples/tnt.ini examples/tntc.ini examples/sounds/Makefile examples/Makefile intl/Makefile po/Makefile.in src/Makefile src/runprgs/tntrun.h src/runprgs/Makefile Makefile"
+
+
+ac_config_commands="$ac_config_commands setup-scripts-mode"
 
 
 cat >confcache <<\_ACEOF
@@ -11129,6 +11134,7 @@ do
     "src/runprgs/tntrun.h") CONFIG_FILES="$CONFIG_FILES src/runprgs/tntrun.h" ;;
     "src/runprgs/Makefile") CONFIG_FILES="$CONFIG_FILES src/runprgs/Makefile" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "setup-scripts-mode") CONFIG_COMMANDS="$CONFIG_COMMANDS setup-scripts-mode" ;;
 
   *) as_fn_error $? "invalid argument: '$ac_config_target'" "$LINENO" 5;;
   esac
@@ -11898,6 +11904,9 @@ See 'config.log' for more details" "$LINENO" 5; }
     "default-1":C) case "$CONFIG_FILES" in *po/Makefile.in*)
         sed -e "/POTFILES =/r po/POTFILES" po/Makefile.in > po/Makefile
       esac ;;
+    "setup-scripts-mode":C)
+	chmod +x conf/tnt_setup.de conf/tnt_setup.en conf/tnt_setup.fr
+ ;;
 
   esac
 done # for ac_tag

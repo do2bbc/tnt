@@ -10,6 +10,7 @@ TNT (Hostmode Terminal for TNC) is a legacy application originally written in Pa
 - GNU Autotools (autoconf, automake)
 - ncurses development library
 - GNU gettext
+- dialog, for the interactive `tnt_setup` configuration scripts
 
 ### Build Steps
 
@@ -38,7 +39,7 @@ TNT (Hostmode Terminal for TNC) is a legacy application originally written in Pa
 On Raspberry Pi OS, install the standard build dependencies:
 
 ```bash
-sudo apt install build-essential autoconf automake libncurses-dev gettext
+sudo apt install build-essential autoconf automake libncurses-dev gettext dialog
 ```
 
 Then build normally:

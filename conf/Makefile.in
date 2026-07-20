@@ -412,11 +412,12 @@ distdir-am: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(SCRIPTS)
+all-am: Makefile $(SCRIPTS) all-local
 installdirs:
 	for dir in "$(DESTDIR)$(setupdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
+install: install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -467,7 +468,8 @@ info: info-am
 info-am:
 
 install-data-am: install-setupSCRIPTS
-
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-data-hook
 install-dvi: install-dvi-am
 
 install-dvi-am:
@@ -512,16 +514,17 @@ ps-am:
 
 uninstall-am: uninstall-setupSCRIPTS
 
-.MAKE: install-am install-strip
+.MAKE: install-am install-data-am install-strip
 
-.PHONY: all all-am check check-am clean clean-generic cscopelist-am \
-	ctags-am distclean distclean-generic distdir dvi dvi-am html \
-	html-am info info-am install install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-setupSCRIPTS install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+.PHONY: all all-am all-local check check-am clean clean-generic \
+	cscopelist-am ctags-am distclean distclean-generic distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-data-hook install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-info install-info-am install-man \
+	install-pdf install-pdf-am install-ps install-ps-am \
+	install-setupSCRIPTS install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-generic pdf \
 	pdf-am ps ps-am tags-am uninstall uninstall-am \
 	uninstall-setupSCRIPTS
@@ -529,22 +532,25 @@ uninstall-am: uninstall-setupSCRIPTS
 .PRECIOUS: Makefile
 
 
-install:
-	mkdir -p ${tnt_work_dir}/7plus         |true
-	mkdir -p ${tnt_work_dir}/abin          |true
-	mkdir -p ${tnt_work_dir}/bcast         |true
-	mkdir -p ${tnt_work_dir}/bcast/newmail |true
-	mkdir -p ${tnt_work_dir}/bcast/save    |true
-	mkdir -p ${tnt_work_dir}/ctext         |true
-	mkdir -p ${tnt_work_dir}/down          |true
-	mkdir -p ${tnt_work_dir}/macro         |true
-	mkdir -p ${tnt_work_dir}/newmail       |true
-	mkdir -p ${tnt_work_dir}/remote        |true
-	mkdir -p ${tnt_work_dir}/tntusers      |true
-	mkdir -p ${tnt_work_dir}/up            |true
-	mkdir -p ${tnt_work_dir}/yapp          |true
-	@if [ ! -d ${tnt_work_dir}/bin ]; then \
-		ln -s ${tnt_bin_dir} ${tnt_work_dir}/bin |true; \
+all-local:
+	chmod +x $(setup_SCRIPTS)
+
+install-data-hook:
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/7plus"         |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/abin"          |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/bcast"         |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/bcast/newmail" |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/bcast/save"    |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/ctext"         |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/down"          |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/macro"         |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/newmail"       |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/remote"        |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/tntusers"      |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/up"            |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/yapp"          |true
+	@if [ ! -d "$(DESTDIR)${tnt_work_dir}/bin" ]; then \
+		ln -s "${tnt_bin_dir}" "$(DESTDIR)${tnt_work_dir}/bin" |true; \
 	fi
 	@echo "*****************************"
 	@echo "*       TNT installed       *"

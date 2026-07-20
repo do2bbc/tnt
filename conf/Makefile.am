@@ -7,22 +7,25 @@ setup_SCRIPTS	= tnt_setup.de tnt_setup.en tnt_setup.fr
 tnt_work_dir    = @tnt_work_dir@
 tnt_bin_dir     = @tnt_bin_dir@
 
-install:
-	mkdir -p ${tnt_work_dir}/7plus         |true
-	mkdir -p ${tnt_work_dir}/abin          |true
-	mkdir -p ${tnt_work_dir}/bcast         |true
-	mkdir -p ${tnt_work_dir}/bcast/newmail |true
-	mkdir -p ${tnt_work_dir}/bcast/save    |true
-	mkdir -p ${tnt_work_dir}/ctext         |true
-	mkdir -p ${tnt_work_dir}/down          |true
-	mkdir -p ${tnt_work_dir}/macro         |true
-	mkdir -p ${tnt_work_dir}/newmail       |true
-	mkdir -p ${tnt_work_dir}/remote        |true
-	mkdir -p ${tnt_work_dir}/tntusers      |true
-	mkdir -p ${tnt_work_dir}/up            |true
-	mkdir -p ${tnt_work_dir}/yapp          |true
-	@if [ ! -d ${tnt_work_dir}/bin ]; then \
-		ln -s ${tnt_bin_dir} ${tnt_work_dir}/bin |true; \
+all-local:
+	chmod +x $(setup_SCRIPTS)
+
+install-data-hook:
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/7plus"         |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/abin"          |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/bcast"         |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/bcast/newmail" |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/bcast/save"    |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/ctext"         |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/down"          |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/macro"         |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/newmail"       |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/remote"        |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/tntusers"      |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/up"            |true
+	$(MKDIR_P) "$(DESTDIR)${tnt_work_dir}/yapp"          |true
+	@if [ ! -d "$(DESTDIR)${tnt_work_dir}/bin" ]; then \
+		ln -s "${tnt_bin_dir}" "$(DESTDIR)${tnt_work_dir}/bin" |true; \
 	fi
 	@echo "*****************************"
 	@echo "*       TNT installed       *"
