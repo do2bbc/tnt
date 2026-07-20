@@ -6291,6 +6291,38 @@ fi
 
 
 
+for tnt_cc_flag in -std=gnu99 -Wno-implicit-int -Wno-old-style-definition \
+                   -Wno-error=implicit-function-declaration \
+                   -Wno-implicit-function-declaration; do
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports $tnt_cc_flag" >&5
+printf %s "checking whether $CC supports $tnt_cc_flag... " >&6; }
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS $tnt_cc_flag"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf '%s\n' "yes" >&6; }
+else case e in #(
+  e) { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf '%s\n' "no" >&6; }
+		 CFLAGS=$tnt_save_CFLAGS ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+done
+
+
 { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 printf %s "checking whether ${MAKE-make} sets \$(MAKE)... " >&6; }
 set x ${MAKE-make}

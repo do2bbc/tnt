@@ -17,6 +17,22 @@ dnl Available languages
 ALL_LINGUAS="de fr"
 
 AC_PROG_CC
+
+dnl The source still uses legacy C conventions that modern compilers diagnose
+dnl more strictly. Add compatible defaults when the compiler supports them so
+dnl users do not have to supply CFLAGS by hand.
+for tnt_cc_flag in -std=gnu99 -Wno-implicit-int -Wno-old-style-definition \
+                   -Wno-error=implicit-function-declaration \
+                   -Wno-implicit-function-declaration; do
+	AC_MSG_CHECKING([whether $CC supports $tnt_cc_flag])
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS $tnt_cc_flag"
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])],
+		[AC_MSG_RESULT([yes])],
+		[AC_MSG_RESULT([no])
+		 CFLAGS=$tnt_save_CFLAGS])
+done
+
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
