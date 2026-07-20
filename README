@@ -25,6 +25,8 @@ Typical package names on Linux:
       sudo dnf install gcc make autoconf automake ncurses-devel gettext
    - Arch Linux:
       sudo pacman -S base-devel autoconf automake ncurses gettext
+   - Raspberry Pi OS / Debian on Raspberry Pi:
+      sudo apt install build-essential autoconf automake libncurses-dev gettext
 
 To install TNT:
   1) Type "./configure --help" to see the options you may be want to
@@ -100,6 +102,17 @@ Installation is easy: "./configure", "make" and "make install".
 After the installation is finished the program "tnt_setup" will be called.
 Here you can do some important settings for your tnc, boxsocket or your
 callsign. If you do not want this, just leave the program.
+
+Raspberry Pi / ARM systems:
+TNT is expected to build on 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5
+using the normal autotools flow:
+   autoreconf -fi
+   ./configure
+   make
+
+The CI build covers both amd64 and arm64 Linux. For AX.25 kernel support on
+Raspberry Pi OS, also install the AX.25 development package available for your
+distribution and configure with --enable-ax25k2.
 
 INSTALL-LOCATIONS:
 ------------------
