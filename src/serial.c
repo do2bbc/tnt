@@ -16,6 +16,7 @@
 #include "macro.h"
 
 #include <ctype.h>
+#include <errno.h>
 #include <time.h>
 
 #undef HOSTDEBUG
@@ -144,6 +145,84 @@ int free_buffers;
 int buffers_req;
 /* counter for resyncs */
 int resync_count;
+
+static void build_fallback_lockfile(lockfile, lockfile_len)
+char *lockfile;
+size_t lockfile_len;
+{
+  char *lockdir;
+  char *lockname;
+
+  lockdir = getenv("XDG_RUNTIME_DIR");
+  if ((lockdir == NULL) || (lockdir[0] == '\0'))
+    lockdir = getenv("TMPDIR");
+  if ((lockdir == NULL) || (lockdir[0] == '\0'))
+    lockdir = "/tmp";
+
+  lockname = strrchr(tnt_lockfile,'/');
+  if (lockname == NULL)
+    lockname = tnt_lockfile;
+  else
+    lockname++;
+
+  snprintf(lockfile,lockfile_len,"%s/tnt-%d-%s",lockdir,(int)getuid(),lockname);
+}
+
+static int create_lockfile(lockfile,serstr,unlock,quiet_create_error)
+char *lockfile;
+char *serstr;
+int unlock;
+int quiet_create_error;
+{
+  char lckpidstr[20];
+  pid_t lckpid;
+  int nb;
+  struct stat buf;
+
+  if (unlock) unlink(lockfile); /* brute force method! Ignore lock file... */
+
+  if (stat(lockfile, &buf) == 0) {
+		/*
+		 * we must now expend effort to learn if it's stale or not.
+		 */
+		if ((lock = open(lockfile, O_RDONLY)) != -1) {
+			nb = read(lock, &lckpidstr, min(20, buf.st_size));
+			if (nb > 0) {
+				lckpidstr[nb] = 0;
+				sscanf(lckpidstr, "%d", &lckpid);
+				if (kill(lckpid, 0) == 0) {
+					printf(_("Device %s is locked by process %d\n"), serstr, lckpid);
+					return(1);
+				}
+
+				/*
+				 * The lock file is stale. Remove it.
+				 */
+				if (unlink(lockfile)) {
+					printf(_("Unable to unlink stale lock file \"%s\"\n"), lockfile);
+					return(1);
+				}
+			} else {
+				printf(_("Unable to read from lock file \"%s\"\n"
+				       "It is not possible to determine if the device is locked or not.\n"), lockfile);
+				return(1);
+			}
+		} else {
+			printf(_("Unable to open existing lock file\"%s\"\n"), lockfile);
+			return(1);
+		}
+  }
+  if ((lock = open(lockfile, O_WRONLY | O_CREAT | O_EXCL,  S_IWRITE | S_IREAD | S_IRGRP | S_IROTH)) < 0) {
+    if (!quiet_create_error)
+      printf(_("Unable to create lockfile. Sorry.\n"));
+    return(errno);
+  }
+  sprintf(lckpidstr, "%10d\n", getpid());     /* write own pid to lock file            */
+  write(lock, lckpidstr, strlen(lckpidstr));  /* this gives us an uucp style lock file */
+  close(lock);
+
+  return(0);
+}
 /* SSID of mailbox */
 int tnt_box_ssid;
 /* callsign/SSID of mailbox */
@@ -502,51 +581,27 @@ int speedflag __attribute__((unused));int unlock;
   struct sockaddr *saddr;
   int servlen;
 #endif
-  char lckpidstr[20];
-  pid_t lckpid;
-  int nb;
-  struct stat buf;
+  int lock_errno;
+  char fallback_lockfile[MAXCHAR];
 
-  if (unlock) unlink(tnt_lockfile); /* brute force method! Ignore lock file... */
-  
-  if (stat(tnt_lockfile, &buf) == 0) {
-		/*
-		 * we must now expend effort to learn if it's stale or not.
-		 */
-		if ((lock = open(tnt_lockfile, O_RDONLY)) != -1) {
-			nb = read(lock, &lckpidstr, min(20, buf.st_size));
-			if (nb > 0) {
-				lckpidstr[nb] = 0;
-				sscanf(lckpidstr, "%d", &lckpid);
-				if (kill(lckpid, 0) == 0) {
-					printf(_("Device %s is locked by process %d\n"), serstr, lckpid);
-					return(1);
-				}
-				
-				/*
-				 * The lock file is stale. Remove it.
-				 */
-				if (unlink(tnt_lockfile)) {
-					printf(_("Unable to unlink stale lock file \"%s\"\n"), tnt_lockfile);
-					return(1);
-				}
-			} else {
-				printf(_("Unable to read from lock file \"%s\"\n"
-				       "It is not possible to determine if the device is locked or not.\n"), tnt_lockfile);
-				return(1);
-			}
-		} else {
-			printf(_("Unable to open existing lock file\"%s\"\n"), tnt_lockfile);
-			return(1);
-		}
+  lock_errno = create_lockfile(tnt_lockfile,serstr,unlock,1);
+  if (lock_errno) {
+    if ((lock_errno == EACCES) || (lock_errno == ENOENT) || (lock_errno == EROFS)) {
+      build_fallback_lockfile(fallback_lockfile,sizeof(fallback_lockfile));
+      printf(_("WARNING: cannot create lockfile %s, trying %s\n"), tnt_lockfile, fallback_lockfile);
+      lock_errno = create_lockfile(fallback_lockfile,serstr,unlock,0);
+      if (!lock_errno) {
+        strcpy(tnt_lockfile,fallback_lockfile);
+      }
+      else {
+        return(1);
+      }
+    }
+    else {
+      printf(_("Unable to create lockfile. Sorry.\n"));
+      return(1);
+    }
   }
-  if ((lock = open(tnt_lockfile, O_WRONLY | O_CREAT | O_EXCL,  S_IWRITE | S_IREAD | S_IRGRP | S_IROTH)) < 0) {
-    printf(_("Unable to create lockfile. Sorry.\n"));
-    return(1);
-  }
-  sprintf(lckpidstr, "%10d\n", getpid());     /* write own pid to lock file            */
-  write(lock, lckpidstr, strlen(lckpidstr));  /* this gives us an uucp style lock file */
-  close(lock);
   if (soft_tnc) {
 #ifdef HAVE_SOCKET
     if (soft_tnc == 2) {

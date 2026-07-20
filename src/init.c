@@ -14,6 +14,8 @@
 #include "tnt.h"
 #include "init.h"
 
+#include <errno.h>
+
 /* external function declarations */
 extern void cmd_display();
 
@@ -925,17 +927,50 @@ char *str2;
 }
 
 #ifndef DPBOXT
+static void build_fallback_proc_file(file, file_len)
+char *file;
+size_t file_len;
+{
+  char *procdir;
+  char *procname;
+
+  procdir = getenv("XDG_RUNTIME_DIR");
+  if ((procdir == NULL) || (procdir[0] == '\0'))
+    procdir = getenv("TMPDIR");
+  if ((procdir == NULL) || (procdir[0] == '\0'))
+    procdir = "/tmp";
+
+  procname = strrchr(proc_file,'/');
+  if (procname == NULL)
+    procname = proc_file;
+  else
+    procname++;
+
+  snprintf(file,file_len,"%s/tnt-%d-%s",procdir,(int)getuid(),procname);
+}
+
 int init_proc()
 {
   FILE *fp;
-  char file[160];
+  char file[MAXCHAR];
+  char fallback_file[MAXCHAR];
   pid_t pid;
 
   strcpy(file,proc_file);
   fp = fopen(file,"w+");
   if (fp == NULL) {
-    printf(_("ERROR: Can't create process file\n\n"));
-    return(1);
+    if ((errno == EACCES) || (errno == ENOENT) || (errno == EROFS)) {
+      build_fallback_proc_file(fallback_file,sizeof(fallback_file));
+      printf(_("WARNING: cannot create process file %s, trying %s\n"), proc_file, fallback_file);
+      strcpy(file,fallback_file);
+      fp = fopen(file,"w+");
+      if (fp != NULL)
+        strcpy(proc_file,fallback_file);
+    }
+    if (fp == NULL) {
+      printf(_("ERROR: Can't create process file\n\n"));
+      return(1);
+    }
   }
   pid = getpid();
   fprintf(fp,"%d",pid);
