@@ -562,6 +562,77 @@ static void sigalarm()
 }
 
 #ifndef DPBOXT
+#define UDP_RXBUF_SIZE 4096
+static int serial_udp_mode;
+static unsigned char udp_rxbuf[UDP_RXBUF_SIZE];
+static int udp_rxlen;
+static int udp_rxpos;
+
+static int serial_read_data(char *buf, int len)
+{
+  int to_copy;
+  int got;
+
+  if (!serial_udp_mode)
+    return read(serial, buf, len);
+
+  if (len <= 0)
+    return 0;
+
+  if (udp_rxpos >= udp_rxlen) {
+    got = recv(serial, udp_rxbuf, sizeof(udp_rxbuf), 0);
+    if (got <= 0)
+      return got;
+    udp_rxlen = got;
+    udp_rxpos = 0;
+  }
+
+  to_copy = udp_rxlen - udp_rxpos;
+  if (to_copy > len)
+    to_copy = len;
+  memcpy(buf, udp_rxbuf + udp_rxpos, to_copy);
+  udp_rxpos += to_copy;
+  return to_copy;
+}
+
+static int serial_write_data(const char *buf, int len)
+{
+  if (!serial_udp_mode)
+    return write(serial, buf, len);
+  return send(serial, buf, len, 0);
+}
+
+static int split_udp_endpoint(endpoint, remote_endpoint, remote_endpoint_len, local_port)
+char *endpoint;
+char *remote_endpoint;
+size_t remote_endpoint_len;
+int *local_port;
+{
+  char *endptr;
+  char *at;
+  long port;
+
+  *local_port = 0;
+  at = strchr(endpoint,'@');
+  if (at == NULL) {
+    if (strlen(endpoint) >= remote_endpoint_len)
+      return(1);
+    strcpy(remote_endpoint,endpoint);
+    return(0);
+  }
+
+  errno = 0;
+  port = strtol(endpoint,&endptr,10);
+  if ((errno != 0) || (endptr != at) || (port <= 0) || (port > 65535))
+    return(1);
+  if (strlen(at + 1) >= remote_endpoint_len)
+    return(1);
+
+  strcpy(remote_endpoint,at + 1);
+  *local_port = (int)port;
+  return(0);
+}
+
 /* opens serial port and set tnc to hostmode
    serstr holds serial device name,
    speed holds baudrate */
@@ -578,8 +649,12 @@ int speedflag __attribute__((unused));int unlock;
 #endif
 #ifdef HAVE_SOCKET
   struct sockaddr_un serv_addr;
+  struct sockaddr_in local_udp_addr;
   struct sockaddr *saddr;
   int servlen;
+  int sock_type;
+  int local_udp_port;
+  char remote_endpoint[MAXCHAR];
 #endif
   int lock_errno;
   char fallback_lockfile[MAXCHAR];
@@ -602,10 +677,23 @@ int speedflag __attribute__((unused));int unlock;
       return(1);
     }
   }
+  serial_udp_mode = 0;
+  udp_rxlen = 0;
+  udp_rxpos = 0;
   if (soft_tnc) {
 #ifdef HAVE_SOCKET
-    if (soft_tnc == 2) {
-      saddr = (struct sockaddr *) build_sockaddr(serstr,&servlen);
+    if ((soft_tnc == 2) || (soft_tnc == 3)) {
+      if (soft_tnc == 3) {
+        if (split_udp_endpoint(serstr,remote_endpoint,sizeof(remote_endpoint),&local_udp_port)) {
+          printf(_("Error: invalid AX25UDP socket definition\n"));
+          return(1);
+        }
+      }
+      else {
+        strcpy(remote_endpoint,serstr);
+        local_udp_port = 0;
+      }
+      saddr = (struct sockaddr *) build_sockaddr(remote_endpoint,&servlen);
       if (!saddr) {
         printf(_("Error: invalid parameters in socket definition"
                " for soft_tnc\n"));
@@ -621,11 +709,30 @@ int speedflag __attribute__((unused));int unlock;
       servlen = sizeof(serv_addr);
       saddr = (struct sockaddr *)&serv_addr;
     }
+    sock_type = (soft_tnc == 3) ? SOCK_DGRAM : SOCK_STREAM;
     /* open socket */
-    if ((serial = socket(saddr->sa_family,SOCK_STREAM,0)) < 0) {
+    if ((serial = socket(saddr->sa_family,sock_type,0)) < 0) {
       printf(_("Error: Cannot open socket to soft_tnc\n"));
       unlink(tnt_lockfile);
       return(1);
+    }
+    if ((soft_tnc == 3) && (local_udp_port > 0)) {
+      if (saddr->sa_family != AF_INET) {
+        printf(_("Error: AX25UDP local port is only supported for IPv4 sockets\n"));
+        close(serial);
+        unlink(tnt_lockfile);
+        return(1);
+      }
+      memset((char *) &local_udp_addr,0,sizeof(local_udp_addr));
+      local_udp_addr.sin_family = AF_INET;
+      local_udp_addr.sin_addr.s_addr = INADDR_ANY;
+      local_udp_addr.sin_port = htons(local_udp_port);
+      if (bind(serial,(struct sockaddr *) &local_udp_addr,sizeof(local_udp_addr)) < 0) {
+        printf(_("Error: Cannot bind AX25UDP local port\n"));
+        close(serial);
+        unlink(tnt_lockfile);
+        return(1);
+      }
     }
     signal(SIGALRM,sigalarm);
     if (saddr->sa_family == AF_UNIX)
@@ -640,6 +747,8 @@ int speedflag __attribute__((unused));int unlock;
       unlink(tnt_lockfile);
       return(1);
     }
+    if (soft_tnc == 3)
+      serial_udp_mode = 1;
     signal(SIGALRM,SIG_IGN);
     fcntl(serial,F_SETFL,O_NONBLOCK);
 #endif
@@ -694,7 +803,7 @@ int speedflag __attribute__((unused));int unlock;
   
   /* put tnc to hostmode */
   len = sizeof(hostmode_str) - 1;
-  if (write(serial,hostmode_str,len) != len){
+  if (serial_write_data(hostmode_str,len) != len){
     printf(_("Error: can't write to serial port\n"));
     return(1);
   }
@@ -703,7 +812,7 @@ int speedflag __attribute__((unused));int unlock;
 #endif
   sleep(1);
   do {
-    l = read(serial,&c,1);
+    l = serial_read_data(&c,1);
   } while (l == 1);
   printf(_("TNC in Hostmode\n"));
   if (use_select) {
@@ -807,7 +916,7 @@ int exit_serial()
   if ((!soft_tnc) || (!softtnc_error)) {
     /* get tnc back to terminalmode */
     len = sizeof(hostmode_exit);
-    if (write(serial,hostmode_exit,len - 1) != len - 1){
+    if (serial_write_data(hostmode_exit,len - 1) != len - 1){
       printf(_("Error: can't write to serial port\n"));
       return(1);
     }
@@ -816,7 +925,7 @@ int exit_serial()
 #endif
     sleep(1);
     do {
-      l = read(serial,&c,1);
+      l = serial_read_data(&c,1);
     } while (l == 1);
     printf(_("TNC in terminalmode\n"));
     if (!soft_tnc) {
@@ -997,7 +1106,7 @@ int *state;
   cnt = 0;
   *rec_buffer = '\0';
   do { /* send CNTL_A until tnc responds */
-    res = write(serial,"\001",1);
+    res = serial_write_data("\001",1);
     if (soft_tnc && (res != 1)) {
       softtnc_error = 1;
       *state = S_END;
@@ -1006,7 +1115,7 @@ int *state;
     cnt++;
     do {
       uwait(10000); /* sleep for 10 ms */
-      l = read(serial,&c,1);
+      l = serial_read_data(&c,1);
       if (l == 1) {
         if (fp != NULL)
           fprintf(fp,"<%x>",c);
@@ -1025,7 +1134,7 @@ int *state;
       if (fp != NULL)
         fprintf(fp, _("\nSwitching TNC to hostmode\n"));
       len = sizeof(hostmode_str) - 1;
-      res = write(serial,hostmode_str,len);
+      res = serial_write_data(hostmode_str,len);
 #ifdef DEBUGIO
       wrdebugio ( "w ", hostmode_str,len ) ; 
 #endif
@@ -1037,7 +1146,7 @@ int *state;
       sleep(1);
       do {
         uwait(10000); /* sleep for 10 ms */
-        l = read(serial,&c,1);
+        l = serial_read_data(&c,1);
         if (l == 1) {
           if (fp != NULL)
             fprintf(fp,"<%x>",c);
@@ -1048,7 +1157,7 @@ int *state;
       cnt = 0;
       *rec_buffer = '\0';
       do { /* send CNTL_A until tnc responds */
-        res = write(serial,"\001",1);
+        res = serial_write_data("\001",1);
         if (soft_tnc && (res != 1)) {
           softtnc_error = 1;
           *state = S_END;
@@ -1057,7 +1166,7 @@ int *state;
         cnt++;
         do {
           uwait(10000); /* sleep for 10ms */
-          l = read(serial,&c,1);
+          l = serial_read_data(&c,1);
           if (l == 1) {
             if (fp != NULL)
               fprintf(fp,"<%x>",c);
@@ -1076,7 +1185,7 @@ int *state;
     fprintf(fp, _("\nReading remaining data\n"));
   /* read all characters sent by tnc */
   do {
-    l = read(serial,&c,1);
+    l = serial_read_data(&c,1);
     if (l == 1) {
       if (fp != NULL)
         fprintf(fp,"<%x>",c);
@@ -1216,7 +1325,7 @@ static void send_block(int channel,char code,int len,char *data)
 #ifdef HOSTDEBUG
   debug_copy_tx(txbuffer,len + 3);
 #endif
-  res = write(serial,txbuffer,len + 3);
+  res = serial_write_data(txbuffer,len + 3);
 #ifdef DEBUGIO
   wrdebugio ( "w ", txbuffer, len+3 ) ;
 #endif 
@@ -2467,7 +2576,7 @@ int len;
 #ifdef HOSTDEBUG
               debug_copy_tx(txbuffer_save,len_save + 3);
 #endif
-              res = write(serial,txbuffer_save,len_save + 3);
+              res = serial_write_data(txbuffer_save,len_save + 3);
 #ifdef DEBUGIO
   	      wrdebugio ( "w ", txbuffer_save,len_save + 3 ) ; 
 #endif

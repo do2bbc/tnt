@@ -52,6 +52,8 @@ make
 
 The GitHub Actions workflow builds on `amd64`, native `arm64` Ubuntu runners, and 32-bit `armhf` Debian under QEMU. That covers 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5, plus the 32-bit Raspberry Pi OS userland. For AX.25 kernel support on Raspberry Pi OS, install the distribution's AX.25 development package and configure with `--enable-ax25k2`.
 
+For AX25UDP soft-TNC mode, configure TNT with `soft_tnc 3` and set `device` to `host:port` or `localport@host:port`, for example `10093@44.148.230.93:93`.
+
 ### Slackware 14.2 builds
 
 On Slackware 14.2, make sure the development tools and gettext tools are installed before bootstrapping from Git. A full development install normally provides these; on minimal systems, install the `d` series tools plus `gettext-tools` and the runtime libraries needed by Slackware's `gcc`, `make`, and gettext packages.

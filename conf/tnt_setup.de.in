@@ -39,7 +39,7 @@ show_docs()
            --backtitle "Select" \
            --menu "Was wollen Sie wissen?" 11 60 5 \
            DOC "Dokumentation zum PR-Programm TNT" \
-           CHANGES "Änderungen" \
+           CHANGES "ï¿½nderungen" \
            COPYING "Copyrightinformationen" \
            INFO "Infos zu TNT-Setup" \
            2>/tmp/$$
@@ -189,10 +189,11 @@ sel_tnc_type()
 {
   dialog --title "TNC-Typ" \
          --backtitle "Select..." \
-         --menu "Auswahl:" 10 60 3 \
+      --menu "Auswahl:" 11 60 4 \
          TYP0 "Reales TNC an einer Schnittstelle" \
          TYP1 "TFKISS auf einem Unix-Socket" \
          TYP2 "TFKISS auf einem Netzwerk-Socket" \
+      TYP3 "AX25UDP auf einem Netzwerk-Socket" \
          2>/tmp/$$
   if [ ! $? = 0 ] ; then
     return
@@ -211,6 +212,10 @@ sel_tnc_type()
           DEF_ADD_STR="stnc-netw"
           LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
           DEVICE=$DEFTYP2;;
+    TYP3) SOFTTNC=3
+          DEF_ADD_STR="stnc-udp"
+          LOCKFILE=$DEF_LCK_STR$DEF_ADD_STR
+          DEVICE=$DEFTYP3;;
   esac
 }
 
@@ -255,6 +260,7 @@ tnc_menu()
       0) TYPDES="Echtes TNC";;
       1) TYPDES="TFKISS auf einem Unix-Socket";;
       2) TYPDES="TFKISS auf einem Netzwerk-Socket";;
+      3) TYPDES="AX25UDP auf einem Netzwerk-Socket";;
     esac
     dialog --title "TNC Einstellungen" \
            --backtitle "Select..." \
@@ -274,7 +280,7 @@ tnc_menu()
       HELP) dialog --textbox ${tnt_doc_dir}/Readme2.de 24 80;;
       MENU) return;;
       BAUD) sel_baud_rate;;
-      CHAN) dialog --inputbox "Anzahl der TNC-Kanäle (Default: 10)" \
+      CHAN) dialog --inputbox "Anzahl der TNC-Kanï¿½le (Default: 10)" \
             8 80 "$TNCCHAN" 2>/tmp/$$
             if [ $? = 0 ] ; then
               read TNCCHAN < /tmp/$$
@@ -292,7 +298,7 @@ scroll_menu()
            --backtitle "Select..." \
            --menu "Auswahl:" 18 70 11 \
            RED "1. Kanal mit reduzierten Buffern: $TNCREDBUF" \
-           MH "Anzahl der Einträge in der MH-Liste: $HEARTENTRY" \
+           MH "Anzahl der Eintrï¿½ge in der MH-Liste: $HEARTENTRY" \
            MONITOR "Anzahl der Monitorzeilen: $LINES_MONITOR" \
            INPUT "Anzahl der Zeilen im Vorschreibeschirm: $LINES_INPUT" \
            OUTPUT "Zeilen im Empfangsschirm: $LINES_OUTPUT" \
@@ -432,7 +438,7 @@ unix_menu()
              USER "Remoteuser: $REMOTEUSER" \
              CREATE "Neue User anlegen: $UNIXDEF" \
              UID "Niedrigste User-ID: $UNIXFIRSTUID" \
-             HID "Höchste User-ID: $UNIXLASTUID" \
+             HID "Hï¿½chste User-ID: $UNIXLASTUID" \
              GID "Gruppen-ID: $UNIXGID" \
              MENU "Zurueck zum Hauptmenu" \
              HELP "Eine kleine Hilfe" \
@@ -472,7 +478,7 @@ unix_menu()
            if [ $? = 0 ] ; then
              read UNIXFIRSTUID < /tmp/$$
            fi;;
-      HID) dialog --inputbox "Höchste User-ID" 8 40 2>/tmp/$$
+      HID) dialog --inputbox "Hï¿½chste User-ID" 8 40 2>/tmp/$$
 	   if [ $? = 0 ] ; then
 	     read UNIXLASTUID < /tmp/$$
 	   fi;;
@@ -502,11 +508,12 @@ use_select 1
 # --------------------------------------------------------------------------
 
 # 0 for real TNC at serial port, 1 for TFKISS on a UNIX-socket,
-# 2 for TFKISS on other socket
+# 2 for TFKISS on network socket (TCP),
+# 3 for AX25UDP on network socket (UDP)
 soft_tnc $SOFTTNC
 
-# serial port to which TNC is connected, UNIX-socket of TFKISS or
-# other socket for TFKISS
+# serial port to which TNC is connected, UNIX-socket of TFKISS,
+# network socket for TFKISS (host:port) or AX25UDP ([localport@]host:port)
 device $DEVICE
 
 # lockfile for serial port or TFKISS
@@ -990,7 +997,7 @@ create_tnt()
 {
   dialog --title "Achtung!" \
          --backtitle "Select..." \
-         --yesno "       Sind Sie sicher?\nExistierten bereits Daten im Pfad \"${tnt_conf_dir}\", so koennen\nhier wichtige Daten verloren gehen.\nDieses Setup fuehrt eine NEUINSTALLATION von TNT durch.\nBereits vorhandene Konfigurationen werden verloren gehen!\n\nBestätigen Sie nur, wenn Sie absolut sicher sind!" 11 78
+         --yesno "       Sind Sie sicher?\nExistierten bereits Daten im Pfad \"${tnt_conf_dir}\", so koennen\nhier wichtige Daten verloren gehen.\nDieses Setup fuehrt eine NEUINSTALLATION von TNT durch.\nBereits vorhandene Konfigurationen werden verloren gehen!\n\nBestï¿½tigen Sie nur, wenn Sie absolut sicher sind!" 11 78
   if [ ! $? = 0 ] ; then
     return
   fi
@@ -1005,7 +1012,7 @@ create_tnt()
 
   dialog --title "Installation komplett" \
          --backtitle "WSPse 1998/99 - wsp@gmx.de" \
-         --msgbox "Die Installation ist abgeschlossen\n\nBei Problemen oder Fragen Mail an:\nwsp@gmx.de - Matthias Hensler\n\nViel Spaß mit TNT\nWSPse 1998/99" 13 60
+         --msgbox "Die Installation ist abgeschlossen\n\nBei Problemen oder Fragen Mail an:\nwsp@gmx.de - Matthias Hensler\n\nViel Spaï¿½ mit TNT\nWSPse 1998/99" 13 60
 
   exit 0
 }

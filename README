@@ -115,6 +115,10 @@ The CI build covers amd64, arm64 and 32-bit armhf Linux. For AX.25 kernel
 support on Raspberry Pi OS, also install the AX.25 development package available
 for your distribution and configure with --enable-ax25k2.
 
+AX25UDP soft-TNC mode uses soft_tnc 3. Set device to host:port, or to
+localport@host:port when the local UDP source port must be fixed, for example
+10093@44.148.230.93:93.
+
 INSTALL-LOCATIONS:
 ------------------
 If you do not want to install in /usr/[local/]... and /var, you should
