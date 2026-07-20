@@ -41,3 +41,33 @@ jobs:
 
     - name: Run dist
       run: make dist
+
+  build-armhf:
+
+    name: build (armhf)
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: arm
+
+    - name: Build in 32-bit ARM container
+      run: |
+        docker run --rm --platform linux/arm/v7 \
+          -v "$PWD:/work" \
+          -w /work \
+          arm32v7/debian:bookworm-slim \
+          sh -ec '
+            apt-get update
+            apt-get install -y build-essential autoconf automake gettext libncurses-dev
+            useradd -m builder
+            mkdir /tmp/tnt
+            tar --exclude=.git -C /work -cf - . | tar -C /tmp/tnt -xf -
+            chown -R builder:builder /tmp/tnt
+            cd /tmp/tnt
+            su builder -c "autoreconf -fi && ./configure && make && make check && make dist"
+          '

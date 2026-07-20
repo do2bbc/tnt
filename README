@@ -104,15 +104,15 @@ Here you can do some important settings for your tnc, boxsocket or your
 callsign. If you do not want this, just leave the program.
 
 Raspberry Pi / ARM systems:
-TNT is expected to build on 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5
-using the normal autotools flow:
+TNT is expected to build on 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5,
+and on 32-bit Raspberry Pi OS using the normal autotools flow:
    autoreconf -fi
    ./configure
    make
 
-The CI build covers both amd64 and arm64 Linux. For AX.25 kernel support on
-Raspberry Pi OS, also install the AX.25 development package available for your
-distribution and configure with --enable-ax25k2.
+The CI build covers amd64, arm64 and 32-bit armhf Linux. For AX.25 kernel
+support on Raspberry Pi OS, also install the AX.25 development package available
+for your distribution and configure with --enable-ax25k2.
 
 INSTALL-LOCATIONS:
 ------------------

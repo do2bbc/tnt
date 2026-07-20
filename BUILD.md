@@ -49,7 +49,7 @@ autoreconf -fi
 make
 ```
 
-The GitHub Actions workflow builds on both `amd64` and native `arm64` Ubuntu runners. That covers 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5. For AX.25 kernel support on Raspberry Pi OS, install the distribution's AX.25 development package and configure with `--enable-ax25k2`.
+The GitHub Actions workflow builds on `amd64`, native `arm64` Ubuntu runners, and 32-bit `armhf` Debian under QEMU. That covers 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5, plus the 32-bit Raspberry Pi OS userland. For AX.25 kernel support on Raspberry Pi OS, install the distribution's AX.25 development package and configure with `--enable-ax25k2`.
 
 ## Compiler Flags Explanation
 
