@@ -17,6 +17,43 @@ dnl Available languages
 ALL_LINGUAS="de fr"
 
 AC_PROG_CC
+
+dnl The source still uses legacy C conventions that C23-era compilers diagnose
+dnl more strictly. Select a pre-C23 dialect when possible, and add compatible
+dnl warning defaults only when the compiler supports them.
+AC_CACHE_CHECK([for a C dialect compatible with legacy function declarations],
+	[tnt_cv_cc_legacy_dialect], [
+tnt_cv_cc_legacy_dialect=none
+for tnt_cc_flag in -std=gnu99 -std=c99; do
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS $tnt_cc_flag"
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])],
+		[tnt_cv_cc_legacy_dialect=$tnt_cc_flag
+		 CFLAGS=$tnt_save_CFLAGS
+		 break],
+		[CFLAGS=$tnt_save_CFLAGS])
+done
+])
+if test "x$tnt_cv_cc_legacy_dialect" != xnone; then
+	CFLAGS="$CFLAGS $tnt_cv_cc_legacy_dialect"
+fi
+
+for tnt_cc_flag in -Wno-implicit-int -Wno-old-style-definition \
+                   -Wno-error=implicit-function-declaration \
+                   -Wno-implicit-function-declaration; do
+	AS_VAR_PUSHDEF([tnt_Cache], [tnt_cv_cc_flag_[]AS_TR_SH([$tnt_cc_flag])])
+	AC_CACHE_CHECK([whether $CC supports $tnt_cc_flag], [tnt_Cache], [
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS $tnt_cc_flag"
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])],
+		[AS_VAR_SET([tnt_Cache], [yes])],
+		[AS_VAR_SET([tnt_Cache], [no])])
+	CFLAGS=$tnt_save_CFLAGS
+	])
+	AS_VAR_IF([tnt_Cache], [yes], [CFLAGS="$CFLAGS $tnt_cc_flag"])
+	AS_VAR_POPDEF([tnt_Cache])
+done
+
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 

@@ -75,6 +75,9 @@
 #define	Z		8
 
 extern int moni_para;
+extern void gen_stamp(char *buffer, int type);
+extern void moni_display(int channel, char *buffer);
+extern void moni_display_len(int channel, char *buffer);
 
 char *pax25(char *, unsigned char *);
 static int  ftype(unsigned char *, int *, int *, int *, int *, int);
