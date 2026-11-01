@@ -1508,7 +1508,7 @@ msgstr ""
 
 #: src/window.c:671
 #, c-format
-msgid "Illegal number of columns on terminal: %d (80 <= x <= 160)\n"
+msgid "Illegal number of columns on terminal: %d (80 <= x <= 256)\n"
 msgstr ""
 
 #: src/window.c:701

@@ -9,7 +9,7 @@
 /* minimum and maximum columns per line, don't change limits
    unless you know what you are doing... */
 #define MINCOLS 80
-#define MAXCOLS 160
+#define MAXCOLS 256
 
 #define BELL	'\007'
 #define BS	'\010'

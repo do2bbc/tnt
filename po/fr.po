@@ -1510,8 +1510,8 @@ msgstr "Nombre de colonnes de terminal inconnu\n"
 
 #: src/window.c:672
 #, c-format
-msgid "Illegal number of columns on terminal: %d (80 <= x <= 160)\n"
-msgstr "Mauvais nombre de colonnes du terminal: %d (80 <= x <= 160\n"
+msgid "Illegal number of columns on terminal: %d (80 <= x <= 256)\n"
+msgstr "Mauvais nombre de colonnes du terminal: %d (80 <= x <= 256)\n"
 
 #: src/window.c:702
 msgid "No clear screen capability (cl)\n"

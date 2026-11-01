@@ -668,7 +668,7 @@ int extcols;
       return(1);
   }
   if ((COLS < MINCOLS) || (COLS > MAXCOLS)) {
-    printf(_("Illegal number of columns on terminal: %d (80 <= x <= 160)\n"),COLS);
+    printf(_("Illegal number of columns on terminal: %d (80 <= x <= 256)\n"),COLS);
     return(1);
   }
 
@@ -1336,7 +1336,7 @@ int phy_line;
   int i;
   int max_col;
 /*  char *tmpstr; */
-  char tmpstr[15*160+1];
+  char tmpstr[15*MAXCOLS+1];
 
 /*  tmpstr = (char *)malloc(15*COLS+1); */
   max_col = COLS;
@@ -1528,14 +1528,14 @@ struct real_layout *layout;
 {
   int i;
 
-  for (i = 0; ((real_info[i].win != NULL) && (i < 5)); i++) {
+  for (i = 0; ((i < 5) && (real_info[i].win != NULL)); i++) {
     real_info[i].win->real = -1;
   }
   if (tnt_daemon && !frontend_active) return;
   phy_clrscr();
   phy_curinvis();
   phy_scrnor();
-  for (i = 0; ((layout[i].win != NULL) && (i < 5)); i++) {
+  for (i = 0; ((i < 5) && (layout[i].win != NULL)); i++) {
     real_info[i].win = layout[i].win;
     real_info[i].win->real = i;
     real_info[i].first_real_line = layout[i].first_real_line;
