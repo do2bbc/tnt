@@ -28,6 +28,7 @@ Thank you.
 /* Use the E-Flag in File Transmission ? */
 
 #include "tnt.h"
+#include <stdint.h>
 #ifdef BCAST
 
 #define BCAST_G
@@ -991,7 +992,7 @@ static boolean dec_bcstfile(char *rxfrom, boolean is_bbs_file, char *name1,
 	fill_fileheader(fi, header);
 	if (calc_header_checksum(header, fi->body_offset) ==
 	    fi->header_checksum) {
-	  if (size == fi->file_size) {
+	  if ((uintmax_t)size == fi->file_size) {
 	    if (is_bbs_file)
 	      is_bbs_file = valid_for_bbs(fi);
 
@@ -1433,7 +1434,7 @@ static unsigned short send_bcast2(unsigned short blocksize, u_int32_t start,
   unsigned short hl;
   u_int32_t dfid;
   unsigned short crc, x;
-  long fileheadersize;
+  u_int32_t fileheadersize;
 
   Result = 0;
   if (tp == NULL)
@@ -2126,7 +2127,7 @@ boolean dec_bcast(u_char pid, u_char rxtnc, char *call1, char *call2,
   unsigned short crc;
   long offset;
   unsigned short bytes, bits, pbsize;
-  long file_id;
+  u_int32_t file_id;
   char hs[256];
   u_char *info;
   boolean lflag;
@@ -2310,7 +2311,7 @@ boolean dec_bcast(u_char pid, u_char rxtnc, char *call1, char *call2,
 }
 
 
-static void dispose_bcasttxptr(boolean del_source, long FileID)
+static void dispose_bcasttxptr(boolean del_source, u_int32_t FileID)
 {
   pactxdesc *tp, *tp1, *tp2;
   sendlisttype *sl;
@@ -2368,7 +2369,7 @@ static void check_txtimer(void)
 {
   pactxdesc *tp;
   time_t atime;
-  long hid;
+  u_int32_t hid;
   bcastcallbacktype cbackp;
 
   atime = sys_ixtime();

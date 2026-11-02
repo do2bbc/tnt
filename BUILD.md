@@ -105,7 +105,8 @@ header/footer lengths, bounded log lines, empty/short sysop password rejection
 and help files without a final newline.
 They run offline and do not open a TNC or connect to a node.
 
-Verified configurations: GCC 12 on Debian 12/ARM64, GCC 16 with its default
+Verified configurations: GCC 12 on Debian 12/ARM64, GCC 13 on Ubuntu 24.04
+(also a full 32-bit `gcc -m32` build), GCC 16 with its default
 C23 dialect on x86_64 (also with `--enable-ax25k2`), and Clang 23/C23 with
 `--disable-serial`. All were compiled with the enabled warnings as errors.
 
