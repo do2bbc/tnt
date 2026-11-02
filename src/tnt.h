@@ -50,6 +50,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <unistd.h>
+#include "tntio.h"
 
 #ifndef NET_SIZE_T
 #define NET_SIZE_T int

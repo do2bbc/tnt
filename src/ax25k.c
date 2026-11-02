@@ -1692,7 +1692,11 @@ static int handle_parms(char *port, int value_nr, unsigned short *value, int cha
           fp = fopen(path, "r");
           if (fp == NULL)
                   return -1;
-          fscanf(fp, "%hd", value);
+          if (fscanf(fp, "%hu", value) != 1) {
+                  fprintf(stderr, "Cannot read AX.25 parameter: %s\n", path);
+                  fclose(fp);
+                  return -1;
+          }
   } else {
           fp = fopen(path, "w");
           if (fp == NULL)

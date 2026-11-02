@@ -591,18 +591,14 @@ void string_to_file(short *handle, char *line_, boolean crlf)
     10
   };
 
-  ssize_t err;
-
   strcpy(line, line_);
   if (*handle == -1)
     return;
-  err = write(*handle, line, strlen(line));
-  if (err != (ssize_t)strlen(line)) {
+  if (tnt_write_all(*handle, line, strlen(line)) < 0 ||
+      (crlf && tnt_write_all(*handle, crlfarr, 1) < 0)) {
     close(*handle);
     *handle = -1;
   }
-  else if (crlf)
-    write(*handle, crlfarr, 1);
 }
 
 /* Holt n�chstes Wort aus "inp" und l�scht */

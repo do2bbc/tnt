@@ -348,10 +348,10 @@ int sel_remhlist(int fd1, int flag)
 
   sprintf(heardstring,
        _("     From    >    To         Last Heard       First Heard\n"));
-  write(fd1, heardstring, strlen(heardstring));
+  if (tnt_write_all(fd1, heardstring, strlen(heardstring)) < 0) return -1;
   sprintf(heardstring,
        "-------------------------------------------------------------\n");
-  write(fd1, heardstring, strlen(heardstring));
+  if (tnt_write_all(fd1, heardstring, strlen(heardstring)) < 0) return -1;
   cou = 0;
   if (heardlistroot != NULL) {
     curr = heardlistroot;
@@ -372,7 +372,10 @@ int sel_remhlist(int fd1, int flag)
       strftime(tmpstr2,sizeof(tmpstr2),"%y/%m/%d %R",last_time);
       sprintf(heardstring,"   %-9.9s > %-9.9s   %s   %s\n",
               curr->srccall,curr->destcall,tmpstr1,tmpstr2);
-      write(fd1, heardstring, strlen(heardstring));
+      if (tnt_write_all(fd1, heardstring, strlen(heardstring)) < 0) {
+        free(next);
+        return -1;
+      }
       cou++;
     } while (curr != heardlistroot);
     free(next);
@@ -380,7 +383,7 @@ int sel_remhlist(int fd1, int flag)
   if(flag == 0) {
     if(cou == 0) strcpy(heardstring, _("[No entries]\n"));
     else        strcpy(heardstring, _("[All entries listed]\n"));
-    write(fd1, heardstring, strlen(heardstring));
+    if (tnt_write_all(fd1, heardstring, strlen(heardstring)) < 0) return -1;
   }
   return(cou);
 }

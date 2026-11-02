@@ -63,9 +63,7 @@ char *find_name(char *call)
   }
 
   name = NULL;
-  while(1) {
-    fgets(buffer, MAXSIZE-1, names_tnt);
-    if(feof(names_tnt)) break;
+  while(fgets(buffer, sizeof(buffer), names_tnt) != NULL) {
 
     file = buffer;
     if(strncasecmp(file, call, len) != 0) {
@@ -96,6 +94,11 @@ char *find_name(char *call)
     name = NULL;
   }
 
+  if(ferror(names_tnt)) {
+    perror(TNT_NAMES);
+    free(name);
+    name = NULL;
+  }
   fclose(names_tnt);
 
   return name;
@@ -120,9 +123,7 @@ char *find_routes(char *call)
   if(! routes_tnt) return NULL;
 
   route = NULL;
-  while(1) {
-    fgets(buffer, MAXSIZE-1, routes_tnt);
-    if(feof(routes_tnt)) break;
+  while(fgets(buffer, sizeof(buffer), routes_tnt) != NULL) {
 
     pat = buffer;
     if(strncasecmp(pat, call, len) == 0 || strncasecmp(pat+2, call, len) == 0) {
@@ -141,6 +142,11 @@ char *find_routes(char *call)
     }
   }
   
+  if(ferror(routes_tnt)) {
+    perror(TNT_ROUTES);
+    free(route);
+    route = NULL;
+  }
   fclose(routes_tnt);
   
   return route;
@@ -244,9 +250,7 @@ void find_connects(char *call)
   total     = 0;
   last_year = 1970;
   connects  = 0;
-  while(1) {
-    fgets(buffer, MAXSIZE-1, log_tnt);
-    if(feof(log_tnt)) break;
+  while(fgets(buffer, sizeof(buffer), log_tnt) != NULL) {
 
     if(strncasecmp(buffer, call, len) == 0) {
       pat = strrchr(buffer, '\n');
@@ -287,6 +291,12 @@ void find_connects(char *call)
     }
   }
 
+  if(ferror(log_tnt)) {
+    perror(TNT_LOG);
+    fclose(log_tnt);
+    free(list);
+    return;
+  }
   fclose(log_tnt);
   if(! connects) {
     printf("Was not connected in the last time.\n");
@@ -378,4 +388,3 @@ int main(int argc, char **argv)
 
   return EXIT_SUCCESS;
 }
-

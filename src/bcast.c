@@ -971,7 +971,21 @@ static boolean dec_bcstfile(char *rxfrom, boolean is_bbs_file, char *name1,
 
     handle1 = sfopen(name1, O_RDONLY);
     if (handle1 >= minhandle) {
-      read(handle1, header, sizeof(fileheadertype));
+      if (size < 2) {
+        BcastProtokoll("Invalid broadcast file header");
+        sfclose(&handle1);
+        free(fi);
+        free(header);
+        return false;
+      }
+      memset(header, 0, sizeof(fileheadertype));
+      if (tnt_read_all(handle1, header,
+                       min((off_t)sizeof(fileheadertype), size)) < 0) {
+        sfclose(&handle1);
+        free(fi);
+        free(header);
+        return false;
+      }
       sfclose(&handle1);
       if (header[0] == 0xaa && header[1] == 0x55) {
 	fill_fileheader(fi, header);
@@ -1495,8 +1509,15 @@ static unsigned short send_bcast2(unsigned short blocksize, u_int32_t start,
     if (tp->FileHandle < minhandle)
       tp->FileHandle = sfopen(tp->fileinfo->body_filename, O_RDONLY);
     if (tp->FileHandle >= minhandle) {
-      lseek(tp->FileHandle, start - fileheadersize, 0);
-      read(tp->FileHandle, &fhe[fh_data_1 - 1], hl);
+      if (lseek(tp->FileHandle, start - fileheadersize, SEEK_SET) < 0) {
+        perror("broadcast file seek");
+        return 0;
+      }
+      if (tnt_read_all(tp->FileHandle, &fhe[fh_data_1 - 1], hl) < 0)
+        return 0;
+    } else {
+      BcastProtokoll("Cannot open broadcast file");
+      return 0;
     }
   }
 

@@ -1177,7 +1177,8 @@ static int handle_pgp(int channel, char *buffer, int len)
       strcat(cmdline,tmpstderrname);
 
           rem_data_display(channel,pcInfo); /* show "calling ..." */
-      system(cmdline);
+      if (system(cmdline) != 0)
+        cmd_display(M_REMOTE,channel,rem_error_str,1);
 
           /* show output of gpg/pgp */
       rem_datei_display(channel,tmpstdoutname);
@@ -2543,6 +2544,8 @@ void cmd_sysop(int par1 __attribute__((unused)), int par2 __attribute__((unused)
   FILE *fd;
   char *ptr;
   
+  ch_stat[channel].pwwait = 0;
+  ch_stat[channel].pwstr[0] = '\0';
   strip_call_log(call,channel);
   ptr = strchr(call,'-');
   if (ptr != NULL) *ptr = '\0';
@@ -2552,12 +2555,27 @@ void cmd_sysop(int par1 __attribute__((unused)), int par2 __attribute__((unused)
     if (strcmp(call,sysoplist_wrk->callsign) == 0) {
       found = 1;
       if((fd = fopen(sysoplist_wrk->sys_file,"r")) != NULL) {
-        fgets(password,132,fd);
+        if (fgets(password,sizeof(password),fd) == NULL) {
+          fprintf(stderr, "Cannot read sysop password file\n");
+          fclose(fd);
+          found = 0;
+          sysoplist_wrk = sysoplist_wrk->next;
+          continue;
+        }
         fclose(fd);
         ptr = strchr(password,'\r');
         if (ptr != NULL) *ptr = '\0';
         ptr = strchr(password,'\n');
         if (ptr != NULL) *ptr = '\0';
+        j = 0;
+        for (i = 0; password[i] != '\0'; i++) {
+          if (password[i] != ' ') j++;
+        }
+        if (j < 5) {
+          fprintf(stderr, "Sysop password needs at least five non-space characters\n");
+          found = 0;
+          sysoplist_wrk = sysoplist_wrk->next;
+        }
       }
       else {
         found = 0;
@@ -3071,7 +3089,10 @@ void init_session(void)
   session_sek = 0;
 
   if((f1=fopen(tnt_session_log,"rb"))!=NULL) {
-    fscanf(f1,"%ld",&session_sek);
+    if (fscanf(f1,"%ld",&session_sek) != 1) {
+      fprintf(stderr, "Invalid TNT session log\n");
+      session_sek = 0;
+    }
     fclose(f1);
   }
 }
@@ -3475,60 +3496,81 @@ void rem_heardlist(int par1 __attribute__((unused)), int par2, int channel, int 
   int cou;
 
   strcpy(tmpname,"/tmp/tntmhlXXXXXX");
-  close(mkstemp(tmpname));
-
-  fd1 = open(tmpname,O_RDWR|O_CREAT,PMODE);
-  if(fd1 < 0) return;
+  fd1 = mkstemp(tmpname);
+  if(fd1 < 0) {
+    perror("create heard list");
+    cmd_display(M_REMOTE,channel,rem_error_str,1);
+    return;
+  }
 
   /* sel_heardlist in xmon.c */
   cou = sel_remhlist(fd1, strlen(str));
   close(fd1);
+  if(cou < 0) {
+    unlink(tmpname);
+    cmd_display(M_REMOTE,channel,rem_error_str,1);
+    return;
+  }
 
   if(strlen(str) > 0) {
-    tmp_mh = fopen(tmpname, "rw");
+    tmp_mh = fopen(tmpname, "r");
     strcpy(tmpname2, "/tmp/tntmhxXXXXXXX");
-    close(mkstemp(tmpname2));
-    fd1 = open(tmpname2,O_RDWR|O_CREAT,PMODE);
-    if( (fd1 < 0) || (tmp_mh == NULL) ) return;
+    fd1 = mkstemp(tmpname2);
+    if( (fd1 < 0) || (tmp_mh == NULL) ) {
+      perror("open heard list");
+      if(fd1 >= 0) close(fd1);
+      if(tmp_mh != NULL) fclose(tmp_mh);
+      unlink(tmpname);
+      unlink(tmpname2);
+      cmd_display(M_REMOTE,channel,rem_error_str,1);
+      return;
+    }
 
     for(i=0; i<2; i++) {
-      fgets(tmp_str, 98, tmp_mh);
-      write(fd1, tmp_str, strlen(tmp_str));
+      if(fgets(tmp_str, sizeof(tmp_str), tmp_mh) == NULL) {
+        fprintf(stderr, "Cannot read heard list header\n");
+        goto heard_error;
+      }
+      if(tnt_write_all(fd1, tmp_str, strlen(tmp_str)) < 0) goto heard_error;
     }
 
     i = sscanf(str, "%d", &j);
     if( (i==1) && (j>0) && (j<100) ) {
       for(i=0; i<j; i++) {
         if(fgets(tmp_str, 98, tmp_mh)==NULL) break;
-        write(fd1, tmp_str, strlen(tmp_str));
+        if(tnt_write_all(fd1, tmp_str, strlen(tmp_str)) < 0) goto heard_error;
       }
       sprintf(tmp_str, _("[listed %d from %d entries]"), i, cou);
       if(i==1)
         sprintf(tmp_str, _("[One entry (from %d) listed]"), cou);
       if(i == cou)
         sprintf(tmp_str, _("[All entries listed]\n"));
-      write(fd1, tmp_str, strlen(tmp_str));
+      if(tnt_write_all(fd1, tmp_str, strlen(tmp_str)) < 0) goto heard_error;
     } else {
       for(i=0;i<(int)strlen(str);i++) str[i]=toupper(str[i]);
 
       i=0;
       while(fgets(tmp_str, 98, tmp_mh) != NULL) {
         if(strstr(tmp_str, str) != NULL) {
-          write(fd1, tmp_str, strlen(tmp_str));
+          if(tnt_write_all(fd1, tmp_str, strlen(tmp_str)) < 0) goto heard_error;
           i++;
         }
       }
       if(i==0) {
         sprintf(tmp_str, _("[<%s> not found]\n"),str);
-        write(fd1, tmp_str, strlen(tmp_str));
+        if(tnt_write_all(fd1, tmp_str, strlen(tmp_str)) < 0) goto heard_error;
       } else {
         sprintf(tmp_str, _("[%d entries with <%s>]"),i,str);
         if(i==1) sprintf(tmp_str, _("[One entry with <%s>]"),str);
         strcat(tmp_str, "\n");
-        write(fd1, tmp_str, strlen(tmp_str));
+        if(tnt_write_all(fd1, tmp_str, strlen(tmp_str)) < 0) goto heard_error;
       }
     }
-    write(fd1, "\n", strlen("\n"));
+    if(ferror(tmp_mh)) {
+      perror("read heard list");
+      goto heard_error;
+    }
+    if(tnt_write_all(fd1, "\n", 1) < 0) goto heard_error;
     close(fd1);
     fclose(tmp_mh);
     unlink(tmpname);
@@ -3537,4 +3579,12 @@ void rem_heardlist(int par1 __attribute__((unused)), int par2, int channel, int 
 
   x_par1 = TX_NORM;
   open_sendfile(x_par1,par2,channel,strlen(tmpname),M_REMOTE_TEMP,tmpname);
+  return;
+
+heard_error:
+  close(fd1);
+  fclose(tmp_mh);
+  unlink(tmpname);
+  unlink(tmpname2);
+  cmd_display(M_REMOTE,channel,rem_error_str,1);
 }

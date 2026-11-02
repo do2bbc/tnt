@@ -113,8 +113,21 @@ int main (void)
 
   procstream = fopen("/proc/version", "r");
   if(procstream != NULL) {
-    fgets(buffer, 158, procstream);
+    if(fgets(buffer, 158, procstream) == NULL) {
+      fprintf(stderr, "Cannot read /proc/version\n");
+      fclose(procstream);
+      free(tmp_str);
+      free(buffer);
+      return 1;
+    }
     token = strtok (buffer, " ");
+    if(token == NULL) {
+      fprintf(stderr, "Invalid /proc/version\n");
+      fclose(procstream);
+      free(tmp_str);
+      free(buffer);
+      return 1;
+    }
     sprintf(tmp_str, "Operating system: %s",token);
     while(1) {
       token = strtok (NULL, " ");
@@ -135,10 +148,16 @@ int main (void)
 
   procstream = fopen("/proc/uptime", "r");
   if(procstream != NULL) {
-    fgets(buffer, 100, procstream);
+    if(fgets(buffer, 100, procstream) == NULL) {
+      fprintf(stderr, "Cannot read /proc/uptime\n");
+      fclose(procstream);
+      free(tmp_str);
+      free(buffer);
+      return 1;
+    }
     token = strtok (buffer, " ");
     i = sscanf(buffer, "%d", &tmp);
-    if((i=1) && (tmp>0)) {
+    if((i==1) && (tmp>0)) {
       bfields[0] = 0; /* Tage */
       bfields[1] = 0; /* Stunden */
       bfields[2] = 0; /* Minuten */
@@ -155,13 +174,15 @@ int main (void)
 
   procstream = fopen("/proc/loadavg", "r");
   if(procstream != NULL) {
-    fgets(buffer, 100, procstream);
-    token = strtok(buffer, " ");
-    i = sscanf(token, "0.%d", &bfields[0]);
-    token = strtok(NULL, " ");
-    i += sscanf(token, "0.%d", &bfields[1]);
-    token = strtok(NULL, " ");
-    i += sscanf(token, "0.%d", &bfields[2]);
+    if(fgets(buffer, 100, procstream) == NULL) {
+      fprintf(stderr, "Cannot read /proc/loadavg\n");
+      fclose(procstream);
+      free(tmp_str);
+      free(buffer);
+      return 1;
+    }
+    i = sscanf(buffer, "0.%d 0.%d 0.%d",
+               &bfields[0], &bfields[1], &bfields[2]);
     if(i == 3) {
       printf("Systemload: NOW:%d%%, 5-min ago:%d%%,"
              " 15-min ago:%d%%\n",
@@ -232,4 +253,3 @@ int main (void)
   printf("\nby WSPse, V" CUR_VER "/" CUR_DAT "\n\n");
   return 0;
 }
-

@@ -2135,17 +2135,22 @@ static void cmd_kmacro(int par1 __attribute__((unused)), int par2 __attribute__(
   strcpy(tmp,func_key_file);
   fp=fopen(tmp,"r");
   if(fp!=0) {
-    while(!feof(fp)) {
-      fgets(tmp,99,fp);
-      if(feof(fp)) break;
+    while(fgets(tmp,sizeof(tmp),fp) != NULL) {
       if(tmp[0]=='#') continue;
-      tmp[strlen(tmp)-1]='\0';
+      tmp[strcspn(tmp,"\r\n")]='\0';
+      if(strlen(tmp) < 3) continue;
       strcpy(tmp2,tmp);
       tmp2[2]='\0';
       x=atoi(tmp2);
       if ((x >= MACRO_MIN) && (x <= MACRO_MAX)) {
         strcpy(macro_strings[x].string,&tmp[3]);
       }
+    }
+    if(ferror(fp)) {
+      perror(func_key_file);
+      fclose(fp);
+      cmd_display(mode,channel, _("Can't load keyboard-macro-file"),1);
+      return;
     }
     fclose(fp);
     cmd_display(mode,channel,OK_TEXT,1);

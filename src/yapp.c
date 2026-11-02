@@ -703,7 +703,11 @@ static int yapp_download_data(yapptype *yapp)
 	}
       }
 
-      write(rx_file[yapp->channel].fd, &yapp->buffer[2], len);
+      if (tnt_write_all(rx_file[yapp->channel].fd, &yapp->buffer[2], len) < 0) {
+        Send_CN(yapp, "Write error");
+        Write_Status(yapp, "SndABORT: Write error");
+        return Result;
+      }
       yapp->seekpos += len;
       yapp->curval += len;
 
@@ -1120,4 +1124,3 @@ int yapp_upload(int init, int abort, yapptype *yapp, char *buffp,
   
   return (bminus == 0);
 }
-

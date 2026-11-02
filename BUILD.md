@@ -87,12 +87,22 @@ make CFLAGS="$(sed -n 's/^CFLAGS = //p' Makefile) -Werror"
 make check
 ```
 
+CI additionally enables `_FORTIFY_SOURCE=3` on all three architectures.
+To reproduce those checks locally, add `-D_FORTIFY_SOURCE=3` to the build's
+`CFLAGS` above (after running `make clean` if objects already exist).
+The QEMU-based `armhf` job sets `ASAN_OPTIONS=detect_leaks=0` because
+LeakSanitizer cannot inspect processes under userspace emulation. AddressSanitizer
+and UndefinedBehaviorSanitizer remain enabled; native jobs also check leaks.
+
 Run configure normally before this strict build: some historical Autoconf
 feature probes deliberately compile snippets that warn on current compilers.
 The tests compile extracted production functions with AddressSanitizer and
 UndefinedBehaviorSanitizer. They cover typed screen callbacks, character
 conversion, byte output, compression round trips, AX25UDP endpoint parsing,
-process-file path limits and the INP/NET-ROM monitor.
+process-file path limits and the INP/NET-ROM monitor. I/O regressions also cover
+interrupted and partial transfers, full output devices, premature EOF, cookie
+header/footer lengths, bounded log lines, empty/short sysop password rejection
+and help files without a final newline.
 They run offline and do not open a TNC or connect to a node.
 
 Verified configurations: GCC 12 on Debian 12/ARM64, GCC 16 with its default

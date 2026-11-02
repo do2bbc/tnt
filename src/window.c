@@ -481,7 +481,7 @@ static void write_frontend(char *buf, int len)
 static void phy_strout(char *str)
 {
   if (!tnt_daemon) {
-    write(1,str,strlen(str));
+    tnt_write_all(1,str,strlen(str));
   }
   else {
     write_frontend(str,strlen(str));
@@ -492,7 +492,7 @@ static int phy_charout(int value)
 {
   char ch = value;
   if (!tnt_daemon) {
-    write(1,&ch,1);
+    return tnt_write_all(1,&ch,1);
   }
   else {
     write_frontend(&ch,1);
@@ -784,7 +784,7 @@ static void phy_treset(void)
   }
   else {
     if (!tnt_daemon) {
-      write(1,"\033c",2);
+      phy_strout("\033c");
     }
     else {
       write_frontend("\033c",2);
@@ -948,7 +948,7 @@ static void phy_scrnor(void)
     }
     else {
       if (!tnt_daemon) {
-        write(1,"\033[r",3);
+        phy_strout("\033[r");
       }
       else {
         write_frontend("\033[r",3);
@@ -1057,7 +1057,7 @@ static void phy_attrout(char ch)
     str_attrout(str,ch);
     if ((i = strlen(str))) {
       if (!tnt_daemon) {
-        write(1,str,i);
+        tnt_write_all(1,str,i);
       }
       else {
         write_frontend(str,i);
@@ -1069,7 +1069,7 @@ static void phy_attrout(char ch)
 static void phy_no_transl(void)
 {
   if (!tnt_daemon) {
-    write(1,"\033(U",3);
+    phy_strout("\033(U");
   }
   else {
     write_frontend("\033(U",3);
@@ -1079,7 +1079,7 @@ static void phy_no_transl(void)
 static void phy_normal_transl(void)
 {
   if (!tnt_daemon) {
-    write(1,"\033(B",3);
+    phy_strout("\033(B");
   }
   else {
     write_frontend("\033(B",3);
@@ -1089,10 +1089,10 @@ static void phy_normal_transl(void)
 void beep(void)
 {
   if (!tnt_daemon) {
-    write(1,"\007",1);
+    phy_strout("\007");
   }
   else {
-    write(frontend_fd,"\007",1);
+    write_frontend("\007",1);
   }
 }
 

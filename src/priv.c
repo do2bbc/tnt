@@ -706,8 +706,10 @@ void scan_login_received(int channel, char *buffer, int len)
     }
     if((fd = fopen(passfile,"r")) != NULL) { /* check if file present */
       tmpstr[0] = '\0';
-      fgets(tmpstr,160,fd);
-      error = 0;
+      error = (fgets(tmpstr,160,fd) == NULL);
+      if (error) {
+        fprintf(stderr, "Cannot read password file\n");
+      }
       if ((ptr = strchr(tmpstr,'\n')) != NULL) *ptr = '\0';
       if ((ptr = strchr(tmpstr,'\r')) != NULL) *ptr = '\0';
       fclose(fd);
@@ -763,8 +765,10 @@ void scan_login_received(int channel, char *buffer, int len)
     }
     if((fd = fopen(passfile,"r")) != NULL) { /* check if file present */
       tmpstr[0] = '\0';
-      fgets(tmpstr,160,fd);
-      error = 0;
+      error = (fgets(tmpstr,160,fd) == NULL);
+      if (error) {
+        fprintf(stderr, "Cannot read password file\n");
+      }
       if ((ptr = strchr(tmpstr,'\n')) != NULL) *ptr = '\0';
       if ((ptr = strchr(tmpstr,'\r')) != NULL) *ptr = '\0';
       fclose(fd);
@@ -1048,8 +1052,11 @@ static void priv_diebox(int channel, int mode)
       ofs = atoi (privstr) + atoi (privstr + i + 3); /* calculate offset for box_passfile */
       if (ofs >= 60) ofs -= 60;
       ofs = ofs * multiply + atoi (privstr + i);
-      fseek(fd,ofs,0);                /* seek to valid priv position */
-      fscanf(fd,"%4s",priv);          /* get the 4 priv characters */
+      if (fseek(fd,ofs,SEEK_SET) != 0 || fscanf(fd,"%4s",priv) != 1) {
+        fclose(fd);
+        cmd_display(mode,channel, _("Can't read password file"),1);
+        return;
+      }
       fclose(fd);
       sprintf(privstr,"PRIV %s%s",priv,rem_newlin_str);
       rem_data_display(channel,privstr);

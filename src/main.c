@@ -435,7 +435,10 @@ int main(int argc, char *argv[])
     close(0);
     close(1);
     /*close(2);*/
-    chdir("/");
+    if (chdir("/") < 0) {
+      perror("chdir /");
+      exit(1);
+    }
     setsid();
     signal(SIGPIPE, SIG_IGN);
     signal(SIGHUP, sighup);

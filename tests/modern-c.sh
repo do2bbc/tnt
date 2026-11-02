@@ -41,13 +41,13 @@ static ssize_t capture_write(int fd, const void *buffer, size_t len)
 {
   assert(fd == 1 && len == 1);
   capture(*(const char *)buffer);
-  return 1;
+  return 0;
 }
-#define write capture_write
+#define tnt_write_all capture_write
 EOF
 extract 'static int phy_charout(' window.c
 cat >> "$tmp/test.c" <<'EOF'
-#undef write
+#undef tnt_write_all
 static void win_charout_noctl(char ch, struct window *win, int insert)
 {
   (void)insert;

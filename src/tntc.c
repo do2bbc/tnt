@@ -339,6 +339,7 @@ int main(int argc, char *argv[])
   int count;
   int escflag;
   int active;
+  int exit_status = 0;
   int sockfd;
   int i;
   int servlen;
@@ -388,7 +389,11 @@ int main(int argc, char *argv[])
 
   init_console();
   sprintf(frontend_para,"%s %d %d\n",term,LINES,COLS);
-  write(sockfd,frontend_para,strlen(frontend_para));
+  if (tnt_write_all(sockfd,frontend_para,strlen(frontend_para)) < 0) {
+    close(sockfd);
+    exit_console();
+    return 1;
+  }
   active = 1;
   escflag = 0;
   
@@ -407,8 +412,9 @@ int main(int argc, char *argv[])
     if (FD_ISSET(0,&fdmask)) {
       nrread = read(0,buffer,256);
       if (nrread > 0) {
-        if (write(sockfd,buffer,nrread) != nrread) {
+        if (tnt_write_all(sockfd,buffer,nrread) < 0) {
           active = 0;
+          exit_status = 1;
         }
       }
     }
@@ -447,12 +453,14 @@ int main(int argc, char *argv[])
         }
         i++;
       }
-      if (nrread > 0) 
-        write(1,buffer,nrread);
+      if (nrread > 0 && tnt_write_all(1,buffer,nrread) < 0) {
+        active = 0;
+        exit_status = 1;
+      }
     }
   }
   
   close(sockfd);
   exit_console();
-  exit(0);
+  return exit_status;
 }

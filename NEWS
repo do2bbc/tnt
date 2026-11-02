@@ -2,6 +2,11 @@
             Removed legacy compiler-warning suppressions and forced GNU C99.
             Corrected callback signatures, character conversion calls and
             socket argument types. Added sanitizer-backed make check tests.
+            Check file and terminal I/O results with fortified builds on all
+            CI architectures. Handle interrupted/partial transfers, reject
+            unreadable password data, and report read/write failures.
+            Correct cookie header/footer lengths and preserve help text at EOF.
+            Disable only leak detection under QEMU; retain ASan and UBSan.
 
 2000/06/06: TNT 1.9.1 (added subversion .1 because of the many distributed
 		       1.9-versions)

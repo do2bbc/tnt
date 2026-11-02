@@ -59,16 +59,15 @@ static int write_cookie(int org, int dest)
       do {
          if (read(org,&c,1) < 1) return(1);
          if (c==9) c=' ';
-         if (c != 0x0d) write(dest,&c,1);
+         if (c != 0x0d && tnt_write_all(dest,&c,1) < 0) return 1;
       } while (c!=0x0a);
       if (read(org,&c,1) < 1) return(1);
       if (c==9) c=' ';
       if ((c=='-') || (c=='%')) break;
-      else if (c != 0x0d) write(dest,&c,1);
+      else if (c != 0x0d && tnt_write_all(dest,&c,1) < 0) return 1;
    } while (1);
    c = 0x0a;
-   write(dest,&c,1);
-   return(0);
+   return tnt_write_all(dest,&c,1);
 }
 
 int gen_cookie(char *tmpname, int headfoot)
@@ -96,8 +95,13 @@ int gen_cookie(char *tmpname, int headfoot)
    }
    
    if (headfoot) {
-     write(dest,cook_head_str,strlen(cook_head_str));
-     write(dest,cook_dash_str,strlen(cook_head_str));
+     if (tnt_write_all(dest,cook_head_str,strlen(cook_head_str)) < 0 ||
+         tnt_write_all(dest,cook_dash_str,strlen(cook_dash_str)) < 0) {
+       close(org);
+       close(dest);
+       unlink(tmpname);
+       return 3;
+     }
    }
    
    i=x_random(file_stat.st_size/256);
@@ -113,8 +117,13 @@ int gen_cookie(char *tmpname, int headfoot)
    }
 
    if (headfoot) {
-     write(dest,cook_dash_str,strlen(cook_head_str));
-     write(dest,cook_foot_str,strlen(cook_head_str));
+     if (tnt_write_all(dest,cook_dash_str,strlen(cook_dash_str)) < 0 ||
+         tnt_write_all(dest,cook_foot_str,strlen(cook_foot_str)) < 0) {
+       close(org);
+       close(dest);
+       unlink(tmpname);
+       return 3;
+     }
    }
    close(org);
    close(dest);

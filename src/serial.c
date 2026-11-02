@@ -213,7 +213,11 @@ static int create_lockfile(char *lockfile, char *serstr, int unlock, int quiet_c
     return(errno);
   }
   sprintf(lckpidstr, "%10d\n", getpid());     /* write own pid to lock file            */
-  write(lock, lckpidstr, strlen(lckpidstr));  /* this gives us an uucp style lock file */
+  if (tnt_write_all(lock, lckpidstr, strlen(lckpidstr)) < 0) {
+    close(lock);
+    unlink(lockfile);
+    return 1;
+  }
   close(lock);
 
   return(0);

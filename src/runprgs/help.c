@@ -54,11 +54,15 @@ int main (void)
             printf("<%s> (no Help available)\n\n", de->d_name);
           } else {
             printf("<%s>\n", de->d_name);
-	    while(1) {
-	      fgets(tmp_str, 199, help_file);
-	      if(feof(help_file)) break;
+	    while(fgets(tmp_str, sizeof(tmp_str), help_file) != NULL) {
 	      fputs(tmp_str, stdout);
 	    }
+            if(ferror(help_file)) {
+              perror("reading help file");
+              fclose(help_file);
+              closedir(run_dir);
+              return 1;
+            }
             fclose(help_file);
             printf("\n");
           }

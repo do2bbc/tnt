@@ -99,6 +99,16 @@ void init_log(void)
 
 #define LOG_LINELEN 120
 
+static void append_log(char *line, const char *text)
+{
+  size_t used = strlen(line);
+  size_t length = strlen(text);
+  if (length > LOG_LINELEN - used - 1)
+    length = LOG_LINELEN - used - 1;
+  memcpy(line + used, text, length);
+  line[used + length] = '\0';
+}
+
 void write_log(int channel)
 {
   char logstr[LOG_LINELEN];
@@ -121,18 +131,18 @@ void write_log(int channel)
            ch_stat[channel].mycall, qrg_info[(int)0].qrg);
   cvtime = localtime(&ch_stat[channel].start_time);
   strftime(tmpstr,sizeof(tmpstr),"%d.%m.%y %R | ",cvtime);
-  strncat(logstr, tmpstr, sizeof(logstr) - strlen(logstr) - 1);
+  append_log(logstr, tmpstr);
   cvtime = localtime(&ch_stat[channel].end_time);
   strftime(tmpstr,sizeof(tmpstr),"%d.%m.%y %R | ",cvtime);
-  strncat(logstr, tmpstr, sizeof(logstr) - strlen(logstr) - 1);
+  append_log(logstr, tmpstr);
   if (ch_stat[channel].log_call[0] != '\0') {
-    strncat(logstr, ch_stat[channel].log_call, sizeof(logstr) - strlen(logstr) - 1);
-    strncat(logstr, ", Uplink: ", sizeof(logstr) - strlen(logstr) - 1);
+    append_log(logstr, ch_stat[channel].log_call);
+    append_log(logstr, ", Uplink: ");
   }
   avail = LOG_LINELEN - (int)strlen(logstr) - 2;
   if (avail < 0) avail = 0;
   snprintf(tmpstr, sizeof(tmpstr), "%.*s\n", avail, ch_stat[channel].call);
-  strncat(logstr, tmpstr, sizeof(logstr) - strlen(logstr) - 1);
+  append_log(logstr, tmpstr);
   /* logline available in logstr */
   if (write(fd,logstr,strlen(logstr)) < (ssize_t)strlen(logstr)) {
     disable_logging();

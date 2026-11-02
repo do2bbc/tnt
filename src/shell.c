@@ -145,11 +145,15 @@ static void restore_pty(const char *id)
   char filename[MAXCHAR];
 
   sprintf(filename, "%s%s", MASTERPREFIX, id);
-  chown(filename, 0, 0);
-  chmod(filename, 0666);
+  if (chown(filename, 0, 0) < 0)
+    perror(filename);
+  if (chmod(filename, 0666) < 0)
+    perror(filename);
   sprintf(filename, "%s%s", SLAVEPREFIX, id);
-  chown(filename, 0, 0);
-  chmod(filename, 0666);
+  if (chown(filename, 0, 0) < 0)
+    perror(filename);
+  if (chmod(filename, 0666) < 0)
+    perror(filename);
 }
 
 void fixutmpfile(void)
@@ -338,11 +342,16 @@ void cmd_shell(int par1, int par2, int channel, int len, int mode, char *str)
         if (!pw) exit(1);
       }
     }
-    for (i = 0; i < FD_SETSIZE; i++) close(i);
+    for (i = 0; i < FD_SETSIZE; i++) {
+      if (i != STDERR_FILENO) close(i);
+    }
     setsid();
-    open(slave, O_RDWR, 0666);
-    dup(0);
-    dup(0);
+    if (open(slave, O_RDWR, 0666) != STDIN_FILENO ||
+        dup2(STDIN_FILENO, STDOUT_FILENO) < 0 ||
+        dup2(STDIN_FILENO, STDERR_FILENO) < 0) {
+      perror("open shell terminal");
+      _exit(1);
+    }
     chmod(slave, 0622);
     if (sh_stat[channel].lfcrconv) {
       memset((char *) &termios, 0, sizeof(termios));
@@ -511,7 +520,9 @@ void cmd_run(int par1, int par2, int channel, int len, int mode, char *str)
   sh_stat[channel].direct_started = (par2 == 1);
   strcpy(sh_stat[channel].id, slave + strlen(slave) - 2);
   if (!(sh_stat[channel].pid = fork())) {
-    for (i = 0; i < FD_SETSIZE; i++) close(i);
+    for (i = 0; i < FD_SETSIZE; i++) {
+      if (i != STDERR_FILENO) close(i);
+    }
     setsid();
     if (is_root) {
       pw = getpwnam(remote_user);
@@ -519,9 +530,12 @@ void cmd_run(int par1, int par2, int channel, int len, int mode, char *str)
       if (setgid(pw->pw_gid) == -1) exit(1);
       if (setuid(pw->pw_uid) == -1) exit(1);
     }
-    open(slave, O_RDWR, 0666);
-    dup(0);
-    dup(0);
+    if (open(slave, O_RDWR, 0666) != STDIN_FILENO ||
+        dup2(STDIN_FILENO, STDOUT_FILENO) < 0 ||
+        dup2(STDIN_FILENO, STDERR_FILENO) < 0) {
+      perror("open program terminal");
+      _exit(1);
+    }
     chmod(slave, 0622);
     if (sh_stat[channel].lfcrconv) {
       memset((char *) &termios, 0, sizeof(termios));
@@ -547,8 +561,10 @@ void cmd_run(int par1, int par2, int channel, int len, int mode, char *str)
     }
     tcsetattr(0, TCSANOW, &termios);
     /* execute command using shell */
-    if (is_root)
-      chdir(pw->pw_dir);
+    if (is_root && chdir(pw->pw_dir) < 0) {
+      perror("program working directory");
+      _exit(1);
+    }
     strcpy(command,tnt_bin_dir);
     strcat(command,str);
     strcpy(envcall,"CALLSIGN=");
@@ -1358,9 +1374,8 @@ static void handle_socket_rxdata(ACTIVE_SOCKET *active_socket, char *buffer, int
           }
           else {
             error = 1;
-            do {
-              fgets(tmpstr,99,fp);
-              tmpstr[strlen(tmpstr)-1] = 0;
+            while (fgets(tmpstr,sizeof(tmpstr),fp) != NULL) {
+              tmpstr[strcspn(tmpstr,"\r\n")] = 0;
               if (tmpstr[0] == '#' || tmpstr[0] == ' ' ||
                   tmpstr[0] == 9 || tmpstr[0] == LF) continue;
               res = sscanf(tmpstr,"%s%s%s%d",active_socket->user_id,
@@ -1375,7 +1390,11 @@ static void handle_socket_rxdata(ACTIVE_SOCKET *active_socket, char *buffer, int
 	          break;
 	        }
 	      }
-            } while(!feof(fp));
+            }
+            if (ferror(fp)) {
+              perror("socket password file");
+              error = 1;
+            }
             fclose(fp);
 
             if (!error) {
@@ -1627,10 +1646,10 @@ void close_shell2(int channel, int report, int disc, int errmode)
 #endif
 #endif
 	    lseek(fdut, -sizeof(utmpbuf), SEEK_CUR);
-	    write(fdut, &utmpbuf, sizeof(utmpbuf));
+	    tnt_write_all(fdut, &utmpbuf, sizeof(utmpbuf));
 	    close(fdut);
 	    if ((fdut = open(WTMP_FILE, O_WRONLY | O_CREAT | O_APPEND, 0644)) >= 0)
-	      write(fdut, &utmpbuf, sizeof(utmpbuf));
+	      tnt_write_all(fdut, &utmpbuf, sizeof(utmpbuf));
 	    break;
 	  }
         }	

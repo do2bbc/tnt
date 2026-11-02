@@ -570,9 +570,9 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = doc intl po src examples conf
 EXTRA_DIST = ABOUT-NLS AUTHORS AX25-NOTES COPYING ChangeLog \
 		  FAQ INSTALL NEWS README TODO \
-		  tnt.spec BUILD.md tests/modern-c.sh tests/test-inp.sh
+		  tnt.spec BUILD.md tests/modern-c.sh tests/test-inp.sh tests/io.sh
 
-TESTS = tests/modern-c.sh tests/test-inp.sh
+TESTS = tests/modern-c.sh tests/test-inp.sh tests/io.sh
 LOG_COMPILER = $(SHELL)
 TESTS_ENVIRONMENT = top_srcdir='$(abs_top_srcdir)' \
 		   top_builddir='$(abs_top_builddir)' CC='$(CC)'
@@ -915,6 +915,13 @@ tests/modern-c.sh.log: tests/modern-c.sh
 tests/test-inp.sh.log: tests/test-inp.sh
 	@p='tests/test-inp.sh'; \
 	b='tests/test-inp.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+tests/io.sh.log: tests/io.sh
+	@p='tests/io.sh'; \
+	b='tests/io.sh'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

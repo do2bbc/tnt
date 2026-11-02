@@ -406,13 +406,14 @@ tnt_SOURCES = ax25dump.c \
 	      shell.c \
 	      shell.h \
 	      tnt.h \
+	      tntio.h \
 	      window.c \
 	      window.h \
 	      xmon.c \
 	      xmon.h \
 	      yapp.c
 
-tntc_SOURCES = tntc.c tnt.h
+tntc_SOURCES = tntc.c tnt.h tntio.h
 tnt_LDADD = @INTLLIBS@
 tntc_LDADD = @INTLLIBS@
 AM_CPPFLAGS = @CPPFLAGS@ -I../intl -DLOCALEDIR=\"$(localedir)\" -funsigned-char
