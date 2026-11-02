@@ -1255,6 +1255,12 @@ commands ('tnt_extremotefile').
 @item LAYer3 [ON/OFF]
   Enables or disables the analysis of NETROM/TheNet headers (pid CF) in
   monitored frames.
+  INP routing information in I-frames is decoded separately from classic
+  NODES broadcasts in UI-frames. The monitor displays destination calls,
+  hop counts, transport times, aliases and IPv4/subnet options. Unknown
+  options are skipped with their tag and length displayed; malformed or
+  truncated entries are reported explicitly. This is monitor decoding,
+  not an implementation of a routing engine.
 
 @item HEArd [ON/OFF]
   Enables or Disables the heard list. If disabled, the heard list is not

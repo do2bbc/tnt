@@ -1404,8 +1404,76 @@ char *shift_call;
   *callpos = '\0';
 }
 
-int display_layer3(buffer)
+static int display_inp(const unsigned char *data, size_t length)
+{
+  size_t pos = 1;
+  char line[160];
+  char call[10];
+
+  moni_display2("INP Routing Information:",0);
+  while (pos < length) {
+    unsigned hops, metric;
+    int ended = 0;
+    if (length - pos < 11)
+      goto malformed;
+    fill_call(call,(char *)(data + pos));
+    pos += 7;
+    hops = data[pos++];
+    metric = ((unsigned)data[pos] << 8) | data[pos + 1];
+    pos += 2;
+    snprintf(line,sizeof(line),"%s hops: %u transport time: %u",
+             call,hops,metric);
+    moni_display2(line,0);
+    while (pos < length) {
+      unsigned option_length = data[pos++];
+      unsigned tag;
+      size_t count, i;
+      if (option_length == 0) {
+        ended = 1;
+        break;
+      }
+      if (option_length < 2 || option_length - 1 > length - pos)
+        goto malformed;
+      tag = data[pos++];
+      count = option_length - 2;
+      switch (tag) {
+      case 0:
+        if (count > 6)
+          goto malformed;
+        memcpy(call,data + pos,count);
+        for (i = 0; i < count; i++)
+          if ((unsigned char)call[i] < 32 || (unsigned char)call[i] > 126)
+            call[i] = '?';
+        call[count] = '\0';
+        snprintf(line,sizeof(line),"  alias: %s",call);
+        break;
+      case 1:
+        if (count != 5 || data[pos + 4] > 32)
+          goto malformed;
+        snprintf(line,sizeof(line),"  IP: %u.%u.%u.%u/%u",
+                 data[pos],data[pos+1],data[pos+2],data[pos+3],data[pos+4]);
+        break;
+      default:
+        snprintf(line,sizeof(line),"  INP option %u (%u bytes)",tag,
+                 (unsigned)count);
+        break;
+      }
+      moni_display2(line,0);
+      pos += count;
+    }
+    if (!ended)
+      goto malformed;
+  }
+  return 0;
+
+malformed:
+  moni_display2("INP: malformed or truncated routing information",0);
+  return 0;
+}
+
+int display_layer3(buffer,is_i)
 char *buffer;
+int is_i;
 {
   char *bufcur;
   int len;
@@ -1420,11 +1488,13 @@ char *buffer;
   int l3_opcode;
   
   bufcur = buffer + 1;
-  len = (int)(*buffer) + 1;
+  len = (int)(unsigned char)(*buffer) + 1;
   ident[6] = '\0';
 
-  switch (*bufcur) {
+  switch ((unsigned char)*bufcur) {
   case 0xFF:
+    if (is_i)
+      return display_inp((const unsigned char *)bufcur,(size_t)len);
     bufcur++; /* skip 0xFF */
     len--;
     if (len < 6) return(1);
@@ -1454,7 +1524,8 @@ char *buffer;
         fill_call(call2,bufcur); /* copy call */
         len -= 7;
         bufcur += 7;
-        sprintf(line,_("%s(%s) via %s quality: %u"),call1,ident,call2,*bufcur);
+        sprintf(line,_("%s(%s) via %s quality: %u"),call1,ident,call2,
+                (unsigned char)*bufcur);
         len--;
         bufcur++;
         moni_display2(line,0);

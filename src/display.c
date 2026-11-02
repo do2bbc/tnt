@@ -190,6 +190,7 @@ int scr_divide;
 int altstat;
 static int xmon_ch;
 static int layer3_frame;
+static int layer3_inp;
 static struct window *prewin;
 static struct window *statwin;
 static struct window *textwin;
@@ -1161,12 +1162,33 @@ int get_port(char *buffer)
   return(port);
 }
 
+static int monitor_is_iframe(const char *header)
+{
+  const char *p;
+  if (strstr(header,"ctl I") != NULL)
+    return 1;
+  for (p = header; (p = strchr(p,' ')) != NULL; p++) {
+    const char *token = p + 1;
+    if (token[0] != 'I' || token[1] < '0' || token[1] > '7')
+      continue;
+    if (token[2] < '0' || token[2] > '7')
+      continue;
+    token += 3;
+    if (*token == '^' || *token == 'v' || *token == '+' || *token == '-')
+      token++;
+    if (*token == ' ' || *token == '\0')
+      return 1;
+  }
+  return 0;
+}
+
 void moni_display(channel,buffer)
 int channel __attribute__((unused));char *buffer;
 {
   int port;
   
   layer3_frame = 0;
+  layer3_inp = monitor_is_iframe(buffer);
   if (layer3_flag) {
     layer3_frame = (strstr(buffer,"pid CF") != NULL);
   }
@@ -1214,7 +1236,7 @@ int channel __attribute__((unused));char *buffer;
     analyse_mon_body(buffer);
   }
   if (layer3_frame) {
-    if (!display_layer3(buffer)) return;
+    if (!display_layer3(buffer,layer3_inp)) return;
   }
 #ifdef USE_IFACE
   check_uireq(buffer);
@@ -1854,4 +1876,3 @@ write_last_n_lines(int channel, int nLines , FILE *f)
         fprintf(f,"> %s\n", sRes);
   }
 }
-
