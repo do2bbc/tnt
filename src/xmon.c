@@ -33,28 +33,28 @@ extern int decbcast_flag;
 #endif
 
 /* external function declarations */
-extern void beep();
-extern void cancel_monbox();
-extern void check_mbeacon_head();
-extern int check_monbox();
-extern void clear_window();
-extern int close_window();
-extern void cmd_display();
-extern int decstathuf();
-extern int get_line();
-extern void get_qrg_from_chanstr();
-extern void moni_display2();
-extern void moni_display_len2();
-extern int open_window();
-extern void real_screen();
-extern void statlin_update();
-extern void win_attrib();
-extern void win_charout();
-extern void win_charout_cntl();
-extern void win_stringout();
-extern void win_textout();
-extern void write_monbox();
-extern void write_xmonfile();
+extern void beep(void);
+extern void cancel_monbox(int xmon_ch , int monbox_ch);
+extern void check_mbeacon_head(int srcsum,int destsum,char *srccall,char *destcall);
+extern int check_monbox(char *buffer);
+extern void clear_window(struct window *win);
+extern int close_window(struct window *win);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern int decstathuf(char *src, char *dest);
+extern int get_line(char *str, struct window *win);
+extern void get_qrg_from_chanstr(char *qrg, char *chanstr);
+extern void moni_display2(char *buffer, int attrib);
+extern void moni_display_len2(char *buffer, int len);
+extern int open_window(int lines, struct window *win, int bot);
+extern void real_screen(struct real_layout *layout);
+extern void statlin_update(void);
+extern void win_attrib(char ch, struct window *win);
+extern void win_charout(char ch, struct window *win, int conv);
+extern void win_charout_cntl(char ch, struct window *win);
+extern void win_stringout(char *str, struct window *win, int conv);
+extern void win_textout(char *str, struct window *win, int conv);
+extern void write_monbox(int monbox_ch, char *buffer);
+extern void write_xmonfile(int len, int screen, char *str);
 
 /* variables containing info of frameheader */
 char srccall[10];
@@ -103,7 +103,7 @@ int lines_xmon_pre;
 int xmon_scr_divide;
 int num_heardentries;
 
-void init_xmon()
+void init_xmon(void)
 {
   int i;
   int j;
@@ -155,7 +155,7 @@ void init_xmon()
   xmon_screen = 0;
 }
 
-void reinit_xmon()
+void reinit_xmon(void)
 {
   int i;
   int j;
@@ -190,7 +190,7 @@ void reinit_xmon()
   }
 }
 
-void exit_xmon()
+void exit_xmon(void)
 {
   int i;
   
@@ -201,7 +201,7 @@ void exit_xmon()
   }
 }
 
-void init_mheard()
+void init_mheard(void)
 {
   int j;
   
@@ -226,7 +226,7 @@ void init_mheard()
   heard_layout[1].pagesize = 0;
 }
 
-void reinit_mheard()
+void reinit_mheard(void)
 {
   int j;
   
@@ -246,7 +246,7 @@ void reinit_mheard()
   heard_layout[1].pagesize = 0;
 }
 
-void exit_mheard()
+void exit_mheard(void)
 {
   struct heardlist *current;
   struct heardlist *next;
@@ -264,8 +264,7 @@ void exit_mheard()
   close_window(&heardwin);
 }
 
-static void xmonstat_display(screen)
-int screen;
+static void xmonstat_display(int screen)
 {
   char *stat_str;
   int i;
@@ -293,8 +292,7 @@ int screen;
   free(stat_str);
 }
 
-void sel_xmon(xmon_channel)
-int xmon_channel;
+void sel_xmon(int xmon_channel)
 {
   if ((xmon_channel == xmon_screen) && (act_mode == M_EXTMON)) return;
   real_screen(xmon_layout[xmon_channel]);
@@ -304,7 +302,7 @@ int xmon_channel;
   statlin_update();
 }
 
-void sel_heardlist()
+void sel_heardlist(void)
 {
   struct heardlist *current;
   struct tm *first_time;
@@ -387,9 +385,7 @@ int sel_remhlist(int fd1, int flag)
   return(cou);
 }
 
-static void xmon_display_len(buffer,xmon_ch)
-char *buffer;
-int xmon_ch;
+static void xmon_display_len(char *buffer, int xmon_ch)
 {
   int screen;
   
@@ -400,9 +396,7 @@ int xmon_ch;
   write_xmonfile((*buffer)+1,screen,buffer+1);
 }
 
-int xm_newline(screen,str)
-int screen;
-char *str;
+int xm_newline(int screen, char *str)
 {
   int len;
   char tmpstr[MAXCOLS+1];
@@ -418,9 +412,7 @@ char *str;
   return(len);
 }
 
-void xm_charout(screen,ch)
-int screen;
-char ch;
+void xm_charout(int screen, char ch)
 {
   if (xmonprewin[screen].column < input_linelen-1) {
     win_charout_cntl(ch,&xmonprewin[screen]);
@@ -430,34 +422,24 @@ char ch;
   }
 }
 
-void xm_charout_nobnd(screen,ch)
-int screen;
-char ch;
+void xm_charout_nobnd(int screen, char ch)
 {
   win_charout_cntl(ch,&xmonprewin[screen]);
 }
 
-void heard_charout_cntl(ch)
-char ch;
+void heard_charout_cntl(char ch)
 {
   win_charout_cntl(ch,&heardwin);
 }
 
-void xm_pre_display(screen,buffer,cr)
-int screen;
-char *buffer;
-int cr;
+void xm_pre_display(int screen, char *buffer, int cr)
 {
   win_stringout(buffer,&xmonprewin[screen],0);
   if (cr) win_charout(CR,&xmonprewin[screen],0);
 }
 
 /* add new entry to heardlist */
-static void add_mhlist(srcsum,destsum,srccall,destcall)
-int srcsum;
-int destsum;
-char *srccall;
-char *destcall;
+static void add_mhlist(int srcsum, int destsum, char *srccall, char *destcall)
 {
   struct heardlist *current;
   struct heardlist *next;
@@ -530,8 +512,7 @@ char *destcall;
   }
 }
 
-int analyse_mon_header(buffer)
-char *buffer;
+int analyse_mon_header(char *buffer)
 {
   char *ptr;
   char viacall[10][8];
@@ -821,9 +802,7 @@ char *buffer;
   return(-1);
 }
 
-void write_mon_info(buffer,xmon_ch)
-char *buffer;
-int xmon_ch;
+void write_mon_info(char *buffer, int xmon_ch)
 {
   int len;
   int chksum;
@@ -885,8 +864,7 @@ int xmon_ch;
   xm_stat[xmon_ch].last_received = time(NULL);
 }
 
-void analyse_mon_body(buffer)
-char *buffer;
+void analyse_mon_body(char *buffer)
 {
   int xmon_ch;
   char buffer2[257];
@@ -914,8 +892,7 @@ char *buffer;
   return;
 }
 
-static int gensum(string)
-char *string;
+static int gensum(char *string)
 {
   int sum;
   int i;
@@ -927,7 +904,7 @@ char *string;
   return(sum);
 }
 
-void check_xmon_timeout()
+void check_xmon_timeout(void)
 {
   time_t cur_time;
   int i;
@@ -949,7 +926,7 @@ void check_xmon_timeout()
 
 #ifdef USE_IFACE
 
-void monbox_close()
+void monbox_close(void)
 {
   int i;
   
@@ -967,9 +944,7 @@ void monbox_close()
 
 #ifdef USE_IFACE
 
-int open_monbox(monbox_channel,chksum)
-int monbox_channel;
-int chksum;
+int open_monbox(int monbox_channel, int chksum)
 {
   int i;
   int xmon_ch;
@@ -1006,19 +981,14 @@ int chksum;
   return(xmon_ch);
 }
 
-void close_monbox(xmon_ch)
-int xmon_ch;
+void close_monbox(int xmon_ch)
 {
   xm_stat[xmon_ch].active = 0;
 }
 
 #endif
 
-void cmd_extmon(par1,par2,channel,len,mode,str)
-int par1;
-int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_extmon(int par1, int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int screen;
   char call1[MAXCOLS+1];
@@ -1221,10 +1191,7 @@ char *str;
   xmonstat_display(screen);
 }
  
-void cmd_endextmon(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_endextmon(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int screen;
   int res;
@@ -1264,11 +1231,7 @@ char *str;
   statlin_update();
 }
 
-void cmd_extcomp(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void cmd_extcomp(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   int screen;
   int i;
@@ -1326,8 +1289,7 @@ char *str;
 }
 
 /* returns 1 if extcomp active on screen */
-int extcomp_active(screen)
-int screen;
+int extcomp_active(int screen)
 {
   int i;
  
@@ -1343,10 +1305,7 @@ int screen;
 }
 
 #ifdef USE_IFACE
-void fill_xmon_call(channel,srccall,destcall)
-int channel;
-char *srccall;
-char *destcall;
+void fill_xmon_call(int channel, char *srccall, char *destcall)
 {
   if (xm_stat[channel].active) {
     strcpy(srccall,xm_stat[channel].srccall);
@@ -1358,9 +1317,7 @@ char *destcall;
   }
 }
 
-void fill_moni_call(srccall,destcall)
-char *srccall;
-char *destcall;
+void fill_moni_call(char *srccall, char *destcall)
 {
   if (monheader_info.header_valid) {
     strcpy(srccall,monheader_info.srccall);
@@ -1373,9 +1330,7 @@ char *destcall;
 }
 #endif
 
-static void fill_call(call,shift_call)
-char *call;
-char *shift_call;
+static void fill_call(char *call, char *shift_call)
 {
   char *callpos;
   char ch;
@@ -1471,9 +1426,7 @@ malformed:
   return 0;
 }
 
-int display_layer3(buffer,is_i)
-char *buffer;
-int is_i;
+int display_layer3(char *buffer, int is_i)
 {
   char *bufcur;
   int len;

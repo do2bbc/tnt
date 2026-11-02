@@ -24,26 +24,26 @@ extern int altstat;
 extern int ax25k_active;
 
 /* external function declarations */
-extern void abort_routing();
-extern void cmd_actiface();
-extern void cmd_actiface_ext();
-extern void cmd_display();
-extern void connstr_to_socket();
-extern void get_iface_name();
-extern void no_success_connect();
-extern int queue_cmd_data();
-extern void rem_data_display();
-extern void send_qrginfo_all();
-extern void set_pwmode();
-extern void set_remmode();
-extern void socksetup_timeout();
-extern void socksetup_to_conn();
-extern void stat_display();
-extern void statlin_update();
-extern void strip_call();
-extern void update_name();
-extern void update_remcall();
-extern void update_ssid();
+extern void abort_routing(char *call);
+extern void cmd_actiface(int par1, int par2, int channel, int len, int mode, char *str);
+extern void cmd_actiface_ext(int par1, int par2, int par3, int channel, int len , int mode, char *str);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void connstr_to_socket(int channel, char *str);
+extern void get_iface_name(int iface, char *str);
+extern void no_success_connect(int iface,int usernr);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void rem_data_display(int channel, char *buffer);
+extern void send_qrginfo_all(void);
+extern void set_pwmode(int channel);
+extern void set_remmode(int channel);
+extern void socksetup_timeout(int channel);
+extern void socksetup_to_conn(int channel);
+extern void stat_display(int channel);
+extern void statlin_update(void);
+extern void strip_call(char *call, int channel);
+extern void update_name(int channel);
+extern void update_remcall(int channel, char *call);
+extern void update_ssid(int channel, char *destcall);
 
 char connect_str[] = "onnected to ";
 static char cmpstr[][20] = {
@@ -73,10 +73,7 @@ static struct xconn_stat *xc_stat;
 struct sqrg_info qrg_info[MAXQRGS+1];
 
 
-static int test_connected(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+static int test_connected(int channel, char *buffer, int len)
 {
   char str_buf[257];
   char *str_ptr;
@@ -132,9 +129,7 @@ int len;
   return(result);
 }
 
-void get_qrgpos(qrgpos,chanstr)
-int *qrgpos;
-char *chanstr;
+void get_qrgpos(int *qrgpos, char *chanstr)
 {
   int i;
   int j;
@@ -159,10 +154,7 @@ char *chanstr;
   return;
 }
 
-static int check_qrg(qrg,qrgpos,chanstr)
-char *qrg;
-int *qrgpos;
-char *chanstr;
+static int check_qrg(char *qrg, int *qrgpos, char *chanstr)
 {
   int i;
   int j;
@@ -239,14 +231,7 @@ void get_qrg_from_chanstr(char *qrg, char *chanstr)
 
 #define LINELENGTH 127
 
-static int route_call(channel,len,mode,str,nextlink,callflag,qrgpos,chanstr)
-int channel;
-int len __attribute__((unused));int mode;
-char *str;
-int nextlink;
-int callflag;
-int *qrgpos;
-char *chanstr;
+static int route_call(int channel, int len __attribute__((unused)), int mode, char *str, int nextlink, int callflag, int *qrgpos, char *chanstr)
 {  
   int found;
   int corrupt;
@@ -367,11 +352,7 @@ char *chanstr;
   return(C_ROUTE);
 }
 
-static int gen_con_string(channel,str,ctype,qrgpos)
-int channel;
-char *str;
-int ctype;
-int qrgpos;
+static int gen_con_string(int channel, char *str, int ctype, int qrgpos)
 {
   char tmp_str[256];
   char *tmp_ptr;
@@ -421,8 +402,7 @@ int qrgpos;
   return(nodetype);
 }
 
-static void free_alloc(channel)
-int channel;
+static void free_alloc(int channel)
 {
   int i;
   
@@ -433,10 +413,7 @@ int channel;
   }
 }
 
-void close_xconnect_2(channel,success,noaction)
-int channel;
-int success;
-int noaction;
+void close_xconnect_2(int channel, int success, int noaction)
 {
 #ifdef USE_IFACE
   char socket_str[256];
@@ -495,9 +472,7 @@ int noaction;
   }
 }
 
-void close_xconnect(channel,success)
-int channel;
-int success;
+void close_xconnect(int channel, int success)
 {
   close_xconnect_2(channel,success,0);
 }
@@ -522,14 +497,7 @@ void end_ifacexconnect(int iface,int usernr)
 }
 #endif
 
-void cmd_xconnect_ext(par1,par2,par3,channel,len,mode,str)
-int par1;
-int par2;
-int par3;
-int channel;
-int len;
-int mode;
-char *str;
+void cmd_xconnect_ext(int par1, int par2, int par3, int channel, int len, int mode, char *str)
 {
   int result;
   char tnc_string[256];
@@ -721,19 +689,12 @@ char *str;
   }
 }
 
-void cmd_xconnect(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+void cmd_xconnect(int par1, int par2, int channel, int len, int mode, char *str)
 {
   cmd_xconnect_ext(par1,par2,0,channel,len,mode,str);
 }
 
-void next_connect(channel)
-int channel;
+void next_connect(int channel)
 {
   char tnc_string[256];
   int flag;
@@ -756,9 +717,7 @@ int channel;
   }
 }
 
-void connect_update(channel,buffer,len)
-int channel;
-char *buffer;
+void connect_update(int channel, char *buffer, int len)
 {
   int was_active;
   
@@ -789,14 +748,12 @@ char *buffer;
   }
 }
 
-int xconnect_active(channel)
-int channel;
+int xconnect_active(int channel)
 {
   return(xc_stat[channel].active > 0);
 }
 
-int xconnect_first(channel)
-int channel;
+int xconnect_first(int channel)
 {
   if (xc_stat[channel].active)
     return(xc_stat[channel].firstcon > 0);
@@ -804,13 +761,12 @@ int channel;
     return(0);
 }
 
-void xcon_reset_first(channel)
-int channel;
+void xcon_reset_first(int channel)
 {
   xc_stat[channel].firstcon = 0;
 }
 
-void init_xconnect()
+void init_xconnect(void)
 {
   int i;
   
@@ -824,7 +780,7 @@ void init_xconnect()
   }
 }
 
-void exit_xconnect()
+void exit_xconnect(void)
 {
   int i;
   
@@ -837,7 +793,7 @@ void exit_xconnect()
   }
 }
 
-void check_xconnect_timeout()
+void check_xconnect_timeout(void)
 {
   int i;
   
@@ -854,9 +810,7 @@ void check_xconnect_timeout()
 }
 
 #ifdef USE_IFACE
-void get_call_xc(channel,call)
-int channel;
-char *call;
+void get_call_xc(int channel, char *call)
 {
   if (xc_stat[channel].active)
     strcpy(call,xc_stat[channel].callsign);
@@ -865,9 +819,7 @@ char *call;
 }
 #endif
 
-int own_connection(call1,call2)
-char *call1;
-char *call2;
+int own_connection(char *call1, char *call2)
 {
   char destcall[10];
   int result;
@@ -889,10 +841,7 @@ char *call2;
   return(result);
 }
 
-void cmd_concall(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_concall(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int i;
   
@@ -916,11 +865,7 @@ char *str;
   cmd_display(mode,channel,OK_TEXT,1);
 }
 
-void cmd_qrg(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void cmd_qrg(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   int i,j;
   char ans_str[MAXCHAR];
@@ -992,9 +937,7 @@ char *str;
 }
 
 #ifdef USE_AX25K
-int add_qrg(qrg,port)
-char *qrg;
-char *port;
+int add_qrg(char *qrg, char *port)
 {
   int i;
   char *ptr;
@@ -1023,10 +966,7 @@ char *port;
   return 0;
 }
 
-int next_qrg(qrg,port,value)
-char *qrg;
-char *port;
-int value;
+int next_qrg(char *qrg, char *port, int value)
 {
   char *ptr;
   char port_str[11];
@@ -1045,8 +985,7 @@ int value;
 }
 #endif
 
-void copy_qrg(qrg)
-char qrg[MAXQRGS-1][20];
+void copy_qrg(char qrg[MAXQRGS-1][20])
 {
   int i;
   
@@ -1055,14 +994,14 @@ char qrg[MAXQRGS-1][20];
   }
 }
 
-int alloc_connect()
+int alloc_connect(void)
 {
   xc_stat = (struct xconn_stat *)
     malloc(tnc_channels * sizeof(struct xconn_stat));
   return(xc_stat == NULL);
 }
 
-void free_connect()
+void free_connect(void)
 {
   free(xc_stat);
 }

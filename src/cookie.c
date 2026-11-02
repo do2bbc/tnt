@@ -14,7 +14,7 @@ char cook_head_str[MAXCHAR];
 char cook_foot_str[MAXCHAR];
 char cook_dash_str[MAXCHAR];
 
-void init_cookie()
+void init_cookie(void)
 {
   int t;
 
@@ -32,8 +32,7 @@ void init_cookie()
 #endif
 }
 
-int x_random(my_range)
-int my_range;
+int x_random(int my_range)
 {
   int i,j;
   
@@ -43,9 +42,7 @@ int my_range;
   return (j % i) % my_range;
 }
 
-static int write_cookie(org,dest)
-int org;
-int dest;
+static int write_cookie(int org, int dest)
 {
    char c;
    
@@ -74,9 +71,7 @@ int dest;
    return(0);
 }
 
-int gen_cookie(tmpname,headfoot)
-char *tmpname;
-int headfoot;
+int gen_cookie(char *tmpname, int headfoot)
 {
    int i,v;
    long pos;

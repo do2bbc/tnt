@@ -21,11 +21,11 @@ extern char rem_newlin_str[];
 extern struct channel_stat *ch_stat;
 
 /* external function declarations */
-extern void cmd_display();
-extern int queue_cmd_data();
-extern void rem_data_display();
-extern void strip_call_log();
-extern int x_random();
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void rem_data_display(int channel, char *buffer);
+extern void strip_call_log(char *call, int channel);
+extern int x_random(int my_range);
 
 char tnt_pwfile[MAXCHAR];
 
@@ -43,19 +43,15 @@ static struct pwmodes pwmodes[] = {
   {"",PW_NONE}
 };
 
-static void MD2Init();
-static void MD2Update();
-static void MD2Final();
+static void MD2Init(MD2_CTX *context2                                        /* context */);
+static void MD2Update(MD2_CTX *context2,                                        /* context */
+    unsigned char *input,                                /* input block */
+    unsigned int inputLen                     /* length of input block */);
+static void MD2Final(unsigned char digest[16],                         /* message digest */
+    MD2_CTX *context2                                        /* context */);
 
 /* analyse one line of password file */
-static int pwline_analyse(str1,str2,str3,str4,str5,num_par,calllist_ptr)
-char *str1;
-char *str2;
-char *str3;
-char *str4;
-char *str5;
-int num_par;
-struct calllist **calllist_ptr;
+static int pwline_analyse(char *str1, char *str2, char *str3, char *str4, char *str5, int num_par, struct calllist **calllist_ptr)
 {
   struct calllist *calllist_wrk;
   int found;
@@ -157,7 +153,7 @@ struct calllist **calllist_ptr;
 } 
 
 /* load password file */
-static void load_pwfile()
+static void load_pwfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -222,7 +218,7 @@ static void load_pwfile()
   }
 }
 
-static void clear_pwfile()
+static void clear_pwfile(void)
 {
   struct calllist *calllist_wrk;
   struct calllist *calllist_tmp;
@@ -238,8 +234,7 @@ static void clear_pwfile()
 
 /* the callsign has changed on channel, check if callsign in calllist
    and if found set pwmode */
-void set_pwmode(channel)
-int channel;
+void set_pwmode(int channel)
 {
   char callsign[10];
   struct calllist *calllist_wrk;
@@ -278,8 +273,7 @@ int channel;
 }
 
 /* clear password information on disconnect */
-void clear_pwmode(channel)
-int channel;
+void clear_pwmode(int channel)
 {
   pw_stat[channel].pwmode = PW_NONE;
   pw_stat[channel].entry = NULL;
@@ -287,7 +281,7 @@ int channel;
   pw_stat[channel].pass_wait = 0;
 }
 
-static char gen_rand_char()
+static char gen_rand_char(void)
 {
   int val;
   
@@ -299,10 +293,7 @@ static char gen_rand_char()
 }
 
 /* generate random strings */
-static void gen_rand_string(str,len,pwstr)
-char *str;
-int len;
-char *pwstr;
+static void gen_rand_string(char *str, int len, char *pwstr)
 {
   char save_str[256];
   int i;
@@ -338,10 +329,7 @@ char *pwstr;
 }
 
 /* try to find password request */
-void scan_pw_request(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+void scan_pw_request(int channel, char *buffer, int len)
 {
   char buffer_tmp[257];
   int flex_value;
@@ -392,10 +380,7 @@ int len;
 /* try to find login time for DieBox */
 /* auch andere Passwoerter sind eingegangen, DL6DH*/
 
-void scan_login_received(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+void scan_login_received(int channel, char *buffer, int len)
 {
   char *box_logpos;
   char buffer_tmp[257];
@@ -740,7 +725,7 @@ int len;
     len = strlen(buff);
     for (i=0; i<len; i += 16) {
       n = (len - i) > 16 ? 16 : (len - i);
-      MD2Update(&context2, &(buff[i]), n);
+      MD2Update(&context2, (unsigned char *)&buff[i], n);
     }
     MD2Final (digest, &context2);
     
@@ -797,7 +782,7 @@ int len;
     len = strlen(buff);
     for (i=0; i<len; i += 16) {
       n = (len - i) > 16 ? 16 : (len - i);
-      MD5Update(&context5, &(buff[i]), n);
+      MD5Update(&context5, (unsigned char *)&buff[i], n);
     }
 
     MD5Final (digest, &context5);
@@ -818,9 +803,7 @@ int len;
 }
 
 /* password generation for FlexNet */
-static void priv_flexnet(channel,mode)
-int channel;
-int mode;
+static void priv_flexnet(int channel, int mode)
 {
   int i;
   int error;
@@ -852,9 +835,7 @@ int mode;
 }
 
 /* password generation for TheNet */
-static void priv_thenet(channel,mode)
-int channel;
-int mode;
+static void priv_thenet(int channel, int mode)
 {
   char tmpstr[20];
   char passfile[MAXCHAR];
@@ -891,9 +872,7 @@ int mode;
 /* password generation for PacketCluster by Henning Folger, DL6DH */
 /*----------------------------------------------------------------*/
 
-static void priv_cluster(channel,mode)
-int channel;
-int mode;
+static void priv_cluster(int channel, int mode)
 {
   char tmpstr[20];
   char passfile[MAXCHAR];
@@ -930,9 +909,7 @@ int mode;
 }
 
 /* password generation for Baycom by Oliver Fleischmann DL8NEG */
-static void priv_baycom(channel,mode)
-int channel;
-int mode;
+static void priv_baycom(int channel, int mode)
 {
   char tmpstr[20];
   char passfile[MAXCHAR];
@@ -962,9 +939,7 @@ int mode;
 }
  
 /* password generation for MD2 by Claudio Porfiri IW0FBB */
-static void priv_md2(channel,mode)
-int channel;
-int mode;
+static void priv_md2(int channel, int mode)
 {
   char tmpstr[20];
   char passfile[MAXCHAR];
@@ -996,9 +971,7 @@ int mode;
 
 /* password generation for MD5 */
 /* DG2GCC 03.01.2000 */
-static void priv_md5(channel,mode)
-int channel;
-int mode;
+static void priv_md5(int channel, int mode)
 {
   char tmpstr[20];
   char passfile[80];
@@ -1029,9 +1002,7 @@ int mode;
 /**************************************************/
 /* Command PRIV  (for THEBOX Remote Sysops) DK3NY */
 /**************************************************/
-static void priv_diebox(channel,mode)
-int channel;
-int mode;
+static void priv_diebox(int channel, int mode)
 {
   char priv[5];
   char privstr[17];
@@ -1093,10 +1064,8 @@ int mode;
 }
 
 /* reload password file */
-void cmd_loadpriv(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_loadpriv(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   clear_pwfile();  
   load_pwfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -1104,10 +1073,8 @@ char *str __attribute__((unused));{
 }
 
 /* list password file data */
-void cmd_listpriv(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_listpriv(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   struct calllist *calllist_wrk;
   int i;
   int found;
@@ -1166,10 +1133,8 @@ char *str __attribute__((unused));{
 }
 
 /* generate password */
-void cmd_priv(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_priv(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if (ch_stat[channel].conn_state != CS_CONN) {
     cmd_display(mode,channel, _("Only while connected"),1);
     return;
@@ -1204,7 +1169,7 @@ char *str __attribute__((unused));{
 }
 
 /* init of priv data */
-void init_priv()
+void init_priv(void)
 {
   int i;
   
@@ -1216,17 +1181,17 @@ void init_priv()
 }
 
 /* exit of priv data */
-void exit_priv()
+void exit_priv(void)
 {
   clear_pwfile();
 }
 
-void free_priv()
+void free_priv(void)
 {
   free(pw_stat);
 }
 
-int alloc_priv()
+int alloc_priv(void)
 {
   pw_stat = (struct password_stat *)
     malloc(tnc_channels * sizeof(struct password_stat));
@@ -1303,10 +1268,7 @@ static unsigned char *PADDING_MD2[] = {
     "\020\020\020\020\020\020\020\020\020\020\020\020\020\020\020\020"
 };
 
-static void MD2_memcpy (output, input, len)
-unsigned char *output;
-unsigned char *input;
-unsigned int len;
+static void MD2_memcpy(unsigned char *output, unsigned char *input, unsigned int len)
 {
   unsigned int i;
 
@@ -1314,10 +1276,7 @@ unsigned int len;
     output[i] = input[i];
 }
 
-static void MD2_memset (output, value, len)
-unsigned char *output;
-int value;
-unsigned int len;
+static void MD2_memset(unsigned char *output, int value, unsigned int len)
 {
   unsigned int i;
 
@@ -1328,10 +1287,7 @@ unsigned int len;
 /* MD2 basic transformation. Transforms state and updates checksum
      based on block.
  */
-static void MD2Transform (state, checksum, block)
-unsigned char state[16];
-unsigned char checksum[16];
-unsigned char block[16];
+static void MD2Transform(unsigned char state[16], unsigned char checksum[16], unsigned char block[16])
 {
   unsigned int i, j, t;
   unsigned char x[48];
@@ -1368,8 +1324,9 @@ unsigned char block[16];
 
 /* MD2 initialization. Begins an MD2 operation, writing a new context.
  */
-static void MD2Init (context2)
-MD2_CTX *context2;                                        /* context */
+static void MD2Init(
+    MD2_CTX *context2                                        /* context */
+)
 {
   context2->count = 0;
   MD2_memset ((unsigned char *)context2->state, 0, sizeof (context2->state));
@@ -1380,10 +1337,11 @@ MD2_CTX *context2;                                        /* context */
      operation, processing another message block, and updating the
      context.
  */
-static void MD2Update (context2, input, inputLen)
-MD2_CTX *context2;                                        /* context */
-unsigned char *input;                                /* input block */
-unsigned int inputLen;                     /* length of input block */
+static void MD2Update(
+    MD2_CTX *context2,                                        /* context */
+    unsigned char *input,                                /* input block */
+    unsigned int inputLen                     /* length of input block */
+)
 {
   unsigned int i, index, partLen;
 
@@ -1416,9 +1374,10 @@ unsigned int inputLen;                     /* length of input block */
 /* MD2 finalization. Ends an MD2 message-digest operation, writing the
      message digest and zeroizing the context.
  */
-static void MD2Final (digest, context2)
-unsigned char digest[16];                         /* message digest */
-MD2_CTX *context2;                                        /* context */
+static void MD2Final(
+    unsigned char digest[16],                         /* message digest */
+    MD2_CTX *context2                                        /* context */
+)
 {
   unsigned int index, padLen;
 
@@ -1488,13 +1447,11 @@ documentation and/or software.
 #define S43 15
 #define S44 21
 
-static void MD5Transform PROTO_LIST ((UINT4 [4], unsigned char [64]));
-static void Encode PROTO_LIST
-  ((unsigned char *, UINT4 *, unsigned int));
-static void Decode PROTO_LIST
-  ((UINT4 *, unsigned char *, unsigned int));
-static void MD5_memcpy PROTO_LIST ((POINTER, POINTER, unsigned int));
-static void MD5_memset PROTO_LIST ((POINTER, int, unsigned int));
+static void MD5Transform(UINT4 [4], unsigned char [64]);
+static void Encode(unsigned char *, UINT4 *, unsigned int);
+static void Decode(UINT4 *, unsigned char *, unsigned int);
+static void MD5_memcpy(POINTER, POINTER, unsigned int);
+static void MD5_memset(POINTER, int, unsigned int);
 
 static unsigned char PADDING_MD5[64] = {
   0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1539,8 +1496,9 @@ Rotation is separate from addition to prevent recomputation.
 
 /* MD5 initialization. Begins an MD5 operation, writing a new context.
  */
-void MD5Init (context)
-MD5_CTX *context;                                        /* context */
+void MD5Init(
+    MD5_CTX *context                                        /* context */
+)
 {
   context->count[0] = context->count[1] = 0;
   /* Load magic initialization constants.
@@ -1555,10 +1513,11 @@ MD5_CTX *context;                                        /* context */
   operation, processing another message block, and updating the
   context.
  */
-void MD5Update (context, input, inputLen)
-MD5_CTX *context;                                        /* context */
-unsigned char *input;                                /* input block */
-unsigned int inputLen;                     /* length of input block */
+void MD5Update(
+    MD5_CTX *context,                                        /* context */
+    unsigned char *input,                                /* input block */
+    unsigned int inputLen                     /* length of input block */
+)
 {
   unsigned int i, index, partLen;
 
@@ -1597,9 +1556,10 @@ unsigned int inputLen;                     /* length of input block */
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
   the message digest and zeroizing the context.
  */
-void MD5Final (digest, context)
-unsigned char digest[16];                         /* message digest */
-MD5_CTX *context;                                       /* context */
+void MD5Final(
+    unsigned char digest[16],                         /* message digest */
+    MD5_CTX *context                                       /* context */
+)
 {
   unsigned char bits[8];
   unsigned int index, padLen;
@@ -1626,9 +1586,7 @@ MD5_CTX *context;                                       /* context */
 
 /* MD5 basic transformation. Transforms state based on block. */
 
-static void MD5Transform (state, block)
-UINT4 state[4];
-unsigned char block[64];
+static void MD5Transform(UINT4 state[4], unsigned char block[64])
 {
   UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
@@ -1719,10 +1677,7 @@ unsigned char block[64];
 /* Encodes input (UINT4) into output (unsigned char). Assumes len is
   a multiple of 4.
  */
-static void Encode (output, input, len)
-unsigned char *output;
-UINT4 *input;
-unsigned int len;
+static void Encode(unsigned char *output, UINT4 *input, unsigned int len)
 {
   unsigned int i, j;
 
@@ -1737,10 +1692,7 @@ unsigned int len;
 /* Decodes input (unsigned char) into output (UINT4). Assumes len is
   a multiple of 4.
  */
-static void Decode (output, input, len)
-UINT4 *output;
-unsigned char *input;
-unsigned int len;
+static void Decode(UINT4 *output, unsigned char *input, unsigned int len)
 {
   unsigned int i, j;
 
@@ -1752,10 +1704,7 @@ unsigned int len;
 /* Note: Replace "for loop" with standard memcpy if possible.
  */
 
-static void MD5_memcpy (output, input, len)
-POINTER output;
-POINTER input;
-unsigned int len;
+static void MD5_memcpy(POINTER output, POINTER input, unsigned int len)
 {
   unsigned int i;
 
@@ -1766,10 +1715,7 @@ unsigned int len;
 
 /* Note: Replace "for loop" with standard memset if possible.
  */
-static void MD5_memset (output, value, len)
-POINTER output;
-int value;
-unsigned int len;
+static void MD5_memset(POINTER output, int value, unsigned int len)
 {
   unsigned int i;
 

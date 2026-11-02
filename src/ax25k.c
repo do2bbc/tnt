@@ -38,6 +38,8 @@
 #include <netax25/kernel_ax25.h>
 #endif
 
+#include <netax25/axlib.h>
+
 #ifdef HAVE_NETROM_NETROM_H
 #include <netrom/netrom.h>
 #else
@@ -80,8 +82,41 @@
 
 #include "ax25k.h"
 
+extern void stat_display(int channel);
+extern int next_qrg(char *qrg, char *port, int value);
+extern int add_qrg(char *qrg, char *port);
+extern void get_qrgpos(int *qrgpos, char *chanstr);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void statlin_update(void);
+extern void next_command(int *state);
+extern int find_call_channel(char *call);
+extern void conn_boxcut(int channel);
+extern void set_pwmode(int channel);
+extern void set_remmode(int channel);
+extern void set_flchkmode(int channel);
+extern int play_sound(int sound_nr);
+extern void data_display(int channel, char *buffer);
+extern void action_on_connect(int channel);
+extern void write_log(int channel);
+extern void close_shell(int channel, int report, int disc);
+extern void close_rxfile(int channel, int report);
+extern void close_txfile(int channel, int report);
+extern void close_xconnect(int channel, int success);
+extern void clear_pwmode(int channel);
+extern void close_iface_con(int channel, int deact, int disconnect);
+extern void disc_boxcut(int channel);
+extern int xconnect_first(int channel);
+extern void strip_call(char *call, int channel);
+extern int calc_xframes(int channel);
+extern void send_cstatus(int channel, int frames);
+extern void next_connect(int channel);
+extern void next_sendframe(int channel);
+extern int decstathuf(char *src, char *dest);
+extern void data_display_len(int channel, char *buffer);
+extern void ax25_dump(unsigned char *data, int length, char *port);
+
 extern struct channel_stat *ch_stat;
-extern struct sockaddr *build_sockaddr();
+extern struct sockaddr *build_sockaddr(const char *name, int *addrlen);
 extern int tnc_channels;
 extern int use_select;
 extern int req_flag;
@@ -165,12 +200,12 @@ struct listen_stat {
 
 struct tnc_comm {
   char comm;
-  void (*func)();
+  void (*func)(int channel, char *buffer, int len);
 };
 
 struct tnc_extcomm {
   char comm[10];
-  void (*func)();
+  void (*func)(int channel, char *buffer, int len);
 };
 
 static struct ax25k_stat *ax25k_stat;
@@ -206,19 +241,19 @@ void gen_stamp(char *buffer,int type);
 
 
 /* TNC command list */
-static void ax_connect();
-static void ax_disconnect();
-static void ax_stamp();
-static void ax_mycall();
-static void ax_monitor();
-static void ax_extcomm();
-static void ax_tries();
-static void ax_frack();
+static void ax_connect(int channel,char *data,int len);
+static void ax_disconnect(int channel,char *data,int len);
+static void ax_stamp(int channel,char *data,int len);
+static void ax_mycall(int channel,char *data,int len);
+static void ax_monitor(int channel,char *data,int len);
+static void ax_extcomm(int channel,char *data,int len);
+static void ax_tries(int channel,char *data,int len);
+static void ax_frack(int channel,char *data,int len);
 /* static void ax_digipeat(); */ /* As J. Wasserbauer said, need to be confirmed. */
-static void ax_maxframe();
-static void ax_txdelay();
-static void ax_persist();
-static void ax_slottime();
+static void ax_maxframe(int channel,char *data,int len);
+static void ax_txdelay(int channel,char *data,int len);
+static void ax_persist(int channel,char *data,int len);
+static void ax_slottime(int channel,char *data,int len);
 
 static struct tnc_comm tnc_comm[] = {
   {'C',ax_connect},
@@ -240,14 +275,14 @@ static struct tnc_comm tnc_comm[] = {
 
 
 /* TNC command list, extended commands */
-static void ax_resptime();
-static void ax_check();
-static void ax_backoff();
-static void ax_idle();
-static void ax_paclen();
-static void ax_fulldup();
-static void ax_txtail();
-static void ax_hardware();
+static void ax_resptime(int channel,char *data,int len);
+static void ax_check(int channel,char *data,int len);
+static void ax_backoff(int channel,char *data,int len);
+static void ax_idle(int channel,char *data,int len);
+static void ax_paclen(int channel,char *data,int len);
+static void ax_fulldup(int channel,char *data,int len);
+static void ax_txtail(int channel,char *data,int len);
+static void ax_hardware(int channel,char *data,int len);
 
 static struct tnc_extcomm tnc_extcomm[] = {
   {"@D",ax_fulldup},
@@ -295,7 +330,7 @@ char *ax2asc_A(ax25_address *a)
 }
 
 
-void init_statline()
+void init_statline(void)
 {
   int i;
   
@@ -304,7 +339,7 @@ void init_statline()
   }
 }
 
-static int act_monitor()
+static int act_monitor(void)
 {
   if (monfd != -1) {
     fprintf(stderr, _("tnt: monitor already active\n"));
@@ -359,7 +394,7 @@ static int act_monitor()
   return 0;
 }
 
-static int deact_monitor()
+static int deact_monitor(void)
 {
   if (monfd == -1) {
     fprintf(stderr, _("tnt: monitor already deactived\n"));
@@ -372,7 +407,7 @@ static int deact_monitor()
   return 0;
 }
 
-static int act_unproto()
+static int act_unproto(void)
 {
   int unfd;
   char *addr;
@@ -415,7 +450,7 @@ static int act_unproto()
   return 0;
 }
 
-static int deact_unproto()
+static int deact_unproto(void)
 {
   if (ax25k_stat[0].fd == -1) {
     fprintf(stderr, _("tnt: unproto already deactived\n"));
@@ -429,9 +464,7 @@ static int deact_unproto()
 }
 
 
-static int act_listen(call,port)
-char *call;
-char *port;
+static int act_listen(char *call, char *port)
 {
   int axlfd;
   char *addr;
@@ -505,9 +538,7 @@ char *port;
   return 0;
 }
 
-static int deact_listen(call,port)
-char *call;
-char *port;
+static int deact_listen(char *call, char *port)
 {
   char *addr;
   struct listen_stat *listen_stat_ptr;
@@ -543,10 +574,7 @@ char *port;
   return 1;  
 }
 
-static int handle_allport(call,port_str,deact)
-char *call;
-char *port_str;
-int deact;
+static int handle_allport(char *call, char *port_str, int deact)
 {
   char qrg[20];
   char port[10];
@@ -572,7 +600,7 @@ int deact;
   return(err > 0);
 }
 
-int init_ax25k()
+int init_ax25k(void)
 {
   char *port;
   char *addr;
@@ -654,7 +682,7 @@ int init_ax25k()
   return 0;
 }
 
-void exit_ax25k()
+void exit_ax25k(void)
 {
   int i;
   
@@ -669,7 +697,7 @@ void exit_ax25k()
     deact_monitor();
 }
 
-static char *strip_port(char *data,int len,char *port)
+static char *strip_port(char *data,int len __attribute__((unused)),char *port)
 {
   char *ptr;
   int qrgpos;
@@ -702,8 +730,7 @@ static char *strip_port(char *data,int len,char *port)
   return ptr;
 }
 
-static void reset_conn(channel)
-int channel;
+static void reset_conn(int channel)
 {
   ch_stat[channel].conn_state = CS_DISCON;
   strcpy(ch_stat[channel].call,notc_str);
@@ -738,7 +765,7 @@ static void ax_connect(int channel,char *data,int len)
       cmd_display(req_flag,channel,invpo_txt,1);
       return;
     }
-    for (i=0;i<strlen(ptr);i++) {
+    for (i=0;ptr[i] != '\0';i++) {
       ch_stat[0].call[i] = toupper(ptr[i]);
     }
     ch_stat[0].call[strlen(ptr)] = '\0';
@@ -826,7 +853,7 @@ static void ax_connect(int channel,char *data,int len)
   cmd_display(req_flag,channel,OK_TEXT,1);
 }
 
-static void ax_disconnect(int channel,char *data,int len)
+static void ax_disconnect(int channel,char *data __attribute__((unused)),int len __attribute__((unused)))
 {
   if ((ax25k_stat[channel].fd != -1) &&
      (ch_stat[channel].conn_state != CS_DISCON)) {
@@ -893,15 +920,10 @@ void command_ax25k(int channel,char *data,int len)
   next_command(&act_state);
 }
 
-static void open_ax25k(fd,ax25,len,call,port)
-int fd;
-struct full_sockaddr_ax25 *ax25;
-int len;
-char *call;
-char *port;
+static void open_ax25k(int fd, struct full_sockaddr_ax25 *ax25, int len, char *call, char *port)
 {
   int channel;
-  char buffer[256];
+  char buffer[512];
   char stamp[40];
   int i;
   
@@ -957,7 +979,7 @@ char *port;
 
 static void consucc_ax25k(int channel)
 {
-  char buffer[256];
+  char buffer[512];
   char stamp[40];
   int i;
 
@@ -995,7 +1017,7 @@ static void consucc_ax25k(int channel)
 
 static void close_ax25k(int channel)
 {
-  char buffer[256];
+  char buffer[512];
   char tmpstr[20];
   char stamp[40];
   
@@ -1051,7 +1073,7 @@ static void close_ax25k(int channel)
 
 static void dissucc_ax25k(int channel)
 {
-  char buffer[256];
+  char buffer[512];
   char tmpstr[20];
   char stamp[40];
 
@@ -1311,12 +1333,12 @@ static int read_ax25k(int channel)
 
 #define MONBUFLEN 1500
 
-static int readmon_ax25k()
+static int readmon_ax25k(void)
 {
   char monbuf[MONBUFLEN];
   int size;
   struct sockaddr sa;
-  int asize;
+  socklen_t asize;
 
   if(monfd==-1)
     return(1);
@@ -1334,9 +1356,7 @@ static int readmon_ax25k()
   return(1);
 }
 
-void ax25k_fdset(max_fd,fdmask)
-int *max_fd;
-fd_set *fdmask;
+void ax25k_fdset(int *max_fd, fd_set *fdmask)
 {
   int i;
   struct listen_stat *listen_stat_ptr;
@@ -1367,11 +1387,10 @@ fd_set *fdmask;
   }
 }
 
-int ax25k_receive(fdmask)
-fd_set *fdmask;
+int ax25k_receive(fd_set *fdmask)
 {
   int newfd;
-  int addrlen;
+  socklen_t addrlen;
   struct full_sockaddr_ax25 ax25;
   int i;
   int result;
@@ -1438,23 +1457,19 @@ fd_set *fdmask;
   return(result);
 }
 
-void free_ax25k()
+void free_ax25k(void)
 {
   free(ax25k_stat);
 }
 
-int alloc_ax25k()
+int alloc_ax25k(void)
 {
   ax25k_stat = (struct ax25k_stat *)
     malloc(tnc_channels * sizeof(struct ax25k_stat));
   return(ax25k_stat == NULL);
 }
 
-static void analyse_monitor_ax25k(buffer,len,sa,asize)
-char *buffer;
-int len;
-struct sockaddr sa;
-int asize;
+static void analyse_monitor_ax25k(char *buffer, int len, struct sockaddr sa, int asize __attribute__((unused)))
 {
   char *port;
   struct ifreq ifr;
@@ -1575,7 +1590,7 @@ static void ax_mycall(int channel,char *data,int len)
         sprintf(curcall,"%s",string);
       else
         sprintf(curcall,"%s-%d",string,ssid);
-      for (i=0;i<strlen(curcall);i++) {
+      for (i=0;curcall[i] != '\0';i++) {
         curcall[i] = toupper(curcall[i]);
       }
       if (channel == 0) {
@@ -1653,11 +1668,7 @@ static void ax_monitor(int channel,char *data,int len)
   cmd_display(req_flag,channel,invp_txt,1);
 }
 
-static int handle_parms(port,value_nr,value,change)
-char *port;
-int value_nr;
-unsigned short *value;
-int change;
+static int handle_parms(char *port, int value_nr, unsigned short *value, int change)
 {
 /* dl1bke 970319: set AX.25 parameters for newer kernels through
  *               /proc/sys/net/ax25... Sadly we cannot use
@@ -1702,7 +1713,7 @@ static void ax_value(int channel,char *data,int len,int value_nr,
   char tmpc;
   unsigned short value;
   int value_int;
-  int value_len;
+  socklen_t value_len = sizeof(value_int);
   int res;
   char answer[20];
   int err;
@@ -1858,10 +1869,7 @@ static void ax_paclen(int channel,char *data,int len)
   ax_value(channel,data,len,AX25_VALUES_PACLEN,AX25_PACLEN,22,256);
 }
 
-static int handle_kissparms(port,value_nr,value)
-char *port;
-int value_nr;
-int value;
+static int handle_kissparms(char *port, int value_nr, int value)
 {
   struct sockaddr sa;
   char *addr;

@@ -340,6 +340,9 @@
 /* path for runprograms */
 #undef TNT_RUN_PATH
 
+/* with serial port support */
+#undef TNT_SERIAL
+
 /* with sound support */
 #undef TNT_SOUND
 

@@ -38,25 +38,25 @@ extern int frame_ui;
 extern int head_valid;
 
 /* external function declarations */
-extern void _bcast_init();
-extern void cmd_display();
-extern int conv_name_to_iface();
+extern void _bcast_init(void);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern int conv_name_to_iface(char *str);
 extern void cut(char *s, short newlength);
-extern int dechuf();
+extern int dechuf(char *inputfile, char *outputfile, int crlfconv);
 extern void del_blanks(char *s);
-extern int enchuf();
+extern int enchuf(char *inputfile, char *outputfile, int crlfconv);
 extern void int2str(long i, char *s);
-extern void moni_display2();
-extern void moni_display_len2();
-extern int queue_cmd_data();
+extern void moni_display2(char *buffer, int attrib);
+extern void moni_display_len2(char *buffer, int len);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
 extern void sfclose(short *handle);
 extern short sfcreate(char *name, short mode);
 extern short sfopen(char *name, short mode);
 extern off_t sfsize(char *name);
-extern void send_command_packet_if();
-extern void sort_new_mail();
-extern int strpos2();
-extern char strsub();
+extern void send_command_packet_if(short channel, short usernr, unsigned short len, char *buf, int iface);
+extern void sort_new_mail(short unr, char *pattern_, char *rcall);
+extern int strpos2(char *s, register char *pat, register int pos);
+extern char *strsub(register char *ret, register char *s, register int pos, register int len);
 
 char tnt_bctempdir[MAXCHAR];
 char tnt_bcsavedir[MAXCHAR];
@@ -180,7 +180,7 @@ void rspacing(char *txt, short l)
 
 #undef digits
 
-time_t sys_ixtime()
+time_t sys_ixtime(void)
 {
   time_t timeval;
   
@@ -442,7 +442,7 @@ void ibcastpushunproto(short tnc)
 }
 
 /* ??? */
-boolean ibcastusereingabe()
+boolean ibcastusereingabe(void)
 {
   return(false);
 }
@@ -532,7 +532,7 @@ char *ibcastgetmycall(char *result, short chan)
 }
 
 /* returns if pacsat-frames are displayed */
-boolean ibcastshpacsat()
+boolean ibcastshpacsat(void)
 {
   if (shpacsat_flag)
     return(true);
@@ -541,7 +541,7 @@ boolean ibcastshpacsat()
 }
 
 /* returns if requests shall be generated */
-boolean ibcastcreaterequests()
+boolean ibcastcreaterequests(void)
 {
   if (bcrequest_flag)
     return(true);
@@ -661,7 +661,7 @@ char *ibcastnewmaildir(char *result)
 }
 
 
-void init_bcast()
+void init_bcast(void)
 {
   shpacsat_flag = 1;
   bcrequest_flag = 0;
@@ -729,7 +729,7 @@ int analyse_bcast_body(char *buffer)
   return(1);
 }
 
-void bc_timing()
+void bc_timing(void)
 {
   long bcticks;
   
@@ -749,11 +749,7 @@ void cbsf(long file_id)
   cmd_display(M_COMMAND,0,"Broadcast-transmission finished",1);
 }
 
-void send_bcfile(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void send_bcfile(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   unsigned short file_id;
   char dstr[10];

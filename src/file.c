@@ -20,25 +20,27 @@
 #endif
 
 /* external function declarations */
-extern void abinfile_to_boxcut();
-extern int boxcut_active();
-extern int calc_crc();
-extern void cmd_display();
-extern void cmd_input();
-extern int conv_local_to_tx();
-extern int conv_rx_to_local();
-extern void out_socket();
-extern int queue_cmd_data();
-extern void rem_data_display();
-extern void rem_data_display_len();
-extern void rem_stat_display();
-extern int senddata_allowed();
-extern off_t sfsize();
-extern void statlin_update();
-extern int yapp_download();
-extern void yapp_rx_flush();
-extern void yapp_tx_flush();
-extern int yapp_upload();
+extern void abinfile_to_boxcut(int channel, char *file, int erase, int error);
+extern int boxcut_active(int channel);
+extern int calc_crc(char *buf, int n, unsigned int crc);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void cmd_input(int channel, int mode, char *str, int len, int cscript);
+extern int conv_local_to_tx(char code, char *newcode1, char *newcode2);
+extern int conv_rx_to_local(char code, char *newcode1, char *newcode2);
+extern void out_socket(int channel, char *str);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void rem_data_display(int channel, char *buffer);
+extern void rem_data_display_len(int channel, char *buffer);
+extern void rem_stat_display(int channel, char *buffer);
+extern int senddata_allowed(int channel);
+extern off_t sfsize(char *name);
+extern void statlin_update(void);
+extern int yapp_download(int init, int abort, yapptype *yapp,
+		      char *buffp, int blen);
+extern void yapp_rx_flush(int channel);
+extern void yapp_tx_flush(int channel);
+extern int yapp_upload(int init, int abort, yapptype *yapp, char *buffp,
+		    int blen);
 
 #ifdef DPBOXT
 extern int act_mode;
@@ -89,13 +91,11 @@ static char line[82];
 char file_open_text[] = "File already open";
 char no_perm_read_text[] = "No permission to read file";
 
-static void execute_line();
+static void execute_line(int *state, int statevalid);
 
 #define MAXFILL 1785
 
-static void cut_filename(str,filename)
-char *str;
-char *filename;
+static void cut_filename(char *str, char *filename)
 {
   int len;
   char tmpstr[20];
@@ -124,9 +124,7 @@ char *filename;
   strcat(str,tmpstr);
 }
 
-void show_txfile(channel,str)
-int channel;
-char *str;
+void show_txfile(int channel, char *str)
 {
 #ifdef DPBOXT
   strcat(str,"******************");
@@ -163,9 +161,7 @@ char *str;
 #endif
 }
 
-void show_rxfile(channel,str)
-int channel;
-char *str;
+void show_rxfile(int channel, char *str)
 {
 #ifdef DPBOXT
   if ((act_mode == M_MAILBOX) && (mb_file.type != -1)) {
@@ -270,9 +266,8 @@ char *str;
 }
 
 #ifndef DPBOXT
-void close_txfile(channel,report)
-int channel;
-int report __attribute__((unused));{
+void close_txfile(int channel, int report __attribute__((unused)))
+{
   if (tx_file[channel].type != -1) {
     close(tx_file[channel].fd);
     if (tx_file[channel].type == TX_YAPP) {
@@ -292,8 +287,7 @@ int report __attribute__((unused));{
 
 /* if during autobin receive an error occurs,
    the file will be renamed and dropped in abin_dir */
-static void abin_error(channel)
-int channel;
+static void abin_error(int channel)
 {
   char tmpname[100];
   
@@ -307,9 +301,7 @@ int channel;
   }
 }
 
-void close_rxfile2(channel,report,rename)
-int channel;
-int report __attribute__((unused));int rename;
+void close_rxfile2(int channel, int report __attribute__((unused)), int rename)
 {
   if (rx_file[channel].type != -1) {
     close(rx_file[channel].fd);
@@ -329,7 +321,7 @@ int report __attribute__((unused));int rename;
 #endif
 
 #ifdef USE_IFACE
-void close_mbfile()
+void close_mbfile(void)
 {
   if (mb_file.type != -1) {
     close(mb_file.fd);
@@ -340,7 +332,7 @@ void close_mbfile()
 #endif
 
 #ifndef DPBOXT
-static void close_rxfile_mon()
+static void close_rxfile_mon(void)
 {
   if (rx_file_mon.type != -1) {
     close(rx_file_mon.fd);
@@ -349,8 +341,7 @@ static void close_rxfile_mon()
   statlin_update();
 }
 
-static void close_rxfile_xmon(screen)
-int screen;
+static void close_rxfile_xmon(int screen)
 {
   if (rx_file_xmon[screen].type != -1) {
     close(rx_file_xmon[screen].fd);
@@ -359,9 +350,7 @@ int screen;
   statlin_update();
 }
 
-void close_rxfile(channel,report)
-int channel;
-int report;
+void close_rxfile(int channel, int report)
 {
   switch (rx_file[channel].type) {
   case RX_NORM:
@@ -375,7 +364,7 @@ int report;
 #endif
 
 /* set all file-flags to file not open */
-void init_file()
+void init_file(void)
 {
 #ifdef DPBOXT
   append_flag = 1;  
@@ -409,7 +398,7 @@ void init_file()
 }
 
 /* close all open files */
-void exit_file()
+void exit_file(void)
 {
 #ifdef DPBOXT
   if (mb_file.type != -1) {
@@ -443,11 +432,7 @@ void exit_file()
 }
 
 #ifndef DPBOXT
-void drop_priv(mode,channel,uid,gid)
-int mode;
-int channel;
-int *uid;
-int *gid;
+void drop_priv(int mode, int channel, int *uid, int *gid)
 {
   struct passwd *pstp;
   int nuid,ngid;
@@ -478,11 +463,7 @@ int *gid;
   }
 }
 
-void rest_priv(mode,channel,uid,gid)
-int mode;
-int channel;
-int uid;
-int gid;
+void rest_priv(int mode, int channel, int uid, int gid)
 {
   if (mode != M_REMOTE) return;
   if (uid == -1) return;
@@ -495,16 +476,10 @@ int gid;
 }
 #endif
 
-void open_logfile(type,flag,channel,len,mode,str)
-int type;
-int flag;
-int channel;
-int len;
-int mode;
-char *str;
+void open_logfile(int type, int flag, int channel, int len, int mode, char *str)
 {
   char tmpstr[MAXCOLS+1];
-  char ans_str[200];
+  char ans_str[MAXCOLS + sizeof("//RPRG \015")];
   char file_str[MAXCOLS+1];
   int res;
   int flag1;
@@ -684,11 +659,8 @@ char *str;
 #endif
 }
 
-void close_file(par1,par2,channel,len,mode,str)
-int par1;
-int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void close_file(int par1, int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
 #ifndef DPBOXT
   char abort_str[] = "#ABORT#\r";
   int flag;
@@ -730,12 +702,7 @@ char *str __attribute__((unused));{
 }
 
 #ifndef DPBOXT
-void open_monfile(type,flag,channel,len,mode,str)
-int type;
-int flag;
-int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void open_monfile(int type, int flag, int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int file_flags;
 
@@ -775,10 +742,8 @@ char *str;
   statlin_update();
 }
 
-void close_monfile(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void close_monfile(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if (rx_file_mon.type == -1) {
     cmd_display(mode,channel,"No file open",1);
     return;
@@ -787,12 +752,7 @@ char *str __attribute__((unused));{
   cmd_display(mode,channel,OK_TEXT,1);
 }
 
-void open_xmonfile(type,flag,channel,len,mode,str)
-int type;
-int flag;
-int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void open_xmonfile(int type, int flag, int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int file_flags;
   int res;
@@ -850,10 +810,7 @@ char *str;
   statlin_update();
 }
 
-void close_xmonfile(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void close_xmonfile(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int screen;
   int res;
@@ -881,9 +838,7 @@ char *str;
 }
 #endif
 
-void conv_crtolf(str,len)
-char *str;
-int len;
+void conv_crtolf(char *str, int len)
 {
   int i;
   for (i = 0; i < len; i++) {
@@ -891,9 +846,7 @@ int len;
   }
 }
 
-void conv_lftocr(str,len)
-char *str;
-int len;
+void conv_lftocr(char *str, int len)
 {
   int i;
   for (i = 0; i < len; i++) {
@@ -901,10 +854,7 @@ int len;
   }
 }
 
-static int conv_noctrl(str,len,newstr)
-char *str;
-int len;
-char *newstr;
+static int conv_noctrl(char *str, int len, char *newstr)
 {
   int i;
   int j;
@@ -959,10 +909,7 @@ char *newstr;
   return(j);
 }
 
-static int txconv_noctrl(str,len,newstr)
-char *str;
-int len;
-char *newstr;
+static int txconv_noctrl(char *str, int len, char *newstr)
 {
   int i;
   int j;
@@ -1018,11 +965,7 @@ char *newstr;
 }
 
 #ifndef DPBOXT
-void write_file(channel,len,flag,str)
-int channel;
-int len;
-int flag;
-char *str;
+void write_file(int channel, int len, int flag, char *str)
 {
   int newlen;
   char newstr[560];
@@ -1061,11 +1004,7 @@ char *str;
   }
 }
 
-void write_file_abin(channel,len,flag,str)
-int channel;
-int *len;
-int flag;
-char *str;
+void write_file_abin(int channel, int *len, int flag, char *str)
 {
   char ans_str[257];
   int tmp;
@@ -1187,10 +1126,7 @@ char *str;
   }
 }
 
-void write_file_yapp(channel,str,len)
-int channel;
-char *str;
-int len;
+void write_file_yapp(int channel, char *str, int len)
 {
   yapptype *yapp;
   int i;
@@ -1227,10 +1163,7 @@ int len;
 #endif
 
 #ifdef USE_IFACE
-void write_mbfile(len,flag,str)
-int len;
-int flag;
-char *str;
+void write_mbfile(int len, int flag, char *str)
 {
   int newlen;
   char newstr[560];
@@ -1263,10 +1196,7 @@ char *str;
 #endif
 
 #ifndef DPBOXT
-void write_monfile(len,str,append_cr)
-int len;
-char *str;
-int append_cr;
+void write_monfile(int len, char *str, int append_cr)
 {
   int newlen;
   char newstr[560];
@@ -1301,10 +1231,7 @@ int append_cr;
   }
 }
 
-void write_xmonfile(len,screen,str)
-int len;
-int screen;
-char *str;
+void write_xmonfile(int len, int screen, char *str)
 {
   int newlen;
   char newstr[560];
@@ -1334,8 +1261,7 @@ char *str;
   }
 }
 
-void open_upfile(state)
-int *state;
+void open_upfile(int *state)
 {
   if (tx_file_com.type != -1) {
     cmd_display(M_COMMAND,0,file_open_text,1);
@@ -1360,8 +1286,7 @@ int *state;
   statlin_update();
 }
 
-void open_dwnfile(state)
-int *state;
+void open_dwnfile(int *state)
 {
   if (tx_file_com.type != -1) {
     cmd_display(M_COMMAND,0,file_open_text,1);
@@ -1386,8 +1311,7 @@ int *state;
   statlin_update();
 }
 
-void open_comscript(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel __attribute__((unused));int len __attribute__((unused));int mode __attribute__((unused));char *str;
+void open_comscript(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel __attribute__((unused)), int len __attribute__((unused)), int mode __attribute__((unused)), char *str)
 {
   int dummy;
 
@@ -1414,8 +1338,7 @@ int par1 __attribute__((unused));int par2 __attribute__((unused));int channel __
   statlin_update();
 }
 
-void next_command(state)
-int *state;
+void next_command(int *state)
 {
   if (tx_file_com.type == TX_SCRIPT) {
     do {
@@ -1424,9 +1347,7 @@ int *state;
   }
 }
 
-static void execute_line(state,statevalid)
-int *state;
-int statevalid;
+static void execute_line(int *state, int statevalid)
 {
   int len;
   char *ptr;
@@ -1467,13 +1388,7 @@ int statevalid;
 
 #define BUFSIZE 512
 
-void open_sendfile(type,par2,channel,len,mode,str)
-int type;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+void open_sendfile(int type, int par2, int channel, int len, int mode, char *str)
 {
   int file_len;
   unsigned int crc;
@@ -1682,10 +1597,8 @@ char *str;
   statlin_update();
 }
 
-void break_send(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void break_send(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if (tx_file[channel].type == -1) {
     cmd_display(mode,channel, _("Sending no file"),1);
   }
@@ -1701,8 +1614,7 @@ char *str __attribute__((unused));{
   }
 }
 
-void next_sendframe(channel)
-int channel;
+void next_sendframe(int channel)
 {
   char buf[256];
   char oldbuf[256];
@@ -1813,8 +1725,7 @@ void ana_response_yapp(int channel,char *buffer,int len)
 }
 
 
-int act_abin_rx(channel)
-int channel;
+int act_abin_rx(int channel)
 {
   return(((rx_file[channel].type == RX_ABIN) ||
           (rx_file[channel].type == RX_ABIN_Q) ||
@@ -1822,8 +1733,7 @@ int channel;
          !rx_file[channel].wait_bin);
 }
 
-int wait_abin_rx(channel)
-int channel;
+int wait_abin_rx(int channel)
 {
   return(((rx_file[channel].type == RX_ABIN) ||
           (rx_file[channel].type == RX_ABIN_Q) ||
@@ -1831,28 +1741,24 @@ int channel;
          rx_file[channel].wait_bin);
 }
 
-int act_yapp_rx(channel)
-int channel;
+int act_yapp_rx(int channel)
 {
   return(rx_file[channel].type == RX_YAPP);
 }
 
-int act_yapp_tx(channel)
-int channel;
+int act_yapp_tx(int channel)
 {
   return(tx_file[channel].type == TX_YAPP);
 }
 
-void insert_cr_tx(channel)
-int channel;
+void insert_cr_tx(int channel)
 {
   if ((tx_file[channel].type == TX_ABIN) && (!tx_file[channel].wait_ok)) {
     rem_data_display(channel,"\r");
   }
 }
 
-void insert_cr_rx(channel)
-int channel;
+void insert_cr_rx(int channel)
 {
   if ((rx_file[channel].type == RX_ABIN) || 
       (rx_file[channel].type == RX_ABIN_Q) ||
@@ -1861,13 +1767,13 @@ int channel;
   }
 }
 
-void free_file()
+void free_file(void)
 {
   free(tx_file);
   free(rx_file);
 }
 
-int alloc_file()
+int alloc_file(void)
 {
   tx_file = (struct tx_file *)malloc(tnc_channels * sizeof(struct tx_file));
   rx_file = (struct rx_file *)malloc(tnc_channels * sizeof(struct rx_file));
@@ -1876,9 +1782,7 @@ int alloc_file()
 }
 #endif
 
-int rem_datei_display(channel,filename)
-int channel;
-char *filename;
+int rem_datei_display(int channel, char *filename)
 {
   FILE *hdl_out;
   char line[258];
@@ -1909,4 +1813,3 @@ char *filename;
   fclose(hdl_out);
   return 0;
 }
-

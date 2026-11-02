@@ -36,16 +36,17 @@ Thank you.
 
 /*external function declarations */
 extern void app_file(char *filea, short k2, boolean del_source);
-extern void checksum16_buf();
-extern void cmd_display();
-extern void crcfbb_buf();
+extern void checksum16_buf(u_char *adr, long size, unsigned short *crc);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void crcfbb_buf(u_char *adr, long size, unsigned short *crc);
 extern void cut(char *s, short newlength);
-extern int del_cr();
+extern int del_cr(char *filename);
 extern void del_lastblanks(char *s);
 extern void del_path(char *s);
-extern unsigned short file_crc();
+extern unsigned short file_crc(short methode, char *name, unsigned short preload,
+			off_t start, off_t size);
 extern void filecut(char *filea, char *fileb, off_t start, off_t size);
-extern void get_chanstr();
+extern void get_chanstr(char *qrg, char *chanstr);
 extern void get_ext(char *s, char *sext);
 extern void int2hstr(long i, char *s);
 extern void int2str(long i, char *s);
@@ -56,10 +57,10 @@ extern void sfclose(short *handle);
 extern short sfcreate(char *name, short mode);
 extern short sfopen(char *name, short mode);
 extern off_t sfsize(char *name);
-extern void strdelete();
-extern int strpos2();
+extern void strdelete(register char *s, register int pos, register int len);
+extern int strpos2(char *s, register char *pat, register int pos);
 extern void string_to_file(short *handle, char *line, boolean crlf);
-extern time_t sys_ixtime();
+extern time_t sys_ixtime(void);
 extern void validate(char *name);
 
 /* Mask bits for the FLAG-field in FRAME_HEADER or REQUEST_HEADER */
@@ -2651,10 +2652,8 @@ void _bcast_init(void)
 
 /* End. */
 
-void cmd_bcrxstat(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_bcrxstat(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   pacrxdesc *pacrxptr;
   char tmpstr[256];
   char timestring[20];
@@ -2720,10 +2719,8 @@ char *str __attribute__((unused));{
   }
 }
 
-void cmd_bctxstat(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_bctxstat(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   pactxdesc *pactxptr;
   char tmpstr[256];
   char timestring[20];

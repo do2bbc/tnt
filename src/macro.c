@@ -23,7 +23,7 @@ char name_file_name[MAXCHAR];
 #undef DEBUG
 
 /* external function declarations */
-extern int gen_cookie();
+extern int gen_cookie(char *tmpname, int headfoot);
 
 extern time_t sysopactiv;
 extern time_t tnt_startup;

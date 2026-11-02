@@ -13,6 +13,7 @@
 */
 
 #include "tnt.h"
+#include "ax25k.h"
 
 #ifdef TNT_SOUND
  #ifdef USE_AX25K
@@ -45,86 +46,88 @@
 #endif
 
 /* external function declarations */
-extern int alloc_boxlist();
-extern int alloc_connect();
-extern int alloc_display();
-extern int alloc_file();
-extern int alloc_iface();
-extern int alloc_monbox();
-extern int alloc_priv();
-extern int alloc_serial();
-extern int alloc_shell();
-extern void bc_timing();
-extern void bcast_exit();
-extern struct sockaddr *build_sockaddr();
-extern void check_xconnect_timeout();
-extern void check_xmon_timeout();
-extern void exit_blist();
-extern void exit_file();
-extern void exit_help();
-extern void exit_iface();
-extern void exit_keyboard();
-extern void exit_log();
-extern void exit_mb();
-extern void exit_mheard();
-extern void exit_priv();
-extern void exit_proc();
-extern void exit_remote();
-extern void exit_screen();
-extern int exit_serial();
-extern void exit_shell();
-extern void exit_tnt();
-extern void exit_xconnect();
-extern void exit_xmon();
-extern void flush_frontend();
-extern void free_boxlist();
-extern void free_connect();
-extern void free_display();
-extern void free_file();
-extern void free_iface();
-extern void free_monbox();
-extern void free_priv();
-extern void free_serial();
-extern void free_shell();
-extern void frontend_exit();
-extern void iface_fdset();
-extern int iface_receive();
-extern void iface_trying();
-extern int init_bcast();
-extern int init_blist();
-extern void init_conv();
-extern void init_cookie();
-extern void init_crc();
-extern void init_file();
-extern void init_fr_buffer();
-extern void init_help();
-extern void init_iface();
-extern void init_keyboard();
-extern void init_log();
-extern void init_mb();
-extern void init_mheard();
-extern void init_priv();
-extern int init_proc();
-extern void init_remote();
-extern int init_screen();
-extern int init_serial();
-extern void init_session();
-extern void init_shell();
-extern void init_xconnect();
-extern void init_xmon();
-extern void keyboard_server();
-extern void open_logfile();
-extern int read_init_file();
-extern void reinit_screen();
-extern void resync_tnc();
-extern int serial_server();
-extern void set_linescols();
-extern void shell_fdset();
-extern int shell_receive();
-extern void term_exit();
-extern int term_init();
-extern void uwait();
-extern void yapp_timeout();
+extern int alloc_boxlist(void);
+extern int alloc_connect(void);
+extern int alloc_display(void);
+extern int alloc_file(void);
+extern int alloc_iface(void);
+extern int alloc_monbox(void);
+extern int alloc_priv(void);
+extern int alloc_serial(void);
+extern int alloc_shell(void);
+extern void bc_timing(void);
+extern void bcast_exit(void);
+extern struct sockaddr *build_sockaddr(const char *name, int *addrlen);
+extern void check_xconnect_timeout(void);
+extern void check_xmon_timeout(void);
+extern void exit_blist(void);
+extern void exit_file(void);
+extern void exit_help(void);
+extern void exit_iface(void);
+extern void exit_keyboard(void);
+extern void exit_log(void);
+extern void exit_mb(void);
+extern void exit_mheard(void);
+extern void exit_priv(void);
+extern void exit_proc(void);
+extern void exit_remote(void);
+extern void exit_screen(void);
+extern int exit_serial(void);
+extern void exit_shell(void);
+extern void exit_tnt(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void exit_xconnect(void);
+extern void exit_xmon(void);
+extern void flush_frontend(void);
+extern void free_boxlist(void);
+extern void free_connect(void);
+extern void free_display(void);
+extern void free_file(void);
+extern void free_iface(void);
+extern void free_monbox(void);
+extern void free_priv(void);
+extern void free_serial(void);
+extern void free_shell(void);
+extern void frontend_exit(int deact);
+extern void iface_fdset(int *max_fd, fd_set *fdmask);
+extern int iface_receive(fd_set *fdmask);
+extern void iface_trying(void);
+extern void init_bcast(void);
+extern void init_blist(void);
+extern void init_conv(void);
+extern void init_cookie(void);
+extern void init_crc(void);
+extern void init_file(void);
+extern void init_fr_buffer(void);
+extern void init_help(void);
+extern void init_iface(void);
+extern void init_keyboard(void);
+extern void init_log(void);
+extern void init_mb(void);
+extern void init_mheard(void);
+extern void init_priv(void);
+extern int init_proc(void);
+extern void init_remote(void);
+extern int init_screen(void);
+extern int init_serial(char *serstr, unsigned int speed, int speedflag , int unlock);
+extern void init_session(void);
+extern void init_shell(void);
+extern void init_xconnect(void);
+extern void init_xmon(void);
+extern void keyboard_server(int *state, char *ch);
+extern void open_logfile(int type, int flag, int channel, int len, int mode, char *str);
+extern void open_upfile(int *state);
+extern int read_init_file(int argc, char *argv[], int *unlock);
+extern void reinit_screen(void);
+extern void resync_tnc(int *state);
+extern void handle_tx_queue(void);
+extern int serial_server(int *state, char *buffer, int len);
+extern void set_linescols(void);
+extern void shell_fdset(int *max_fd, fd_set *fdmask);
+extern int shell_receive(fd_set *fdmask);
+extern void term_exit(void);
+extern int term_init(char *extterm, int extlines, int extcols);
+extern void uwait(useconds_t time);
+extern void yapp_timeout(void);
 
 extern int serial;
 #ifndef DPBOXT
@@ -213,7 +216,7 @@ char rem_ver_str[] =
 #endif
 " "TNT_VERSION TNT_VERSION_ADD" ("TNT_DATE", DL4YBG and others)";
 
-void free_all()
+void free_all(void)
 {
   free_connect();
 #ifndef DPBOXT
@@ -233,7 +236,7 @@ void free_all()
 #endif
 }
 
-int alloc_all()
+int alloc_all(void)
 {
   int i;
 
@@ -256,41 +259,44 @@ int alloc_all()
   return (i>0);
 }
 
-static void sigterm()
+static void sigterm(int signum __attribute__((unused)))
 {
   terminated = 1;
   signal(SIGTERM, SIG_IGN);
 }
 
-static void sighup()
+static void sighup(int signum __attribute__((unused)))
 {
   terminated = 1;
   signal(SIGHUP, SIG_IGN);
 }
 
-int 
-main(argc,argv)
-int argc;
-char *argv[];
+int main(int argc, char *argv[])
 {
+#ifdef TNT_SERIAL
   int len;
   char rdbuffer[259];
+#endif
   char ch;
   int unlock;
   int result;
   fd_set fdmask;
   struct timeval timevalue;
   fd_set dummy_mask;
+#ifdef TNT_SERIAL
   int served;
+  int resync_needed;
+#endif
   int max_fd;
   int count;
   int kbd_res;
   int ser_res;
+#ifdef TNT_SERIAL
   time_t ser_resp_time;
+  int ser_rounds;
+#endif
   int shell_res;
   int empty_rounds;
-  int ser_rounds;
-  int resync_needed;
   int iface_res;
   int fr_lines;
   int fr_cols;
@@ -473,11 +479,11 @@ char *argv[];
                  M_CMDSCRIPT,tnt_logfile);
   }
 #endif
-  if (!use_select) {
-    ser_resp_time = time(NULL);
-    ser_rounds = 0;
-    empty_rounds = 0;
-  }
+#ifdef TNT_SERIAL
+  ser_resp_time = time(NULL);
+  ser_rounds = 0;
+#endif
+  empty_rounds = 0;
   if (ax25k_active) {
 #ifdef USE_AX25K
     act_state = S_TNT_UP;
@@ -486,11 +492,18 @@ char *argv[];
 #endif
   }
 #ifndef DPBOXT
+#ifdef TNT_SERIAL
   else {
     act_state = S_INIT;
     len = 1;
     serial_server(&act_state,rdbuffer,len);
   }
+#else
+  else {
+    act_state = S_TNT_UP;
+    open_upfile(&act_state);
+  }
+#endif
 #endif
   
   while (act_state) {
@@ -533,11 +546,13 @@ char *argv[];
         ax25k_fdset(&max_fd,&fdmask);
 #endif
       }
+#ifdef TNT_SERIAL
       else {
         FD_SET(serial,&fdmask);
         if (serial > max_fd - 1)
           max_fd = serial + 1;
       }
+#endif
       shell_fdset(&max_fd,&fdmask);
 #ifdef USE_IFACE
       iface_fdset(&max_fd,&fdmask);
@@ -557,14 +572,18 @@ char *argv[];
       if (count == -1) {
         continue;
       }
+#ifdef TNT_SERIAL
       served = 0;
       resync_needed = 0;
+#endif
       if (!tnt_daemon) {
         if (FD_ISSET(0,&fdmask)) {
           if (read(0,&ch,1) == 1) {
             keyboard_server(&act_state,&ch);
           } 
+#ifdef TNT_SERIAL
           served = 1;
+#endif
         }
       }
       else {
@@ -604,7 +623,9 @@ char *argv[];
                 keyboard_server(&act_state,&ch);
               }
             }
+#ifdef TNT_SERIAL
             served = 1;
+#endif
           }
         }
 #endif
@@ -612,11 +633,14 @@ char *argv[];
       if (ax25k_active) {
 #ifdef USE_AX25K
         if (!ax25k_receive(&fdmask)) {
+#ifdef TNT_SERIAL
           served = 1;
+#endif
         }
 #endif
       }
 #ifndef DPBOXT
+#ifdef TNT_SERIAL
       else {
         if (FD_ISSET(serial,&fdmask)) {
           if ((len = read(serial,rdbuffer,259)) > 0) {
@@ -632,31 +656,41 @@ char *argv[];
         }
       }
 #endif
+#endif
       if (!shell_receive(&fdmask)) {
+#ifdef TNT_SERIAL
         served = 1;
+#endif
       }
 #ifdef USE_IFACE
       if (!iface_receive(&fdmask)) {
+#ifdef TNT_SERIAL
         served = 1;
+#endif
       }
 #endif
 #ifndef DPBOXT
+#ifdef TNT_SERIAL
       if (!ax25k_active) {
         if ((!served) || (resync_needed)) {
           resync_tnc(&act_state);
         }
       }
 #endif
+#endif
     }
     else {
       ser_res = 1;
+#ifdef TNT_SERIAL
       resync_needed = 0;
+#endif
       if (ax25k_active) {
 #ifdef USE_AX25K
         ser_res = ax25k_receive(&dummy_mask);
 #endif
 #ifndef DPBOXT
       }
+#ifdef TNT_SERIAL
       else {
         if ((len = read(serial,rdbuffer,259))) {
           if (len > 0) {
@@ -672,8 +706,9 @@ char *argv[];
             softtnc_error = 1;
           }
         }
-#endif
       }
+#endif
+#endif
       kbd_res = 1;
       if (!tnt_daemon) {
         if (read(0,&ch,1)) {
@@ -727,6 +762,7 @@ char *argv[];
 #else
       iface_res = 1;
 #endif
+#ifdef TNT_SERIAL
       if ((!ax25k_active) && (resync_needed)) {
         resync_tnc(&act_state);
         ser_resp_time = time(NULL);
@@ -734,6 +770,9 @@ char *argv[];
         empty_rounds = 0;
       }
       else {
+#else
+      {
+#endif
       /* if no serial processing and no key pressed: sleep */
         if (ser_res && kbd_res && shell_res && iface_res) {
           if (empty_rounds > 10) {
@@ -743,6 +782,7 @@ char *argv[];
           else {
             empty_rounds++;
           }
+#ifdef TNT_SERIAL
           if (!ax25k_active) {
             ser_rounds++;
             if (ser_rounds > 100*RESY_TIME) {
@@ -754,6 +794,7 @@ char *argv[];
               }
             }
           }
+#endif
         }
       }
     }
@@ -806,12 +847,18 @@ char *argv[];
     exit_ax25k();
 #endif
   }
+#ifdef TNT_SERIAL
   else {
     if (exit_serial()) {
       free_all();
       exit(1);
     }
   }
+#else
+  else {
+    exit_serial();
+  }
+#endif
   free_all();
   exit(0);
 }

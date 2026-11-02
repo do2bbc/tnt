@@ -90,5 +90,5 @@ int main(void) {
   return 0;
 }
 EOF
-${CC:-cc} -std=gnu99 -Wall -Wextra -Werror -fsanitize=address,undefined -g -I"$includes" "$tmp/test.c" -o "$tmp/test"
+${CC:-cc} -Wall -Wextra -Werror -fsanitize=address,undefined -g -I"$includes" "$tmp/test.c" -o "$tmp/test"
 "$tmp/test"

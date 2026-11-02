@@ -48,64 +48,64 @@ static void append_limited(char *dst, size_t dst_size, const char *src, size_t m
 }
 
 /* external function declarations */
-extern int act_abin_rx();
-extern int act_yapp_tx();
-extern int act_yapp_rx();
-extern void ana_response_yapp();
-extern int analyse_bcast_body();
-extern void analyse_mon_body();
-extern int analyse_mon_header();
-extern void beep();
-extern void boxcut();
-extern void boxcut_nocr();
-extern void boxcut_rest();
-extern int check_autoyapp();
-extern void check_mbeacon();
-extern void check_uireq();
-extern int close_window();
-extern void connect_update();
-extern int decstathuf();
-extern int display_layer3();
-extern int extcomp_active();
-extern int get_line();
-extern int iface_active();
-extern int insert_active();
-extern void insert_cr_tx();
-extern void mb_pre_display();
-extern int open_window();
-extern void out_cmd_socket();
-extern int queue_cmd_data();
-extern void real_screen();
-extern void reinit_blist();
-extern void reinit_mb();
-extern void reinit_mheard();
-extern void reinit_xmon();
-extern int remote_input();
-extern void scan_login_received();
-extern void scan_pw_request();
-extern void send_tntresponse();
-extern int shell_active();
-extern void sock_status_out();
-extern void strip_call_log();
-extern void test_sysresponse();
-extern void win_attrib();
-extern void win_charout();
-extern void win_charout_cntl();
-extern void win_stringout();
-extern void win_textout();
-extern void win_textout_len();
-extern void window_exit();
-extern void window_init();
-extern int wordwrap();
-extern void write_file();
-extern void write_file_abin();
-extern void write_file_yapp();
-extern void write_iface();
-extern void write_mon_info();
-extern void write_monfile();
-extern int write_pty();
-extern int xconnect_active();
-extern void xm_pre_display();
+extern int act_abin_rx(int channel);
+extern int act_yapp_tx(int channel);
+extern int act_yapp_rx(int channel);
+extern void ana_response_yapp(int channel,char *buffer,int len);
+extern int analyse_bcast_body(char *buffer);
+extern void analyse_mon_body(char *buffer);
+extern int analyse_mon_header(char *buffer);
+extern void beep(void);
+extern void boxcut(int channel, char *buffer, int len);
+extern void boxcut_nocr(int channel, char *buffer, int len);
+extern void boxcut_rest(int channel, char *buffer, int len);
+extern int check_autoyapp(int channel, char *buffer, int len);
+extern void check_mbeacon(char *buffer);
+extern void check_uireq(char *buffer);
+extern int close_window(struct window *win);
+extern void connect_update(int channel, char *buffer, int len);
+extern int decstathuf(char *src, char *dest);
+extern int display_layer3(char *buffer, int is_i);
+extern int extcomp_active(int screen);
+extern int get_line(char *str, struct window *win);
+extern int iface_active(int channel);
+extern int insert_active(void);
+extern void insert_cr_tx(int channel);
+extern void mb_pre_display(char *buffer, int cr);
+extern int open_window(int lines, struct window *win, int bot);
+extern void out_cmd_socket(int channel, char *buffer);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void real_screen(struct real_layout *layout);
+extern void reinit_blist(void);
+extern void reinit_mb(void);
+extern void reinit_mheard(void);
+extern void reinit_xmon(void);
+extern int remote_input(int channel, char *buffer, int len);
+extern void scan_login_received(int channel, char *buffer, int len);
+extern void scan_pw_request(int channel, char *buffer, int len);
+extern void send_tntresponse(int channel,int mode,char *str,int cr);
+extern int shell_active(int channel);
+extern void sock_status_out(int channel, char *str);
+extern void strip_call_log(char *call, int channel);
+extern void test_sysresponse(int channel,char *buffer,int len);
+extern void win_attrib(char ch, struct window *win);
+extern void win_charout(char ch, struct window *win, int conv);
+extern void win_charout_cntl(char ch, struct window *win);
+extern void win_stringout(char *str, struct window *win, int conv);
+extern void win_textout(char *str, struct window *win, int conv);
+extern void win_textout_len(char *str, int len, struct window *win, int conv);
+extern void window_exit(void);
+extern void window_init(void);
+extern int wordwrap(char *str, struct window *win);
+extern void write_file(int channel, int len, int flag, char *str);
+extern void write_file_abin(int channel, int *len, int flag, char *str);
+extern void write_file_yapp(int channel, char *str, int len);
+extern void write_iface(int channel, int len, char *str);
+extern void write_mon_info(char *buffer, int xmon_ch);
+extern void write_monfile(int len, char *str, int append_cr);
+extern int write_pty(int channel, int len, char *str);
+extern int xconnect_active(int channel);
+extern void xm_pre_display(int screen, char *buffer, int cr);
 
 #ifdef DPBOXT
 extern int act_channel;
@@ -257,7 +257,7 @@ static char *ax_state_alt[] = {
 };
 #endif
   
-void statlin_update()
+void statlin_update(void)
 {
   int i,j;
   char tmp = '*';
@@ -503,14 +503,13 @@ void statlin_update()
 }
 
 #ifndef DPBOXT
-void newdata(channel)
-int channel;
+void newdata(int channel)
 {
   ch_stat[channel].not_disp = 1;
   statlin_update();
 }
 
-void sel_monitor()
+void sel_monitor(void)
 {
   if (act_mode == M_MONITOR) {
     switch (old_mode) {
@@ -557,7 +556,7 @@ void sel_monitor()
   statlin_update();
 }
 
-void sel_command()
+void sel_command(void)
 {
   if (act_mode == M_COMMAND) return;
   real_screen(cmd_layout);
@@ -565,8 +564,7 @@ void sel_command()
   statlin_update();
 }
 
-void sel_connect_force(channel)
-int channel;
+void sel_connect_force(int channel)
 /* dg9ep 30.08.98 */
 {
   if ( scrollhold_flag && (textwin[act_channel].num_lines > 0) )
@@ -578,15 +576,13 @@ int channel;
   statlin_update();
 }
 
-void sel_connect(channel)
-int channel;
+void sel_connect(int channel)
 {
   if ((channel == act_channel) && (act_mode == M_CONNECT)) return;
   sel_connect_force(channel);
 }
 
-void stat_display_org(channel)
-int channel;
+void stat_display_org(int channel)
 {
   int stat_len;
   int snd_frms;
@@ -671,8 +667,7 @@ int channel;
   free(stat_str);
 }
 
-void stat_display_alt(channel)
-int channel;
+void stat_display_alt(int channel)
 {
   int stat_len;
   int snd_frms;
@@ -781,8 +776,7 @@ int channel;
   free(stat_str);
 }
 
-void stat_display(channel)
-int channel;
+void stat_display(int channel)
 {
   if (altstat)
     stat_display_alt(channel);
@@ -799,9 +793,7 @@ static int output_screen(int channel)
 #endif
 }
 
-void data_display(channel,buffer)
-int channel;
-char *buffer;
+void data_display(int channel, char *buffer)
 {
   char tmpstring[280];
   
@@ -822,28 +814,21 @@ char *buffer;
   write_file(channel,strlen(tmpstring),RX_RCV,tmpstring);
 }
 
-void rem_data_display(channel,buffer)
-int channel;
-char *buffer;
+void rem_data_display(int channel, char *buffer)
 {
   win_attrib(att_remote,&textwin[channel]);
   win_stringout(buffer,&textwin[channel],1);
   win_attrib(att_normal,&textwin[channel]);
 }
 
-void rem_data_display_buf(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+void rem_data_display_buf(int channel, char *buffer, int len)
 {
   win_attrib(att_remote,&textwin[channel]);
   win_textout_len(buffer,len,&textwin[channel],1);
   win_attrib(att_normal,&textwin[channel]);
 }
 
-void rem_stat_display(channel,buffer)
-int channel;
-char *buffer;
+void rem_stat_display(int channel, char *buffer)
 {
   win_attrib(att_remote,&textwin[channel]);
   win_stringout(buffer,&textwin[channel],1);
@@ -1019,9 +1004,7 @@ void handle_display_buffer(int channel,char **hlpbuffer,int *len)
   }
 }
 
-void data_display_len(channel,buffer)
-int channel;
-char *buffer;
+void data_display_len(int channel, char *buffer)
 {
   int len;
   char *hlpbuffer;
@@ -1040,9 +1023,7 @@ char *buffer;
   }
 }
 
-void rem_data_display_len(channel,buffer)
-int channel;
-char *buffer;
+void rem_data_display_len(int channel, char *buffer)
 {
   win_attrib(att_remote,&textwin[channel]);
   win_textout(buffer,&textwin[channel],1);
@@ -1050,11 +1031,7 @@ char *buffer;
 }
 #endif /* DPBOXT */
 
-void cmd_display(flag,channel,buffer,cr)
-int flag;
-int channel;
-char *buffer;
-int cr;
+void cmd_display(int flag, int channel, char *buffer, int cr)
 {
   int ans_flag;
   int ans_len;
@@ -1129,9 +1106,7 @@ int cr;
 }
 
 #ifndef DPBOXT  
-void moni_display2(buffer,attrib)
-char *buffer;
-int attrib;
+void moni_display2(char *buffer, int attrib)
 {
 	
   switch (attrib) {
@@ -1182,8 +1157,7 @@ static int monitor_is_iframe(const char *header)
   return 0;
 }
 
-void moni_display(channel,buffer)
-int channel __attribute__((unused));char *buffer;
+void moni_display(int channel __attribute__((unused)), char *buffer)
 {
   int port;
   
@@ -1220,8 +1194,7 @@ int check_bin(char *buffer)
 }	
 
 
-void moni_display_len(channel,buffer)
-int channel __attribute__((unused));char *buffer;
+void moni_display_len(int channel __attribute__((unused)), char *buffer)
 {
   char decomp_buffer[257];
   char comp_info[MAXCHAR];
@@ -1276,9 +1249,7 @@ int channel __attribute__((unused));char *buffer;
   write_monfile((*buffer + 1),buffer+1,append_cr);
 }
 
-void moni_display_len2(buffer,len)
-char *buffer;
-int len;
+void moni_display_len2(char *buffer, int len)
 {
   int append_cr;
   char *buffer2;
@@ -1296,9 +1267,7 @@ int len;
   free(buffer2);
 }
 
-int pre_newline(channel,str)
-int channel;
-char *str;
+int pre_newline(int channel, char *str)
 {
   int len;
   
@@ -1307,15 +1276,12 @@ char *str;
   return(len);
 }
 
-void pre_nextline(channel)
-int channel;
+void pre_nextline(int channel)
 {
   win_charout(CR,&prewin[channel],0);
 }
 
-void pre_charout(channel,ch)
-int channel;
-char ch;
+void pre_charout(int channel, char ch)
 {
   if (prewin[channel].column < input_linelen-1) {
     win_charout_cntl(ch,&prewin[channel]);
@@ -1325,16 +1291,12 @@ char ch;
   }
 }
 
-void pre_charout_nobnd(channel,ch)
-int channel;
-char ch;
+void pre_charout_nobnd(int channel, char ch)
 {
   win_charout_cntl(ch,&prewin[channel]);
 }
 
-void pre_charout_cntl(channel,ch)
-int channel;
-char ch;
+void pre_charout_cntl(int channel, char ch)
 {
   if (prewin[channel].column < input_linelen-1) {
     ch &= 0x1f;
@@ -1348,21 +1310,17 @@ char ch;
   }
 }
 
-int pre_lineend(channel)
-int channel;
+int pre_lineend(int channel)
 {
   return(prewin[channel].column == input_linelen-1);
 }
 
-int pre_wordwrap(channel,str)
-int channel;
-char *str;
+int pre_wordwrap(int channel, char *str)
 {
   return(wordwrap(str,&prewin[channel]));
 }
 
-int cmd_newline(channel,str)
-int channel __attribute__((unused));char *str;
+int cmd_newline(int channel __attribute__((unused)), char *str)
 {
   int len;
   char tmpstr[MAXCOLS+1];
@@ -1378,8 +1336,7 @@ int channel __attribute__((unused));char *str;
   return(len);
 }
 
-void cmd_charout(channel,ch)
-int channel __attribute__((unused));char ch;
+void cmd_charout(int channel __attribute__((unused)), char ch)
 {
   if (cmdwin.column < input_linelen-1) {
     win_charout_cntl(ch,&cmdwin);
@@ -1389,14 +1346,13 @@ int channel __attribute__((unused));char ch;
   }
 }
 
-void cmd_charout_nobnd(channel,ch)
-int channel __attribute__((unused));char ch;
+void cmd_charout_nobnd(int channel __attribute__((unused)), char ch)
 {
   win_charout_cntl(ch,&cmdwin);
 }
 #endif /* DPBOXT */
 
-int init_screen()
+int init_screen(void)
 {
   int i;
   int j;
@@ -1517,9 +1473,9 @@ int init_screen()
 }
 #endif
 
-void reinit_help();
+void reinit_help(void);
 
-void reinit_screen()
+void reinit_screen(void)
 {
   int i;
   int j;
@@ -1653,7 +1609,7 @@ void reinit_screen()
 #endif
 }
 
-void exit_screen()
+void exit_screen(void)
 {
   int i;
 
@@ -1673,22 +1629,19 @@ void exit_screen()
 }
 
 /* display line on help-screen */
-static void help_textout_len(buf,len)
-char *buf;
-int len;
+static void help_textout_len(char *buf, int len)
 {
   win_textout_len(buf,len,&helpwin,1);
 }
 
 /* character to help-screen */
-void help_charout_cntl(ch)
-char ch;
+void help_charout_cntl(char ch)
 {
   win_charout_cntl(ch,&helpwin);
 }
 
 /* select help screen */
-void sel_help()
+void sel_help(void)
 {
   if ((!help_available) || (act_mode == M_HELP)) return;
   real_screen(help_layout);
@@ -1699,7 +1652,7 @@ void sel_help()
 #define BUFSIZE 512
 
 /* init of help-screen */
-void init_help()
+void init_help(void)
 {
   char helpfile[160];
   int helpfd;
@@ -1788,7 +1741,7 @@ void init_help()
   help_available = 1;
 }
 
-void reinit_help()
+void reinit_help(void)
 {
   int j;
   
@@ -1811,7 +1764,7 @@ void reinit_help()
 }
 
 /* exit of help-screen */
-void exit_help()
+void exit_help(void)
 {
   if (help_available) {
     close_window(&helpwin);
@@ -1819,14 +1772,14 @@ void exit_help()
 }
 
 #ifndef DPBOXT
-void free_display()
+void free_display(void)
 {
   free(prewin);
   free(statwin);
   free(textwin);
 }
 
-int alloc_display()
+int alloc_display(void)
 {
   prewin = (struct window *)malloc(tnc_channels * sizeof(struct window));
   statwin = (struct window *)malloc(tnc_channels * sizeof(struct window));

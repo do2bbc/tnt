@@ -90,7 +90,7 @@ static char *decode_type(int);
 void ax25_dump(unsigned char *data, int length, char *port)
 {
 	char tmp[15];
-	int ctlen, nr, ns, pf, pid, type, end, cmdrsp, extseq;
+	int ctlen, nr = 0, ns = 0, pf, pid, type, end, cmdrsp, extseq;
 	char *dama;
 	
 	char temp[257];

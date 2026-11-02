@@ -21,14 +21,14 @@
 
 static int in_memory, out_memory;
 FILE *infile, *outfile;
-static unsigned long int  textsize, codesize;
+static unsigned long int textsize;
 static char *srcbuf, *destbuf;
 static char *srcbufptr, *destbufptr;
 static long srclen, destlen;
 static long srcbuflen, destbuflen;
 
 /* read byte from input */
-static int read_char()
+static int read_char(void)
 {
   int chr;
   
@@ -49,8 +49,7 @@ static int read_char()
 }
 
 /* write byte to output */
-static int wri_char(chr)
-int chr;
+static int wri_char(int chr)
 {
   if (out_memory) {
     if (destlen < destbuflen) {
@@ -340,12 +339,10 @@ static int Putcode(short l, unsigned short c)   /* output c bits of code */
                 if (wri_char(putbuf >> 8) == EOF) return(1);
                 if ((putlen -= 8) >= 8) {
                         if (wri_char(putbuf) == EOF) return(1);
-                        codesize += 2;
                         putlen -= 8;
                         putbuf = c << (l - putlen);
                 } else {
                         putbuf <<= 8;
-                        codesize++;
                 }
         }
         return(0);
@@ -451,8 +448,6 @@ static void update(short c)
         } while ((c = prnt[c]) != 0);   /* repeat up to root */
 }
 
-static unsigned code, len;
-
 static int EncodeChar(unsigned short c)
 {
         unsigned short i;
@@ -472,8 +467,6 @@ static int EncodeChar(unsigned short c)
                 j++;
         } while ((k = prnt[k]) != R);
         if (Putcode(j, i)) return(1);
-        code = i;
-        len = j;
         update(c);
         return(0);
 }
@@ -495,7 +488,6 @@ static int EncodeEnd(void)
 {
         if (putlen) {
                 if (wri_char(putbuf >> 8) == EOF) return(1);
-                codesize++;
         }
         return(0);
 }
@@ -588,8 +580,9 @@ static int Encode(void)  /* compression */
         return(0);
 }
 
-static int Decode(textsize)  /* recover */
-unsigned long int textsize;
+static int Decode(  /* recover */
+    unsigned long int textsize
+)
 {
         short  i, j, k, r, c;
         unsigned long int  count;
@@ -620,20 +613,16 @@ unsigned long int textsize;
         return(0);
 }
 
-static void init_huf()
+static void init_huf(void)
 {
   textsize = 0;
-  codesize = 0;
   getbuf = 0;
   getlen = 0;
   putbuf = 0;
   putlen = 0;
 }
 
-int enchuf(inputfile,outputfile,crlfconv)
-char *inputfile;
-char *outputfile;
-int crlfconv;
+int enchuf(char *inputfile, char *outputfile, int crlfconv)
 {
   int error;
   char tempname[MAXCHAR];
@@ -748,10 +737,7 @@ int crlfconv;
   return(error);
 }
 
-int dechuf(inputfile,outputfile,crlfconv)
-char *inputfile;
-char *outputfile;
-int crlfconv;
+int dechuf(char *inputfile, char *outputfile, int crlfconv)
 {
   int error;
   char tempname[MAXCHAR];
@@ -861,13 +847,7 @@ int crlfconv;
   return(error);
 }
 
-int enchufmem(membase,osize,outbase,outsize,outputfile,crlfconv)
-char *membase;
-long osize;
-char **outbase;
-long *outsize;
-char *outputfile;
-int crlfconv;
+int enchufmem(char *membase, long osize, char **outbase, long *outsize, char *outputfile, int crlfconv)
 {
   int error;
   char *ptr;
@@ -1018,13 +998,7 @@ int crlfconv;
   return(error);
 }
 
-int dechufmem(membase,size,outbase,outsize,outputfile,crlfconv)
-char *membase;
-long size;
-char **outbase;
-long *outsize;
-char *outputfile;
-int crlfconv;
+int dechufmem(char *membase, long size, char **outbase, long *outsize, char *outputfile, int crlfconv)
 {
   int error;
   char *ptr;
@@ -1235,4 +1209,3 @@ int crlfconv;
   }
   return(error);
 }
-

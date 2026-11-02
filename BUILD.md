@@ -1,7 +1,10 @@
 # Building TNT on Modern Linux Systems
 
 ## Overview
-TNT (Hostmode Terminal for TNC) is a legacy application originally written in Pascal and translated to C using the p2c translator. The codebase uses old-style K&R function definitions. The configure script now probes for compiler options that keep those legacy declarations compatible with modern C compilers.
+TNT (Hostmode Terminal for TNC) uses typed C function declarations and
+definitions, including the legacy code translated from Pascal. It builds with
+modern GCC without suppressing implicit declarations or old-style definitions.
+Configure respects the compiler's default C dialect and explicit user flags.
 
 ## Compilation Instructions
 
@@ -22,6 +25,11 @@ TNT (Hostmode Terminal for TNC) is a legacy application originally written in Pa
 2. **Configure the project:**
    ```bash
    ./configure
+   ```
+
+   To build TNT without opening or polling a serial/soft-TNC device, configure with:
+   ```bash
+   ./configure --disable-serial
    ```
 
 3. **Compile:**
@@ -66,15 +74,30 @@ autoreconf -fi
 make
 ```
 
-## Compiler Flags Explanation
+## Compiler Checks and Tests
 
-The configure script probes for these non-standard compiler flags when the compiler supports them:
+Configure enables `-Wall`, `-Wextra`, `-Wstrict-prototypes` and
+`-Wold-style-definition` when supported. No legacy-warning suppressions or
+forced pre-C23 dialect are added.
 
-- **`-std=gnu99`**: Uses GNU C99 standard instead of strict C99. This allows POSIX extensions and old-style function definitions to compile without errors.
+To treat these warnings as errors during compilation:
 
-- **`-Wno-implicit-int`**: Suppresses warnings about implicit integer types in old-style function parameter declarations.
+```bash
+make CFLAGS="$(sed -n 's/^CFLAGS = //p' Makefile) -Werror"
+make check
+```
 
-- **`-Wno-old-style-definition`**: Allows K&R-style function definitions where parameters are declared after the parameter list, a common pattern in code translated from Pascal.
+Run configure normally before this strict build: some historical Autoconf
+feature probes deliberately compile snippets that warn on current compilers.
+The tests compile extracted production functions with AddressSanitizer and
+UndefinedBehaviorSanitizer. They cover typed screen callbacks, character
+conversion, byte output, compression round trips, AX25UDP endpoint parsing,
+process-file path limits and the INP/NET-ROM monitor.
+They run offline and do not open a TNC or connect to a node.
+
+Verified configurations: GCC 12 on Debian 12/ARM64, GCC 16 with its default
+C23 dialect on x86_64 (also with `--enable-ax25k2`), and Clang 23/C23 with
+`--disable-serial`. All were compiled with the enabled warnings as errors.
 
 ## Build Artifacts
 
@@ -85,18 +108,11 @@ After successful compilation, the following executables will be created:
 - `src/runprgs/help` - Help utility
 - `src/runprgs/info` - Information utility
 
-## Why These Flags Are Needed
-
-Modern C23-era compilers can interpret empty parameter lists `()` in function declarations as accepting exactly 0 arguments, not variable arguments. The TNT codebase contains many function declarations and definitions using old-style parameters. The configure-time checks allow:
-
-1. Old-style K&R function definitions to be recognized
-2. POSIX functions like `popen()` to be available without triggering errors
-3. Legacy code patterns from the Pascal-to-C translation to compile successfully
-
 ## Troubleshooting
 
 **Error: "too many arguments for function"**
-- Run `autoreconf -fi` and `./configure` again so the compatibility checks refresh generated Makefiles.
+- Make sure all source files are from the same revision, then run
+  `autoreconf -fi` and `./configure` again.
 
 **Error: "implicit declaration of function"**
 - Make sure you have the required development libraries installed (ncurses, gettext)

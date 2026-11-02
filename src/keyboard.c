@@ -21,61 +21,61 @@
 
 /* external function declarations */
 extern void sel_connect(int channel);
-extern void sel_monitor();
-extern void sel_command();
-extern void sel_heardlist();
+extern void sel_monitor(void);
+extern void sel_command(void);
+extern void sel_heardlist(void);
 extern void sel_xmon(int xmon_channel);
-extern void sel_boxlist();
-extern void sel_help();
-extern int analyse_remstr();
-extern void beep();
-extern void blist_charout_cntl();
-extern void blist_keypressed();
-extern void cmd_charout();
-extern void cmd_charout_nobnd();
-extern void cmd_display();
-extern int cmd_newline();
-extern int conv_local_to_umlaut();
-extern int data_allowed();
-extern void frontend_exit();
-extern void heard_charout_cntl();
-extern void help_charout_cntl();
-extern void insert_cr_rx();
-extern void mb_charout();
-extern void mb_charout_cntl();
-extern void mb_charout_nobnd();
-extern void mb_input();
-extern int mb_lineend();
-extern int mb_newline();
-extern int mb_wordwrap();
-extern void open_dwnfile();
-extern void pre_charout();
-extern void pre_charout_cntl();
-extern void pre_charout_nobnd();
-extern int pre_lineend();
-extern int pre_newline();
-extern int pre_wordwrap();
-extern int queue_cmd_data();
-extern void real_window_bot();
-extern void real_window_down();
-extern void real_window_top();
-extern void real_window_up();
-extern void reinit_screen();
-extern void rem_data_display();
-extern void rem_data_display_buf();
-extern int rem_datei_display();
-extern void rem_mb_display_buf();
-extern void sel_connect_force();
-extern void statlin_update();
-extern void write_file();
-extern void xm_charout();
-extern void xm_charout_nobnd();
-extern int xm_newline();
+extern void sel_boxlist(void);
+extern void sel_help(void);
+extern int analyse_remstr(int channel, char *remstring, int autost);
+extern void beep(void);
+extern void blist_charout_cntl(int channel, char ch);
+extern void blist_keypressed(int channel,char ch);
+extern void cmd_charout(int channel , char ch);
+extern void cmd_charout_nobnd(int channel , char ch);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern int cmd_newline(int channel , char *str);
+extern int conv_local_to_umlaut(char code, char *newcode1, char *newcode2);
+extern int data_allowed(int channel);
+extern void frontend_exit(int deact);
+extern void heard_charout_cntl(char ch);
+extern void help_charout_cntl(char ch);
+extern void insert_cr_rx(int channel);
+extern void mb_charout(char ch);
+extern void mb_charout_cntl(char ch);
+extern void mb_charout_nobnd(char ch);
+extern void mb_input(char *str, int len);
+extern int mb_lineend(void);
+extern int mb_newline(char *str);
+extern int mb_wordwrap(char *str);
+extern void open_dwnfile(int *state);
+extern void pre_charout(int channel, char ch);
+extern void pre_charout_cntl(int channel, char ch);
+extern void pre_charout_nobnd(int channel, char ch);
+extern int pre_lineend(int channel);
+extern int pre_newline(int channel, char *str);
+extern int pre_wordwrap(int channel, char *str);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void real_window_bot(int part);
+extern void real_window_down(int part, int page);
+extern void real_window_top(int part);
+extern void real_window_up(int part, int page);
+extern void reinit_screen(void);
+extern void rem_data_display(int channel, char *buffer);
+extern void rem_data_display_buf(int channel, char *buffer, int len);
+extern int rem_datei_display(int channel, char *filename);
+extern void rem_mb_display_buf(char *buffer, int len);
+extern void sel_connect_force(int channel);
+extern void statlin_update(void);
+extern void write_file(int channel, int len, int flag, char *str);
+extern void xm_charout(int screen, char ch);
+extern void xm_charout_nobnd(int screen, char ch);
+extern int xm_newline(int screen, char *str);
 
 extern void write_last_n_lines(int channel, int nLines , FILE *f);
 
 #ifdef USE_IFACE
-extern void sel_mailbox();
+extern void sel_mailbox(void);
 #endif
 
 static char lastGPGPEDITfilename[257]; /* dg9ep */
@@ -110,36 +110,36 @@ static char tnc_string[257];
 struct macro_string { char string[100]; };
 static struct macro_string macro_strings[MACRO_MAX+1];
 
-extern void open_logfile();
-extern void close_file();
-void exit_tnt();
-static void cmd_flag();
-static void cmd_chdir();
-static void cmd_cwdir();
-extern void cmd_iface();
-extern void cmd_endiface();
-extern void cmd_actiface();
-extern void cmd_deactiface();
-extern void cmd_finiface();
-extern void cmd_box();
-extern void cmd_xbox();
-extern void cmd_blrestore();
-extern void cmd_showblsv();
-extern void cmd_blflush();
-extern void cmd_endbox();
-extern void cmd_actbox();
-extern void cmd_deactbox();
-extern void cmd_finbox();
-static void cmd_kmacro();
-static void cmd_selscreen();
-extern void cmd_logblist();
-extern void cmd_blist();
-extern void cmd_xblist();
-static void cmd_value();
-static void cmd_string();
-extern void list_filenames();
-extern void cmd_lsblcmd();
-extern void cmd_ldblcmd();
+extern void open_logfile(int type, int flag, int channel, int len, int mode, char *str);
+extern void close_file(int par1, int par2 , int channel, int len , int mode, char *str);
+void exit_tnt(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_flag(int par1, int par2 , int channel, int len, int mode, char *str);
+static void cmd_chdir(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_cwdir(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_iface(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_endiface(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_actiface(int par1, int par2, int channel, int len, int mode, char *str);
+extern void cmd_deactiface(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_finiface(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_box(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_xbox(int par1, int par2 , int channel, int len, int mode, char *str);
+extern void cmd_blrestore(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_showblsv(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_blflush(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_endbox(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_actbox(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_deactbox(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_finbox(int par1, int par2, int channel, int len , int mode, char *str);
+static void cmd_kmacro(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_selscreen(int par1 , int par2 , int channel, int len, int mode, char *str);
+extern void cmd_logblist(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_blist(int par1, int par2 , int channel, int len, int mode, char *str);
+extern void cmd_xblist(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_value(int par1, int par2 , int channel, int len, int mode, char *str);
+static void cmd_string(int par1, int par2 , int channel, int len, int mode, char *str);
+extern void list_filenames(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_lsblcmd(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_ldblcmd(int par1 , int par2 , int channel, int len , int mode, char *str);
 
 #else /* DPBOXT */
 
@@ -185,118 +185,118 @@ static char tnc_string[257];
 struct macro_string { char string[100]; };
 static struct macro_string macro_strings[MACRO_MAX+1];
 
-extern void open_logfile();
-extern void close_file();
-extern void open_comscript();
-extern void open_sendfile();
-extern void break_send();
-extern void rem_time();
-extern void rem_cookie();
-extern void rem_session();
-extern void rem_setmsg();
-extern void cmd_tellmsg();
-extern void init_session();
-extern void exit_session();
-extern void rem_tell_da();
-extern void rem_tell_weg();
-extern void rem_tell_600();
-extern void rem_tell_klo();
-extern void rem_tell_gnd();
-extern void rem_sendonact();
-extern void rem_rtt();
-extern void cmd_shell();
-extern void cmd_endshell();
-extern void cmd_redir();
+extern void open_logfile(int type, int flag, int channel, int len, int mode, char *str);
+extern void close_file(int par1, int par2 , int channel, int len , int mode, char *str);
+extern void open_comscript(int par1 , int par2 , int channel , int len , int mode , char *str);
+extern void open_sendfile(int type, int par2, int channel, int len, int mode, char *str);
+extern void break_send(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void rem_time(int par1 , int par2 , int channel, int len , int mode , char *str);
+extern void rem_cookie(int par1, int par2, int channel, int len , int mode, char *str);
+extern void rem_session(int par1 , int par2 , int channel, int len , int mode , char *str);
+extern void rem_setmsg(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_tellmsg(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void init_session(void);
+extern void exit_session(void);
+extern void rem_tell_da(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void rem_tell_weg(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void rem_tell_600(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void rem_tell_klo(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void rem_tell_gnd(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void rem_sendonact(void);
+extern void rem_rtt(int par1 , int par2 , int channel, int len, int mode, char *str);
+extern void cmd_shell(int par1, int par2, int channel, int len, int mode, char *str);
+extern void cmd_endshell(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_redir(int par1 , int par2 , int channel, int len , int mode, char *str);
 #ifdef HAVE_SOCKET
-extern void cmd_sockconn();
+extern void cmd_sockconn(int par1, int par2, int channel, int len , int mode, char *str);
 #endif /* HAVE_SOCKET */
-void exit_tnt();
-static void cmd_signon();
-static void cmd_ctrltx(); /* DH3MB */
-static void quit_tnt();
-static void cmd_settime();
-static void cmd_setdate();
-static void cmd_flag();
-static void cmd_mycall();
-static void cmd_tnc();
-extern void rem_ctext();
-extern void rem_name();
-static void cmd_chdir();
-static void cmd_gpgpedit();  /* dg9ep 98 */
-static void cmd_cwdir();
-static void cmd_resync();
-extern void cmd_xconnect();
-extern void cmd_run();
+void exit_tnt(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_signon(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_ctrltx(int par1 , int par2 , int channel, int len , int mode , char *str); /* DH3MB */
+static void quit_tnt(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_settime(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_setdate(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_flag(int par1, int par2 , int channel, int len, int mode, char *str);
+static void cmd_mycall(int par1 , int par2 , int channel, int len, int mode, char *str);
+static void cmd_tnc(int par1 , int par2 , int channel, int len, int mode, char *str);
+extern void rem_ctext(int par1 , int par2, int channel, int len , int mode, char *str);
+extern void rem_name(int par1 , int par2 , int channel, int len, int mode, char *str);
+static void cmd_chdir(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_gpgpedit(int par1, int par2 , int channel, int len , int mode, char *str);  /* dg9ep 98 */
+static void cmd_cwdir(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_resync(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_xconnect(int par1, int par2, int channel, int len, int mode, char *str);
+extern void cmd_run(int par1, int par2, int channel, int len, int mode, char *str);
 #ifdef HAVE_SOCKET
-extern void cmd_socket();
-extern void cmd_endsock();
+extern void cmd_socket(int par1 , int par2 , int channel, int len, int mode, char *str);
+extern void cmd_endsock(int par1 , int par2 , int channel, int len , int mode, char *str);
 #endif /* HAVE_SOCKET */
 #ifdef USE_IFACE
-extern void cmd_iface();
-extern void cmd_endiface();
-extern void cmd_actiface();
-extern void cmd_deactiface();
-extern void cmd_finiface();
-extern void cmd_box();
-extern void cmd_xbox();
-extern void cmd_blrestore();
-extern void cmd_showblsv();
-extern void cmd_blflush();
-extern void cmd_endbox();
-extern void cmd_actbox();
-extern void cmd_deactbox();
-extern void cmd_finbox();
-extern void cmd_monboxlist();
-extern void cmd_ldboxfil();
+extern void cmd_iface(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_endiface(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_actiface(int par1, int par2, int channel, int len, int mode, char *str);
+extern void cmd_deactiface(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_finiface(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_box(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_xbox(int par1, int par2 , int channel, int len, int mode, char *str);
+extern void cmd_blrestore(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_showblsv(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_blflush(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_endbox(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_actbox(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_deactbox(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_finbox(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_monboxlist(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_ldboxfil(int par1 , int par2 , int channel, int len , int mode, char *str);
 #endif /* USE_IFACE */
-static void cmd_kmacro();
-static void cmd_selscreen();
-extern void cmd_msend();
-extern void cmd_extmon();
-extern void cmd_endextmon();
-extern void cmd_logblist();
-extern void cmd_blist();
-extern void cmd_xblist();
-extern void open_monfile();
-extern void close_monfile();
-extern void open_xmonfile();
-extern void close_xmonfile();
-extern void cmd_concall();
-extern void cmd_priv();
-extern void cmd_loadpriv();
-extern void cmd_listpriv();
-extern void cmd_loadsys();
-extern void cmd_listsys();
-extern void cmd_ldnoremo();
-extern void cmd_lstnorem();
-extern void cmd_ldflchk();
-extern void cmd_lstflchk();
-extern void cmd_ldnotown();
-extern void cmd_lsnotown();
-extern void cmd_ldautostart();
-extern void cmd_lsautostart();
-extern void cmd_ldextrem();
-extern void cmd_lsextrem();
-static void cmd_value();
-static void cmd_string();
-extern void cmd_comp();
-extern void cmd_extcomp();
-extern void cmd_qrg();
-extern void cmd_setacc();
-static void cmd_free();
-extern void send_bcfile();
-extern void list_filenames();
-extern void cmd_chanstat();
+static void cmd_kmacro(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_selscreen(int par1 , int par2 , int channel, int len, int mode, char *str);
+extern void cmd_msend(int par1 , int par2, int channel, int len , int mode, char *str);
+extern void cmd_extmon(int par1, int par2 , int channel, int len , int mode, char *str);
+extern void cmd_endextmon(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_logblist(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_blist(int par1, int par2 , int channel, int len, int mode, char *str);
+extern void cmd_xblist(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void open_monfile(int type, int flag, int channel, int len , int mode, char *str);
+extern void close_monfile(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void open_xmonfile(int type, int flag, int channel, int len , int mode, char *str);
+extern void close_xmonfile(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_concall(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_priv(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_loadpriv(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_listpriv(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_loadsys(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_listsys(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_ldnoremo(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_lstnorem(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_ldflchk(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_lstflchk(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_ldnotown(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_lsnotown(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_ldautostart(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_lsautostart(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_ldextrem(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_lsextrem(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_value(int par1, int par2 , int channel, int len, int mode, char *str);
+static void cmd_string(int par1, int par2 , int channel, int len, int mode, char *str);
+extern void cmd_comp(int par1 , int par2 , int channel, int len, int mode, char *str);
+extern void cmd_extcomp(int par1 , int par2 , int channel, int len, int mode, char *str);
+extern void cmd_qrg(int par1 , int par2 , int channel, int len, int mode, char *str);
+extern void cmd_setacc(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void cmd_free(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void send_bcfile(int par1 , int par2 , int channel, int len, int mode, char *str);
+extern void list_filenames(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_chanstat(int par1 , int par2, int channel, int len , int mode, char *str);
 #ifdef USE_IFACE
-extern void cmd_scanmbeacon();
-extern void cmd_accuicall();
+extern void cmd_scanmbeacon(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_accuicall(int par1 , int par2 , int channel, int len, int mode, char *str);
 #endif /* USE_IFACE */
 #ifdef BCAST
-extern void cmd_bcrxstat();
-extern void cmd_bctxstat();
+extern void cmd_bcrxstat(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_bctxstat(int par1 , int par2 , int channel, int len , int mode, char *str);
 #endif /* BCAST */
-extern void cmd_lsblcmd();
-extern void cmd_ldblcmd();
+extern void cmd_lsblcmd(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_ldblcmd(int par1 , int par2 , int channel, int len , int mode, char *str);
 #endif /* DPBOXT */
 
 /* values for flag command */
@@ -795,31 +795,42 @@ static struct com_list xm_com_list[] = {
 };
 #endif
 
+#ifndef DPBOXT
+static void select_current_connect(void)
+{
+  sel_connect(act_channel);
+}
+
+static void select_current_xmon(void)
+{
+  sel_xmon(xmon_screen);
+}
+#endif
+
 struct screen_list {
   char *screen;
   int scrlen;
-  void (*func)();
-  int addchan;
+  void (*func)(void);
 };
 
 static struct screen_list screen_list[] = {
 #ifndef DPBOXT
-  {"CONNECT",3,sel_connect,1},
-  {"COMMAND",3,sel_command,0},
-  {"MONITOR",4,sel_monitor,0},
-  {"HEARD",3,sel_heardlist,0},
-  {"EXTMONI",3,sel_xmon,2},
+  {"CONNECT",3,select_current_connect},
+  {"COMMAND",3,sel_command},
+  {"MONITOR",4,sel_monitor},
+  {"HEARD",3,sel_heardlist},
+  {"EXTMONI",3,select_current_xmon},
 #endif
-  {"HELP",3,sel_help,0},
-  {"BOXLIST",4,sel_boxlist,0},
+  {"HELP",3,sel_help},
+  {"BOXLIST",4,sel_boxlist},
 #if defined(DPBOXT) || defined (USE_IFACE)
-  {"MAILBOX",3,sel_mailbox,0},
+  {"MAILBOX",3,sel_mailbox},
 #endif
-  {"",0,NULL,0}
+  {"",0,NULL}
 };
 
 
-void init_keyboard()
+void init_keyboard(void)
 {
   txecho_flag = 1;
 #ifndef DPBOXT
@@ -868,7 +879,7 @@ void init_keyboard()
   cmd_kmacro(0,0,0,0,M_CMDSCRIPT,NULL); /* init keyboard macros */ 
 }
 
-void exit_keyboard()
+void exit_keyboard(void)
 {
   if (!tnt_daemon) {
     tcsetattr(0,TCSADRAIN,&okbd_termios);
@@ -877,12 +888,7 @@ void exit_keyboard()
 }
 
 /* analyse input-string (command) */
-void cmd_input(channel,mode,str,len,cscript)
-int channel;
-int mode;
-char *str;
-int len;
-int cscript;
+void cmd_input(int channel, int mode, char *str, int len, int cscript)
 {
   char com_string[9];
   int found;
@@ -997,10 +1003,8 @@ int cscript;
   return;
 }
 
-void exit_tnt(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void exit_tnt(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
 #ifndef DPBOXT
   if (mode == M_REMOTE) {
     if (ax25k_active) {
@@ -1022,10 +1026,8 @@ char *str __attribute__((unused));{
 }
 
 #ifndef DPBOXT
-void quit_tnt(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void quit_tnt(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if (!tnt_daemon || (tnt_daemon && !frontend_active)) {
     cmd_display(mode,channel, _("Invalid command"),1);
     return;
@@ -1037,10 +1039,7 @@ char *str __attribute__((unused));{
 
 #ifndef DPBOXT
 /* analyse input-string (data) */
-void dat_input(channel,str,len)
-int channel;
-char *str;
-int len;
+void dat_input(int channel, char *str, int len)
 {
   int flag;
   
@@ -1050,9 +1049,7 @@ int len;
 }
 #endif
 
-void keyboard_server(state,ch)
-int *state;
-char *ch;
+void keyboard_server(int *state, char *ch)
 {
   int i;
   int found;
@@ -1638,10 +1635,8 @@ char *ch;
 }
 
 #ifndef DPBOXT
-static void cmd_settime(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void cmd_settime(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   struct tm *timestr;
   time_t timeval;
   char tmpstr[11];
@@ -1654,10 +1649,8 @@ char *str __attribute__((unused));{
   tnc_command = 1;
 }
 
-static void cmd_setdate(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void cmd_setdate(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   struct tm *timestr;
   time_t timeval;
   char tmpstr[11];
@@ -1671,12 +1664,7 @@ char *str __attribute__((unused));{
 }
 #endif
 
-static void cmd_flag(par1,par2,channel,len,mode,str)
-int par1;
-int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+static void cmd_flag(int par1, int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   int *flag = NULL;
   int i;
@@ -1864,12 +1852,7 @@ char *str;
   cmd_display(mode,channel, _("INVALID VALUE"),1);
 }
 
-static void cmd_value(par1,par2,channel,len,mode,str)
-int par1;
-int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+static void cmd_value(int par1, int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   int *value = NULL;
   int max = 0;
@@ -1942,12 +1925,7 @@ char *str;
   cmd_display(mode,channel, _("INVALID VALUE"),1);
 }
 
-static void cmd_string(par1,par2,channel,len,mode,str)
-int par1;
-int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+static void cmd_string(int par1, int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
 #ifndef DPBOXT
   char *chgstr = rem_noacc_str;
@@ -1981,11 +1959,7 @@ char *str;
 
 #ifndef DPBOXT
 /* Set permanent mycall */
-static void cmd_mycall(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+static void cmd_mycall(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   int i;
   int j;
@@ -2028,11 +2002,7 @@ char *str;
 }
 
 /* Send TNC command */
-static void cmd_tnc(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+static void cmd_tnc(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   if (len) {
     tnc_command = 1;
@@ -2047,10 +2017,7 @@ char *str;
 #endif
 
 /* Change directory */
-static void cmd_chdir(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+static void cmd_chdir(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int result;
   char *dir;
@@ -2068,10 +2035,8 @@ char *str;
 }
 
 /* Display working directory */
-static void cmd_cwdir(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void cmd_cwdir(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   char dir[MAXCHAR];
   
   if (getcwd(dir,MAXCHAR) == NULL) {
@@ -2084,10 +2049,8 @@ char *str __attribute__((unused));{
 
 #ifndef DPBOXT
 /* Display number of resyncs up to now */
-static void cmd_resync(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void cmd_resync(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   char number[MAXCHAR];
   
   sprintf(number, _("Resyncs: %d"),resync_count);
@@ -2127,10 +2090,8 @@ char *str __attribute__((unused));{
 }
 
 /* Display number of free buffers */
-static void cmd_free(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void cmd_free(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   char number[20];
   
   sprintf(number,"%d",free_buffers);
@@ -2138,18 +2099,14 @@ char *str __attribute__((unused));{
 }
 
 /* show signon (TNT-version) */
-static void cmd_signon(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void cmd_signon(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   cmd_display(mode,channel,signon,1);
 }
 #endif
 
 /* DH3MB: send a control-character */
-static void cmd_ctrltx(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str;
+static void cmd_ctrltx(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str)
 { char tx_buf[2];
   tx_buf[0]=toupper(str[0]);
   if(tx_buf[0]>='@' && tx_buf[0]<='Z') {
@@ -2164,10 +2121,8 @@ int len __attribute__((unused));int mode __attribute__((unused));char *str;
 }
 
 /* Read in keyboard-macros file */
-static void cmd_kmacro(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void cmd_kmacro(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int x;
   FILE *fp;
   char tmp[100], tmp2[100];
@@ -2201,11 +2156,7 @@ char *str __attribute__((unused));{
 
 
 /* Select a screen */
-static void cmd_selscreen(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+static void cmd_selscreen(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   char *screen;
   int i;
@@ -2219,19 +2170,7 @@ char *str;
       cmplen = screen_list[i].scrlen;
       if (len > screen_list[i].scrlen) cmplen = len;
       if (strncmp(screen_list[i].screen,screen,cmplen) == 0) {
-        switch (screen_list[i].addchan) {
-        case 0:
-          (screen_list[i].func)();
-          break;
-#ifndef DPBOXT
-        case 1:
-          (screen_list[i].func)(act_channel);
-          break;
-        case 2:
-          (screen_list[i].func)(xmon_screen);
-          break;
-#endif
-        }
+        (screen_list[i].func)();
         cmd_display(mode,channel,OK_TEXT,1);
         free(screen);
         return;
@@ -2248,11 +2187,7 @@ char *str;
  *           :GPGEDIT [number of lines to quote]
  *           :PGPEDIT [number of lines to quote]
  * dg9ep 98-99 */
-static void cmd_gpgpedit(par1,par2,channel,len,mode,str)
-int par1;
-int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+static void cmd_gpgpedit(int par1, int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int result;
   char cmdline[290];
@@ -2483,4 +2418,3 @@ char *str;
 #endif
 }
 /* end dg9ep */
-

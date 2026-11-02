@@ -32,15 +32,12 @@ static struct codeconv_tab codeconv_tab[] = {
   {0,0,0,0}
 };
 
-void init_conv()
+void init_conv(void)
 {
   umlaut = 1;
 }
 
-int conv_rx_to_local(code,newcode1,newcode2)
-char code;
-char *newcode1;
-char *newcode2;
+int conv_rx_to_local(char code, char *newcode1, char *newcode2)
 {
   int i;
 
@@ -67,10 +64,7 @@ char *newcode2;
   else return(0);
 }
 
-int conv_local_to_tx(code,newcode1,newcode2)
-char code;
-char *newcode1;
-char *newcode2;
+int conv_local_to_tx(char code, char *newcode1, char *newcode2)
 {
   int i;
   
@@ -91,9 +85,7 @@ char *newcode2;
 }
 
 /*
-int conv_umlaut_to_tx(code,newcode)
-char code;
-char *newcode;
+int conv_umlaut_to_tx(char code, char *newcode)
 {
   int i;
   
@@ -109,10 +101,7 @@ char *newcode;
 }
 */
 
-int conv_local_to_umlaut(code,newcode1,newcode2)
-char code;
-char *newcode1;
-char *newcode2;
+int conv_local_to_umlaut(char code, char *newcode1, char *newcode2)
 {
   int i;
   

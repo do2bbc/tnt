@@ -364,7 +364,7 @@ struct com_list {
   char string[9];
   int len;
   int ext_com;
-  void (*func)();
+  void (*func)(int par1, int par2, int channel, int len, int mode, char *str);
   char new_string[4];
   int par1;
   int par2;

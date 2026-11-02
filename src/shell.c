@@ -28,9 +28,9 @@
 
 #define CMDPT "\n\n\007cmd>"      /* prompt string */
 
-void close_shell();
+void close_shell(int channel, int report, int disc);
 #ifdef HAVE_SOCKET
-static void close_asocket();
+static void close_asocket(ACTIVE_SOCKET *active_socket);
 #endif
 
 extern int tnc_channels;
@@ -49,20 +49,20 @@ extern int file_paclen;
 extern int use_select;
 
 /* external function declarations */
-extern void close_xconnect_2();
-extern void cmd_display();
-extern void cmd_input();
-extern void cmd_xconnect();
-extern void dat_input();
-extern int find_free_channel();
-extern int iface_active();
-extern int queue_cmd_data();
-extern void rem_data_display_buf();
-extern void rem_dir();
-extern int senddata_allowed();
-extern void strip_call_log();
-extern void update_owncall();
-extern int write_socket();
+extern void close_xconnect_2(int channel, int success, int noaction);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void cmd_input(int channel, int mode, char *str, int len, int cscript);
+extern void cmd_xconnect(int par1, int par2, int channel, int len, int mode, char *str);
+extern void dat_input(int channel, char *str, int len);
+extern int find_free_channel(void);
+extern int iface_active(int channel);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void rem_data_display_buf(int channel, char *buffer, int len);
+extern void rem_dir(int par1, int par2, int channel, int len , int mode, char *str);
+extern int senddata_allowed(int channel);
+extern void strip_call_log(char *call, int channel);
+extern void update_owncall(int channel, char *call);
+extern int write_socket(ACTIVE_SOCKET *active_socket, int len, char *str, int noconv);
 
 char rem_not_conn_txt[] = "Only while connected";
 static char only_root_txt[] = "Only available if TNT is started as root";
@@ -73,7 +73,7 @@ static struct sockaddr_in cli_addr;
 static socklen_t clilen;
 struct sock_data *sd;
 extern char sock_passfile[];
-extern void sigalarm();
+extern void sigalarm(int signum);
 
 static union {
   struct sockaddr sa;
@@ -109,7 +109,7 @@ extern char iface_active_txt[];
 #endif
 
 
-static long secclock()
+static long secclock(void)
 {
   struct timeval tv;
   struct timezone tz;
@@ -118,9 +118,7 @@ static long secclock()
   return(tv.tv_sec);
 }
 
-static int find_pty(numptr, slave)
-int *numptr;
-char *slave;
+static int find_pty(int *numptr, char *slave)
 {
 
   char master[MAXCHAR];
@@ -142,8 +140,7 @@ char *slave;
   return (-1);
 }
 
-static void restore_pty(id)
-const char *id;
+static void restore_pty(const char *id)
 {
   char filename[MAXCHAR];
 
@@ -155,7 +152,7 @@ const char *id;
   chmod(filename, 0666);
 }
 
-void fixutmpfile()
+void fixutmpfile(void)
 {
 
 #ifdef USER_PROCESS
@@ -179,8 +176,7 @@ void fixutmpfile()
 #endif
 }
 
-static int callvalid(call)
-const char *call;
+static int callvalid(const char *call)
 {
   int d, l;
 
@@ -198,8 +194,7 @@ const char *call;
   return 1;
 }
 
-static char *find_user_name(name)
-const char *name;
+static char * find_user_name(const char *name)
 {
 
   char *cp;
@@ -214,9 +209,8 @@ const char *name;
   }
 }
 
-struct passwd *getpasswdentry(name, create)
-const char *name;
-int create __attribute__((unused));{
+struct passwd * getpasswdentry(const char *name, int create __attribute__((unused)))
+{
 #ifdef GEN_NEW_USER
   FILE *fp;
   char bitmap[unix_user_max];
@@ -282,13 +276,7 @@ int create __attribute__((unused));{
 }
 
 /* open a shell on the current channel */
-void cmd_shell(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+void cmd_shell(int par1, int par2, int channel, int len, int mode, char *str)
 {
 
   char *env = 0;
@@ -415,10 +403,7 @@ char *str;
 }
 
 /* redirect the current channel */
-void cmd_redir(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_redir(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
 
   char ans_str[MAXCHAR];
@@ -453,13 +438,7 @@ char *str;
 }
 
 /* run a program on the current channel */
-void cmd_run(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+void cmd_run(int par1, int par2, int channel, int len, int mode, char *str)
 {
 
   char *envp[4];
@@ -659,9 +638,7 @@ static void strtoupper(char *str)
 }
 
 /* this procedure converts all EOL-sequences CR,CR/LF,LF to a single CR */ 
-static int conv_tocr(str,len)
-char *str;
-int len;
+static int conv_tocr(char *str, int len)
 {
   int i,j;
   int lastcr;
@@ -694,9 +671,7 @@ int len;
 }
 
 /* this procedure converts all EOL-sequences CR,CR/LF,LF to a single LF */ 
-static int conv_tolf(str,len)
-char *str;
-int len;
+static int conv_tolf(char *str, int len)
 {
   int i,j;
   int lastcr;
@@ -728,12 +703,7 @@ int len;
   return(j);
 }
 
-void cmd_sockconn(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_sockconn(int par1, int par2, int channel, int len __attribute__((unused)), int mode, char *str)
 {
   struct sockaddr *saddr;
   int saddrlen;
@@ -770,11 +740,7 @@ char *str;
   cmd_display(mode,channel,OK_TEXT,1);
 }
 
-void cmd_socket(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void cmd_socket(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   struct sockaddr *saddr;
   int saddrlen;
@@ -924,10 +890,7 @@ char *str;
 }
 #endif
 
-static int check_buffer_cmd(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+static int check_buffer_cmd(int channel, char *buffer, int len)
 {
 #ifdef HAVE_SOCKET
   ACTIVE_SOCKET *active_socket;
@@ -973,18 +936,14 @@ int len;
   return(0);
 }
 
-void dat_input_pty(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+void dat_input_pty(int channel, char *buffer, int len)
 {
   if (check_buffer_cmd(channel,buffer,len)) return;
   if (ptyecho_flag) rem_data_display_buf(channel,buffer,len);
   dat_input(channel,buffer,len);
 }
 
-static int send_immediate(channel)
-int channel;
+static int send_immediate(int channel)
 {
   char ch;
 #ifdef HAVE_SOCKET
@@ -1000,10 +959,7 @@ int channel;
   return(0);
 }
 
-void pty_send_data(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+void pty_send_data(int channel, char *buffer, int len)
 {
   int tmp_len;
   
@@ -1038,8 +994,7 @@ int len;
   }
 }
 
-void pty_check_timeout(channel)
-int channel;
+void pty_check_timeout(int channel)
 {
   if (!sh_stat[channel].buflen) return;
   if ((time(NULL) - sh_stat[channel].bufupdate) >= pty_timeout) {
@@ -1048,8 +1003,7 @@ int channel;
   }
 }
 
-static int read_data_pty(channel)
-int channel;
+static int read_data_pty(int channel)
 {
   char buffer[PACKETSIZE];
   int len;
@@ -1081,11 +1035,7 @@ int channel;
 }
 
 #ifdef HAVE_SOCKET
-static int add_new_char(active_socket,bufpos,actlen,error)
-ACTIVE_SOCKET *active_socket;
-char **bufpos;
-int *actlen;
-int *error;
+static int add_new_char(ACTIVE_SOCKET *active_socket, char **bufpos, int *actlen, int *error)
 {
   char newch;
 
@@ -1113,8 +1063,7 @@ int *error;
   return(0);
 }
 
-void socksetup_to_conn(channel)
-int channel;
+void socksetup_to_conn(int channel)
 {
   ACTIVE_SOCKET *active_socket;
   char tmp[100];
@@ -1151,8 +1100,7 @@ int channel;
   }
 }
 
-void socksetup_timeout(channel)
-int channel;
+void socksetup_timeout(int channel)
 {
   ACTIVE_SOCKET *active_socket;
   char tmp[100];
@@ -1185,9 +1133,7 @@ int channel;
   }
 }
 
-static void abort_socksetup(active_socket,mess)
-ACTIVE_SOCKET *active_socket;
-int mess;
+static void abort_socksetup(ACTIVE_SOCKET *active_socket, int mess)
 {
   char tmp[100];
 
@@ -1215,10 +1161,7 @@ int mess;
   }
 }
 
-static void ana_server_command(active_socket,bufpos,len)
-ACTIVE_SOCKET *active_socket;
-char *bufpos;
-int len;
+static void ana_server_command(ACTIVE_SOCKET *active_socket, char *bufpos, int len)
 {
   char buffer[257];
   char tmp[300];
@@ -1348,7 +1291,7 @@ int len;
   case '\r':
     switch (active_socket->login_stat) {
     case LS_SETUP:
-      abort_socksetup(active_socket);
+      abort_socksetup(active_socket,1);
       break;
     case LS_ACTCMD:
       sprintf(tmp, _("* Back to converse mode *\n"));
@@ -1362,7 +1305,7 @@ int len;
     break;
   default:
     if (active_socket->login_stat == LS_SETUP) {
-      abort_socksetup(active_socket);
+      abort_socksetup(active_socket,1);
     }
     else {
       error = 1;
@@ -1381,10 +1324,7 @@ int len;
   }
 }
 
-static void handle_socket_rxdata(active_socket,buffer,len)
-ACTIVE_SOCKET *active_socket;
-char *buffer;
-int len;
+static void handle_socket_rxdata(ACTIVE_SOCKET *active_socket, char *buffer, int len)
 {
   int actlen;
   char *bufpos;
@@ -1568,8 +1508,7 @@ int len;
   }
 }
 
-static int read_data_socket(active_socket)
-ACTIVE_SOCKET *active_socket;
+static int read_data_socket(ACTIVE_SOCKET *active_socket)
 {
   char buffer[PACKETSIZE];
   int len;
@@ -1596,11 +1535,7 @@ ACTIVE_SOCKET *active_socket;
 }
 #endif
 
-void close_shell2(channel,report,disc,errmode)
-int channel;
-int report;
-int disc;
-int errmode;
+void close_shell2(int channel, int report, int disc, int errmode)
 {
   char slave[MAXCHAR];
   int fdut = -1;
@@ -1746,19 +1681,14 @@ int errmode;
   sh_stat[channel].active = 0;
 }
 
-void close_shell(channel,report,disc)
-int channel;
-int report;
-int disc;
+void close_shell(int channel, int report, int disc)
 {
   close_shell2(channel,report,disc,M_COMMAND);
 }
 
 #ifdef HAVE_SOCKET
 /* activate connection on socket */
-static int open_asocket(listen_socket,sockfd)
-LISTEN_SOCKET *listen_socket;
-int sockfd;
+static int open_asocket(LISTEN_SOCKET *listen_socket, int sockfd)
 {
   ACTIVE_SOCKET *active_socket;
   char tmp[300];
@@ -1808,8 +1738,7 @@ int sockfd;
 }
 
 /* deactivate connection on socket */
-static void close_asocket(active_socket)
-ACTIVE_SOCKET *active_socket;
+static void close_asocket(ACTIVE_SOCKET *active_socket)
 {
   ACTIVE_SOCKET *active_socket_wrk;
   
@@ -1891,8 +1820,7 @@ ACTIVE_SOCKET *active_socket;
   free(active_socket);
 }
 
-static void close_socket(listen_socket)
-LISTEN_SOCKET *listen_socket;
+static void close_socket(LISTEN_SOCKET *listen_socket)
 {
   ACTIVE_SOCKET *active_socket;
   ACTIVE_SOCKET *next_active_socket;
@@ -1927,10 +1855,7 @@ LISTEN_SOCKET *listen_socket;
 }
 
 /* close a socket and all connections using it */
-void cmd_endsock(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_endsock(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int found;
   LISTEN_SOCKET *listen_socket;
@@ -1958,19 +1883,13 @@ char *str;
 #endif
 
 /* close a shell or redir on the current channel */
-void cmd_endshell(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_endshell(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   close_shell2(channel,1,0,mode);
 }
 
 #ifdef HAVE_SOCKET
-int write_socket(active_socket,len,str,noconv)
-ACTIVE_SOCKET *active_socket;
-int len;
-char *str;
-int noconv;
+int write_socket(ACTIVE_SOCKET *active_socket, int len, char *str, int noconv)
 {
   char buffer[300];
   int newlen;
@@ -1991,9 +1910,7 @@ int noconv;
   return(1);
 }
 
-void connstr_to_socket(channel,str)
-int channel;
-char *str;
+void connstr_to_socket(int channel, char *str)
 {
 
   if (!sh_stat[channel].active) return;
@@ -2007,10 +1924,7 @@ char *str;
 }
 #endif
 
-int write_pty(channel,len,str)
-int channel;
-int len;
-char *str;
+int write_pty(int channel, int len, char *str)
 {
   char buffer[300];
   int newlen;
@@ -2034,8 +1948,7 @@ char *str;
 }
 
 #ifdef HAVE_SOCKET
-static int actsock_data_allowed(active_socket)
-ACTIVE_SOCKET *active_socket;
+static int actsock_data_allowed(ACTIVE_SOCKET *active_socket)
 {
   switch (active_socket->type) {
   case STYP_AXSERV:
@@ -2063,9 +1976,7 @@ ACTIVE_SOCKET *active_socket;
 }
 #endif
 
-void shell_fdset(max_fd,fdmask)
-int *max_fd;
-fd_set *fdmask;
+void shell_fdset(int *max_fd, fd_set *fdmask)
 {
   int channel;
   int fd;
@@ -2109,8 +2020,7 @@ fd_set *fdmask;
 #endif
 }
 
-int shell_receive(fdmask)
-fd_set *fdmask;
+int shell_receive(fd_set *fdmask)
 {
   int channel;
   int result;
@@ -2216,7 +2126,7 @@ fd_set *fdmask;
   return (result);
 }
 
-void init_shell()
+void init_shell(void)
 {
   int i;
   
@@ -2234,7 +2144,7 @@ void init_shell()
   if (is_root) fixutmpfile();
 }
 
-void exit_shell()
+void exit_shell(void)
 {
   int i;
 #ifdef HAVE_SOCKET
@@ -2265,9 +2175,7 @@ void exit_shell()
 }
 
 #ifdef HAVE_SOCKET
-void sock_status_out(channel,str)
-int channel;
-char *str;
+void sock_status_out(int channel, char *str)
 {
   ACTIVE_SOCKET *active_socket;
   char tmpstring[20];
@@ -2288,9 +2196,7 @@ char *str;
 
 #ifdef HAVE_SOCKET
 
-void out_socket(channel,str)
-int channel;
-char *str;
+void out_socket(int channel, char *str)
 {
   char tmpstr[300];
   ACTIVE_SOCKET *active_socket;
@@ -2307,9 +2213,7 @@ char *str;
 }
 
 /* answer to tnt-command */
-void out_cmd_socket(channel,buffer)
-int channel;
-char *buffer;
+void out_cmd_socket(int channel, char *buffer)
 {
   char ans_str[256];
   int ans_len;
@@ -2332,19 +2236,18 @@ char *buffer;
 }
 #endif
 
-int shell_active(channel)
-int channel;
+int shell_active(int channel)
 {
   if (sh_stat[channel].active) return(1);
   return(0);
 }
 
-void free_shell()
+void free_shell(void)
 {
   free(sh_stat);
 }
 
-int alloc_shell()
+int alloc_shell(void)
 {
   sh_stat = (struct shell_stat *)
     malloc(tnc_channels * sizeof(struct shell_stat));

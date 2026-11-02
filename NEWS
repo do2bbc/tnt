@@ -1,3 +1,8 @@
+2026/11/02: Modern C function definitions and complete prototypes.
+            Removed legacy compiler-warning suppressions and forced GNU C99.
+            Corrected callback signatures, character conversion calls and
+            socket argument types. Added sanitizer-backed make check tests.
+
 2000/06/06: TNT 1.9.1 (added subversion .1 because of the many distributed
 		       1.9-versions)
 

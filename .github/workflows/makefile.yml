@@ -34,7 +34,7 @@ jobs:
       run: ./configure
 
     - name: Build
-      run: make
+      run: make CFLAGS="$(sed -n 's/^CFLAGS = //p' Makefile) -Werror"
 
     - name: Run check
       run: make check

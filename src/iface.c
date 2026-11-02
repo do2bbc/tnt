@@ -18,52 +18,52 @@
 typedef unsigned char boolean;
 
 /* external function declarations */
-extern void abort_routing();
-extern void beep();
-extern int calc_xframes();
-extern int close_window();
-extern void cmd_display();
-extern void cmd_input();
-extern void cmd_xconnect();
-extern void cmd_xconnect_ext();
-extern void copy_qrg();
-extern void dat_input();
-extern void end_comp();
-extern void end_ifacexconnect();
-extern void exit_boxcut();
-extern void exit_monbox();
-extern int find_free_channel();
-extern void get_call_log();
-extern void get_call_xc();
-extern void get_chanstr();
-extern int get_line();
-extern void ibcastpopunproto();
-extern void ibcastpushunproto();
-extern void ibcastsend();
-extern void ibcastsetunproto();
-extern void ibcastswitchtobc();
-extern void init_boxcut();
-extern void init_monbox();
-extern void monbox_close();
-extern void next_bid();
-extern int open_window();
-extern int queue_cmd_data();
-extern void real_screen();
-extern void rem_data_display();
-extern void rem_data_display_buf();
-extern int shell_active();
-extern void single_display_buf();
-extern void start_boxbcast();
-extern void start_sf();
-extern void statlin_update();
-extern void update_owncall();
-extern void win_attrib();
-extern void win_charout();
-extern void win_charout_cntl();
-extern void win_stringout();
-extern void win_textout_len();
-extern int wordwrap();
-extern void write_mbfile();
+extern void abort_routing(char *call);
+extern void beep(void);
+extern int calc_xframes(int channel);
+extern int close_window(struct window *win);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void cmd_input(int channel, int mode, char *str, int len, int cscript);
+extern void cmd_xconnect(int par1, int par2, int channel, int len, int mode, char *str);
+extern void cmd_xconnect_ext(int par1, int par2, int par3, int channel, int len, int mode, char *str);
+extern void copy_qrg(char qrg[MAXQRGS-1][20]);
+extern void dat_input(int channel, char *str, int len);
+extern void end_comp(int channel);
+extern void end_ifacexconnect(int iface,int usernr);
+extern void exit_boxcut(void);
+extern void exit_monbox(void);
+extern int find_free_channel(void);
+extern void get_call_log(char *call, int channel);
+extern void get_call_xc(int channel, char *call);
+extern void get_chanstr(char *qrg, char *chanstr);
+extern int get_line(char *str, struct window *win);
+extern void ibcastpopunproto(short tnc);
+extern void ibcastpushunproto(short tnc);
+extern void ibcastsend(short channel, short len, u_char *buffer);
+extern void ibcastsetunproto(short tnc, char *unprstr);
+extern void ibcastswitchtobc(short tnc, boolean y);
+extern void init_boxcut(void);
+extern void init_monbox(void);
+extern void monbox_close(void);
+extern void next_bid(int result, int channel);
+extern int open_window(int lines, struct window *win, int bot);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void real_screen(struct real_layout *layout);
+extern void rem_data_display(int channel, char *buffer);
+extern void rem_data_display_buf(int channel, char *buffer, int len);
+extern int shell_active(int channel);
+extern void single_display_buf(char *buf,int len);
+extern void start_boxbcast(char *filename);
+extern void start_sf(int channel, int iface);
+extern void statlin_update(void);
+extern void update_owncall(int channel, char *call);
+extern void win_attrib(char ch, struct window *win);
+extern void win_charout(char ch, struct window *win, int conv);
+extern void win_charout_cntl(char ch, struct window *win);
+extern void win_stringout(char *str, struct window *win, int conv);
+extern void win_textout_len(char *str, int len, struct window *win, int conv);
+extern int wordwrap(char *str, struct window *win);
+extern void write_mbfile(int len, int flag, char *str);
 
 #ifndef DPBOXT
 extern int tnc_channels;
@@ -131,24 +131,21 @@ static struct window mb_statwin;
 static struct window mb_textwin;
 extern struct window statlin;
 
-static void deactivate_program();
-void send_command_packet_if();
-void mb_display_buf();
-void mb_stat_display();
-void flush_buf();
-int box_active();
-int conv_name_to_iface();
+static void deactivate_program(int channel);
+void send_command_packet_if(short channel, short usernr, unsigned short len, char *buf, int iface);
+void mb_display_buf(char *buffer, int len);
+void mb_stat_display(void);
+void flush_buf(int channel, int forget);
+int box_active(int channel);
+int conv_name_to_iface(char *str);
 #ifndef DPBOXT
-void send_cstatus();
-void send_huffstat();
+void send_cstatus(int channel, int frames);
+void send_huffstat(int channel);
 #endif
 
 
 /* close iface connection on channel */
-void close_iface_con(channel,deact,disconnect)
-int channel;
-int deact;
-int disconnect;
+void close_iface_con(int channel, int deact, int disconnect)
 {
 #ifndef DPBOXT
   char ans_str[MAXCHAR];
@@ -187,11 +184,7 @@ int disconnect;
 }
 
 /* close the iface-socket */
-static void close_iface(iface,deact,disconnect,trying)
-int iface;
-int deact;
-int disconnect;
-int trying;
+static void close_iface(int iface, int deact, int disconnect, int trying)
 {
   int i;
   struct queue_entry *oldq_ptr;
@@ -234,9 +227,7 @@ int trying;
   }
 }
 
-static void blocking_test(iface,len)
-int iface;
-int len;
+static void blocking_test(int iface, int len)
 {
   IFACE_CMDBUF command;
   
@@ -249,8 +240,7 @@ int len;
   }
 }
 
-static void unblocking(iface)
-int iface;
+static void unblocking(int iface)
 {
   struct queue_entry *oldq_ptr;
   
@@ -425,11 +415,7 @@ void check_uireq(char *buffer)
 }
 
 /* Set permanent mycall */
-void cmd_accuicall(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void cmd_accuicall(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   int i;
 
@@ -456,13 +442,7 @@ char *str;
 #endif
 
 /* analysis of received packet via interface */
-static void packet_analysis(indicator,channel,usernr,len,buf,iface)
-char indicator;
-int channel;
-int usernr;
-int len;
-char *buf;
-int iface;
+static void packet_analysis(char indicator, int channel, int usernr, int len, char *buf, int iface)
 {
   int con_channel;
   char p1str[256];
@@ -719,12 +699,7 @@ int iface;
   }
 }
 
-void send_command_packet_if(channel,usernr,len,buf,iface)
-short channel;
-short usernr;
-unsigned short len;
-char *buf;
-int iface;
+void send_command_packet_if(short channel, short usernr, unsigned short len, char *buf, int iface)
 {
   char buffer[MAX_LEN];
   int res;
@@ -744,11 +719,7 @@ int iface;
   }
 }
 
-void send_command_packet(channel,usernr,len,buf)
-short channel;
-short usernr;
-unsigned short len;
-char *buf;
+void send_command_packet(short channel, short usernr, unsigned short len, char *buf)
 {
   char buffer[MAX_LEN];
   int iface;
@@ -771,9 +742,7 @@ char *buf;
 
 #ifndef DPBOXT
 /* channel status is sent via interface */
-void send_cstatus(channel,frames)
-int channel;
-int frames;
+void send_cstatus(int channel, int frames)
 {
   IFACE_CMDBUF command;
 
@@ -786,8 +755,7 @@ int frames;
 }
 
 /* huffman status is sent via interface */
-void send_huffstat(channel)
-int channel;
+void send_huffstat(int channel)
 {
   IFACE_CMDBUF command;
 
@@ -800,8 +768,7 @@ int channel;
 }
 
 /* send qrg-info via interface */
-void send_qrginfo(iface)
-int iface;
+void send_qrginfo(int iface)
 {
   IFACE_CMDBUF command;
   
@@ -812,7 +779,7 @@ int iface;
 }
 
 /* send new qrg-info to all interfaces */
-void send_qrginfo_all()
+void send_qrginfo_all(void)
 {
   int i;
   
@@ -824,9 +791,7 @@ void send_qrginfo_all()
 }
 
 /* send bulletin-id query */
-void check_bid(channel,bid)
-int channel;
-char *bid;
+void check_bid(int channel, char *bid)
 {
   IFACE_CMDBUF command;
   
@@ -839,8 +804,7 @@ char *bid;
 
 #endif
 
-static void activate_program(channel)
-int channel;
+static void activate_program(int channel)
 {
   int len;
   char callsign[256];
@@ -890,8 +854,7 @@ int channel;
   send_command_packet((short)channel,NO_USERNR,len,(char *)&command);
 }
 
-static void deactivate_program(channel)
-int channel;
+static void deactivate_program(int channel)
 {
   IFACE_CMDBUF command;
   
@@ -901,10 +864,7 @@ int channel;
 }
 
 /* write data to interface */
-void write_iface(channel,len,str)
-int channel;
-int len;
-char *str;
+void write_iface(int channel, int len, char *str)
 {
   int iface;
   char buffer[MAX_LEN];
@@ -991,9 +951,7 @@ char *str;
   }
 }
 
-void flush_buf(channel,forget)
-int channel;
-int forget;
+void flush_buf(int channel, int forget)
 {
   struct buf_entry *b_ptr;
   
@@ -1012,8 +970,7 @@ int forget;
 }
 
 /* read data from interface */
-static int read_data_iface(iface)
-int iface;
+static int read_data_iface(int iface)
 {
   char buffer[MAX_LEN];
   char *bufptr;
@@ -1081,15 +1038,12 @@ int iface;
 }
 
 /* dummy proc for alarm */
-void sigalarm()
+void sigalarm(int signum __attribute__((unused)))
 {
 }
 
 /* install link to other program */
-void cmd_iface(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_iface(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int sockfd;
   int servlen;
@@ -1171,10 +1125,7 @@ char *str;
 }
 
 /* cut link to other program */
-void cmd_endiface(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_endiface(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int iface;
   
@@ -1200,10 +1151,7 @@ char *str;
 }
 
 /* finish execution of other program */
-void cmd_finiface(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_finiface(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int iface;
   IFACE_CMDBUF command;
@@ -1234,13 +1182,7 @@ char *str;
 }
 
 /* activate link to other program */
-void cmd_actiface_ext(par1,par2,par3,channel,len,mode,str)
-int par1;
-int par2;
-int par3;
-int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_actiface_ext(int par1, int par2, int par3, int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int iface;
 #ifndef DPBOXT
@@ -1341,22 +1283,13 @@ char *str;
 }
 
 /* activate link to other program */
-void cmd_actiface(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len;
-int mode;
-char *str;
+void cmd_actiface(int par1, int par2, int channel, int len, int mode, char *str)
 {
   cmd_actiface_ext(par1,par2,0,channel,len,mode,str);
 }
 
 /* deactivate link to other program */
-void cmd_deactiface(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_deactiface(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int iface;
 
@@ -1378,9 +1311,7 @@ char *str;
   }
 }
 
-void iface_fdset(max_fd,fdmask)
-int *max_fd;
-fd_set *fdmask;
+void iface_fdset(int *max_fd, fd_set *fdmask)
 {
   int iface;
   int fd;
@@ -1404,8 +1335,7 @@ fd_set *fdmask;
 #endif
 }
 
-int iface_receive(fdmask)
-fd_set *fdmask;
+int iface_receive(fd_set *fdmask)
 {
   int iface;
   int result;
@@ -1458,7 +1388,7 @@ fd_set *fdmask;
   return(result);
 }
 
-void iface_trying()
+void iface_trying(void)
 {
   int iface;
   
@@ -1484,15 +1414,13 @@ void iface_trying()
 }
 
 /* returns if iface active on channel */
-int iface_active(channel)
-int channel;
+int iface_active(int channel)
 {
   return(if_stat[channel].iface != -1);
 }
 
 /* returns if box active on channel */
-int box_active(channel)
-int channel;
+int box_active(int channel)
 {
   if (if_stat[channel].iface == -1)
     return(0);
@@ -1500,8 +1428,7 @@ int channel;
 }
 
 #ifndef DPBOXT
-short give_usernr(channel)
-int channel;
+short give_usernr(int channel)
 {
   if (if_stat[channel].iface == -1)
     return(NO_USERNR);
@@ -1510,7 +1437,7 @@ int channel;
 #endif
 
 /* init of iface-variables */
-void init_iface()
+void init_iface(void)
 {
   int i;
   
@@ -1551,7 +1478,7 @@ void init_iface()
 }
 
 /* exit of iface, close all sockets */
-void exit_iface()
+void exit_iface(void)
 {
   int i;
 
@@ -1567,44 +1494,27 @@ void exit_iface()
 }
 
 /* activate box */
-void cmd_actbox(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_actbox(int par1, int par2, int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   /* MH: dpbox shouldn't be activated, if user don't want it */
   if(strcmp(box_socket, "0") != 0)
     cmd_iface(par1,par2,channel,strlen(box_socket),mode,box_socket);
 }
 
 /* deactivate box */
-void cmd_deactbox(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_deactbox(int par1, int par2, int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   cmd_endiface(par1,par2,channel,strlen(box_socket),mode,box_socket);
 }
 
 /* finish box program */
-void cmd_finbox(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_finbox(int par1, int par2, int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   cmd_finiface(par1,par2,channel,strlen(box_socket),mode,box_socket);
 }
 
 /* start box */
-void cmd_box(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_box(int par1, int par2, int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int i;
   
@@ -1619,18 +1529,13 @@ char *str;
 }
 
 /* end box */
-void cmd_endbox(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_endbox(int par1, int par2, int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   cmd_deactiface(par1,par2,channel,strlen(box_socket),mode,box_socket);
 }
 
 /* looking for iface of name str, if found, return iface-nr, else -1 */
-int conv_name_to_iface(str)
-char *str;
+int conv_name_to_iface(char *str)
 {
   int iface;
   iface = 0;
@@ -1646,9 +1551,7 @@ char *str;
 }
 
 /* file string with socket name of iface */
-void get_iface_name(iface,str)
-int iface;
-char *str;
+void get_iface_name(int iface, char *str)
 {
   if (if_list[iface].active == IF_ACTIVE) {
     strcpy(str,if_list[iface].name);
@@ -1660,7 +1563,7 @@ char *str;
 
 /* procedures for mailbox-user-frontend */
 
-void sel_mailbox()
+void sel_mailbox(void)
 {
   if (act_mode == M_MAILBOX) return;
   real_screen(mb_layout);
@@ -1668,8 +1571,7 @@ void sel_mailbox()
   statlin_update();
 }
 
-int mb_newline(str)
-char *str;
+int mb_newline(char *str)
 {
   int len;
   
@@ -1678,13 +1580,12 @@ char *str;
   return(len);
 }
 
-void mb_nextline()
+void mb_nextline(void)
 {
   win_charout(CR,&mb_prewin,0);
 }
 
-void mb_charout(ch)
-char ch;
+void mb_charout(char ch)
 {
   if (mb_prewin.column < input_linelen-1) {
     win_charout_cntl(ch,&mb_prewin);
@@ -1694,14 +1595,12 @@ char ch;
   }
 }
 
-void mb_charout_nobnd(ch)
-char ch;
+void mb_charout_nobnd(char ch)
 {
   win_charout_cntl(ch,&mb_prewin);
 }
 
-void mb_charout_cntl(ch)
-char ch;
+void mb_charout_cntl(char ch)
 {
   if (mb_prewin.column < input_linelen-1) {
     ch &= 0x1f;
@@ -1715,50 +1614,41 @@ char ch;
   }
 }
 
-int mb_lineend()
+int mb_lineend(void)
 {
   return(mb_prewin.column == input_linelen-1);
 }
 
-int mb_wordwrap(str)
-char *str;
+int mb_wordwrap(char *str)
 {
   return(wordwrap(str,&mb_prewin));
 }
 
-void rem_mb_display_buf(buffer,len)
-char *buffer;
-int len;
+void rem_mb_display_buf(char *buffer, int len)
 {
   win_attrib(att_remote,&mb_textwin);
   win_textout_len(buffer,len,&mb_textwin,1);
   win_attrib(att_normal,&mb_textwin);
 }
 
-void mb_display_buf(buffer,len)
-char *buffer;
-int len;
+void mb_display_buf(char *buffer, int len)
 {
   win_textout_len(buffer,len,&mb_textwin,1);
   write_mbfile(len,RX_RCV,buffer);
 }
 
-void mb_pre_display(buffer,cr)
-char *buffer;
-int cr;
+void mb_pre_display(char *buffer, int cr)
 {
   win_stringout(buffer,&mb_prewin,0);
   if (cr) win_charout(CR,&mb_prewin,0);
 }
 
-void mb_input(str,len)
-char *str;
-int len;
+void mb_input(char *str, int len)
 {
   write_iface(0,len,str);
 }
 
-void mb_stat_display()
+void mb_stat_display(void)
 {
   char *stat_str;
   int i;
@@ -1780,7 +1670,7 @@ void mb_stat_display()
   free(stat_str);
 }
 
-void init_mb()
+void init_mb(void)
 {
   int j;
   
@@ -1821,7 +1711,7 @@ void init_mb()
 #endif
 }
 
-void reinit_mb()
+void reinit_mb(void)
 {
   int j;
   
@@ -1851,7 +1741,7 @@ void reinit_mb()
   mb_layout[3].pagesize = 0;
 }
 
-void exit_mb()
+void exit_mb(void)
 {
   close_iface_con(0,1,0);
   close_window(&mb_prewin);
@@ -1860,12 +1750,12 @@ void exit_mb()
 }
 
 #ifndef DPBOXT
-void free_iface()
+void free_iface(void)
 {
   free(if_stat);
 }
 
-int alloc_iface()
+int alloc_iface(void)
 {
   if_stat = 
     (struct iface_stat *)malloc((tnc_channels+1) * sizeof(struct iface_stat));

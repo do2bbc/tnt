@@ -13,6 +13,7 @@
 */
 
 #include "tnt.h"
+#include "ax25k.h"
 #include "macro.h"
 
 #include <ctype.h>
@@ -37,47 +38,47 @@
 #define MAXBCASTTX 14
 
 /* external function declarations */
-extern struct sockaddr *build_sockaddr();
-extern void clear_pwmode();
-extern void close_iface_con();
-extern void close_rxfile();
-extern void close_shell();
-extern void close_txfile();
-extern void close_xconnect();
-extern void cmd_box();
-extern void cmd_display();
-extern void conn_boxcut();
-extern void data_display();
-extern void data_display_len();
-extern int decstathuf();
-extern void disc_boxcut();
-extern int do_autostart();
-extern int encstathuf();
-extern int is_notown();
-extern int macro_getname();
-extern void moni_display();
-extern void moni_display_len();
-extern void next_command();
-extern void next_connect();
-extern void next_sendframe();
-extern void open_upfile();
-extern int play_sound();
-extern void rem_cookie();
-extern void rem_ctext();
-extern int rem_noacc();
-extern void rem_nobox();
-extern void send_cstatus();
-extern void set_flchkmode();
-extern void set_pwmode();
-extern void set_remmode();
-extern void stat_display();
-extern void statlin_update();
-extern void strip_call();
-extern void strip_call_log();
-extern void write_log();
-extern void xcon_reset_first();
-extern int xconnect_active();
-extern int xconnect_first();
+extern struct sockaddr *build_sockaddr(const char *name, int *addrlen);
+extern void clear_pwmode(int channel);
+extern void close_iface_con(int channel, int deact, int disconnect);
+extern void close_rxfile(int channel, int report);
+extern void close_shell(int channel, int report, int disc);
+extern void close_txfile(int channel, int report);
+extern void close_xconnect(int channel, int success);
+extern void cmd_box(int par1, int par2, int channel, int len , int mode, char *str);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void conn_boxcut(int channel);
+extern void data_display(int channel, char *buffer);
+extern void data_display_len(int channel, char *buffer);
+extern int decstathuf(char *src, char *dest);
+extern void disc_boxcut(int channel);
+extern int do_autostart(char *callsign,int channel);
+extern int encstathuf(char *src, int srclen, char *dest, int *destlen);
+extern int is_notown(char *callsign);
+extern int macro_getname(char *call,char *name);
+extern void moni_display(int channel , char *buffer);
+extern void moni_display_len(int channel , char *buffer);
+extern void next_command(int *state);
+extern void next_connect(int channel);
+extern void next_sendframe(int channel);
+extern void open_upfile(int *state);
+extern int play_sound(int sound_nr);
+extern void rem_cookie(int par1, int par2, int channel, int len , int mode, char *str);
+extern void rem_ctext(int par1 , int par2, int channel, int len , int mode, char *str);
+extern int rem_noacc(int channel);
+extern void rem_nobox(int channel);
+extern void send_cstatus(int channel, int frames);
+extern void set_flchkmode(int channel);
+extern void set_pwmode(int channel);
+extern void set_remmode(int channel);
+extern void stat_display(int channel);
+extern void statlin_update(void);
+extern void strip_call(char *call, int channel);
+extern void strip_call_log(char *call, int channel);
+extern void write_log(int channel);
+extern void xcon_reset_first(int channel);
+extern int xconnect_active(int channel);
+extern int xconnect_first(int channel);
 
 /* actual channel and mode */
 extern int act_state;
@@ -146,9 +147,7 @@ int buffers_req;
 /* counter for resyncs */
 int resync_count;
 
-static void build_fallback_lockfile(lockfile, lockfile_len)
-char *lockfile;
-size_t lockfile_len;
+static void build_fallback_lockfile(char *lockfile, size_t lockfile_len)
 {
   char *lockdir;
   char *lockname;
@@ -168,11 +167,7 @@ size_t lockfile_len;
   snprintf(lockfile,lockfile_len,"%s/tnt-%d-%s",lockdir,(int)getuid(),lockname);
 }
 
-static int create_lockfile(lockfile,serstr,unlock,quiet_create_error)
-char *lockfile;
-char *serstr;
-int unlock;
-int quiet_create_error;
+static int create_lockfile(char *lockfile, char *serstr, int unlock, int quiet_create_error)
 {
   char lckpidstr[20];
   pid_t lckpid;
@@ -353,7 +348,7 @@ void uwait(useconds_t time)
 
 #ifndef DPBOXT
 /* find a not connected channel, return -1 if none found */
-int find_free_channel()
+int find_free_channel(void)
 {
   int i;
   
@@ -371,8 +366,7 @@ int find_free_channel()
 #ifndef DPBOXT
 #ifdef USE_AX25K
 /* find a not connected channel, return -1 if none found */
-int find_call_channel(call)
-char *call;
+int find_call_channel(char *call)
 {
   int i;
   
@@ -391,10 +385,7 @@ char *call;
 
 #ifndef DPBOXT
 /* check if calls already used for connection */
-static int check_double_conn(channel,srccall,destcall)
-int channel;
-char *srccall;
-char *destcall;
+static int check_double_conn(int channel, char *srccall, char *destcall)
 {
   int i;
   char cmpcall[10];
@@ -414,9 +405,7 @@ char *destcall;
 }
 
 /* update own call on channel */
-void update_owncall(channel,call)
-int channel;
-char *call;
+void update_owncall(int channel, char *call)
 {
   if ((channel < 1) || (channel >= tnc_channels) || (strlen(call) > 9))
     return;
@@ -424,17 +413,14 @@ char *call;
 }
 
 /* update remote call on channel */
-void update_remcall(channel,call)
-int channel;
-char *call;
+void update_remcall(int channel, char *call)
 {
   if ((channel < 1) || (channel >= tnc_channels) || (strlen(call) > 256))
     return;
   strcpy(ch_stat[channel].call,call);
 }
 
-void update_name(channel)
-int channel;
+void update_name(int channel)
 {
   char call[10];
   char namestr[90];
@@ -449,9 +435,7 @@ int channel;
 }
 
 /* update SSID if calls used for connection */
-void update_ssid(channel,destcall)
-int channel;
-char *destcall;
+void update_ssid(int channel, char *destcall)
 {
   int i;
   char srccall_ssid[13];
@@ -540,7 +524,7 @@ char *destcall;
 }
 
 /* init of tx-queue */
-static void restart_tx_queue()
+static void restart_tx_queue(void)
 {
   int i;
   
@@ -557,7 +541,7 @@ static void restart_tx_queue()
 #endif
 
 /* dummy proc for alarm */
-static void sigalarm()
+static void sigalarm(int signum __attribute__((unused)))
 {
 }
 
@@ -602,11 +586,7 @@ static int serial_write_data(const char *buf, int len)
   return send(serial, buf, len, 0);
 }
 
-static int split_udp_endpoint(endpoint, remote_endpoint, remote_endpoint_len, local_port)
-char *endpoint;
-char *remote_endpoint;
-size_t remote_endpoint_len;
-int *local_port;
+static int split_udp_endpoint(char *endpoint, char *remote_endpoint, size_t remote_endpoint_len, int *local_port)
 {
   char *endptr;
   char *at;
@@ -636,10 +616,7 @@ int *local_port;
 /* opens serial port and set tnc to hostmode
    serstr holds serial device name,
    speed holds baudrate */
-int init_serial(serstr,speed,speedflag,unlock)
-char *serstr;
-unsigned int speed;
-int speedflag __attribute__((unused));int unlock;
+int init_serial(char *serstr, unsigned int speed, int speedflag __attribute__((unused)), int unlock)
 {
   int l;
   char c;
@@ -653,11 +630,53 @@ int speedflag __attribute__((unused));int unlock;
   struct sockaddr *saddr;
   int servlen;
   int sock_type;
-  int local_udp_port;
+  int local_udp_port = 0;
   char remote_endpoint[MAXCHAR];
 #endif
   int lock_errno;
   char fallback_lockfile[MAXCHAR];
+
+#ifndef TNT_SERIAL
+  printf(_("Serial port handling disabled\n"));
+  for (l = 0; l < tnc_channels; l++) {
+    ch_stat[l].pause_flag = 0;
+    ch_stat[l].sendcook = 0;
+    ch_stat[l].contcon = 0;
+    ch_stat[l].mycall[0] = '\0';
+    ch_stat[l].log_call[0] = '\0';
+    ch_stat[l].disp_call[0] = '\0';
+    ch_stat[l].name[0] = '\0';
+    ch_stat[l].start_time = time(NULL);
+    ch_stat[l].state = 0;
+    ch_stat[l].oldstate = 0;
+    ch_stat[l].maxstate = 0;
+    ch_stat[l].conn_state = CS_DISCON;
+    ch_stat[l].ignore_state = 0;
+    ch_stat[l].huffcod = 0;
+    ch_stat[l].access_level = 0;
+    ch_stat[l].pwwait = 0;
+    ch_stat[l].flchkmode = 0;
+    ch_stat[l].queue_act = 0;
+    ch_stat[l].auto_xconnect = 1;
+  }
+  resync_count = 0;
+  staterr.st_mess = 0;
+  staterr.rcv_frms = 0;
+  staterr.snd_frms = 0;
+  staterr.unacked = 0;
+  staterr.tries = 0;
+  staterr.axstate = 0;
+  staterr.free_buffers = 0;
+  staterr.xhost = 0;
+  tnc_busy = 0;
+  bcasttx_frames = 0;
+  send_queue_type = SQ_NORMAL;
+  buffers_req = 0;
+  free_buffers = -1;
+  sent_bytes = 0;
+  softtnc_error = 0;
+  return(0);
+#endif
 
   lock_errno = create_lockfile(tnt_lockfile,serstr,unlock,1);
   if (lock_errno) {
@@ -876,7 +895,7 @@ int speedflag __attribute__((unused));int unlock;
 }
 
 /* put tnc to terminalmode and close serial port */
-int exit_serial()
+int exit_serial(void)
 {
   int l;
   char c;
@@ -898,6 +917,10 @@ int exit_serial()
     free(old_block_buffer);
   }
   block_bcbuffer_last = NULL;
+
+#ifndef TNT_SERIAL
+  return(0);
+#endif
 
   if (use_select) {
     if (soft_tnc) {
@@ -941,8 +964,7 @@ int exit_serial()
    first up to 256 CNTL_A, until tnc responds
    second put tnc to hostmode and then up to 256 CNTL_A, until tnc responds
 */
-void resync_tnc(state)
-int *state;
+void resync_tnc(int *state)
 {
   int l;
   char c;
@@ -1365,10 +1387,7 @@ wrdebugio ( art, txbuffer, len )
  
 
 #ifndef DPBOXT
-static int block_receiver(rxbuffer,len,buffer)
-char *rxbuffer;
-int len;
-char *buffer;
+static int block_receiver(char *rxbuffer, int len, char *buffer)
 {
   int block_ok;
   int i;
@@ -1514,9 +1533,7 @@ char *buffer;
   return(block_ok);
 }
 
-static int fill_status(channel,buffer)
-int channel;
-char *buffer;
+static int fill_status(int channel, char *buffer)
 {
   int res;
   int changed;
@@ -1606,8 +1623,7 @@ char *buffer;
 #define R_BUSY 4
 #define R_FAIL 5
 
-static int analyse_stat_msg(buffer)
-char *buffer;
+static int analyse_stat_msg(char *buffer)
 {
   if (strstr(buffer,"CONNECTED to ") != NULL) return(R_CONN);
   if (strstr(buffer,"DISCONNECTED fm ") != NULL) return(R_DISC);
@@ -1617,8 +1633,7 @@ char *buffer;
   return(0);
 }
 
-static void disc_to_conn(channel)
-int channel;
+static void disc_to_conn(int channel)
 {
   ch_stat[channel].conn_state = CS_CONN;
   ch_stat[channel].sendcook = 1;
@@ -1635,8 +1650,7 @@ int channel;
 #endif  
 }
 
-static void setup_to_conn(channel)
-int channel;
+static void setup_to_conn(int channel)
 {
   if (xconnect_first(channel)) {
     /* a connect request during connect setup of xconnect */
@@ -1657,8 +1671,7 @@ int channel;
 #endif  
 }
 
-static int setup_to_disc(channel)
-int channel;
+static int setup_to_disc(int channel)
 {
   int block_send;
   char tmpstr[10];
@@ -1697,8 +1710,7 @@ int channel;
   return(block_send);
 }
 
-static int conn_to_disc(channel)
-int channel;
+static int conn_to_disc(int channel)
 {
   int block_send;
   char tmpstr[10];
@@ -1740,9 +1752,7 @@ int channel;
   return(block_send);
 }
 
-static int update_conn_state(channel,buffer)
-int channel;
-char *buffer;
+static int update_conn_state(int channel, char *buffer)
 {
   int result;
   int block_send;
@@ -1854,9 +1864,7 @@ void action_on_connect(int channel)
   }
 }
 
-static int block_decoder(rxbuffer,state)
-char *rxbuffer;
-int *state;
+static int block_decoder(char *rxbuffer, int *state)
 {
   char rxbuffercopy[259];
   int channel;
@@ -2223,7 +2231,7 @@ int queue_cmd_data(int channel,char code,int len,int flag,char *data)
 }
 
 /* sends block out of txqueue */
-static int send_cmd_data()
+static int send_cmd_data(void)
 {
   int channel;
   char code;
@@ -2392,8 +2400,7 @@ static int next_conn_channel(int *channel)
   return(1);
 }
 
-static void poll_tnc(state)
-int *state;
+static void poll_tnc(int *state)
 {
   if (buffers_req) { /* free buffers were requested */
     buffers_req = 0;
@@ -2477,8 +2484,8 @@ int *state;
   }
 }
 
-int calc_maxframes(channel)
-int channel __attribute__((unused));{
+int calc_maxframes(int channel __attribute__((unused)))
+{
   int max_frames;
   int conn_channels;
   int i;
@@ -2501,8 +2508,7 @@ int channel __attribute__((unused));{
   return(max_frames);
 }
 
-int calc_xframes(channel)
-int channel;
+int calc_xframes(int channel)
 {
   int max_frames;
   int frames;
@@ -2515,8 +2521,7 @@ int channel;
   return(MAX_SND_FRMS - (max_frames - frames));
 }
 
-int data_allowed(channel)
-int channel;
+int data_allowed(int channel)
 {
   if (channel == 0)
     return(1);
@@ -2525,8 +2530,7 @@ int channel;
             MAX_FRAMES);
 }
 
-int senddata_allowed(channel)
-int channel;
+int senddata_allowed(int channel)
 {
   int max_frames;
   
@@ -2535,10 +2539,7 @@ int channel;
           max_frames);
 }
 
-int serial_server(state,buffer,len)
-int *state;
-char *buffer;
-int len;
+int serial_server(int *state, char *buffer, int len)
 {
   int res;
   int block_ava;
@@ -2599,7 +2600,7 @@ int len;
 }
 
 #ifdef USE_AX25K
-void handle_tx_queue()
+void handle_tx_queue(void)
 {
   while ((block_buffer_len) || (block_bcbuffer_len)) {
     send_cmd_data();
@@ -2607,12 +2608,12 @@ void handle_tx_queue()
 }
 #endif
 
-void free_serial()
+void free_serial(void)
 {
   free(ch_stat);
 }
 
-int alloc_serial()
+int alloc_serial(void)
 {
   ch_stat = (struct channel_stat *)
     malloc(tnc_channels * sizeof(struct channel_stat));

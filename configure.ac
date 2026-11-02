@@ -32,31 +32,6 @@ AC_DEFUN([TNT_CHECK_CC_FLAG], [
 	AS_VAR_POPDEF([tnt_Cache])
 ])
 
-dnl The source still uses legacy C conventions that C23-era compilers diagnose
-dnl more strictly. Select a pre-C23 dialect when possible, and add compatible
-dnl warning defaults only when the compiler supports them.
-AC_CACHE_CHECK([for a C dialect compatible with legacy function declarations],
-	[tnt_cv_cc_legacy_dialect], [
-tnt_cv_cc_legacy_dialect=none
-for tnt_cc_flag in -std=gnu99 -std=c99; do
-	tnt_save_CFLAGS=$CFLAGS
-	CFLAGS="$CFLAGS $tnt_cc_flag"
-	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0;])],
-		[tnt_cv_cc_legacy_dialect=$tnt_cc_flag
-		 CFLAGS=$tnt_save_CFLAGS
-		 break],
-		[CFLAGS=$tnt_save_CFLAGS])
-done
-])
-if test "x$tnt_cv_cc_legacy_dialect" != xnone; then
-	CFLAGS="$CFLAGS $tnt_cv_cc_legacy_dialect"
-fi
-
-TNT_CHECK_CC_FLAG([-Wno-implicit-int])
-TNT_CHECK_CC_FLAG([-Wno-old-style-definition])
-TNT_CHECK_CC_FLAG([-Wno-error=implicit-function-declaration])
-TNT_CHECK_CC_FLAG([-Wno-implicit-function-declaration])
-
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
 
@@ -352,6 +327,20 @@ AC_ARG_ENABLE(genuser, [ --enable-genuser             enable newuser generation]
 	AC_MSG_RESULT(no)
 ])
 
+AC_MSG_CHECKING(whether to enable serial port support)
+AC_ARG_ENABLE(serial, [ --disable-serial             disable serial/soft-TNC port handling],
+[
+	if test "$enableval" = "no"; then
+		AC_MSG_RESULT(no)
+	else
+		AC_DEFINE([TNT_SERIAL],1,[with serial port support])
+		AC_MSG_RESULT(yes)
+	fi
+],[
+	AC_DEFINE([TNT_SERIAL],1,[with serial port support])
+	AC_MSG_RESULT(yes)
+])
+
 AC_MSG_CHECKING(whether to enable ax25 kernel support)
 AC_ARG_ENABLE(ax25k, [ --enable-ax25k               use the Linux AX25 Kernel],
 [
@@ -483,7 +472,11 @@ AC_CONFIG_COMMANDS([setup-scripts-mode], [
 	chmod +x conf/tnt_setup.de conf/tnt_setup.en conf/tnt_setup.fr
 ])
 
+TNT_CHECK_CC_FLAG([-Wall])
+TNT_CHECK_CC_FLAG([-Wextra])
+TNT_CHECK_CC_FLAG([-Wstrict-prototypes])
+TNT_CHECK_CC_FLAG([-Wold-style-definition])
+
 AC_OUTPUT
 
 AC_MSG_NOTICE([---- Check ok. Type now "make" to compile and then "make install" to install.])
-

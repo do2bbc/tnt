@@ -16,7 +16,7 @@ static int bittab[8] = { 128,64,32,16,8,4,2,1 };
 
 static int crctab[256];
 
-void init_crc()
+void init_crc(void)
 {
   int i,j;
   
@@ -31,10 +31,7 @@ void init_crc()
 }
 
 /* calculate checksum for autobin-protocol */
-int calc_crc(buf,n,crc)
-char *buf;
-int n;
-unsigned int crc;
+int calc_crc(char *buf, int n, unsigned int crc)
 {
   while (--n >= 0)
     crc = (crctab[(crc >> 8)] ^ ((crc << 8) | *buf++)) & 0xffff;

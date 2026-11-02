@@ -42,9 +42,9 @@ extern int input_linelen;
 extern char tnt_termcapfile[];
 
 /* external function declarations */
-extern int conv_local_to_umlaut();
-extern int conv_rx_to_local();
-extern void statlin_update();
+extern int conv_local_to_umlaut(char code, char *newcode1, char *newcode2);
+extern int conv_rx_to_local(char code, char *newcode1, char *newcode2);
+extern void statlin_update(void);
 
 /* these values are stored in screen buffers */
 #define ATT_NORMAL 0
@@ -108,8 +108,8 @@ static int cur_always_vis;
 static int no_attr;
 char *_tptr = NULL;
 
-void frontend_exit();
-void real_window_down();
+void frontend_exit(int deact);
+void real_window_down(int part, int page);
 
 /* frontend buffer */
 #define FR_BUFSIZE 2048
@@ -123,10 +123,7 @@ static struct fr_buffer *fr_buffer_root;
 static struct fr_buffer *fr_buffer_last;
 
 #ifndef HAVE_MEMMOVE
-void *memmove(dst,src,len)
-void *dst;
-const void *src;
-unsigned int len;
+void * memmove(void *dst, const void *src, unsigned int len)
 {
   char buffer[256];
   
@@ -137,7 +134,7 @@ unsigned int len;
 #endif
 
 static struct win_info real_info[5]; /* real scr contains up to 5 windows */
-static int get_line2();
+static int get_line2(char *str, struct window *win);
 
 struct termcaplist {
   char term[83];
@@ -153,9 +150,7 @@ struct termcaplist {
 static struct termcaplist *termcaplist_root;
 
 
-static void getrowcols(rows, cols)
-int *rows;
-int *cols;
+static void getrowcols(int *rows, int *cols)
 {
 #ifdef TIOCGWINSZ
 	struct winsize ws;
@@ -194,16 +189,7 @@ int *cols;
 }
 
 /* handle one line of termcap file */
-static int termcapline_analyse(str1,val1,val2,val3,val4,
-                               val5,val6,termcaplist_ptr)
-char *str1;
-int val1;
-int val2;
-int val3;
-int val4;
-int val5;
-int val6;
-struct termcaplist **termcaplist_ptr;
+static int termcapline_analyse(char *str1, int val1, int val2, int val3, int val4, int val5, int val6, struct termcaplist **termcaplist_ptr)
 {
   struct termcaplist *termcaplist_wrk;
   
@@ -228,7 +214,7 @@ struct termcaplist **termcaplist_ptr;
   return(0);
 } 
 
-static void clear_termcapfile()
+static void clear_termcapfile(void)
 {
   struct termcaplist *termcaplist_wrk;
   struct termcaplist *termcaplist_tmp;
@@ -243,7 +229,7 @@ static void clear_termcapfile()
 }
 
 /* load termcap file */
-static void load_termcapfile()
+static void load_termcapfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -306,15 +292,7 @@ static void load_termcapfile()
   }
 }
 
-static int find_termcap(term,termcap,color,charconv,
-                        xtermkeys,supp_hicntl,auto_newline)
-char *term;
-int *termcap;
-int *color;
-int *charconv;
-int *xtermkeys;
-int *supp_hicntl;
-int *auto_newline;
+static int find_termcap(char *term, int *termcap, int *color, int *charconv, int *xtermkeys, int *supp_hicntl, int *auto_newline)
 {
   struct termcaplist *termcaplist_wrk;
   int found;
@@ -358,13 +336,13 @@ int *auto_newline;
   return found;
 }
 
-void init_fr_buffer()
+void init_fr_buffer(void)
 {
   fr_buffer_root = NULL;
   fr_buffer_last = NULL;
 }
 
-static void del_fr_buffer()
+static void del_fr_buffer(void)
 {
   struct fr_buffer *fr_buffer_work;
 
@@ -378,7 +356,7 @@ static void del_fr_buffer()
   fr_buffer_last = NULL;
 }
 
-static int flush_fr_buffer()
+static int flush_fr_buffer(void)
 {
   int res;
   int len;
@@ -411,13 +389,13 @@ static int flush_fr_buffer()
   return(0);
 }
 
-void flush_frontend()
+void flush_frontend(void)
 {
   if (flush_fr_buffer() == 2)
     frontend_exit(0);
 }
 
-static struct fr_buffer *alloc_fr_buffer()
+static struct fr_buffer * alloc_fr_buffer(void)
 {
   struct fr_buffer *fr_buffer_work;
 
@@ -436,9 +414,7 @@ static struct fr_buffer *alloc_fr_buffer()
   return(fr_buffer_work);
 }
 
-static void queue_fr_buffer(buf,len)
-char *buf;
-int len;
+static void queue_fr_buffer(char *buf, int len)
 {
   int tmplen;
   struct fr_buffer *fr_buffer_work;
@@ -474,9 +450,7 @@ int len;
   }
 }
 
-static void write_frontend(buf,len)
-char *buf;
-int len;
+static void write_frontend(char *buf, int len)
 {
   int res;
   
@@ -504,8 +478,7 @@ int len;
   }
 }
 
-static void phy_strout(str)
-char *str;
+static void phy_strout(char *str)
 {
   if (!tnt_daemon) {
     write(1,str,strlen(str));
@@ -515,9 +488,9 @@ char *str;
   }
 }
 
-static int phy_charout(ch)
-char ch;
+static int phy_charout(int value)
 {
+  char ch = value;
   if (!tnt_daemon) {
     write(1,&ch,1);
   }
@@ -527,13 +500,13 @@ char ch;
   return(0);
 }
 
-void set_linescols()
+void set_linescols(void)
 {
    LINES = 25;
    COLS = input_linelen;
 }
 
-void term_exit()
+void term_exit(void)
 {
   if (termcap) {
     free(tbuf);
@@ -551,10 +524,7 @@ void term_exit()
   clear_termcapfile();
 }
 
-int term_init(extterm,extlines,extcols)
-char *extterm;
-int extlines;
-int extcols;
+int term_init(char *extterm, int extlines, int extcols)
 {
  int term_found;
 
@@ -806,7 +776,7 @@ int extcols;
  }
 }
 
-static void phy_treset() 
+static void phy_treset(void)
 {
   if (termcap) {
     tputs(IS,1,phy_charout);
@@ -822,7 +792,7 @@ static void phy_treset()
   }
 }
 
-static void phy_newline() 
+static void phy_newline(void)
 {
   if (termcap) {
     tputs(WR,1,phy_charout);
@@ -833,7 +803,7 @@ static void phy_newline()
   }
 }
 
-static void phy_insline()
+static void phy_insline(void)
 {
   if (termcap) {
     tputs(AL,1,phy_charout);
@@ -843,7 +813,7 @@ static void phy_insline()
   }
 }
 
-static void phy_delline()
+static void phy_delline(void)
 {
   if (termcap) {
     tputs(DL,1,phy_charout);
@@ -853,7 +823,7 @@ static void phy_delline()
   }
 }
 
-static void phy_charins()
+static void phy_charins(void)
 {
   if (termcap) {
     tputs(IC,1,phy_charout);
@@ -863,7 +833,7 @@ static void phy_charins()
   }
 }
 
-static void phy_chardel()
+static void phy_chardel(void)
 {
   if (termcap) {
     tputs(DC,1,phy_charout);
@@ -873,7 +843,7 @@ static void phy_chardel()
   }
 }
 
-static void phy_cr()
+static void phy_cr(void)
 {
   if (termcap) {
     tputs(WR,1,phy_charout);
@@ -883,7 +853,7 @@ static void phy_cr()
   }
 }
 
-static void phy_curvis()
+static void phy_curvis(void)
 {
   if (!cur_always_vis) {
     if (termcap) {
@@ -895,7 +865,7 @@ static void phy_curvis()
   }
 }
 
-static void phy_curinvis()
+static void phy_curinvis(void)
 {
   if (!cur_always_vis) {
     if (termcap) {
@@ -907,7 +877,7 @@ static void phy_curinvis()
   }
 }
 
-static void phy_clrscr()
+static void phy_clrscr(void)
 {
   if (termcap) {
     tputs(CL,1,phy_charout);
@@ -917,9 +887,7 @@ static void phy_clrscr()
   }
 }
 
-static void phy_gotoxy(col,lin)
-int col;
-int lin;
+static void phy_gotoxy(int col, int lin)
 {
   char tmpstr[20];
 
@@ -930,9 +898,7 @@ int lin;
   else tputs(tgoto(CM,col,lin),1,phy_charout);
 }
 
-static void phy_par_scrdwn(lin1,lin2)
-int lin1;
-int lin2;
+static void phy_par_scrdwn(int lin1, int lin2)
 {
   /* cursor to lin2 */
   phy_gotoxy(0,lin2);
@@ -944,9 +910,7 @@ int lin2;
   phy_insline();
 }
 
-static void phy_par_scrup(lin1,lin2)
-int lin1;
-int lin2;
+static void phy_par_scrup(int lin1, int lin2)
 {
   /* cursor to lin1 */
   phy_gotoxy(0,lin1);
@@ -958,9 +922,7 @@ int lin2;
   phy_insline();
 }
 
-static void phy_scrreg(lin1,lin2)
-int lin1;
-int lin2;
+static void phy_scrreg(int lin1, int lin2)
 {
   char tmpstr[20];
  
@@ -975,7 +937,7 @@ int lin2;
   }
 }
 
-static void phy_scrnor()
+static void phy_scrnor(void)
 {
   if (scroll_reg) {
     if (termcap) {
@@ -995,7 +957,7 @@ static void phy_scrnor()
   }
 }
 
-static void phy_rubout()
+static void phy_rubout(void)
 {
   if (termcap) {
     tputs(BC,1,phy_charout);
@@ -1007,7 +969,7 @@ static void phy_rubout()
   }
 }
 
-static void phy_curleft()
+static void phy_curleft(void)
 {
   if (termcap) {
     tputs(BC,1,phy_charout);
@@ -1017,7 +979,7 @@ static void phy_curleft()
   }
 }
 
-static void phy_curright()
+static void phy_curright(void)
 {
   if (termcap) {
     tputs(ND,1,phy_charout);
@@ -1027,7 +989,7 @@ static void phy_curright()
   }
 }
 
-static void phy_clreol()
+static void phy_clreol(void)
 {
   if (termcap) {
     tputs(CE,1,phy_charout);
@@ -1037,9 +999,7 @@ static void phy_clreol()
   }
 }
 
-static void str_attrout(str,ch2)
-char *str;
-char ch2;
+static void str_attrout(char *str, char ch2)
 {
   char tch;
   char ch;
@@ -1087,8 +1047,7 @@ char ch2;
   }
 }
 
-static void phy_attrout(ch)
-char ch;
+static void phy_attrout(char ch)
 {
   char str[20];
   int i;
@@ -1107,7 +1066,7 @@ char ch;
   }
 }
 
-static void phy_no_transl()
+static void phy_no_transl(void)
 {
   if (!tnt_daemon) {
     write(1,"\033(U",3);
@@ -1117,7 +1076,7 @@ static void phy_no_transl()
   }
 }
 
-static void phy_normal_transl()
+static void phy_normal_transl(void)
 {
   if (!tnt_daemon) {
     write(1,"\033(B",3);
@@ -1127,7 +1086,7 @@ static void phy_normal_transl()
   }
 }
 
-void beep()
+void beep(void)
 {
   if (!tnt_daemon) {
     write(1,"\007",1);
@@ -1158,12 +1117,12 @@ void frontend_exit(int deact)
   term_exit();
 }
 
-void window_init()
+void window_init(void)
 {
   int i;
 
   termcaplist_root = NULL;
-  load_termcapfile(1);
+  load_termcapfile();
 
   att_normal = ATT_NORMAL;
   att_statline = ATT_STATLINE;
@@ -1182,7 +1141,7 @@ void window_init()
     phy_clrscr();
 }
 
-void window_exit()
+void window_exit(void)
 {
   if (!tnt_daemon) {
     phy_clrscr();
@@ -1192,7 +1151,7 @@ void window_exit()
 }
 
 /* test, if insert mode active */
-int insert_active()
+int insert_active(void)
 {
   if (tnt_daemon && !frontend_active) return(0);
   if (real_info[0].win == NULL) return(0);
@@ -1200,10 +1159,7 @@ int insert_active()
 }
 
 /* open new window, returns 0 on success, 1 if no memory available */
-int open_window(lines,win,bot)
-int lines;
-struct window *win;
-int bot;
+int open_window(int lines, struct window *win, int bot)
 {
   int buffer_len;
   char *add;
@@ -1233,8 +1189,7 @@ int bot;
 }
 
 /* clears window (clear screen) */
-void clear_window(win)
-struct window *win;
+void clear_window(struct window *win)
 {
   int buffer_len;
   char *add;
@@ -1259,8 +1214,7 @@ struct window *win;
 }
 
 /* closes window and frees memory, returns 1 if window already closed */
-int close_window(win)
-struct window *win;
+int close_window(struct window *win)
 {
   if (win->window_buffer == NULL) return(1);
   if (win->real != -1) {
@@ -1272,30 +1226,26 @@ struct window *win;
 }
 
 /* increment window-line-offset with boundary-check */
-static void inc_line_offset(win)
-struct window *win;
+static void inc_line_offset(struct window *win)
 {
   if (++win->line_offset == win->num_lines) win->line_offset = 0;
 }
 
 /* increment window-physical-line with boundary-check */
-static void inc_phys_line(win)
-struct window *win;
+static void inc_phys_line(struct window *win)
 {
   if (++win->phys_line == win->num_lines) win->phys_line = 0;
 }
 
 /* decrement window-physical-line with boundary-check */
-static void dec_phys_line(win)
-struct window *win;
+static void dec_phys_line(struct window *win)
 {
   if (win->phys_line == 0) win->phys_line = win->num_lines - 1;
   else win->phys_line--;
 }
 
 /* clear to end of line from col(included) in physical line  */
-static void cl_eoline(win)
-struct window *win;
+static void cl_eoline(struct window *win)
 {
   char *add;
   int i;
@@ -1310,9 +1260,7 @@ struct window *win;
 }
 
 /* function returns 1 if line is the last line of the physical screen */
-int last_phy_line(win,line)
-struct window *win;
-int line;
+int last_phy_line(struct window *win, int line)
 {
   int last_line;
   
@@ -1327,9 +1275,7 @@ int line;
 
 /* copy contents of one windowline to real screen
    assumes real cursor is already positioned at proper position */
-static void update_line(win,phy_line)
-struct window *win;
-int phy_line;
+static void update_line(struct window *win, int phy_line)
 {
   char att;
   char *addr;
@@ -1363,8 +1309,7 @@ int phy_line;
 }
 
 /* physical window will be scrolled up and last line will be updated */
-static void win_scrollup(part)
-int part;
+static void win_scrollup(int part)
 {
   struct window *win;
   int line;
@@ -1376,7 +1321,7 @@ int part;
     phy_par_scrup(real_info[part].first_real_line,line);
   else {  
     phy_gotoxy(0,line);
-    phy_newline(part);
+    phy_newline();
   }
   line = real_info[part].last_log_line;
   if ((phy_line = line + win->line_offset) >= win->num_lines)
@@ -1391,8 +1336,7 @@ int part;
 }
 
 /* put cursor in window to new line and scroll if needed */
-static void newline(win)
-struct window *win;
+static void newline(struct window *win)
 {
   /* new column is 0 */
   win->column = 0;
@@ -1422,7 +1366,7 @@ struct window *win;
         else {
           if (real_info[win->real].last_log_line == (win->num_lines - 1)) {
             /* newline does the scroll */
-            phy_newline(win->real);
+            phy_newline();
           }
           else {
             /* scroll physical window 1 line up and update line */
@@ -1442,7 +1386,7 @@ struct window *win;
          physical new line */
       if ((win->line > (real_info[win->real].first_log_line)) &&
           (win->line <= (real_info[win->real].last_log_line))) {
-        phy_newline(win->real);
+        phy_newline();
       }
       /* if newline first in physical window, cursor must be positioned */
       else if (win->line == (real_info[win->real].first_log_line)) {
@@ -1458,8 +1402,7 @@ struct window *win;
 }
 
 /* put cursor to start of line (for statuslines) */
-static void crstatline(win)
-struct window *win;
+static void crstatline(struct window *win)
 {
   win->column = 0;
   if (win->real != -1) {
@@ -1468,8 +1411,7 @@ struct window *win;
 }
 
 /* copy contents of window to real screen */
-static void update_window(part)
-int part;
+static void update_window(int part)
 {
   struct window *win;
   int line;
@@ -1484,7 +1426,7 @@ int part;
     update_line(win,phy_line);
     /* newline not after last line or if auto_newline */
     if (!auto_newline) {
-      if (line != real_info[part].last_log_line) phy_newline(part);
+      if (line != real_info[part].last_log_line) phy_newline();
     }
     line++;
     if ((phy_line = line + win->line_offset) >= win->num_lines)
@@ -1492,8 +1434,7 @@ int part;
   }
 }
 
-static void set_cursor(part)
-int part;
+static void set_cursor(int part)
 {
   struct window *win;
   int line;
@@ -1515,16 +1456,14 @@ int part;
   }
 }
 
-void hold_save(part)
-int part;
+void hold_save(int part)
 {
   real_info[part].win->holdflag = 1;
   /* not really needed anymore, but anyway */
   real_info[part].win->first_win_line = real_info[part].first_log_line;
 }
 
-void real_screen(layout)
-struct real_layout *layout;
+void real_screen(struct real_layout *layout)
 {
   int i;
 
@@ -1573,18 +1512,14 @@ struct real_layout *layout;
   set_cursor(0);
 }
 
-void real_screen_hold(layout,part)
-struct real_layout *layout;
-int part;
+void real_screen_hold(struct real_layout *layout, int part)
 {
   hold_save(part);
   real_screen(layout);
 }
 
 /* scroll real windowpart line or page up */
-void real_window_up(part,page)
-int part;
-int page;
+void real_window_up(int part, int page)
 {
   int lines;
   int line;
@@ -1633,8 +1568,7 @@ int page;
 }
 
 /* scroll real windowpart to top */
-void real_window_top(part)
-int part;
+void real_window_top(int part)
 {
   if (real_info[part].first_log_line == 0)
     return;
@@ -1649,9 +1583,7 @@ int part;
 
 
 /* scroll real windowpart line or page down */
-void real_window_down(part,page)
-int part;
-int page;
+void real_window_down(int part, int page)
 {
   int lines;
   int line;
@@ -1705,8 +1637,7 @@ int page;
 }
 
 /* scroll real windowpart to bottom */
-void real_window_bot(part)
-int part;
+void real_window_bot(int part)
 {
   if (real_info[part].last_log_line == (real_info[part].win->num_lines - 1))
     return;
@@ -1721,8 +1652,7 @@ int part;
 }
 
 /* execute cursor backspace */
-static void backspace(win)
-struct window *win;
+static void backspace(struct window *win)
 {
   char *pos;
   int line;
@@ -1761,8 +1691,7 @@ struct window *win;
 }
 
 /* execute delete character */
-static void cur_delchar(win)
-struct window *win;
+static void cur_delchar(struct window *win)
 {
   char *pos;
   int line;
@@ -1792,8 +1721,7 @@ struct window *win;
 }
 
 /* execute cursor left */
-static void cur_left(win)
-struct window *win;
+static void cur_left(struct window *win)
 {
   if (win->column == 0) return;
   win->column--;
@@ -1807,8 +1735,7 @@ struct window *win;
 }
 
 /* execute cursor right */
-static void cur_right(win)
-struct window *win;
+static void cur_right(struct window *win)
 {
   if (win->column == (COLS - 1)) return;
   win->column++;
@@ -1822,9 +1749,7 @@ struct window *win;
 }
 
 /* position cursor in line */
-void set_cursor_column(win,column)
-struct window *win;
-int column;
+void set_cursor_column(struct window *win, int column)
 {
   int line;
   
@@ -1842,8 +1767,7 @@ int column;
 }
 
 /* execute cursor start of line */
-static void cur_stline(win)
-struct window *win;
+static void cur_stline(struct window *win)
 {
   if (win->column == 0) return;
   win->column = 0;
@@ -1857,8 +1781,7 @@ struct window *win;
 }
 
 /* execute cursor end of line */
-static void cur_eoline(win)
-struct window *win;
+static void cur_eoline(struct window *win)
 {
   char *pos;
   int column;
@@ -1887,8 +1810,7 @@ struct window *win;
 }
 
 /* execute cursor erase to end of line */
-static void cur_eroline(win)
-struct window *win;
+static void cur_eroline(struct window *win)
 {
   /* output on real screen ? */
   cl_eoline(win);
@@ -1901,9 +1823,7 @@ struct window *win;
 }
 
 /* do wordwrap at end of line */
-int wordwrap(str,win)
-char *str;
-struct window *win;
+int wordwrap(char *str, struct window *win)
 {
   int line;
   int column;
@@ -1965,8 +1885,7 @@ struct window *win;
 }
 
 /* execute cursor up */
-static void cur_up(win)
-struct window *win;
+static void cur_up(struct window *win)
 {
   int line;
   
@@ -1984,8 +1903,7 @@ struct window *win;
 }
 
 /* execute cursor page up */
-static void cur_up_page(win)
-struct window *win;
+static void cur_up_page(struct window *win)
 {
   if (win->line == 0) return;
   if ((win->line -= real_info[0].pagesize) < 0) win->line = 0;
@@ -1998,8 +1916,7 @@ struct window *win;
 }
 
 /* execute cursor top of window */
-static void cur_top(win)
-struct window *win;
+static void cur_top(struct window *win)
 {
   if (win->line == 0) return;
   win->line = 0;
@@ -2012,8 +1929,7 @@ struct window *win;
 }
 
 /* execute cursor down */
-static void cur_down(win)
-struct window *win;
+static void cur_down(struct window *win)
 {
   int line;
   
@@ -2031,8 +1947,7 @@ struct window *win;
 }
 
 /* execute cursor page down */
-static void cur_down_page(win)
-struct window *win;
+static void cur_down_page(struct window *win)
 {
   if (win->line == (win->num_lines - 1)) return;
   if ((win->line += real_info[0].pagesize) > (win->num_lines - 1))
@@ -2046,8 +1961,7 @@ struct window *win;
 }
 
 /* execute cursor bottom of window */
-static void cur_bot(win)
-struct window *win;
+static void cur_bot(struct window *win)
 {
   if (win->line == (win->num_lines - 1)) return;
   win->line = win->num_lines - 1;
@@ -2060,10 +1974,7 @@ struct window *win;
 }
 
 /* output of character, no control-chars allowed */
-static void win_charout_noctl(ch,win,ins)
-char ch;
-struct window *win;
-int ins;
+static void win_charout_noctl(char ch, struct window *win, int ins)
 {
   char *pos;
   int line;
@@ -2115,10 +2026,7 @@ int ins;
 }
 
 /* output of character */
-void win_charout_2(ch,win,conv)
-char ch;
-struct window *win; 
-int conv;
+void win_charout_2(char ch, struct window *win, int conv)
 {
   char newch1,newch2;
   int cnt;
@@ -2163,9 +2071,9 @@ int conv;
     if (charconv && conv && (ch >= 0x80)) {
       cnt = conv_rx_to_local(ch,&newch1,&newch2);
       if (cnt) { 
-        win_charout_noctl(&newch1,win,0);
+        win_charout_noctl(newch1,win,0);
         if (cnt == 2)
-          win_charout_noctl(&newch2,win,0);
+          win_charout_noctl(newch2,win,0);
       }
       else win_charout_noctl(ch,win,0);
     }
@@ -2174,10 +2082,7 @@ int conv;
 }
 
 /* output of character */
-void win_charout(ch,win,conv)
-char ch;
-struct window *win;
-int conv; 
+void win_charout(char ch, struct window *win, int conv)
 {
   if ((win->real != -1) && (win->real != 0)) {
     set_cursor(win->real);
@@ -2189,10 +2094,7 @@ int conv;
 }
 
 /* output of 0-terminated string */
-void win_stringout(str,win,conv)
-char *str;
-struct window *win;
-int conv;
+void win_stringout(char *str, struct window *win, int conv)
 {
   char ch;
   
@@ -2212,10 +2114,7 @@ int conv;
 }
 
 /* output of string, length in 1.byte (0 = 256 byte) */
-void win_textout(str,win,conv)
-char *str;
-struct window *win;
-int conv;
+void win_textout(char *str, struct window *win, int conv)
 {
   int len;
   
@@ -2236,11 +2135,7 @@ int conv;
 }
 
 /* output of string, length in len */
-void win_textout_len(str,len,win,conv)
-char *str;
-int len;
-struct window *win;
-int conv;
+void win_textout_len(char *str, int len, struct window *win, int conv)
 {
   if ((win->real != -1) && (win->real != 0)) {
     set_cursor(win->real);
@@ -2258,9 +2153,7 @@ int conv;
 }
 
 /* set new attribute */
-void win_attrib(ch,win)
-char ch;
-struct window *win;
+void win_attrib(char ch, struct window *win)
 {
   win->attribut = ch;
   if (win->real == 0)
@@ -2268,9 +2161,7 @@ struct window *win;
 }
 
 /* get line window */
-static int get_line2(str,win)
-char *str;
-struct window *win;
+static int get_line2(char *str, struct window *win)
 {
   int i;
   char *ptr;
@@ -2288,9 +2179,7 @@ struct window *win;
   return(i);
 }
 
-int get_line(str,win)
-char *str;
-struct window *win;
+int get_line(char *str, struct window *win)
 {
   if (wholeline_flag)
     cur_eoline(win);
@@ -2298,9 +2187,7 @@ struct window *win;
 }
 
 /* get line window without conversion */
-int get_line_noconv(str,win)
-char *str;
-struct window *win;
+int get_line_noconv(char *str, struct window *win)
 {
   int i;
   char *ptr;
@@ -2315,9 +2202,7 @@ struct window *win;
 }
 
 /* output of character and controlcodes */
-void win_charout_cntl(ch,win)
-char ch;
-struct window *win; 
+void win_charout_cntl(char ch, struct window *win)
 {
   char newch1,newch2;
   int cnt;
@@ -2397,9 +2282,9 @@ struct window *win;
      if (ch >= 0x80) {
        cnt = conv_local_to_umlaut(ch,&newch1,&newch2);
        if (cnt) {
-         win_charout_noctl(&newch1,win,1);
+         win_charout_noctl(newch1,win,1);
          if (cnt == 2)
-           win_charout_noctl(&newch2,win,1);
+           win_charout_noctl(newch2,win,1);
        }
        else win_charout_noctl(ch,win,1);
      }
@@ -2415,11 +2300,7 @@ struct window *win;
 }
 
 /* mark part of line with a specific attribute */
-void win_part_attrib(win,start_col,num_col,attrib)
-struct window *win;
-int start_col;
-int num_col;
-char attrib;
+void win_part_attrib(struct window *win, int start_col, int num_col, char attrib)
 {
   char *pos;
   int line;
@@ -2457,4 +2338,3 @@ char attrib;
     set_cursor(0);
   }
 }
-

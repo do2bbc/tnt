@@ -54,29 +54,30 @@ extern char tnt_session_log[];
 extern char route_file_name[];
 
 /* external function declarations */
-extern int add_line_for_call();
-extern void beep();
-extern int boxcut_active();
-extern void close_rxfile2();
-extern void close_txfile();
-extern void cmd_display();
-extern void cmd_input();
-extern int delete_line_for_call();
-extern void drop_priv();
-extern int find_line_for_call();
-extern int gen_cookie();
-extern int macro_getname();
-extern int queue_cmd_data();
-extern void rem_data_display();
-extern int rem_datei_display();
-extern int replace_macros();
-extern void rest_priv();
-extern int sel_remhlist();
-extern void send_huffstat();
-extern void statlin_update();
-extern void write_file();
-extern void write_file_yapp();
-extern int xconnect_active();
+extern int add_line_for_call(char *call,char *name);
+extern void beep(void);
+extern int boxcut_active(int channel);
+extern void close_rxfile2(int channel, int report , int rename);
+extern void close_txfile(int channel, int report);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void cmd_input(int channel, int mode, char *str, int len, int cscript);
+extern int delete_line_for_call(char *call);
+extern void drop_priv(int mode, int channel, int *uid, int *gid);
+extern int find_line_for_call(char *call,char *line);
+extern int gen_cookie(char *tmpname, int headfoot);
+extern int macro_getname(char *call,char *name);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void rem_data_display(int channel, char *buffer);
+extern int rem_datei_display(int channel, char *filename);
+extern int replace_macros(int in,int out,char *othercall,char *mycall,int channel,
+                   time_t start_time);
+extern void rest_priv(int mode, int channel, int uid, int gid);
+extern int sel_remhlist(int fd1, int flag);
+extern void send_huffstat(int channel);
+extern void statlin_update(void);
+extern void write_file(int channel, int len, int flag, char *str);
+extern void write_file_yapp(int channel, char *str, int len);
+extern int xconnect_active(int channel);
 
 
 time_t sysopactiv;
@@ -182,65 +183,74 @@ struct extremotelist {
 
 static struct extremotelist *extremotelist_root;
 
-int check_call_type();
+int check_call_type(char *call);
 #ifdef TNT_SOUND
 int play_sound(int);
 #endif
-static void rem_echo();
-static void rem_version();
-void rem_time();
-static void rem_disc();
-static void rem_quit();
-static void rem_info();
-static void rem_help();
-void queue_tellmsg(); /* Msg auf allen Kanaelen ausgeben */
-void rem_act();
-void rem_rtt();
-void rem_setmsg();
-void rem_session();
-void init_session();
-void exit_session();
-void cmd_tellmsg();
-int queue_tellinfo();
-void rem_tell_da();
-void rem_tell_weg();
-void rem_tell_600();
-void rem_tell_klo();
-void rem_tell_gnd();
-void rem_onactiv();
-void rem_sendonact();
-void rem_chat();
-void rem_heardlist();
-static void rem_ring();
-void rem_dir();
-static void rem_free();
-void rem_cookie();
-extern void open_sendfile();
-extern void open_logfile();
-extern void close_file();
-extern void break_send();
-extern void cmd_shell();
-extern void cmd_run();
+static void rem_echo(int par1 , int par2 , int channel, int len , int mode , char *str);
+static void rem_version(int par1 , int par2 , int channel, int len , int mode , char *str);
+void rem_time(int par1 , int par2 , int channel, int len , int mode , char *str);
+static void rem_disc(int par1 , int par2 , int channel, int len , int mode , char *str);
+static void rem_quit(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void rem_info(int par1 , int par2 , int channel, int len , int mode, char *str);
+static void rem_help(int par1 , int par2 , int channel, int len , int mode, char *str);
+void queue_tellmsg(char *tmp_msg); /* Msg auf allen Kanaelen ausgeben */
+void rem_act(int par1 , int par2 , int channel, int len , int mode , char *str);
+void rem_rtt(int par1 , int par2 , int channel, int len, int mode, char *str);
+void rem_setmsg(int par1 , int par2 , int channel, int len , int mode, char *str);
+void rem_session(int par1 , int par2 , int channel, int len , int mode , char *str);
+void init_session(void);
+void exit_session(void);
+void cmd_tellmsg(int par1 , int par2 , int channel, int len , int mode, char *str);
+int queue_tellinfo(/* Ausgabe eines bestimmten Textes */
+    int text,
+    int channel,
+    int mode);
+void rem_tell_da(int par1 , int par2 , int channel, int len , int mode, char *str);
+void rem_tell_weg(int par1 , int par2 , int channel, int len , int mode, char *str);
+void rem_tell_600(int par1 , int par2 , int channel, int len , int mode, char *str);
+void rem_tell_klo(int par1 , int par2 , int channel, int len , int mode, char *str);
+void rem_tell_gnd(int par1 , int par2 , int channel, int len , int mode, char *str);
+void rem_onactiv(int par1 , int par2 , int channel, int len , int mode , char *str);
+void rem_sendonact(void);
+void rem_chat(/* Chatten */
+    int par1 ,
+    int par2 ,
+    int channel,
+    int len ,
+    int mode ,
+    char *str);
+void rem_heardlist(int par1 , int par2, int channel, int len , int mode , char *str);
+static void rem_ring(int par1 , int par2 , int channel, int len , int mode , char *str);
+void rem_dir(int par1, int par2, int channel, int len , int mode, char *str);
+static void rem_free(int par1 , int par2, int channel, int len , int mode, char *str);
+void rem_cookie(int par1, int par2, int channel, int len , int mode, char *str);
+extern void open_sendfile(int type, int par2, int channel, int len, int mode, char *str);
+extern void open_logfile(int type, int flag, int channel, int len, int mode, char *str);
+extern void close_file(int par1, int par2 , int channel, int len , int mode, char *str);
+extern void break_send(int par1 , int par2 , int channel, int len , int mode, char *str);
+extern void cmd_shell(int par1, int par2, int channel, int len, int mode, char *str);
+extern void cmd_run(int par1, int par2, int channel, int len, int mode, char *str);
 #ifdef HAVE_SOCKET
-extern void cmd_sockconn();
+extern void cmd_sockconn(int par1, int par2, int channel, int len , int mode, char *str);
 #endif
-void rem_name();
-static void rem_news();
+void rem_name(int par1 , int par2 , int channel, int len, int mode, char *str);
+static void rem_news(int par1 , int par2 , int channel, int len , int mode, char *str);
 #ifdef USE_IFACE
-extern void cmd_box();
+extern void cmd_box(int par1, int par2, int channel, int len , int mode, char *str);
 #endif
-void cmd_comp();
-void cmd_sysop();
-void cmd_command();
-void cmd_chanstat();
-void strip_call();
-void strip_call_log();
+void cmd_comp(int par1 , int par2 , int channel, int len, int mode, char *str);
+void cmd_sysop(int par1 , int par2 , int channel, int len , int mode , char *str);
+void cmd_command(int par1 , int par2 , int channel, int len, int mode, char *str);
+void cmd_chanstat(int par1 , int par2, int channel, int len , int mode, char *str);
+void strip_call(char *call, int channel);
+void strip_call_log(char *call, int channel);
 
 struct rem_list {
   char string[9];
   int len;
   int ext_com;
-  void (*func)();
+  void (*func)(int par1, int par2, int channel, int len, int mode, char *str);
   char new_string[4];
   int par1;
   int par2;
@@ -304,11 +314,7 @@ static struct rem_list remote_list[] = {
 };
 
 /* analyse one line of sysop file */
-static int sysline_analyse(str1,str2,val1,sysoplist_ptr)
-char *str1;
-char *str2;
-int val1;
-struct sysoplist **sysoplist_ptr;
+static int sysline_analyse(char *str1, char *str2, int val1, struct sysoplist **sysoplist_ptr)
 {
   struct sysoplist *sysoplist_wrk;
   int i;
@@ -334,7 +340,7 @@ struct sysoplist **sysoplist_ptr;
 } 
 
 /* load sysop file */
-static void load_sysfile()
+static void load_sysfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -394,7 +400,7 @@ static void load_sysfile()
   }
 }
 
-static void clear_sysfile()
+static void clear_sysfile(void)
 {
   struct sysoplist *sysoplist_wrk;
   struct sysoplist *sysoplist_tmp;
@@ -409,7 +415,7 @@ static void clear_sysfile()
 }
 
 /* load noremote file */
-static void load_noremfile()
+static void load_noremfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -476,7 +482,7 @@ static void load_noremfile()
   }
 }
 
-static void clear_noremfile()
+static void clear_noremfile(void)
 {
   struct noremlist *noremlist_wrk;
   struct noremlist *noremlist_tmp;
@@ -491,7 +497,7 @@ static void clear_noremfile()
 }
 
 /* load flexnet-check file */
-static void load_flchkfile()
+static void load_flchkfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -558,7 +564,7 @@ static void load_flchkfile()
   }
 }
 
-static void clear_flchkfile()
+static void clear_flchkfile(void)
 {
   struct flchklist *flchklist_wrk;
   struct flchklist *flchklist_tmp;
@@ -573,7 +579,7 @@ static void clear_flchkfile()
 }
 
 /* load not-own-call file */
-static void load_notownfile()
+static void load_notownfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -640,7 +646,7 @@ static void load_notownfile()
   }
 }
 
-static void clear_notownfile()
+static void clear_notownfile(void)
 {
   struct notownlist *notownlist_wrk;
   struct notownlist *notownlist_tmp;
@@ -655,7 +661,7 @@ static void clear_notownfile()
 }
 
 /* load autostart file */
-static void load_autostartfile()
+static void load_autostartfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -739,7 +745,7 @@ static void load_autostartfile()
   }
 }
 
-static void clear_autostartfile()
+static void clear_autostartfile(void)
 {
   struct autostartlist *autostartlist_wrk;
   struct autostartlist *autostartlist_tmp;
@@ -754,7 +760,7 @@ static void clear_autostartfile()
 }
 
 /* load not-own-call file */
-static void load_extremotefile()
+static void load_extremotefile(void)
 {
   int file_end;
   int file_corrupt;
@@ -863,7 +869,7 @@ static void load_extremotefile()
   }
 }
 
-static void clear_extremotefile()
+static void clear_extremotefile(void)
 {
   struct extremotelist *extremotelist_wrk;
   struct extremotelist *extremotelist_tmp;
@@ -878,7 +884,7 @@ static void clear_extremotefile()
 }
 
 
-void init_remote()
+void init_remote(void)
 {
   int t;
   
@@ -934,7 +940,7 @@ void init_remote()
   load_extremotefile();
 }
 
-void exit_remote()
+void exit_remote(void)
 {
   clear_sysfile();
   clear_noremfile();
@@ -967,10 +973,7 @@ static char *delete_path(char *filename)
 }
 
 /* check for yapp start sequence */
-int check_autoyapp(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+int check_autoyapp(int channel, char *buffer, int len)
 {
   char hlpstr[3];
   
@@ -987,10 +990,7 @@ int len;
 }
 
 /* handle 7plus strings/reception */
-static int handle_7pl(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+static int handle_7pl(int channel, char *buffer, int len)
 {
   int offset;
   char filename[257];
@@ -1107,10 +1107,7 @@ int len;
  * returns !0  if buffer handled
  * dg9ep 7-98
  */
-static int handle_pgp(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+static int handle_pgp(int channel, char *buffer, int len)
 {
   char filename[257];
   char tmpstdoutname[257];
@@ -1218,10 +1215,7 @@ int len;
 
 
 /* check packet, if special strings are contained */
-static int check_spec_strings(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+static int check_spec_strings(int channel, char *buffer, int len)
 {
   char date_str[257];
   char filename[257];
@@ -1363,10 +1357,7 @@ int len;
   return(1);
 }
 
-int analyse_remstr(channel,remstring,autost)
-int channel;
-char *remstring;
-int autost;
+int analyse_remstr(int channel, char *remstring, int autost)
 {
   int len;
   int found;
@@ -1577,10 +1568,7 @@ int autost;
 
 /* analyse remote-input-string */
 /* if result != 0 the string must not be written to a file */
-int remote_input(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+int remote_input(int channel, char *buffer, int len)
 {
   char strbuf[257];
   int result;
@@ -1646,9 +1634,7 @@ int len;
   return(result);
 }
 
-static void rem_echo(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str;
+static void rem_echo(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str)
 {
   int flag;
   char ans_str[256];
@@ -1660,9 +1646,8 @@ int len __attribute__((unused));int mode __attribute__((unused));char *str;
   queue_cmd_data(channel,X_DATA,ans_len,flag,ans_str);
 }
 
-static void rem_ring(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
+static void rem_ring(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str __attribute__((unused)))
+{
   int flag;
   char ans_str[MAXCHAR];
   int ans_len;
@@ -1686,9 +1671,8 @@ int len __attribute__((unused));int mode __attribute__((unused));char *str __att
   queue_cmd_data(channel,X_DATA,ans_len,flag,ans_str);
 }
 
-void rem_session(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
+void rem_session(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str __attribute__((unused)))
+{
   time_t tnt_session;
   time_t session_time;
   int ans_len;
@@ -1719,9 +1703,8 @@ int len __attribute__((unused));int mode __attribute__((unused));char *str __att
   queue_cmd_data(channel,X_DATA,ans_len,0,ans_str);
 }
 
-void rem_act(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
+void rem_act(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str __attribute__((unused)))
+{
   char ans_str[MAXCHAR * 2];
   char tmp_str[32];
   time_t diffsec;
@@ -1748,10 +1731,7 @@ int len __attribute__((unused));int mode __attribute__((unused));char *str __att
   queue_cmd_data(channel,X_DATA,ans_len,0,ans_str);
 }
 
-void rem_setmsg(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void rem_setmsg(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   char ans_str[MAXCHAR];
 
@@ -1770,11 +1750,7 @@ char *str;
   cmd_display(mode,channel,ans_str,1);
 }
 
-void rem_rtt(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void rem_rtt(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   int flag;
   char ans_str[MAXCHAR];
@@ -1832,9 +1808,8 @@ char *str;
   queue_cmd_data(channel,X_DATA,ans_len,flag,ans_str);
 }
 
-static void rem_version(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
+static void rem_version(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str __attribute__((unused)))
+{
   int flag;
   char ans_str[MAXCHAR];
   int ans_len;
@@ -1846,9 +1821,8 @@ int len __attribute__((unused));int mode __attribute__((unused));char *str __att
   queue_cmd_data(channel,X_DATA,ans_len,flag,ans_str);
 }
 
-void rem_time(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
+void rem_time(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str __attribute__((unused)))
+{
   struct tm *timestr;
   time_t timeval;
   char tmpstr[40];
@@ -1866,8 +1840,7 @@ int len __attribute__((unused));int mode __attribute__((unused));char *str __att
   queue_cmd_data(channel,X_DATA,ans_len,flag,ans_str);
 }
 
-void end_comp(channel)
-int channel;
+void end_comp(int channel)
 {
   int flag;
   char ans_str[20];
@@ -1884,19 +1857,16 @@ int channel;
 }
 
 /* send disc */
-static void rem_disc(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
+static void rem_disc(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str __attribute__((unused)))
+{
   ch_stat[channel].queue_act = 0; /* Keine Auftraege mehr bearbeiten */
   end_comp(channel);
   queue_cmd_data(channel,X_COMM,1,M_CMDSCRIPT,"D");
 }
 
 /* send qtext and disc, some routines stolen from DL4YBG */
-static void rem_quit(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void rem_quit(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   char string[260];
   char tmpname[20];
   int result;
@@ -1976,10 +1946,8 @@ char *str __attribute__((unused));{
   queue_cmd_data(channel,X_COMM,ans_len,M_CMDSCRIPT,ans_str);
 }
 
-static void rem_info(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void rem_info(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int x_par1,x_par2;
   char ans_str[160];
   int ans_len;
@@ -1991,10 +1959,8 @@ char *str __attribute__((unused));{
   open_sendfile(x_par1,x_par2,channel,ans_len,mode,ans_str);
 }
 
-static void rem_help(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void rem_help(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int x_par1,x_par2;
   char ans_str[160];
   int ans_len;
@@ -2006,10 +1972,8 @@ char *str __attribute__((unused));{
   open_sendfile(x_par1,x_par2,channel,ans_len,mode,ans_str);
 }
 
-static void rem_news(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void rem_news(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int x_par1,x_par2;
   char ans_str[160];
   int ans_len;
@@ -2021,12 +1985,7 @@ char *str __attribute__((unused));{
   open_sendfile(x_par1,x_par2,channel,ans_len,mode,ans_str);
 }
 
-void rem_dir(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void rem_dir(int par1, int par2, int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int x_par1;
   int ans_len;
@@ -2073,11 +2032,8 @@ char *str;
   }
 }
 
-static void rem_free(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+static void rem_free(int par1 __attribute__((unused)), int par2, int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int x_par1;
   int ans_len;
   char string[MAXCHAR];
@@ -2101,12 +2057,8 @@ char *str __attribute__((unused));{
 
 /* send one cookie */
 /* if par1 != 0: header and footer output */
-void rem_cookie(par1,par2,channel,len,mode,str)
-int par1;
-int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void rem_cookie(int par1, int par2, int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int x_par1;
   int ans_len;
   char tmpname[20];
@@ -2131,9 +2083,7 @@ char *str __attribute__((unused));{
 
 /* put callsign of remote station on channel to call */
 /* call of station to which physically connected (AX25) */
-void strip_call(call,channel)
-char *call;
-int channel;
+void strip_call(char *call, int channel)
 {
   int i;
   int offset;
@@ -2159,9 +2109,7 @@ int channel;
 
 /* put callsign of remote station on channel to */
 /* call of station to which logically connected (DIGIPEATER) */
-void strip_call_log(call,channel)
-char *call;
-int channel;
+void strip_call_log(char *call, int channel)
 {
   int i;
   int offset;
@@ -2192,9 +2140,7 @@ int channel;
 /* put callsign of remote station on channel to */
 /* call of station to which logically connected */
 /* no deleting of ssid and digipeater path */
-void get_call_log(call,channel)
-char *call;
-int channel;
+void get_call_log(char *call, int channel)
 {
   int i;
   int offset;
@@ -2228,11 +2174,8 @@ int channel;
 }
 
 /* send the ctext */
-void rem_ctext(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void rem_ctext(int par1 __attribute__((unused)), int par2, int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int x_par1;
   int ans_len;
   char string[160];
@@ -2292,11 +2235,7 @@ char *str __attribute__((unused));{
 }
 
 /* update names file */
-void rem_name(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void rem_name(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   char call[10];
   char tempstr[250];
@@ -2338,11 +2277,7 @@ char *str;
 }
 
 /* send a macro-textfile */
-void cmd_msend(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_msend(int par1 __attribute__((unused)), int par2, int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int x_par1;
   int ans_len;
@@ -2399,11 +2334,7 @@ char *str;
 }
 
 /* huffman en/decoding */
-void cmd_comp(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void cmd_comp(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   char buffer[20];
   int i;
@@ -2493,10 +2424,7 @@ char *str;
 }
 
 /* display/change access level for remote commands */
-void cmd_setacc(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_setacc(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int i;
   int j;
@@ -2578,8 +2506,7 @@ char *str;
        _("Usage: SETACC <remote_command> [NORMAL/SYSOP/ROOT/ALWAYS/NEVER]"),1);
 }
 
-int randint(my_range)
-short my_range;
+int randint(short my_range)
 {
   int i,j;
   
@@ -2598,9 +2525,8 @@ short tnt_random(short low, short hiw)
 }
 
 /* password for sysop-permissions */
-void cmd_sysop(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str __attribute__((unused));{
+void cmd_sysop(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str __attribute__((unused)))
+{
   char ans_str[MAXCHAR];
   int ans_len;
   int i;
@@ -2678,10 +2604,8 @@ int len __attribute__((unused));int mode __attribute__((unused));char *str __att
 }
 
 /* reload password file */
-void cmd_loadsys(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_loadsys(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   clear_sysfile();  
   load_sysfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -2689,10 +2613,8 @@ char *str __attribute__((unused));{
 }
 
 /* list password file data */
-void cmd_listsys(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_listsys(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   struct sysoplist *sysoplist_wrk;
   char disp_line[256];
   
@@ -2786,20 +2708,14 @@ void rem_nobox(int channel)
 }
 
 /* execute tnt command from remote */
-void cmd_command(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void cmd_command(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   cmd_input(channel,mode,str,len,0);
 }
 
 /* reload no remote file */
-void cmd_ldnoremo(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_ldnoremo(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   clear_noremfile();  
   load_noremfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -2807,10 +2723,8 @@ char *str __attribute__((unused));{
 }
 
 /* list no remote file data */
-void cmd_lstnorem(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_lstnorem(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   struct noremlist *noremlist_wrk;
   char disp_line[256];
   
@@ -2826,8 +2740,7 @@ char *str __attribute__((unused));{
   }
 }
 
-void set_remmode(channel)
-int channel;
+void set_remmode(int channel)
 {
   char callsign[10];
   struct noremlist *noremlist_wrk;
@@ -2848,10 +2761,8 @@ int channel;
 }
 
 /* reload flexnet-check file */
-void cmd_ldflchk(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_ldflchk(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   clear_flchkfile();  
   load_flchkfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -2859,10 +2770,8 @@ char *str __attribute__((unused));{
 }
 
 /* list flexnet-check file data */
-void cmd_lstflchk(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_lstflchk(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   struct flchklist *flchklist_wrk;
   char disp_line[83];
   
@@ -2878,8 +2787,7 @@ char *str __attribute__((unused));{
   }
 }
 
-void set_flchkmode(channel)
-int channel;
+void set_flchkmode(int channel)
 {
   char callsign[10];
   struct flchklist *flchklist_wrk;
@@ -2901,10 +2809,8 @@ int channel;
 }
 
 /* reload not-own-calls file */
-void cmd_ldnotown(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_ldnotown(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   clear_notownfile();  
   load_notownfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -2912,10 +2818,8 @@ char *str __attribute__((unused));{
 }
 
 /* list not-own-calls file data */
-void cmd_lsnotown(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_lsnotown(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   struct notownlist *notownlist_wrk;
   char disp_line[83];
   
@@ -2949,10 +2853,8 @@ int is_notown(char *callsign)
 }
 
 /* reload autostart file */
-void cmd_ldautostart(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_ldautostart(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   clear_autostartfile();  
   load_autostartfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -2960,10 +2862,8 @@ char *str __attribute__((unused));{
 }
 
 /* list autostart data */
-void cmd_lsautostart(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_lsautostart(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   char disp_line[256];
   int found;
   struct autostartlist *autostartlist_wrk;
@@ -3003,10 +2903,8 @@ int do_autostart(char *callsign,int channel)
 }
 
 /* reload extended remote commands file */
-void cmd_ldextrem(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_ldextrem(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   clear_extremotefile();  
   load_extremotefile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -3014,10 +2912,8 @@ char *str __attribute__((unused));{
 }
 
 /* list extended remote commands file data */
-void cmd_lsextrem(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_lsextrem(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   struct extremotelist *extremotelist_wrk;
   char disp_line[256];
   char level[10];
@@ -3079,11 +2975,8 @@ char *str __attribute__((unused));{
 }
 
 /* show channelstatus */
-void cmd_chanstat(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2;
-int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_chanstat(int par1 __attribute__((unused)), int par2, int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int x_par1;
   int ans_len;
   char tmpname[20];
@@ -3170,7 +3063,7 @@ char *str __attribute__((unused));{
 }
 
 /* Session-Handling by WS1LS, WSP */
-void init_session()
+void init_session(void)
 {
   FILE *f1;
 
@@ -3183,7 +3076,7 @@ void init_session()
   }
 }
 
-void exit_session()
+void exit_session(void)
 {
   FILE *f1;
   time_t tnt_shutdown;
@@ -3263,10 +3156,7 @@ void queue_tellmsg(char *tmp_msg) /* Msg auf alle Kanaele ausgeben */
   }
 }
 
-void cmd_tellmsg(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_tellmsg(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   if(strlen(str)==0) {
     cmd_display(mode,channel, _("missing message"),1);
@@ -3274,10 +3164,11 @@ char *str;
     queue_tellmsg(str); }
 }
 
-int queue_tellinfo(text,channel,mode) /* Ausgabe eines bestimmten Textes */
-int text;
-int channel;
-int mode;
+int queue_tellinfo( /* Ausgabe eines bestimmten Textes */
+    int text,
+    int channel,
+    int mode
+)
 {
   FILE *tellfile;
   char ans1_str[MAXCHAR];
@@ -3326,49 +3217,37 @@ int mode;
   return(0);
 }
 
-void rem_tell_da(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void rem_tell_da(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if(queue_tellinfo(1,channel,mode) ==1)
      cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
-void rem_tell_weg(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void rem_tell_weg(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if(queue_tellinfo(3,channel,mode) ==1)
     cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
-void rem_tell_600(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void rem_tell_600(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if(queue_tellinfo(5,channel,mode) ==1)
     cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
-void rem_tell_klo(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void rem_tell_klo(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if(queue_tellinfo(7,channel,mode) ==1)
     cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
-void rem_tell_gnd(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void rem_tell_gnd(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if(queue_tellinfo(9,channel,mode) ==1)
     cmd_display(mode,channel, _("tnt-tellfile corrupt!"),1);
 }
 
-void rem_onactiv(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str;
+void rem_onactiv(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str)
 {
   char ans_str[MAXCHAR];
 
@@ -3386,7 +3265,7 @@ int len __attribute__((unused));int mode __attribute__((unused));char *str;
   queue_cmd_data(channel,X_DATA,strlen(ans_str),0,ans_str);
 }
 
-void rem_sendonact()
+void rem_sendonact(void)
 {
   int i;
   char ans_str[MAXCHAR];
@@ -3408,9 +3287,14 @@ void rem_sendonact()
   }
 }
 
-void rem_chat(par1,par2,channel,len,mode,str) /* Chatten */
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str;
+void rem_chat( /* Chatten */
+    int par1 __attribute__((unused)),
+    int par2 __attribute__((unused)),
+    int channel,
+    int len __attribute__((unused)),
+    int mode __attribute__((unused)),
+    char *str
+)
 {
   int port;
   char rem_port_info[10];
@@ -3579,10 +3463,7 @@ int play_sound(int sound_nr)
 }
 #endif
 
-void rem_heardlist(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2;
-int channel;
-int len __attribute__((unused));int mode __attribute__((unused));char *str;
+void rem_heardlist(int par1 __attribute__((unused)), int par2, int channel, int len __attribute__((unused)), int mode __attribute__((unused)), char *str)
 {
   char tmpname[20];
   char tmpname2[20];

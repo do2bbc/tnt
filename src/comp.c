@@ -224,11 +224,7 @@ static unsigned short mask16tab[16] = {
    (first byte length-1). If decoding is not successful, non-0 
    is returned
 */
-int encstathuf(src,srclen,dest,destlen)
-char *src;
-int srclen;
-char *dest;
-int *destlen;
+int encstathuf(char *src, int srclen, char *dest, int *destlen)
 {
   char *srcptr;
   char *destptr;
@@ -286,9 +282,7 @@ int *destlen;
    (first byte length-1). If decoding is not successful, non-0 
    is returned
 */
-int decstathuf(src,dest)
-char *src;
-char *dest;
+int decstathuf(char *src, char *dest)
 {
   int srclen;
   int destlen;

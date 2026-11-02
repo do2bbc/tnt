@@ -71,13 +71,13 @@ extern char remote_dir[];
 extern char rem_newlin_str[];
 
 /* external function declarations */
-extern void del_lastblanks();
-extern void del_leadblanks();
+extern void del_lastblanks(char *s);
+extern void del_leadblanks(char *s);
 extern long hstr2int(char *s);
-extern int queue_cmd_data();
-extern void rem_data_display();
-extern void rem_stat_display(); /*XXXX*/
-extern void statlin_update();
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void rem_data_display(int channel, char *buffer);
+extern void rem_stat_display(int channel, char *buffer); /*XXXX*/
+extern void statlin_update(void);
 extern char *strsub(char *ret,char *s,int pos,int len);
 
 static unsigned short Make_DTime(int Hour, int Min, int Sec)
@@ -276,7 +276,7 @@ void yapp_rx_flush(int channel)
 }
 
 
-void yapp_timeout()
+void yapp_timeout(void)
 {
   int channel;
   yapptype *yapp;

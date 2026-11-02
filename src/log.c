@@ -17,7 +17,7 @@
 #include <time.h>
 
 /* external function declarations */
-extern void cmd_display();
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
 
 extern int tnc_channels;
 extern struct channel_stat *ch_stat;
@@ -39,7 +39,7 @@ static char logdelim[] =
      "---------------------------------------\n";
 
 
-void disable_logging()
+void disable_logging(void)
 {
   logbook_active = 0;
   cmd_display(M_COMMAND,0,log_error_text,1);
@@ -49,7 +49,7 @@ void disable_logging()
 extern int fddebugio ; 
 extern char debugiof[] ; 
 
-void init_debugio()
+void init_debugio(void)
 {
   if (( fddebugio = open ( debugiof, O_RDWR|O_CREAT , PMODE )) == -1 ) 
     {
@@ -58,13 +58,13 @@ void init_debugio()
   return ;
 }
 
-void exit_debugio()
+void exit_debugio(void)
 { 
       close ( fddebugio ) ;
 } 
 #endif 
 
-void init_log()
+void init_log(void)
 {
   int fd;
   char tmpname[160];
@@ -99,8 +99,7 @@ void init_log()
 
 #define LOG_LINELEN 120
 
-void write_log(channel)
-int channel;
+void write_log(int channel)
 {
   char logstr[LOG_LINELEN];
   char tmpstr[LOG_LINELEN];
@@ -144,7 +143,7 @@ int channel;
 }
 
 
-void exit_log()
+void exit_log(void)
 {
   int i;
   

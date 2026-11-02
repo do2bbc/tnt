@@ -17,7 +17,7 @@
 #include <errno.h>
 
 /* external function declarations */
-extern void cmd_display();
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
 
 #ifdef DPBOXT
 extern int scr_divide;
@@ -240,9 +240,7 @@ extern char tnt_editor[];
 char tnt_errlog[MAXCHAR];
 int ax25k_active;
 
-static int analyse_value(str1,str2)
-char *str1;
-char *str2;
+static int analyse_value(char *str1, char *str2)
 {
   int tmp;
   
@@ -927,12 +925,11 @@ char *str2;
 }
 
 #ifndef DPBOXT
-static void build_fallback_proc_file(file, file_len)
-char *file;
-size_t file_len;
+static int build_fallback_proc_file(char *file, size_t file_len)
 {
   char *procdir;
   char *procname;
+  int len;
 
   procdir = getenv("XDG_RUNTIME_DIR");
   if ((procdir == NULL) || (procdir[0] == '\0'))
@@ -946,10 +943,15 @@ size_t file_len;
   else
     procname++;
 
-  snprintf(file,file_len,"%s/tnt-%d-%s",procdir,(int)getuid(),procname);
+  len = snprintf(file,file_len,"%s/tnt-%d-%s",procdir,(int)getuid(),procname);
+  if (len < 0 || (size_t)len >= file_len) {
+    printf(_("ERROR: Process file path is too long\n\n"));
+    return(1);
+  }
+  return(0);
 }
 
-int init_proc()
+int init_proc(void)
 {
   FILE *fp;
   char file[MAXCHAR];
@@ -960,7 +962,8 @@ int init_proc()
   fp = fopen(file,"w+");
   if (fp == NULL) {
     if ((errno == EACCES) || (errno == ENOENT) || (errno == EROFS)) {
-      build_fallback_proc_file(fallback_file,sizeof(fallback_file));
+      if (build_fallback_proc_file(fallback_file,sizeof(fallback_file)))
+        return(1);
       printf(_("WARNING: cannot create process file %s, trying %s\n"), proc_file, fallback_file);
       strcpy(file,fallback_file);
       fp = fopen(file,"w+");
@@ -978,7 +981,7 @@ int init_proc()
   return(0);
 }
 
-void exit_proc()
+void exit_proc(void)
 {
   char file[160];
 
@@ -1037,7 +1040,7 @@ static int add_dir_slash(char *dir, char *str,char *name)
   return(check_dir(str,name));
 }
 
-static int update_filenames()
+static int update_filenames(void)
 {
   int res;
   
@@ -1118,10 +1121,8 @@ static int update_filenames()
   return(res > 0);
 }
 
-void list_filenames(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void list_filenames(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   cmd_display(mode,channel,"List of all configured filenames:",1);
   cmd_display(mode,channel,tnt_work_dir,1);
   cmd_display(mode,channel,tnt_conf_dir,1);
@@ -1201,10 +1202,7 @@ char *str __attribute__((unused));{
 #endif
 }
 
-int read_init_file(argc,argv,unlock)
-int argc;
-char *argv[];
-int *unlock;
+int read_init_file(int argc, char *argv[], int *unlock)
 {
   FILE *init_file_fp = NULL;
   int file_end;

@@ -30,20 +30,20 @@ extern char f6fbb_box[];
 extern int COLS;
 
 /* external function declarations */
-extern void close_monbox();
-extern void cmd_display();
-extern void cmd_xconnect();
-extern int conv_name_to_iface();
-extern void fill_moni_call();
-extern void fill_xmon_call();
-extern int find_free_channel();
-extern void get_call_xc();
-extern int open_monbox();
-extern int own_connection();
-extern int queue_cmd_data();
-extern void send_command_packet_if();
-extern void strip_call_log();
-extern void update_owncall();
+extern void close_monbox(int xmon_ch);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void cmd_xconnect(int par1, int par2, int channel, int len, int mode, char *str);
+extern int conv_name_to_iface(char *str);
+extern void fill_moni_call(char *srccall, char *destcall);
+extern void fill_xmon_call(int channel, char *srccall, char *destcall);
+extern int find_free_channel(void);
+extern void get_call_xc(int channel, char *call);
+extern int open_monbox(int monbox_channel, int chksum);
+extern int own_connection(char *call1, char *call2);
+extern int queue_cmd_data(int channel,char code,int len,int flag,char *data);
+extern void send_command_packet_if(short channel, short usernr, unsigned short len, char *buf, int iface);
+extern void strip_call_log(char *call, int channel);
+extern void update_owncall(int channel, char *call);
 
 #define SCANMBEA_TIMEOUT 300
 int scanmbea_flag;
@@ -89,19 +89,17 @@ static cutboxtyp boxheader(char *zeile);
 void upper(char *s);
 
 
-static boolean badname(dummy)
-char *dummy __attribute__((unused));{
+static boolean badname(char *dummy __attribute__((unused)))
+{
   return(false);
 }
 
-static boolean check_double(dummy)
-char *dummy __attribute__((unused));{
+static boolean check_double(char *dummy __attribute__((unused)))
+{
   return(true);
 }
 
-static void del_callextender(channel,call2)
-int channel;
-char *call2;
+static void del_callextender(int channel, char *call2)
 {
   char call[10];
   int i;
@@ -188,9 +186,7 @@ void abort_routing(char *call)
   send_command_packet_if(NO_CHANNEL,NO_USERNR,len,(char *)&command,iface);
 }
 
-void start_sf(channel,iface)
-int channel;
-int iface;
+void start_sf(int channel, int iface)
 {
   int len;
   char call[257];
@@ -218,10 +214,7 @@ int iface;
 /* Return the index of the first occurrence of "pat" as a substring of "s",
    starting at index "pos" (1-based).  Result is 1-based, 0 if not found. */
 
-int strpos2(s, pat, pos)
-char *s;
-register char *pat;
-register int pos;
+int strpos2(char *s, register char *pat, register int pos)
 {
     register char *cp, ch;
     register int slen;
@@ -244,9 +237,7 @@ register int pos;
 /* Delete the substring of length "len" at index "pos" from "s".
    Delete less if out-of-range. */
 
-void strdelete(s, pos, len)
-register char *s;
-register int pos, len;
+void strdelete(register char *s, register int pos, register int len)
 {
     register int slen;
 
@@ -266,9 +257,7 @@ register int pos, len;
 /* Store in "ret" the substring of length "len" starting from "pos" (1-based).
    Store a shorter or null string if out-of-range.  Return "ret". */
 
-char *strsub(ret, s, pos, len)
-register char *ret, *s;
-register int pos, len;
+char * strsub(register char *ret, register char *s, register int pos, register int len)
 {
     register char *s2;
 
@@ -294,9 +283,7 @@ register int pos, len;
 
 /* Insert string "src" at index "pos" of "dst". */
 
-void strinsert(src, dst, pos)
-register char *src, *dst;
-register int pos;
+void strinsert(register char *src, register char *dst, register int pos)
 {
     register int slen, dlen;
 
@@ -1878,13 +1865,7 @@ static void multiboxcutwork(short monbox_ch, char *daten, boolean return_)
 * new procedures *
 *****************/
 
-static boolean fill_line(maximum,info,size,rpos,zeile,return_)
-short maximum;
-char *info;
-short size;
-short *rpos;
-char *zeile;
-boolean *return_;
+static boolean fill_line(short maximum, char *info, short size, short *rpos, char *zeile, boolean *return_)
 {
   short zeile_len;
   
@@ -1909,10 +1890,9 @@ boolean *return_;
 }
 
 /* check buffer for mailbox-headers and open xmon if one found */
-int check_monbox(buffer)
-char *buffer;
+int check_monbox(char *buffer)
 {
-  unsigned short x;
+  short x;
   char zeile[257];
   char *info;
   short size;
@@ -1969,18 +1949,15 @@ char *buffer;
 }
 
 /* cancel xmon because of error */
-void cancel_monbox(xmon_ch,monbox_ch)
-int xmon_ch __attribute__((unused));int monbox_ch;
+void cancel_monbox(int xmon_ch __attribute__((unused)), int monbox_ch)
 {
   abort_multibox(monbox_ch,255);
 }
 
 /* put buffer to xmon */
-void write_monbox(monbox_ch,buffer)
-int monbox_ch;
-char *buffer;
+void write_monbox(int monbox_ch, char *buffer)
 {
-  unsigned short x;
+  short x;
   short size;
   char *info;
   char zeile[257];
@@ -1996,7 +1973,7 @@ char *buffer;
   return;
 }
 
-void init_monbox()
+void init_monbox(void)
 {
   short x;
   int monbox_channel;
@@ -2147,7 +2124,7 @@ void init_monbox()
   }
 }
 
-void exit_monbox()
+void exit_monbox(void)
 {
   int monbox_channel;
   
@@ -2158,10 +2135,8 @@ void exit_monbox()
   }
 }
 
-void cmd_ldboxfil(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_ldboxfil(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int monbox_flag_save;
   
   monbox_flag_save = monbox_flag;
@@ -2171,10 +2146,8 @@ char *str __attribute__((unused));{
   cmd_display(mode,channel,OK_TEXT,1);
 }
 
-void cmd_monboxlist(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_monboxlist(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   int monbox_channel;
   char call_str[MAXCOLS+1];
   char srccall[MAXCHAR];
@@ -2208,7 +2181,7 @@ char *str __attribute__((unused));{
   }
 }
 
-void init_boxcut()
+void init_boxcut(void)
 {
   int i;
   
@@ -2220,7 +2193,7 @@ void init_boxcut()
   autobox_flag = 1;
 }
 
-void exit_boxcut()
+void exit_boxcut(void)
 {
   int i;
   
@@ -2232,15 +2205,13 @@ void exit_boxcut()
   }
 }
 
-void conn_boxcut(channel)
-int channel;
+void conn_boxcut(int channel)
 {
   bcut_info[channel].boxcut = false;
   bcut_info[channel].bcutct = 0;
 }
 
-void disc_boxcut(channel)
-int channel;
+void disc_boxcut(int channel)
 {
   char buffer[257];
   int len;
@@ -2264,17 +2235,12 @@ int channel;
   }
 }
 
-int boxcut_active(channel)
-int channel;
+int boxcut_active(int channel)
 {
   return(bcut_info[channel].boxcut == true);
 }
 
-void abinfile_to_boxcut(channel,file,erase,error)
-int channel;
-char *file;
-int erase;
-int error;
+void abinfile_to_boxcut(int channel, char *file, int erase, int error)
 {
   if (error) {
     bcut_info[channel].boxcut = false;
@@ -2288,10 +2254,7 @@ int error;
   }
 }
 
-void boxcut(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+void boxcut(int channel, char *buffer, int len)
 {
   char buffer1[257];
   char *zeroptr;
@@ -2324,10 +2287,7 @@ int len;
   }
 }
 
-void boxcut_rest(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+void boxcut_rest(int channel, char *buffer, int len)
 {
   char buffer1[257];
   char *zeroptr;
@@ -2359,10 +2319,7 @@ int len;
   }
 }
 
-void boxcut_nocr(channel,buffer,len)
-int channel;
-char *buffer;
-int len;
+void boxcut_nocr(int channel, char *buffer, int len)
 {
   char buffer1[257];
   char *zeroptr;
@@ -2392,12 +2349,12 @@ int len;
   }
 }
 
-void free_monbox()
+void free_monbox(void)
 {
   free(bcut_info);
 }
 
-int alloc_monbox()
+int alloc_monbox(void)
 {
   bcut_info = 
     (struct boxcut_info *)malloc(tnc_channels * sizeof(struct boxcut_info));
@@ -2452,10 +2409,7 @@ void check_mbeacon(char *buffer)
                con_channel,strlen(hlpstr),M_CONNECT,hlpstr);
 }
 
-void cmd_scanmbeacon(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str;
+void cmd_scanmbeacon(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str)
 {
   int error;
   int numpar;

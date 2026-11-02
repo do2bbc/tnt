@@ -693,6 +693,7 @@ AM_V
 CSCOPE
 ETAGS
 CTAGS
+am__tar_ignore_stderr
 am__untar
 am__tar
 AMTAR
@@ -777,6 +778,7 @@ enable_sound
 with_language
 enable_dpboxt
 enable_genuser
+enable_serial
 enable_ax25k
 enable_ax25k2
 enable_hibaud
@@ -1428,6 +1430,7 @@ Optional Features:
  --disable-sound              will disable sound support
  --enable-dpboxt              compile for use with dpboxt
  --enable-genuser             enable newuser generation
+ --disable-serial             disable serial/soft-TNC port handling
  --enable-ax25k               use the Linux AX25 Kernel
  --enable-ax25k2              use the Linux AX25 Kernel 2.2.x and new axutils
  --enable-hibaud              use hibaud-rate (>38400), only on Linux
@@ -2876,7 +2879,7 @@ IFS=$ac_save_IFS
 case $host_os in *\ *) host_os=`printf '%s\n' "$host_os" | sed 's/ /-/g'`;; esac
 
 
-am__api_version='1.18'
+am__api_version='1.19'
 
 
   # Find a good install program.  We prefer a C program (faster),
@@ -3611,10 +3614,15 @@ mkdir_p='$(MKDIR_P)'
 
 # We need awk for the "check" target (and possibly the TAP driver).  The
 # system "awk" is bad on some platforms.
-# Always define AMTAR for backward compatibility.  Yes, it's still used
-# in the wild :-(  We should find a proper way to deprecate it ...
+# Always define AMTAR for backward compatibility.  It's still used
+# in the wild, let's not break things.
 AMTAR='$${TAR-tar}'
 
+
+# The dist rules treat anything $(am__tar) writes to standard error as
+# a failure (automake bug#19614).  Set this to "yes" for archivers that
+# write there when all is well; cpio reports a block count.
+am__tar_ignore_stderr=no
 
 # We'll loop over all known methods to create a tar archive until one works.
 _am_tools='gnutar plaintar pax cpio none'
@@ -3666,23 +3674,24 @@ printf %s "checking how to create a ustar tar archive... " >&6; }
   _am_tools=${am_cv_prog_tar_ustar-$_am_tools}
 
   for _am_tool in $_am_tools; do
+    am__tar_ignore_stderr=no
     case $_am_tool in
     gnutar)
       for _am_tar in tar gnutar gtar; do
-        { echo "$as_me:$LINENO: $_am_tar --version" >&5
-   ($_am_tar --version) >&5 2>&5
+        { echo "$as_me:$LINENO: $_am_tar --version | grep GNU >/dev/null" >&5
+   ($_am_tar --version | grep GNU >/dev/null) >&5 2>&5
    ac_status=$?
    echo "$as_me:$LINENO: \$? = $ac_status" >&5
    (exit $ac_status); } && break
       done
-      am__tar="$_am_tar --format=ustar -chf - "'"$$tardir"'
-      am__tar_="$_am_tar --format=ustar -chf - "'"$tardir"'
+      am__tar="$_am_tar --format=ustar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -chf - "'"$$tardir"'
+      am__tar_="$_am_tar --format=ustar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -chf - "'"$tardir"'
       am__untar="$_am_tar -xf -"
       ;;
     plaintar)
       # Must skip GNU tar: if it does not support --format= it doesn't create
       # ustar tarball either.
-      (tar --version) >/dev/null 2>&1 && continue
+      (tar --version | grep GNU) >/dev/null 2>&1 && continue
       am__tar='tar chf - "$$tardir"'
       am__tar_='tar chf - "$tardir"'
       am__untar='tar xf -'
@@ -3696,6 +3705,7 @@ printf %s "checking how to create a ustar tar archive... " >&6; }
       am__tar='find "$$tardir" -print | cpio -o -H ustar -L'
       am__tar_='find "$tardir" -print | cpio -o -H ustar -L'
       am__untar='cpio -i -H ustar -d'
+      am__tar_ignore_stderr=yes
       ;;
     none)
       am__tar=false
@@ -3744,6 +3754,7 @@ fi
 
   { printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $am_cv_prog_tar_ustar" >&5
 printf '%s\n' "$am_cv_prog_tar_ustar" >&6; }
+
 
 
 
@@ -6290,217 +6301,6 @@ else
 fi
 
 
-
-
-
-{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking for a C dialect compatible with legacy function declarations" >&5
-printf %s "checking for a C dialect compatible with legacy function declarations... " >&6; }
-if test ${tnt_cv_cc_legacy_dialect+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e)
-tnt_cv_cc_legacy_dialect=none
-for tnt_cc_flag in -std=gnu99 -std=c99; do
-	tnt_save_CFLAGS=$CFLAGS
-	CFLAGS="$CFLAGS $tnt_cc_flag"
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  tnt_cv_cc_legacy_dialect=$tnt_cc_flag
-		 CFLAGS=$tnt_save_CFLAGS
-		 break
-else case e in #(
-  e) CFLAGS=$tnt_save_CFLAGS ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-done
- ;;
-esac
-fi
-{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_legacy_dialect" >&5
-printf '%s\n' "$tnt_cv_cc_legacy_dialect" >&6; }
-if test "x$tnt_cv_cc_legacy_dialect" != xnone; then
-	CFLAGS="$CFLAGS $tnt_cv_cc_legacy_dialect"
-fi
-
-
-
-	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wno-implicit-int" >&5
-printf %s "checking whether $CC supports -Wno-implicit-int... " >&6; }
-if test ${tnt_cv_cc_flag__Wno_implicit_int+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e)
-	tnt_save_CFLAGS=$CFLAGS
-	CFLAGS="$CFLAGS -Wno-implicit-int"
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  tnt_cv_cc_flag__Wno_implicit_int=yes
-else case e in #(
-  e) tnt_cv_cc_flag__Wno_implicit_int=no ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-	CFLAGS=$tnt_save_CFLAGS
-	 ;;
-esac
-fi
-{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wno_implicit_int" >&5
-printf '%s\n' "$tnt_cv_cc_flag__Wno_implicit_int" >&6; }
-	if test "x$tnt_cv_cc_flag__Wno_implicit_int" = xyes
-then :
-  CFLAGS="$CFLAGS -Wno-implicit-int"
-fi
-
-
-
-
-	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wno-old-style-definition" >&5
-printf %s "checking whether $CC supports -Wno-old-style-definition... " >&6; }
-if test ${tnt_cv_cc_flag__Wno_old_style_definition+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e)
-	tnt_save_CFLAGS=$CFLAGS
-	CFLAGS="$CFLAGS -Wno-old-style-definition"
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  tnt_cv_cc_flag__Wno_old_style_definition=yes
-else case e in #(
-  e) tnt_cv_cc_flag__Wno_old_style_definition=no ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-	CFLAGS=$tnt_save_CFLAGS
-	 ;;
-esac
-fi
-{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wno_old_style_definition" >&5
-printf '%s\n' "$tnt_cv_cc_flag__Wno_old_style_definition" >&6; }
-	if test "x$tnt_cv_cc_flag__Wno_old_style_definition" = xyes
-then :
-  CFLAGS="$CFLAGS -Wno-old-style-definition"
-fi
-
-
-
-
-	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wno-error=implicit-function-declaration" >&5
-printf %s "checking whether $CC supports -Wno-error=implicit-function-declaration... " >&6; }
-if test ${tnt_cv_cc_flag__Wno_error_implicit_function_declaration+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e)
-	tnt_save_CFLAGS=$CFLAGS
-	CFLAGS="$CFLAGS -Wno-error=implicit-function-declaration"
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  tnt_cv_cc_flag__Wno_error_implicit_function_declaration=yes
-else case e in #(
-  e) tnt_cv_cc_flag__Wno_error_implicit_function_declaration=no ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-	CFLAGS=$tnt_save_CFLAGS
-	 ;;
-esac
-fi
-{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wno_error_implicit_function_declaration" >&5
-printf '%s\n' "$tnt_cv_cc_flag__Wno_error_implicit_function_declaration" >&6; }
-	if test "x$tnt_cv_cc_flag__Wno_error_implicit_function_declaration" = xyes
-then :
-  CFLAGS="$CFLAGS -Wno-error=implicit-function-declaration"
-fi
-
-
-
-
-	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wno-implicit-function-declaration" >&5
-printf %s "checking whether $CC supports -Wno-implicit-function-declaration... " >&6; }
-if test ${tnt_cv_cc_flag__Wno_implicit_function_declaration+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e)
-	tnt_save_CFLAGS=$CFLAGS
-	CFLAGS="$CFLAGS -Wno-implicit-function-declaration"
-	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main (void)
-{
-return 0;
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"
-then :
-  tnt_cv_cc_flag__Wno_implicit_function_declaration=yes
-else case e in #(
-  e) tnt_cv_cc_flag__Wno_implicit_function_declaration=no ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
-	CFLAGS=$tnt_save_CFLAGS
-	 ;;
-esac
-fi
-{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wno_implicit_function_declaration" >&5
-printf '%s\n' "$tnt_cv_cc_flag__Wno_implicit_function_declaration" >&6; }
-	if test "x$tnt_cv_cc_flag__Wno_implicit_function_declaration" = xyes
-then :
-  CFLAGS="$CFLAGS -Wno-implicit-function-declaration"
-fi
 
 
 
@@ -10067,6 +9867,35 @@ esac
 fi
 
 
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether to enable serial port support" >&5
+printf %s "checking whether to enable serial port support... " >&6; }
+# Check whether --enable-serial was given.
+if test ${enable_serial+y}
+then :
+  enableval=$enable_serial;
+	if test "$enableval" = "no"; then
+		{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf '%s\n' "no" >&6; }
+	else
+
+printf '%s\n' "#define TNT_SERIAL 1" >>confdefs.h
+
+		{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf '%s\n' "yes" >&6; }
+	fi
+
+else case e in #(
+  e)
+
+printf '%s\n' "#define TNT_SERIAL 1" >>confdefs.h
+
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf '%s\n' "yes" >&6; }
+ ;;
+esac
+fi
+
+
 { printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether to enable ax25 kernel support" >&5
 printf %s "checking whether to enable ax25 kernel support... " >&6; }
 # Check whether --enable-ax25k was given.
@@ -10415,6 +10244,175 @@ ac_config_files="$ac_config_files conf/tnt_setup.de conf/tnt_setup.en conf/tnt_s
 
 
 ac_config_commands="$ac_config_commands setup-scripts-mode"
+
+
+
+
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wall" >&5
+printf %s "checking whether $CC supports -Wall... " >&6; }
+if test ${tnt_cv_cc_flag__Wall+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS -Wall"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  tnt_cv_cc_flag__Wall=yes
+else case e in #(
+  e) tnt_cv_cc_flag__Wall=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+	CFLAGS=$tnt_save_CFLAGS
+	 ;;
+esac
+fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wall" >&5
+printf '%s\n' "$tnt_cv_cc_flag__Wall" >&6; }
+	if test "x$tnt_cv_cc_flag__Wall" = xyes
+then :
+  CFLAGS="$CFLAGS -Wall"
+fi
+
+
+
+
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wextra" >&5
+printf %s "checking whether $CC supports -Wextra... " >&6; }
+if test ${tnt_cv_cc_flag__Wextra+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS -Wextra"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  tnt_cv_cc_flag__Wextra=yes
+else case e in #(
+  e) tnt_cv_cc_flag__Wextra=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+	CFLAGS=$tnt_save_CFLAGS
+	 ;;
+esac
+fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wextra" >&5
+printf '%s\n' "$tnt_cv_cc_flag__Wextra" >&6; }
+	if test "x$tnt_cv_cc_flag__Wextra" = xyes
+then :
+  CFLAGS="$CFLAGS -Wextra"
+fi
+
+
+
+
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wstrict-prototypes" >&5
+printf %s "checking whether $CC supports -Wstrict-prototypes... " >&6; }
+if test ${tnt_cv_cc_flag__Wstrict_prototypes+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS -Wstrict-prototypes"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  tnt_cv_cc_flag__Wstrict_prototypes=yes
+else case e in #(
+  e) tnt_cv_cc_flag__Wstrict_prototypes=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+	CFLAGS=$tnt_save_CFLAGS
+	 ;;
+esac
+fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wstrict_prototypes" >&5
+printf '%s\n' "$tnt_cv_cc_flag__Wstrict_prototypes" >&6; }
+	if test "x$tnt_cv_cc_flag__Wstrict_prototypes" = xyes
+then :
+  CFLAGS="$CFLAGS -Wstrict-prototypes"
+fi
+
+
+
+
+	{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: checking whether $CC supports -Wold-style-definition" >&5
+printf %s "checking whether $CC supports -Wold-style-definition... " >&6; }
+if test ${tnt_cv_cc_flag__Wold_style_definition+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e)
+	tnt_save_CFLAGS=$CFLAGS
+	CFLAGS="$CFLAGS -Wold-style-definition"
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main (void)
+{
+return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
+then :
+  tnt_cv_cc_flag__Wold_style_definition=yes
+else case e in #(
+  e) tnt_cv_cc_flag__Wold_style_definition=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
+	CFLAGS=$tnt_save_CFLAGS
+	 ;;
+esac
+fi
+{ printf '%s\n' "$as_me:${as_lineno-$LINENO}: result: $tnt_cv_cc_flag__Wold_style_definition" >&5
+printf '%s\n' "$tnt_cv_cc_flag__Wold_style_definition" >&6; }
+	if test "x$tnt_cv_cc_flag__Wold_style_definition" = xyes
+then :
+  CFLAGS="$CFLAGS -Wold-style-definition"
+fi
+
 
 
 cat >confcache <<\_ACEOF
@@ -11955,5 +11953,4 @@ fi
 
 { printf '%s\n' "$as_me:${as_lineno-$LINENO}: ---- Check ok. Type now \"make\" to compile and then \"make install\" to install." >&5
 printf '%s\n' "$as_me: ---- Check ok. Type now \"make\" to compile and then \"make install\" to install." >&6;}
-
 

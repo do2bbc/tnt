@@ -31,9 +31,7 @@ static char frontend_socket[MAXCHAR];
 static char frontend_socket2[MAXCHAR];
 
 
-static void getrowcols(rows, cols)
-int *rows;
-int *cols;
+static void getrowcols(int *rows, int *cols)
 {
 #ifdef TIOCGWINSZ
 	struct winsize ws;
@@ -71,7 +69,7 @@ int *cols;
 #endif	
 }
 
-void init_console()
+void init_console(void)
 {
   tcgetattr(0,&okbd_termios);
   nkbd_termios = okbd_termios;
@@ -92,12 +90,12 @@ void init_console()
   tcsetattr(0,TCSADRAIN,&nkbd_termios);
 }
 
-void exit_console()
+void exit_console(void)
 {
   tcsetattr(0,TCSADRAIN,&okbd_termios);
 }
 
-void sigalarm()
+void sigalarm(int signum __attribute__((unused)))
 {
 }
 
@@ -153,9 +151,7 @@ struct sockaddr *build_sockaddr(const char *name, int *addrlen)
   return &addr.sa;
 }
 
-static int analyse_value(str1,str2)
-char *str1;
-char *str2;
+static int analyse_value(char *str1, char *str2)
 {
   int tmp;
 
@@ -175,9 +171,7 @@ char *str2;
   return(1);
 }
 
-int read_init_file(argc,argv)
-int argc;
-char *argv[];
+int read_init_file(int argc, char *argv[])
 {
   FILE *init_file_fp = NULL;
   int file_end;

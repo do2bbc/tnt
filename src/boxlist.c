@@ -10,33 +10,33 @@
 #include "tnt.h"
 #include "boxlist.h"
 /* external function declarations */
-extern void beep();
-extern void check_bid();
-extern void close_file();
-extern int close_window();
-extern void cmd_actiface();
-extern void cmd_display();
-extern void dat_input();
-extern int get_line_noconv();
-extern int iface_active();
-extern void insert_cr_rx();
-extern void mb_charout();
-extern void mb_input();
-extern void mb_nextline();
-extern void open_logfile();
-extern int open_window();
-extern void pre_charout();
-extern void pre_nextline();
-extern void real_screen();
-extern void real_screen_hold();
-extern void rem_data_display_buf();
-extern void rem_mb_display_buf();
-extern void sel_mailbox();
-extern void statlin_update();
-extern void win_attrib();
-extern void win_charout_cntl();
-extern void win_textout_len();
-extern void write_iface();
+extern void beep(void);
+extern void check_bid(int channel, char *bid);
+extern void close_file(int par1, int par2 , int channel, int len , int mode, char *str);
+extern int close_window(struct window *win);
+extern void cmd_actiface(int par1, int par2, int channel, int len, int mode, char *str);
+extern void cmd_display(int flag, int channel, char *buffer, int cr);
+extern void dat_input(int channel, char *str, int len);
+extern int get_line_noconv(char *str, struct window *win);
+extern int iface_active(int channel);
+extern void insert_cr_rx(int channel);
+extern void mb_charout(char ch);
+extern void mb_input(char *str, int len);
+extern void mb_nextline(void);
+extern void open_logfile(int type, int flag, int channel, int len, int mode, char *str);
+extern int open_window(int lines, struct window *win, int bot);
+extern void pre_charout(int channel, char ch);
+extern void pre_nextline(int channel);
+extern void real_screen(struct real_layout *layout);
+extern void real_screen_hold(struct real_layout *layout, int part);
+extern void rem_data_display_buf(int channel, char *buffer, int len);
+extern void rem_mb_display_buf(char *buffer, int len);
+extern void sel_mailbox(void);
+extern void statlin_update(void);
+extern void win_attrib(char ch, struct window *win);
+extern void win_charout_cntl(char ch, struct window *win);
+extern void win_textout_len(char *str, int len, struct window *win, int conv);
+extern void write_iface(int channel, int len, char *str);
 
 extern int act_mode;
 extern int act_channel;
@@ -149,7 +149,7 @@ static void blist_analyse_line(int channel,char key,int flag);
 void cmd_xblist(int par1,int par2,int channel,int len,int mode, char *str);
 
 /* load boxlist commands file */
-static void load_blcmdfile()
+static void load_blcmdfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -304,7 +304,7 @@ static void load_blcmdfile()
   }
 }
 
-static void clear_blcmdfile()
+static void clear_blcmdfile(void)
 {
   struct blcmdlist *blcmdlist_wrk;
   struct blcmdlist *blcmdlist_tmp;
@@ -328,10 +328,8 @@ static void clear_blcmdfile()
 }
 
 /* reload boxlist command file */
-void cmd_ldblcmd(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_ldblcmd(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   clear_blcmdfile();
   load_blcmdfile();
   cmd_display(mode,channel,OK_TEXT,1);
@@ -339,10 +337,8 @@ char *str __attribute__((unused));{
 }
 
 /* list boxlist command data */
-void cmd_lsblcmd(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_lsblcmd(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   char disp_line[256]; 
   int found;
   struct blcmdlist *blcmdlist_wrk;
@@ -693,11 +689,7 @@ void blist_keypressed(int channel,char ch)
 }
 
 /* display line on boxlist-screen */
-static void blist_textout_len(buf,len,mode,channel)
-char *buf;
-int len;
-int mode;
-int channel;
+static void blist_textout_len(char *buf, int len, int mode, int channel)
 {
 #if defined(USE_IFACE) && (! defined(DPBOXT))
   if (mode == M_MAILBOX) {
@@ -718,9 +710,7 @@ int channel;
 }
 
 /* character to boxlist screen */
-void blist_charout_cntl(channel,ch)
-int channel;
-char ch;
+void blist_charout_cntl(int channel, char ch)
 {
 #if defined(USE_IFACE) && (! defined(DPBOXT)) 
   if (bl_mode == M_MAILBOX) {
@@ -741,10 +731,7 @@ char ch;
 }
 
 /* mark selected line in boxlist screen */
-static void blist_mark_line(channel,str,len)
-int channel;
-char *str;
-int len;
+static void blist_mark_line(int channel, char *str, int len)
 {
 #if defined(USE_IFACE) && (! defined(DPBOXT))
   if (bl_mode == M_MAILBOX) {
@@ -774,10 +761,7 @@ int len;
 
 #if defined(USE_IFACE) && (! defined(DPBOXT))
 /* mark selected line as present in box */
-static void blist_have_line(channel,str,len)
-int channel;
-char *str;
-int len;
+static void blist_have_line(int channel, char *str, int len)
 {
   win_attrib(att_special,&boxlistwin[channel]);
   win_textout_len(str,len,&boxlistwin[channel],1);
@@ -787,8 +771,7 @@ int len;
 }
 
 /* check if line is present in box */
-static int check_bid_in_line(channel)
-int channel;
+static int check_bid_in_line(int channel)
 {
   char str[MAXCOLS+1];
   int len;
@@ -811,9 +794,7 @@ int channel;
   return(0);
 }
 
-void next_bid(result,channel)
-int result;
-int channel;
+void next_bid(int result, int channel)
 {
   struct boxlist_file *blfile;
 
@@ -836,7 +817,7 @@ int channel;
 #endif
 
 /* select boxlist screen */
-void sel_boxlist()
+void sel_boxlist(void)
 {
   if (act_mode == M_BOXLIST) {
 #if defined(USE_IFACE) && (! defined(DPBOXT))
@@ -889,11 +870,7 @@ void sel_boxlist()
 }
 
 /* send generated line */
-static void blist_send_line(channel,str,len,end)
-int channel;
-char *str;
-int len;
-int end;
+static void blist_send_line(int channel, char *str, int len, int end)
 {
   int i;
 #ifdef DPBOXT
@@ -1118,10 +1095,8 @@ static void add_tempfilename(char *tmpname)
 }
 
 /* open a temporary file for boxlist */
-void cmd_logblist(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_logblist(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   char *tmpname;
   struct tmpname_entry *newentry;
   struct tmpname_entry *listentry;
@@ -1189,12 +1164,7 @@ static void scan_for_board(char *buffer,int len)
 
 /* start a boxlist screen with specified file */
 /* par1 = 1: no check whether boxlist already open (be careful) */
-void cmd_blist(par1,par2,channel,len,mode,str)
-int par1;
-int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void cmd_blist(int par1, int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   int file_len;
   int end;
@@ -1426,10 +1396,8 @@ char *str;
 
 #if defined(USE_IFACE) || defined(DPBOXT)
 /* restore last saved boxlist contents */
-void cmd_blrestore(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_blrestore(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   if (next_blist_save) {
     if (mbboxlist_file.type != -1) {
       close_window(&mbboxlistwin);
@@ -1466,10 +1434,8 @@ char *str __attribute__((unused));{
 }
 
 /* show number of save buffers */
-void cmd_showblsv(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_showblsv(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   char buffer[80];
   
   sprintf(buffer, _("Number of used save buffers: %d"),next_blist_save);
@@ -1477,10 +1443,8 @@ char *str __attribute__((unused));{
 }
 
 /* flush all save buffers */
-void cmd_blflush(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_blflush(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   while (next_blist_save) {
     close_window(&blistsavewin[next_blist_save-1]);
     next_blist_save--;
@@ -1490,10 +1454,8 @@ char *str __attribute__((unused));{
 #endif
 
 /* finish boxlist */
-void cmd_xblist(par1,par2,channel,len,mode,str)
-int par1 __attribute__((unused));int par2 __attribute__((unused));int channel;
-int len __attribute__((unused));int mode;
-char *str __attribute__((unused));{
+void cmd_xblist(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
+{
   struct boxlist_file *blfile;
 
 #if defined(USE_IFACE) && (! defined(DPBOXT))
@@ -1540,7 +1502,7 @@ char *str __attribute__((unused));{
 }
 
 /* init of boxlist */
-void init_blist()
+void init_blist(void)
 {
   int i;
   int j;
@@ -1579,7 +1541,7 @@ void init_blist()
 #endif
 }
 
-void reinit_blist()
+void reinit_blist(void)
 {
   int i;
   int j;
@@ -1625,7 +1587,7 @@ void reinit_blist()
 }
 
 /* exit of boxlist */
-void exit_blist()
+void exit_blist(void)
 {
   int i;
   struct tmpname_entry *listentry;
@@ -1661,14 +1623,14 @@ void exit_blist()
 }
 
 #ifndef DPBOXT
-void free_boxlist()
+void free_boxlist(void)
 {
   free(boxlist_file);
   free(boxlistwin);
   free(boxlist_layout);
 }
 
-int alloc_boxlist()
+int alloc_boxlist(void)
 {
   boxlist_file = (struct boxlist_file *)
     malloc(tnc_channels * sizeof(struct boxlist_file));
@@ -1683,12 +1645,7 @@ int alloc_boxlist()
 #endif
 
 #if defined(USE_IFACE) || defined(DPBOXT)
-void cmd_xbox(par1,par2,channel,len,mode,str)
-int par1;
-int par2 __attribute__((unused));int channel;
-int len;
-int mode;
-char *str;
+void cmd_xbox(int par1, int par2 __attribute__((unused)), int channel, int len, int mode, char *str)
 {
   int newchannel;
   char command[256];
