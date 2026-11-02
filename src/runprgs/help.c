@@ -8,7 +8,12 @@
  * License.
  */
 
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 64
+#endif
+
 #include <stdio.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
@@ -36,13 +41,26 @@ int main (void)
          "Start with \"//run <program>\".\n\n");
 
   while(1) {
+    errno = 0;
     de = readdir(run_dir);
-    if(de == NULL) break;
+    if(de == NULL) {
+      if(errno != 0) {
+        perror("readdir");
+        closedir(run_dir);
+        return 1;
+      }
+      break;
+    }
     if(de->d_name[0] != '.') {
       strcpy(tmp_str, TNT_RUN_PATH);
       strcat(tmp_str, "/");
       strcat(tmp_str, de->d_name);
       tmp = stat(tmp_str, &st);
+      if(tmp != 0) {
+        perror(tmp_str);
+        closedir(run_dir);
+        return 1;
+      }
       if(tmp == 0) {
         tmp = S_ISREG(st.st_mode);
         if(tmp != 0) {

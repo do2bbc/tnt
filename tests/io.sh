@@ -16,6 +16,9 @@ extract()
 }
 
 cat > "$tmp/test.c" <<'EOF'
+#ifndef _FILE_OFFSET_BITS
+#define _FILE_OFFSET_BITS 64
+#endif
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -64,15 +67,26 @@ EOF
 extract 'static void append_log(' log.c
 cat >> "$tmp/test.c" <<'EOF'
 static char help_dir[512];
+static int directory_error;
+static struct dirent *test_readdir(DIR *directory)
+{
+  if (directory_error) {
+    errno = EOVERFLOW;
+    return NULL;
+  }
+  return readdir(directory);
+}
 #undef TNT_RUN_PATH
 #define TNT_RUN_PATH help_dir
 #define CUR_VER "test"
 #define CUR_DAT "test"
 #define main help_main
+#define readdir test_readdir
 EOF
 extract 'int main (void)' runprgs/help.c
 cat >> "$tmp/test.c" <<'EOF'
 #undef main
+#undef readdir
 EOF
 awk '
   /^struct sysoplist \{/ { found = 1 }
@@ -194,6 +208,8 @@ int main(int argc, char **argv)
   assert(mkdir(path, 0700) == 0);
   assert(help_main() == 1);
   assert(rmdir(path) == 0);
+  directory_error = 1;
+  assert(help_main() == 1);
   return 0;
 }
 EOF

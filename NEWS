@@ -8,6 +8,8 @@
             Correct cookie header/footer lengths and preserve help text at EOF.
             Disable only leak detection under QEMU; retain ASan and UBSan.
             Keep broadcast file IDs and header sizes unsigned on 32-bit builds.
+            Use 64-bit directory/file metadata in the run-program help utility
+            and report directory scan failures instead of showing an empty list.
 
 2000/06/06: TNT 1.9.1 (added subversion .1 because of the many distributed
 		       1.9-versions)
