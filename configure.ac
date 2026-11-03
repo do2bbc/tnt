@@ -1,11 +1,10 @@
 dnl configure.ac for tnt, 2002/11/17
 AC_PREREQ([2.69])
-AC_INIT([tnt], [1.9.2])
+AC_INIT([tnt], [1.9.3-beta1])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CANONICAL_HOST
 AM_INIT_AUTOMAKE([foreign])
-AC_CONFIG_MACRO_DIRS([m4])
 AC_USE_SYSTEM_EXTENSIONS
 
 AH_TEMPLATE([ENABLE_NLS], [Define to 1 if NLS is requested.])
@@ -38,11 +37,26 @@ AC_PROG_MAKE_SET
 AC_CHECK_HEADERS(fcntl.h strings.h sys/ioctl.h sys/time.h unistd.h \
 		 signal.h string.h ctype.h time.h dirent.h sys/stat.h \
 		 sys/types.h sys/wait.h errno.h libintl.h locale.h)
-AC_CHECK_LIB(ncurses, main,, [ AC_CHECK_LIB(termcap, main) ])
+AC_CHECK_HEADERS([termcap.h langinfo.h], [],
+	[AC_MSG_ERROR([termcap.h and langinfo.h are required])])
+AC_SEARCH_LIBS([tgetent], [tinfo ncursesw ncurses], [],
+	[AC_MSG_ERROR([Install the ncurses development library])])
 
-AC_CHECK_LIB(intl, gettext)
-
-AM_GNU_GETTEXT
+AC_ARG_ENABLE([nls], AS_HELP_STRING([--disable-nls], [disable translations]),
+	[], [enable_nls=yes])
+AS_IF([test "x$enable_nls" = xyes], [
+	AC_CHECK_HEADER([libintl.h], [],
+		[AC_MSG_ERROR([System gettext headers are required for translations])])
+	AC_SEARCH_LIBS([gettext], [intl], [],
+		[AC_MSG_ERROR([System gettext is required for translations])])
+	AC_CHECK_FUNCS([bind_textdomain_codeset], [],
+		[AC_MSG_ERROR([System gettext must support bind_textdomain_codeset])])
+	AC_PATH_PROG([MSGFMT], [msgfmt])
+	AS_IF([test -z "$MSGFMT"],
+		[AC_MSG_ERROR([Install gettext tools or use --disable-nls])])
+	AC_DEFINE([ENABLE_NLS], [1], [Define to 1 if NLS is requested.])
+])
+AM_CONDITIONAL([ENABLE_NLS], [test "x$enable_nls" = xyes])
 
 dnl Initial Default Values
 cwax25=0
@@ -460,8 +474,7 @@ AC_CONFIG_FILES([
 	examples/tntc.ini
 	examples/sounds/Makefile
 	examples/Makefile
-	intl/Makefile
-	po/Makefile.in
+	po/Makefile
 	src/Makefile
 	src/runprgs/tntrun.h
 	src/runprgs/Makefile

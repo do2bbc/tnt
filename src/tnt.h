@@ -95,8 +95,8 @@
 #endif
 
 /* Global version and date */
-#define TNT_DATE "2023/01/07"
-#define TNT_VERSION "V1.9.3"
+#define TNT_DATE "2026/11/03"
+#define TNT_VERSION "V1.9.3-beta1"
 
 
 /*
@@ -479,17 +479,11 @@ struct staterr {
 #endif
  
 #ifdef HAVE_NLS
-#ifdef HAVE_LIBINTL_H
 #include <libintl.h>
-#else
-#include "../intl/libintl.h"
-#endif
-#ifdef HAVE_LOCALE_H
 #include <locale.h>
 #define _(str) gettext(str)
 #else
 #define _(str) str
-#endif
 #endif
 
 #ifndef PACKAGE

@@ -12,6 +12,7 @@
 */
 
 #include "tnt.h"
+#include "terminal.h"
 #include "init.h"
 
 #include <errno.h>
@@ -243,6 +244,9 @@ int ax25k_active;
 static int analyse_value(char *str1, char *str2)
 {
   int tmp;
+
+  if (strncmp(str1, "palette_", 8) == 0)
+    return terminal_palette_option(str1 + 8, str2);
   
 #ifndef DPBOXT
   if (strcmp(str1,"use_select") == 0) {

@@ -13,7 +13,6 @@ help_SOURCES	= help.c tntrun.h
 tnt_info_SOURCES	= info.c tntrun.h
 logcall_SOURCES	= logcall.c tntrun.h
 
-AM_CPPFLAGS	= -I../../intl
 EXTRA_DIST	= READMEBIN tntrun.h.in $(tntbin_DATA)
 
 all-local:
@@ -28,4 +27,3 @@ install-exec-hook:
 
 uninstall-hook:
 	rm -f $(DESTDIR)$(tntbindir)/info
-

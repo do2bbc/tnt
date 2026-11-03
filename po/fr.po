@@ -10,8 +10,10 @@ msgstr ""
 "POT-Creation-Date: 2002-11-17 00:09+0100\n"
 "PO-Revision-Date: 2000-01-31 22:28+0200\n"
 "Last-Translator: Laurent F5SOH <f5soh@bigfoot.com>\n"
+"Language-Team: French\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: iso-8859-1\n"
 
 #: src/ax25k.c:310
@@ -395,11 +397,11 @@ msgstr "RX: %d/%d [%d%%], %d Baud, reste : %d minute"
 #: src/file.c:1151
 #, c-format
 msgid ""
-"AutoBIN-receive not successful !\r       Checksum: %d, Received Checksum: %d"
-"\r       Total time: %d seconds, Transfer rate: %d Baud"
+"AutoBIN-receive not successful !\r       Checksum: %d, Received Checksum: "
+"%d\r       Total time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
-"Reception AutoBIN non reussie !\r       Checksum: %d,    Checksum Recu : %d"
-"\r       Temps total: %d secondes, Taux de transfert: %d Baud"
+"Reception AutoBIN non reussie !\r       Checksum: %d,    Checksum Recu : "
+"%d\r       Temps total: %d secondes, Taux de transfert: %d Baud"
 
 #: src/file.c:1159
 #, c-format
@@ -422,8 +424,8 @@ msgstr ""
 #: src/file.c:1179
 #, c-format
 msgid ""
-"AutoBIN-receive finished\rFilename: %s\rChecksum: %d, Received Checksum: %d"
-"\rTotal time: %d seconds, Transfer rate: %d Baud"
+"AutoBIN-receive finished\rFilename: %s\rChecksum: %d, Received Checksum: "
+"%d\rTotal time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
 "Reception AutoBIN terminee\rNom de fichier: %s\rChecksum: %d, Checksum Recu: "
 "%d\rTemps total: %d secondes, Taux de transfert: %d Baud"
@@ -454,8 +456,8 @@ msgstr "TX: %d/%d [%d%%], %d Baud, reste : %d minute"
 msgid ""
 "AutoBIN-send finished\r       Total time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
-"Envoi AutoBINN termine\r       Temps total: %d secondes, Taux de transfert: %"
-"d Baud"
+"Envoi AutoBINN termine\r       Temps total: %d secondes, Taux de transfert: "
+"%d Baud"
 
 #: src/file.c:1813
 #, c-format
@@ -990,7 +992,7 @@ msgstr "<TNT>: utiliser //CH <port/indicatif> <texte>%s"
 #: src/remote.c:3611
 #, c-format
 msgid "<TNT>:station %s not connected!%s"
-msgstr "<TNT>:la station n'est pas connectee!%s"
+msgstr "<TNT>:la station %s n'est pas connectee!%s"
 
 #: src/remote.c:3620
 #, c-format

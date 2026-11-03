@@ -12,6 +12,7 @@ src/tntc
 src/runprgs/help
 src/runprgs/info
 src/runprgs/logcall
+src/runprgs/tnt-info
 
 # Generated files from configure
 Makefile
@@ -39,6 +40,13 @@ po/cat-id-tbl.c
 po/POTFILES
 intl/Makefile
 intl/po2tbl.sed
+po/*.mo
+po/*.gmo
+
+# Automake test results
+test-suite.log
+tests/*.log
+tests/*.trs
 
 # Build system files (generated from templates)
 conf/Makefile

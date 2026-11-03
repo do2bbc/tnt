@@ -76,6 +76,47 @@ make
 
 ## Compiler Checks and Tests
 
+### Terminal modernization beta
+
+The `beta` branch identifies itself as `V1.9.3-beta1`. It uses the system
+ncurses/libtinfo library and system gettext; the historical bundled gettext
+sources are no longer compiled or used as a fallback. Install gettext tools
+for catalog compilation, or configure with `--disable-nls`. Translation
+catalogs are maintained as UTF-8 and checked for printf-format mismatches.
+
+Terminal profiles recognize `xterm*`, `rxvt*`, `screen*` and `tmux*`, including
+their 256-color variants. Color output is disabled when the terminal database
+reports fewer than eight colors. Existing `attc_*` settings retain their
+meaning. Optional `palette_<role> foreground,background` settings accept
+indexes 0-255 or `#RRGGBB`; see `examples/tnt.ini.in` for role names.
+RGB is enabled for local terminals advertising `COLORTERM=truecolor` or
+`COLORTERM=24bit`. Otherwise RGB and out-of-range palette indexes are mapped
+to the nearest supported palette color. Daemon clients conservatively use
+the palette supported by their advertised `TERM`, not the server's
+`COLORTERM`. Actual colors still depend on the terminal's configured palette.
+
+On UTF-8 terminals, TNT converts its existing Latin-1 screen bytes to UTF-8
+at the terminal boundary and decodes representable keyboard input back to
+legacy bytes. This also applies to the `tntc` frontend. Radio traffic, files,
+screen-buffer layout and protocol encodings are **not** changed to UTF-8.
+Characters outside Latin-1 (for example emoji, combining marks and CJK) are
+rejected with a bell instead of being sent as corrupted radio text. This is
+UTF-8 terminal compatibility, not a Unicode editor or UTF-8 radio protocol.
+Legacy locales, including the Pi's existing `de_DE` locale, keep byte-for-byte
+terminal I/O. Use a valid UTF-8 locale and the matching terminal encoding to
+enable conversion; changing the locale alone does not change LXTerminal's
+encoding preference. No system-wide locale change is required.
+
+When upgrading an existing installation, merge the new terminal-profile
+patterns into the user's active `termcap.tnt`; installing example files does
+not override private profiles. The beta does not add live resize handling:
+the configured 80-256-column limit and start-script geometry remain in effect.
+
+The terminal regression suite tests all 256 byte conversions, split UTF-8
+input, unsupported/invalid sequences, legacy and UTF-8 I/O, terminal-profile
+matching, intensity reset, indexed/RGB colors, reduced-palette fallback and
+attribute-buffer limits under ASan/UBSan.
+
 Configure enables `-Wall`, `-Wextra`, `-Wstrict-prototypes` and
 `-Wold-style-definition` when supported. No legacy-warning suppressions or
 forced pre-C23 dialect are added.

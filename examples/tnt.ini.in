@@ -271,6 +271,15 @@ altstat 0
 # --------------------------------------------------------------------------
 
 # attributes for color
+#
+# Optional beta palettes override foreground/background for a role.
+# Values are terminal palette indexes (0-255) or #RRGGBB, separated by a comma.
+# RGB requires COLORTERM=truecolor/24bit; other terminals use the nearest
+# supported palette color. Existing attc_* intensity/blink settings still apply.
+# Roles: normal, statline, monitor, cstatline, controlchar, remote,
+#        special, monport1, monport2.
+# palette_normal 7,0
+# palette_statline #101010,#80c0ff
 
 # normal characters
 attc_normal 0x47
@@ -333,4 +342,3 @@ supp_hicntl 0
 # NOTE: a value of '1' means that TNT have to analysis all frames of the
 #       network which will cause a high load if you are using a busy ethernet
 # fullmoni_flag 0
-

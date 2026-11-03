@@ -12,6 +12,7 @@
 */
 
 #include "tnt.h"
+#include "terminal.h"
 
 extern char attc_normal;
 extern char attc_statline;
@@ -106,6 +107,8 @@ static int ins_line;
 static int del_line;
 static int cur_always_vis;
 static int no_attr;
+static int terminal_colors = 8;
+static int terminal_truecolor;
 char *_tptr = NULL;
 
 void frontend_exit(int deact);
@@ -481,7 +484,7 @@ static void write_frontend(char *buf, int len)
 static void phy_strout(char *str)
 {
   if (!tnt_daemon) {
-    tnt_write_all(1,str,strlen(str));
+    terminal_write(1,str,strlen(str));
   }
   else {
     write_frontend(str,strlen(str));
@@ -492,7 +495,7 @@ static int phy_charout(int value)
 {
   char ch = value;
   if (!tnt_daemon) {
-    return tnt_write_all(1,&ch,1);
+    return terminal_write(1,&ch,1);
   }
   else {
     write_frontend(&ch,1);
@@ -527,6 +530,11 @@ void term_exit(void)
 int term_init(char *extterm, int extlines, int extcols)
 {
  int term_found;
+ const char *colorterm = getenv("COLORTERM");
+
+ terminal_truecolor = !tnt_daemon && colorterm != NULL &&
+   (strcmp(colorterm, "truecolor") == 0 || strcmp(colorterm, "24bit") == 0);
+ no_attr = 0;
 
  termcaplist_root = NULL;
  load_termcapfile();
@@ -594,8 +602,7 @@ int term_init(char *extterm, int extlines, int extcols)
    att_array[8] = attm_monport2;
  }
  if (termcap) {
-  if ((tbuf = (char *)malloc(1024)) == NULL ||
-  	(cbuf = (char *)malloc(1024)) == NULL) {
+  if ((cbuf = (char *)malloc(1024)) == NULL) {
   	printf("Out of memory.\n");
   	return(1);
   }
@@ -609,7 +616,22 @@ int term_init(char *extterm, int extlines, int extcols)
   	default:
   		break;
   }
-  _tptr = tbuf;
+  /* ncurses owns capability strings when the destination area is NULL. */
+  tbuf = NULL;
+  _tptr = NULL;
+  terminal_colors = tgetnum("Co");
+  if (terminal_colors < 8) {
+    color = 0;
+    att_array[0] = attm_normal;
+    att_array[1] = attm_statline;
+    att_array[2] = attm_monitor;
+    att_array[3] = attm_cstatline;
+    att_array[4] = attm_controlchar;
+    att_array[5] = attm_remote;
+    att_array[6] = attm_special;
+    att_array[7] = attm_monport1;
+    att_array[8] = attm_monport2;
+  }
 
   if ((CM = (char*)tgetstr("cm", &_tptr)) == NULL) {
   	printf(_("No cursor motion capability (cm)\n"));
@@ -737,6 +759,7 @@ int term_init(char *extterm, int extlines, int extcols)
   	printf(_("Number of terminal columns unknown\n"));
   	return(1);
   }
+  terminal_colors = 8;
   AL = strdup("\033[L");
   ins_line = 1;
   DL = strdup("\033[M");
@@ -758,7 +781,7 @@ int term_init(char *extterm, int extlines, int extcols)
   cur_always_vis = 0;
   scroll_reg = 1;
   SO = strdup("\033[1m");
-  SE = strdup("\033[21m");
+  SE = strdup("\033[22m");
   US = strdup("\033[4m");
   UE = strdup("\033[24m");
   MB = strdup("\033[5m");
@@ -999,62 +1022,63 @@ static void phy_clreol(void)
   }
 }
 
-static void str_attrout(char *str, char ch2)
+static int append_attribute(char *str, size_t size, const char *attribute)
 {
-  char tch;
+  size_t used = strlen(str);
+  size_t length = strlen(attribute);
+
+  if (used >= size || length >= size - used) {
+    fprintf(stderr, "TNT: terminal attributes exceed output buffer.\n");
+    return -1;
+  }
+  memcpy(str + used, attribute, length + 1);
+  return 0;
+}
+
+static int str_attrout(char *str, size_t size, char ch2)
+{
   char ch;
 
   if (ch2 < ATT_NBR) {
     ch = att_array[(int)ch2];
   }
-  else return;
+  else return 0;
 
   if (color) {
-    strcat (str,"\033[");
-    if (ch & 0x80) strcat(str,"5;");
-    else strcat(str,"25;");
-    if (ch & 0x08) strcat(str,"1;");
-    else strcat(str,"24;");
-    strcat(str,"3");
-    tch = (ch & 07)+'0';
-    {
-      size_t len = strlen(str);
-      str[len] = tch;
-      str[len + 1] = '\0';
-    }
-    strcat(str,";4");
-    tch = ((ch >> 4) & 07)+'0';
-    {
-      size_t len = strlen(str);
-      str[len] = tch;
-      str[len + 1] = '\0';
-    }
-    strcat(str,"m");
+    char sequence[96];
+    if (terminal_color_sequence(sequence, sizeof(sequence), ch2, ch,
+                                terminal_colors, terminal_truecolor) < 0)
+      return -1;
+    return append_attribute(str, size, sequence);
   }
   else if (!no_attr) {
     /* reset attributes */
-    if (ME != NULL) strcat(str,ME);
-    else if (SE != NULL) strcat(str,SE);
-    else if (UE != NULL) strcat(str,UE);
+    const char *reset = ME != NULL ? ME : SE != NULL ? SE : UE;
+    if (reset != NULL && append_attribute(str, size, reset) < 0) return -1;
     if ((ch & 0x01) && (SO != NULL) && !((SE == NULL) && (ME == NULL)))
-      strcat(str,SO);
+      if (append_attribute(str, size, SO) < 0) return -1;
     if ((ch & 0x02) && (US != NULL) && !((UE == NULL) && (ME == NULL)))
-      strcat(str,US);
-    if ((ch & 0x04) && (MB != NULL) && (ME != NULL)) strcat(str,MB);
-    if ((ch & 0x08) && (MR != NULL) && (ME != NULL)) strcat(str,MR);
-    if ((ch & 0x10) && (MD != NULL) && (ME != NULL)) strcat(str,MD);
-    if ((ch & 0x20) && (MH != NULL) && (ME != NULL)) strcat(str,MH);
+      if (append_attribute(str, size, US) < 0) return -1;
+    if ((ch & 0x04) && (MB != NULL) && (ME != NULL))
+      if (append_attribute(str, size, MB) < 0) return -1;
+    if ((ch & 0x08) && (MR != NULL) && (ME != NULL))
+      if (append_attribute(str, size, MR) < 0) return -1;
+    if ((ch & 0x10) && (MD != NULL) && (ME != NULL))
+      if (append_attribute(str, size, MD) < 0) return -1;
+    if ((ch & 0x20) && (MH != NULL) && (ME != NULL))
+      if (append_attribute(str, size, MH) < 0) return -1;
   }
+  return 0;
 }
 
 static void phy_attrout(char ch)
 {
-  char str[20];
+  char str[256];
   int i;
 
   if (!no_attr) {
     strcpy (str,"");
-    str_attrout(str,ch);
+    if (str_attrout(str,sizeof(str),ch) < 0) return;
     if ((i = strlen(str))) {
       if (!tnt_daemon) {
         tnt_write_all(1,str,i);
@@ -1282,7 +1306,7 @@ static void update_line(struct window *win, int phy_line)
   int i;
   int max_col;
 /*  char *tmpstr; */
-  char tmpstr[15*MAXCOLS+1];
+  char tmpstr[257*MAXCOLS+1];
 
 /*  tmpstr = (char *)malloc(15*COLS+1); */
   max_col = COLS;
@@ -1296,10 +1320,13 @@ static void update_line(struct window *win, int phy_line)
     /* if attribute not current, change it */
     if (*addr != att) {
       att = *addr;
-      str_attrout(tmpstr,att);
+      if (str_attrout(tmpstr,sizeof(tmpstr),att) < 0) return;
     }
     addr++;
-    strncat(tmpstr,addr,1);
+    {
+      char text[2] = {*addr, '\0'};
+      if (append_attribute(tmpstr, sizeof(tmpstr), text) < 0) return;
+    }
     addr++;
   }
   if (!termcap) phy_no_transl();

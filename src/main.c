@@ -13,6 +13,7 @@
 */
 
 #include "tnt.h"
+#include "terminal.h"
 #include "ax25k.h"
 
 #ifdef TNT_SOUND
@@ -323,10 +324,13 @@ int main(int argc, char *argv[])
   
   unlock = 0; /* set a default value for sure ! DL3FCJ */
  
+  terminal_encoding_init();
+
   /* startup national language support */
 #ifdef HAVE_NLS
   setlocale(LC_MESSAGES, "");
   bindtextdomain( (char *) PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset(PACKAGE, "ISO-8859-1");
   textdomain( (char *) PACKAGE);
 #endif
   
@@ -582,7 +586,8 @@ int main(int argc, char *argv[])
       if (!tnt_daemon) {
         if (FD_ISSET(0,&fdmask)) {
           if (read(0,&ch,1) == 1) {
-            keyboard_server(&act_state,&ch);
+            if (terminal_input(&ch))
+              keyboard_server(&act_state,&ch);
           } 
 #ifdef TNT_SERIAL
           served = 1;
@@ -714,8 +719,9 @@ int main(int argc, char *argv[])
 #endif
       kbd_res = 1;
       if (!tnt_daemon) {
-        if (read(0,&ch,1)) {
-          keyboard_server(&act_state,&ch);
+        if (read(0,&ch,1) == 1) {
+          if (terminal_input(&ch))
+            keyboard_server(&act_state,&ch);
           kbd_res = 0;
         }
       }

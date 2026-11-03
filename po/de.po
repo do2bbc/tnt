@@ -1,4 +1,4 @@
-# Deutsche Messages für TNT
+# Deutsche Messages fÃ¼r TNT
 # Copyright (C) 2000 Free Software Foundation, Inc.
 # Matthias Hensler <wsp@gmx.de>, 1999-2000.
 #
@@ -9,8 +9,10 @@ msgstr ""
 "POT-Creation-Date: 2002-11-17 00:09+0100\n"
 "PO-Revision-Date: 2002-11-17 00:06+0100\n"
 "Last-Translator: Matthias Hensler <matthias@wspse.de>\n"
+"Language-Team: German\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: iso-8859-1\n"
 
 #: src/ax25k.c:310
@@ -19,12 +21,12 @@ msgstr "tnt: Monitor ist bereits aktiv\n"
 
 #: src/ax25k.c:338
 msgid "tnt: invalid monitor-socket\n"
-msgstr "tnt: unzulässiger Monitor-Socket\n"
+msgstr "tnt: unzulÃ¤ssiger Monitor-Socket\n"
 
 #: src/ax25k.c:343
 #, c-format
 msgid "tnt: error opening monitor-socket: %s\n"
-msgstr "tnt: Fehler beim öffnen des Monitor-Sockets: %s\n"
+msgstr "tnt: Fehler beim Ã¶ffnen des Monitor-Sockets: %s\n"
 
 #: src/ax25k.c:349
 msgid "tnt: error connecting monitor-socket\n"
@@ -41,7 +43,7 @@ msgstr "tnt: Unproto ist bereits aktiv\n"
 #: src/ax25k.c:388 src/ax25k.c:444 src/ax25k.c:517
 #, c-format
 msgid "tnt: invalid AX25 port: %s\n"
-msgstr "tnt: unzulässiger AX25 port: %s\n"
+msgstr "tnt: unzulÃ¤ssiger AX25 port: %s\n"
 
 #: src/ax25k.c:421
 msgid "tnt: unproto already deactived\n"
@@ -54,7 +56,7 @@ msgstr "tnt: Malloc-Fehler in 'act_listen'\n"
 #: src/ax25k.c:542
 #, c-format
 msgid "tnt: call %s, port %s not listening\n"
-msgstr "tnt: Rufzeichen %s, Port %s hört nicht\n"
+msgstr "tnt: Rufzeichen %s, Port %s hÃ¶rt nicht\n"
 
 #: src/ax25k.c:614
 msgid "tnt: no AX.25 port data configured\n"
@@ -67,7 +69,7 @@ msgstr "tnt: Illegaler Default AX25-Port: %s\n"
 
 #: src/ax25k.c:776
 msgid "Error: can't open socket"
-msgstr "Fehler: Kann Socket nicht öffnen"
+msgstr "Fehler: Kann Socket nicht Ã¶ffnen"
 
 #: src/ax25k.c:791
 msgid "Error: can't bind socket"
@@ -79,11 +81,11 @@ msgstr "Fehler: Connect"
 
 #: src/ax25k.c:858 src/ax25k.c:892 src/keyboard.c:996 src/keyboard.c:1038
 msgid "Invalid command"
-msgstr "Ungültiger Befehl"
+msgstr "UngÃ¼ltiger Befehl"
 
 #: src/ax25k.c:868
 msgid "Invalid command string"
-msgstr "Ungültigter Befehlstring"
+msgstr "UngÃ¼ltigter Befehlstring"
 
 #: src/ax25k.c:1134
 msgid "tnt: error reading ax25-status (read_proc_ax25)\n"
@@ -108,7 +110,7 @@ msgstr "tnt: Konnte HWADDR nicht bekommen\n"
 
 #: src/bcast.c:471
 msgid "no mem for extended header informations"
-msgstr "Kein Speicher für erweiterte Header Informationen"
+msgstr "Kein Speicher fÃ¼r erweiterte Header Informationen"
 
 #: src/bcast.c:1023
 msgid "unpack error"
@@ -120,15 +122,15 @@ msgstr "Unbekannter Kompressionstyp"
 
 #: src/bcast.c:1077
 msgid "body checksum invalid"
-msgstr "Body-Prüfsumme illegal"
+msgstr "Body-PrÃ¼fsumme illegal"
 
 #: src/bcast.c:1083
 msgid "invalid length of body"
-msgstr "unzulässige Länge des Bodys"
+msgstr "unzulÃ¤ssige LÃ¤nge des Bodys"
 
 #: src/bcast.c:1088
 msgid "invalid header checksum"
-msgstr "unzulässige Header-Prüfsumme"
+msgstr "unzulÃ¤ssige Header-PrÃ¼fsumme"
 
 #: src/bcast.c:1092
 msgid "invalid header"
@@ -136,7 +138,7 @@ msgstr "illegaler Header"
 
 #: src/bcast.c:1096
 msgid "file open error"
-msgstr "Dateifehler beim öffnen"
+msgstr "Dateifehler beim Ã¶ffnen"
 
 #: src/bcast.c:1101 src/bcast.c:2172
 msgid "no mem"
@@ -159,7 +161,7 @@ msgstr "Fehler in holelist"
 
 #: src/bcast.c:1790 src/bcast.c:2203
 msgid "no mem for holelist"
-msgstr "Kein Speicher für holelist"
+msgstr "Kein Speicher fÃ¼r holelist"
 
 #: src/bcast.c:1937
 #, c-format
@@ -173,11 +175,11 @@ msgstr "Header empfangen: %s.%s"
 
 #: src/bcast.c:1943
 msgid "invalid file header"
-msgstr "Ungültiger Dateiheader"
+msgstr "UngÃ¼ltiger Dateiheader"
 
 #: src/bcast.c:2002
 msgid "open error"
-msgstr "Fehler beim öffnen"
+msgstr "Fehler beim Ã¶ffnen"
 
 #: src/bcast.c:2008
 msgid "seek error"
@@ -193,19 +195,19 @@ msgstr "Administrator Fehler"
 
 #: src/bcast.c:2137
 msgid "unmatching frame size"
-msgstr "unpassende Framegröße"
+msgstr "unpassende FramegrÃ¶ÃŸe"
 
 #: src/bcast.c:2145
 msgid "invalid frame crc"
-msgstr "ungültige Frame-CRC"
+msgstr "ungÃ¼ltige Frame-CRC"
 
 #: src/bcast.c:2154
 msgid "invalid file id in frame"
-msgstr "Ungültige Datei-ID in Frame"
+msgstr "UngÃ¼ltige Datei-ID in Frame"
 
 #: src/bcast.c:2197
 msgid "invalid error"
-msgstr "ungültiger Error"
+msgstr "ungÃ¼ltiger Error"
 
 #: src/bcast.c:2211
 msgid "file create error"
@@ -221,7 +223,7 @@ msgstr "falsche Anforderungsflags"
 
 #: src/bcast.c:2255
 msgid "wrong request frame length"
-msgstr "falsche Länge der Anforderungsflags"
+msgstr "falsche LÃ¤nge der Anforderungsflags"
 
 #: src/bcast.c:2398
 msgid "rx aborted"
@@ -235,7 +237,7 @@ msgstr "Keine Broadcast-RX Dateien aktiv"
 msgid ""
 "FileID   RX from   Nr  MsgID        Size     Holes RXrdy last RX  Fhead BBS"
 msgstr ""
-"DateiID  RX von    Nr  MsgID        Größe    Holes RXrdy last RX  Fhead BBS"
+"DateiID  RX von    Nr  MsgID        GrÃ¶ÃŸe    Holes RXrdy last RX  Fhead BBS"
 
 #: src/bcast.c:2724
 msgid "No broadcast-TX files active"
@@ -243,7 +245,7 @@ msgstr "Keine Broadcast-TX Dateien aktiv"
 
 #: src/bcast.c:2728
 msgid "FileID   MsgID        Size     last TX "
-msgstr "DateiID  MsgID        Größe    last TX "
+msgstr "DateiID  MsgID        GrÃ¶ÃŸe    last TX "
 
 #: src/boxlist.c:299
 msgid "WARNING: blcmdfile is in wrong format, wrong line:"
@@ -260,7 +262,7 @@ msgstr "Boxliste bereits aktiv"
 
 #: src/boxlist.c:1260
 msgid "No save buffer left"
-msgstr "Kein Speicherpuffer übrig"
+msgstr "Kein Speicherpuffer Ã¼brig"
 
 #: src/boxlist.c:1285
 msgid "No boxlist file stored"
@@ -312,7 +314,7 @@ msgstr "Illegale Portnummer"
 
 #: src/connect.c:969
 msgid "not allowed to delete"
-msgstr "löschen nicht erlaubt"
+msgstr "lÃ¶schen nicht erlaubt"
 
 #: src/connect.c:996
 msgid "Invalid syntax"
@@ -321,12 +323,12 @@ msgstr "Illegale Syntax"
 #: src/cookie.c:22
 msgid ">> TNT/Linux (Hostmode-Terminal-Program) << ---> One cookie for you:\n"
 msgstr ""
-">> TNT/Linux (Hostmode-Terminal-Programm) << ---> Ein Cookie für Dich:\n"
+">> TNT/Linux (Hostmode-Terminal-Programm) << ---> Ein Cookie fÃ¼r Dich:\n"
 
 #: src/cookie.c:24
 msgid "------ //INFO: Station-Description, //HELP: Possible Commands ------\n"
 msgstr ""
-"------ //INFO: Stationsbeschreibung, //HELP: Mögliche Kommandos -------\n"
+"------ //INFO: Stationsbeschreibung, //HELP: MÃ¶gliche Kommandos -------\n"
 
 #: src/display.c:1205
 #, c-format
@@ -336,7 +338,7 @@ msgstr ">>> Huffmann-komprimiert (%0.1f %%)"
 #: src/display.c:1213
 #, c-format
 msgid "<%d byte binary data...>"
-msgstr "<%d Bytes Binärdaten...>"
+msgstr "<%d Bytes BinÃ¤rdaten...>"
 
 #: src/file.c:465
 msgid "Warning: 'remote_user' not existing, using root permissions!"
@@ -344,19 +346,19 @@ msgstr "Warnung: 'remote_user' existiert nicht, benutzt root-Rechte!"
 
 #: src/file.c:472
 msgid "Can't change to remote gid"
-msgstr "Kann Remote-GID nicht ändern"
+msgstr "Kann Remote-GID nicht Ã¤ndern"
 
 #: src/file.c:475
 msgid "Can't change to remote uid"
-msgstr "Kann Remote-UID nicht ändern"
+msgstr "Kann Remote-UID nicht Ã¤ndern"
 
 #: src/file.c:492
 msgid "Can't change back uid"
-msgstr "Kann UID nicht wieder ändern"
+msgstr "Kann UID nicht wieder Ã¤ndern"
 
 #: src/file.c:495
 msgid "Can't change back gid"
-msgstr "Kann GID nicht wieder ändern"
+msgstr "Kann GID nicht wieder Ã¤ndern"
 
 #: src/file.c:521 src/file.c:567 src/file.c:1526
 msgid "Illegal filename"
@@ -376,7 +378,7 @@ msgstr "Kann Datei nicht erstellen"
 
 #: src/file.c:633
 msgid "Ready for autoBIN-receive"
-msgstr "Bereit für autoBIN-Empfang"
+msgstr "Bereit fÃ¼r autoBIN-Empfang"
 
 #: src/file.c:650
 msgid "Cannot create file (YAPP-malloc)"
@@ -394,11 +396,11 @@ msgstr "RX: %d/%d [%d%%], %d Baud, Dauer: %d Minute"
 #: src/file.c:1151
 #, c-format
 msgid ""
-"AutoBIN-receive not successful !\r       Checksum: %d, Received Checksum: %d"
-"\r       Total time: %d seconds, Transfer rate: %d Baud"
+"AutoBIN-receive not successful !\r       Checksum: %d, Received Checksum: "
+"%d\r       Total time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
-"AutoBIN-Empfang nicht erfolgreich!\r       Prüfsumme: %d, Empfangene "
-"Prüfsumme: %d\r       Dauer insgesamt: %d Sekunden, Transferrate: %d Baud"
+"AutoBIN-Empfang nicht erfolgreich!\r       PrÃ¼fsumme: %d, Empfangene "
+"PrÃ¼fsumme: %d\r       Dauer insgesamt: %d Sekunden, Transferrate: %d Baud"
 
 #: src/file.c:1159
 #, c-format
@@ -406,8 +408,8 @@ msgid ""
 "AutoBIN-receive not successful !\rChecksum: %d, Received Checksum: %d\rTotal "
 "time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
-"AutoBIN-Empfang nicht Erfolgreich!\rPrüfsumme: %d, Empfangene Prüfsumme: %d"
-"\rDauer insgesamt: %d Sekunden, Transferrrate: %d Baud"
+"AutoBIN-Empfang nicht Erfolgreich!\rPrÃ¼fsumme: %d, Empfangene PrÃ¼fsumme: "
+"%d\rDauer insgesamt: %d Sekunden, Transferrrate: %d Baud"
 
 #: src/file.c:1171
 #, c-format
@@ -415,17 +417,17 @@ msgid ""
 "AutoBIN-receive finished\r       Checksum: %d, Received Checksum: %d\r       "
 "Total time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
-"AutoBIN-Empfang erfolgreich\r       Prüfsumme: %d, Empfangene Prüfsumme: %d"
-"\r       Dauer insgesamt: %d Sekunden, Transferrate: %d Baud"
+"AutoBIN-Empfang erfolgreich\r       PrÃ¼fsumme: %d, Empfangene PrÃ¼fsumme: "
+"%d\r       Dauer insgesamt: %d Sekunden, Transferrate: %d Baud"
 
 #: src/file.c:1179
 #, c-format
 msgid ""
-"AutoBIN-receive finished\rFilename: %s\rChecksum: %d, Received Checksum: %d"
-"\rTotal time: %d seconds, Transfer rate: %d Baud"
+"AutoBIN-receive finished\rFilename: %s\rChecksum: %d, Received Checksum: "
+"%d\rTotal time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
-"AutoBIN-Empfang erfolgreich\rDateiname: %s\rPrüfsumme: %d, Emfangene "
-"Prüfsumme: %d\rDauer insgesamt: %d Sekunden, Transferrate: %d Baud"
+"AutoBIN-Empfang erfolgreich\rDateiname: %s\rPrÃ¼fsumme: %d, Emfangene "
+"PrÃ¼fsumme: %d\rDauer insgesamt: %d Sekunden, Transferrate: %d Baud"
 
 #: src/file.c:1371 src/file.c:1397 src/file.c:1431
 msgid "ERROR: "
@@ -437,7 +439,7 @@ msgstr " nicht gefunden"
 
 #: src/file.c:1667
 msgid "Cannot open file (YAPP-malloc)"
-msgstr "Konnte Datei nicht öffnen (YAPP-malloc)"
+msgstr "Konnte Datei nicht Ã¶ffnen (YAPP-malloc)"
 
 #: src/file.c:1711
 msgid "Sending no file"
@@ -453,8 +455,8 @@ msgstr "TX: %d/%d [%d%%], %d Baud, verbleibend: %d Minute"
 msgid ""
 "AutoBIN-send finished\r       Total time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
-"AutoBIN-Sendung erfolgreich\r       Dauer insgesamt: %d Sekunden ,"
-"Transferrate: %d Baud"
+"AutoBIN-Sendung erfolgreich\r       Dauer insgesamt: %d "
+"Sekunden ,Transferrate: %d Baud"
 
 #: src/file.c:1813
 #, c-format
@@ -504,11 +506,11 @@ msgstr "Interface bereits offen"
 
 #: src/iface.c:1544
 msgid "Can't open stream socket, will try later again"
-msgstr "Kann Stream-Socket nicht öffnen, werde es später nochmal probieren"
+msgstr "Kann Stream-Socket nicht Ã¶ffnen, werde es spÃ¤ter nochmal probieren"
 
 #: src/iface.c:1545
 msgid "Can't connect to program, will try later again"
-msgstr "Kann Programm nicht connecten, werde es später nochmal probieren"
+msgstr "Kann Programm nicht connecten, werde es spÃ¤ter nochmal probieren"
 
 #: src/iface.c:1546
 msgid "Interface not active"
@@ -524,7 +526,7 @@ msgstr "Versuche Interface zu connecten"
 
 #: src/iface.c:1550
 msgid "Back at TNT"
-msgstr "Zurück bei TNT"
+msgstr "ZurÃ¼ck bei TNT"
 
 #: src/iface.c:1551
 msgid "Program not active"
@@ -576,7 +578,7 @@ msgid ""
 msgstr ""
 "Fehler: %s ist fehlerhaft in Zeile:\n"
 "%s\n"
-"       viele Dinge haben sich in TNT 1.9 geändert und evtl. ist\n"
+"       viele Dinge haben sich in TNT 1.9 geÃ¤ndert und evtl. ist\n"
 "       noch eine alte Konfigurationsdatei im Gebrauch. Hinweise\n"
 "       liefern die Beispieldateien\n"
 
@@ -587,7 +589,7 @@ msgstr "Zeile zu lang, ignoriert"
 #: src/keyboard.c:925
 #, c-format
 msgid "Sysop forced execution of remote command %s..."
-msgstr "Sysop hat den Remotebefehl %s ausgeführt..."
+msgstr "Sysop hat den Remotebefehl %s ausgefÃ¼hrt..."
 
 #: src/keyboard.c:1019 src/keyboard.c:1023
 msgid "Do you really want to exit (y/n)? "
@@ -607,7 +609,7 @@ msgstr "<leer>"
 
 #: src/keyboard.c:2067
 msgid "INVALID TNC STRING"
-msgstr "UNGÜLTIGER TNT-STRING"
+msgstr "UNGÃœLTIGER TNT-STRING"
 
 #: src/keyboard.c:2089
 msgid "Can't change directory"
@@ -624,7 +626,7 @@ msgstr "Resyncs: %d"
 
 #: src/keyboard.c:2209
 msgid "No corresponding control-character available"
-msgstr "Kein passendes Kontrollzeichen verfügbar"
+msgstr "Kein passendes Kontrollzeichen verfÃ¼gbar"
 
 #: src/keyboard.c:2249
 msgid "Can't load keyboard-macro-file"
@@ -632,7 +634,7 @@ msgstr "Kann Keyboard-Macro-Datei nicht laden"
 
 #: src/keyboard.c:2295
 msgid "Invalid screen specified"
-msgstr "Ungültiger Screen angegeben"
+msgstr "UngÃ¼ltiger Screen angegeben"
 
 #: src/keyboard.c:2344
 msgid "*** Note: Using default number of lines"
@@ -705,15 +707,15 @@ msgstr "Bitte gib Deinen Namen ein, mit //name <Dein Name>"
 #: src/main.c:330
 #, c-format
 msgid "ERROR: cannot create/open file for errorlog: %s\n"
-msgstr "FEHLER: Konnte Fehlerlogbuch nicht erstellen/öffnen: %s\n"
+msgstr "FEHLER: Konnte Fehlerlogbuch nicht erstellen/Ã¶ffnen: %s\n"
 
 #: src/main.c:386
 msgid "ERROR: invalid definition of frontend socket\n"
-msgstr "FEHLER: unzulässige Angabe des Frontend-Sockets\n"
+msgstr "FEHLER: unzulÃ¤ssige Angabe des Frontend-Sockets\n"
 
 #: src/main.c:390
 msgid "ERROR: Can't open stream socket\n"
-msgstr "FEHLER: Kann Stream-Socket nicht öffnen\n"
+msgstr "FEHLER: Kann Stream-Socket nicht Ã¶ffnen\n"
 
 #: src/main.c:406
 msgid "ERROR: Can't bind socket\n"
@@ -764,7 +766,7 @@ msgstr "Sorry, Passwortdatei nicht gefunden"
 
 #: src/priv.c:1069
 msgid "Passwordfile has incorrect length"
-msgstr "Passwortdatei hat falsche Länge"
+msgstr "Passwortdatei hat falsche LÃ¤nge"
 
 #: src/priv.c:1093
 msgid "Sorry, no Logintime recorded"
@@ -776,7 +778,7 @@ msgstr "Callliste fehlerhaft!"
 
 #: src/priv.c:1215
 msgid "No password available"
-msgstr "Kein Passwort verfügbar"
+msgstr "Kein Passwort verfÃ¼gbar"
 
 #: src/remote.c:392
 msgid "WARNING: sysfile is in wrong format, wrong line:"
@@ -804,7 +806,7 @@ msgstr "WARNUNG: extremote-Datei ist fehlerhaft in Zeile:"
 
 #: src/remote.c:906
 msgid "Invalid command !"
-msgstr "Ungültiger Befehl!"
+msgstr "UngÃ¼ltiger Befehl!"
 
 #: src/remote.c:910
 msgid "File closed"
@@ -812,7 +814,7 @@ msgstr "Datei geschlossen"
 
 #: src/remote.c:911
 msgid "Transmission aborted"
-msgstr "Übertragung abgebrochen"
+msgstr "Ãœbertragung abgebrochen"
 
 #: src/remote.c:912
 msgid "File open, end with //close"
@@ -860,7 +862,7 @@ msgstr "Anwendung: //COMP ON/OFF"
 
 #: src/remote.c:923
 msgid "Sorry, compression not possible"
-msgstr "Sorry, Kompression ist nicht möglich"
+msgstr "Sorry, Kompression ist nicht mÃ¶glich"
 
 #: src/remote.c:924
 msgid "Sorry, no access to this system"
@@ -868,7 +870,7 @@ msgstr "Sorry, keinen Zugriff auf dieses System"
 
 #: src/remote.c:925
 msgid "Sorry, box is down, please try later"
-msgstr "Sorry, Box ist nicht erreichbar, probier es später nochmal"
+msgstr "Sorry, Box ist nicht erreichbar, probier es spÃ¤ter nochmal"
 
 #: src/remote.c:926
 msgid "Channel   From        To          Starttime"
@@ -885,7 +887,7 @@ msgstr "AutoBIN-Empfang abgebrochen"
 #: src/remote.c:1450
 #, c-format
 msgid "<TNT>:Channel out of range.%s"
-msgstr "<TNT>:Kanal außer Reichweite.%s"
+msgstr "<TNT>:Kanal auÃŸer Reichweite.%s"
 
 #: src/remote.c:1461
 #, c-format
@@ -914,7 +916,7 @@ msgstr "<TNT>: illegaler Kanal%s"
 
 #: src/remote.c:1668
 msgid "<TNT>: Bell has rung.."
-msgstr "<TNT>: Klingel hat geläutet..."
+msgstr "<TNT>: Klingel hat gelÃ¤utet..."
 
 #: src/remote.c:1702
 #, c-format
@@ -928,7 +930,7 @@ msgstr "       Laufzeit von TNT:        %ldd %ldh %ldm %lds%s"
 
 #: src/remote.c:1736
 msgid "<TNT>: Last sysopactivity was before "
-msgstr "<TNT>: Letzte Sysopaktivität war vor "
+msgstr "<TNT>: Letzte SysopaktivitÃ¤t war vor "
 
 #: src/remote.c:1744
 #, c-format
@@ -937,7 +939,7 @@ msgstr "%ld Sekunden."
 
 #: src/remote.c:1765
 msgid "<OK>: string clear"
-msgstr "<OK>: String gelöscht"
+msgstr "<OK>: String gelÃ¶scht"
 
 #: src/remote.c:1816
 #, c-format
@@ -954,7 +956,7 @@ msgstr "Keine Zugriff auf Namensdatenbank"
 
 #: src/remote.c:2419
 msgid "Can't open file"
-msgstr "Kann Datei nicht öffnen"
+msgstr "Kann Datei nicht Ã¶ffnen"
 
 #: src/remote.c:2631
 msgid "Usage: SETACC <remote_command> [NORMAL/SYSOP/ROOT/ALWAYS/NEVER]"
@@ -1014,7 +1016,7 @@ msgstr "<Msg de %d:%s, Antwort mit \"//CH %d ...\">%s%s%s"
 #: src/remote.c:3768
 #, c-format
 msgid "[listed %d from %d entries]"
-msgstr "[%d von %d Einträgen angezeigt]"
+msgstr "[%d von %d EintrÃ¤gen angezeigt]"
 
 #: src/remote.c:3770
 #, c-format
@@ -1023,7 +1025,7 @@ msgstr "[Ein Eintrag (von %d) angezeigt]"
 
 #: src/remote.c:3772 src/xmon.c:384
 msgid "[All entries listed]\n"
-msgstr "[Alle Einträge angezeigt]\n"
+msgstr "[Alle EintrÃ¤ge angezeigt]\n"
 
 #: src/remote.c:3785
 #, c-format
@@ -1033,7 +1035,7 @@ msgstr "[<%s> nicht gefunden]\n"
 #: src/remote.c:3788
 #, c-format
 msgid "[%d entries with <%s>]"
-msgstr "[%d Einträge mit <%s>]"
+msgstr "[%d EintrÃ¤ge mit <%s>]"
 
 #: src/remote.c:3789
 #, c-format
@@ -1048,7 +1050,7 @@ msgstr "Device %s durch Prozess %d blockiert\n"
 #: src/serial.c:531
 #, c-format
 msgid "Unable to unlink stale lock file \"%s\"\n"
-msgstr "Kann stale Lockdatei \"%s\" nicht löschen\n"
+msgstr "Kann stale Lockdatei \"%s\" nicht lÃ¶schen\n"
 
 #: src/serial.c:535
 #, c-format
@@ -1057,12 +1059,12 @@ msgid ""
 "It is not possible to determine if the device is locked or not.\n"
 msgstr ""
 "Kann nicht aus Lockdatei \"%s\" lesen\n"
-"Unmöglich festzustellen ob das Device blockiert ist oder nicht.\n"
+"UnmÃ¶glich festzustellen ob das Device blockiert ist oder nicht.\n"
 
 #: src/serial.c:540
 #, c-format
 msgid "Unable to open existing lock file\"%s\"\n"
-msgstr "Kann existierende Lockdatei \"%s\" nicht öffnen\n"
+msgstr "Kann existierende Lockdatei \"%s\" nicht Ã¶ffnen\n"
 
 #: src/serial.c:545
 msgid "Unable to create lockfile. Sorry.\n"
@@ -1070,11 +1072,11 @@ msgstr "Kann Lockdatei nicht erstellen. Sorry.\n"
 
 #: src/serial.c:556
 msgid "Error: invalid parameters in socket definition for soft_tnc\n"
-msgstr "Fehler: ungültige Parameter in Socketdefinition für soft_tnc\n"
+msgstr "Fehler: ungÃ¼ltige Parameter in Socketdefinition fÃ¼r soft_tnc\n"
 
 #: src/serial.c:572
 msgid "Error: Cannot open socket to soft_tnc\n"
-msgstr "Fehler: Konnte keinen Socket zum soft_tnc öffnen\n"
+msgstr "Fehler: Konnte keinen Socket zum soft_tnc Ã¶ffnen\n"
 
 #: src/serial.c:584
 msgid "Error: Cannot connect to soft_tnc\n"
@@ -1082,7 +1084,7 @@ msgstr "Fehler: Konnte soft_tnc nicht connecten\n"
 
 #: src/serial.c:595
 msgid "Error: can't open serial port\n"
-msgstr "Fehler: Kann Seriallenport nicht öffnen\n"
+msgstr "Fehler: Kann Seriallenport nicht Ã¶ffnen\n"
 
 #: src/serial.c:603
 msgid "Error: can't get serial info\n"
@@ -1119,7 +1121,7 @@ msgstr "%s: Resync gestarted\n"
 
 #: src/serial.c:872
 msgid "State of hostmode-receiver:\n"
-msgstr "Status der Hostmodus-Empfängers:\n"
+msgstr "Status der Hostmodus-EmpfÃ¤ngers:\n"
 
 #: src/serial.c:875
 msgid "waiting for channel\n"
@@ -1133,7 +1135,7 @@ msgstr "Warte auf Code, Kanal = %d\n"
 #: src/serial.c:881
 #, c-format
 msgid "waiting for length, channel = %d, code = %d\n"
-msgstr "Warte auf Länge, Kanal = %d, Code = %d\n"
+msgstr "Warte auf LÃ¤nge, Kanal = %d, Code = %d\n"
 
 #: src/serial.c:885
 #, c-format
@@ -1148,12 +1150,12 @@ msgstr "Empfange Daten (%d Bytes): "
 #: src/serial.c:902
 #, c-format
 msgid "waiting for data, channel = %d, code = %d, length = %d\n"
-msgstr "Warte auf Daten, Kanal = %d, Code = %d, Länge = %d\n"
+msgstr "Warte auf Daten, Kanal = %d, Code = %d, LÃ¤nge = %d\n"
 
 #: src/serial.c:904
 #, c-format
 msgid "received data (%d bytes, %d bytes left): "
-msgstr "Empfange Daten (%d Bytes, %d Bytes übrig): "
+msgstr "Empfange Daten (%d Bytes, %d Bytes Ã¼brig): "
 
 #: src/serial.c:972
 msgid ""
@@ -1169,7 +1171,7 @@ msgid ""
 "Try next Resync\n"
 msgstr ""
 "\n"
-"Versuche nächsten Resync\n"
+"Versuche nÃ¤chsten Resync\n"
 
 #: src/serial.c:1022
 msgid ""
@@ -1208,7 +1210,7 @@ msgstr "Illegaler Befehlscode: %x\n"
 
 #: src/serial.c:1332
 msgid "Additional data after block: "
-msgstr "Zusätzliche Daten nach Block: "
+msgstr "ZusÃ¤tzliche Daten nach Block: "
 
 #: src/serial.c:1340
 msgid "String too long, remaining data: "
@@ -1216,7 +1218,7 @@ msgstr "String zu lang, folgende Daten: "
 
 #: src/shell.c:327 src/shell.c:529
 msgid "Can't open pseudo terminal"
-msgstr "Kann Pseudo-Terminal nicht öffnen"
+msgstr "Kann Pseudo-Terminal nicht Ã¶ffnen"
 
 #: src/shell.c:445
 #, c-format
@@ -1234,11 +1236,11 @@ msgstr "Programm nicht gefunden"
 
 #: src/shell.c:749
 msgid "Invalid par for sockconn"
-msgstr "Ungültige Parameter für sockconn"
+msgstr "UngÃ¼ltige Parameter fÃ¼r sockconn"
 
 #: src/shell.c:753 src/shell.c:885
 msgid "Can't open stream socket"
-msgstr "Kann Stream-socket nicht öffnen"
+msgstr "Kann Stream-socket nicht Ã¶ffnen"
 
 #: src/shell.c:761
 msgid "Can't connect to socket"
@@ -1254,7 +1256,7 @@ msgstr "Keine Sockets listening"
 
 #: src/shell.c:875
 msgid "Invalid parameters"
-msgstr "Ungültige Parameter"
+msgstr "UngÃ¼ltige Parameter"
 
 #: src/shell.c:880
 msgid "Cannot alloc memory"
@@ -1270,7 +1272,7 @@ msgstr "Kann nicht am Socket lauschen"
 
 #: src/shell.c:1152
 msgid "* Ok, back to cmd-mode with ':cmd' *\n"
-msgstr "* Ok, zurück in Kommando-Modus mit ':cmd' *\n"
+msgstr "* Ok, zurÃ¼ck in Kommando-Modus mit ':cmd' *\n"
 
 #: src/shell.c:1186
 #, c-format
@@ -1326,7 +1328,7 @@ msgstr ""
 
 #: src/shell.c:1361
 msgid "* Back to converse mode *\n"
-msgstr "* Zurück in Convers-Modus *\n"
+msgstr "* ZurÃ¼ck in Convers-Modus *\n"
 
 #. do a little missionary work, help the user, hi
 #: src/shell.c:1381
@@ -1341,7 +1343,7 @@ msgid ""
 "  To change from converse-mode to command-mode\n"
 msgstr ""
 "\n"
-"Ungültiger Befehl.\n"
+"UngÃ¼ltiger Befehl.\n"
 "\n"
 "- (c)onnecte <Rufzeichen>\n"
 "- (d)isconnect\n"
@@ -1363,7 +1365,7 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"* Kann Passwortdatei nicht öffnen *\n"
+"* Kann Passwortdatei nicht Ã¶ffnen *\n"
 "\n"
 
 #: src/shell.c:1451
@@ -1392,7 +1394,7 @@ msgstr ""
 
 #: src/shell.c:1625
 msgid "Nothing to close"
-msgstr "Nichts zu schließen"
+msgstr "Nichts zu schlieÃŸen"
 
 #: src/shell.c:1722
 msgid "Shell closed"
@@ -1433,7 +1435,7 @@ msgid ""
 msgstr ""
 "\n"
 "Login erforderlich um Zugriffsberechtigung zum\n"
-"Remote Ham-Radio AX25-Server über IP-Netzwerk zu\n"
+"Remote Ham-Radio AX25-Server Ã¼ber IP-Netzwerk zu\n"
 "erhalten.\n"
 "\n"
 "Login: "
@@ -1467,11 +1469,11 @@ msgstr "FEHLER: Environmentvariable TERM nicht gesetzt\n"
 
 #: src/tntc.c:378
 msgid "ERROR: invalid socket definition\n"
-msgstr "FEHLER: Ungültige Socketdefinition\n"
+msgstr "FEHLER: UngÃ¼ltige Socketdefinition\n"
 
 #: src/tntc.c:383
 msgid "ERROR: cannot open socket\n"
-msgstr "FEHLER: konnte Socket nicht öffnen\n"
+msgstr "FEHLER: konnte Socket nicht Ã¶ffnen\n"
 
 #: src/tntc.c:391
 msgid "ERROR: cannot connect to program\n"
@@ -1484,7 +1486,7 @@ msgstr "Environmentvariable TERM ist nicht gesetzt\n"
 #: src/window.c:635
 #, c-format
 msgid "No termcap entry for %s\n"
-msgstr "Kein Termcap-Eintrag für %s\n"
+msgstr "Kein Termcap-Eintrag fÃ¼r %s\n"
 
 #: src/window.c:638
 msgid "No /etc/termcap present!\n"
@@ -1492,7 +1494,7 @@ msgstr "/etc/termcap nicht vorhanden!\n"
 
 #: src/window.c:646
 msgid "No cursor motion capability (cm)\n"
-msgstr "Keine Cursorbewegung möglich (cm)\n"
+msgstr "Keine Cursorbewegung mÃ¶glich (cm)\n"
 
 #: src/window.c:659 src/window.c:763
 msgid "Number of terminal lines unknown\n"
@@ -1514,32 +1516,32 @@ msgstr "Illegale Anzahl von Terminalspalten: %d (80 <= x <= 256)\n"
 
 #: src/window.c:702
 msgid "No clear screen capability (cl)\n"
-msgstr "Schirmlöschen nicht möglich (cl)\n"
+msgstr "SchirmlÃ¶schen nicht mÃ¶glich (cl)\n"
 
 #: src/window.c:709
 msgid "No cursor right capability (nd)\n"
-msgstr "Cursor-Rechtsbewegung nicht möglich (nd)\n"
+msgstr "Cursor-Rechtsbewegung nicht mÃ¶glich (nd)\n"
 
 #: src/window.c:713
 msgid "No clear to end of line capability (ce)\n"
-msgstr "Kein Löschen des Zeilenendes möglich (ce)\n"
+msgstr "Kein LÃ¶schen des Zeilenendes mÃ¶glich (ce)\n"
 
 #: src/window.c:728
 msgid "Neither scroll region(cs), nor insert/delete line (al,dl) capability\n"
 msgstr ""
-"Weder Scrollregion (cs), noch Zeilen einfügen/löschen (al,dl) möglich\n"
+"Weder Scrollregion (cs), noch Zeilen einfÃ¼gen/lÃ¶schen (al,dl) mÃ¶glich\n"
 
 #: src/xmon.c:320
 msgid "     From    >    To         Last Heard       First Heard    \r"
-msgstr "     Von     >    An         Zuletzt gehört   Zuerst gehört  \r"
+msgstr "     Von     >    An         Zuletzt gehÃ¶rt   Zuerst gehÃ¶rt  \r"
 
 #: src/xmon.c:352
 msgid "     From    >    To         Last Heard       First Heard\n"
-msgstr "     Von     >    An         Zuletzt gehört   Zuerst gehört\n"
+msgstr "     Von     >    An         Zuletzt gehÃ¶rt   Zuerst gehÃ¶rt\n"
 
 #: src/xmon.c:383
 msgid "[No entries]\n"
-msgstr "[Keine Einträge]\n"
+msgstr "[Keine EintrÃ¤ge]\n"
 
 #: src/xmon.c:1442
 #, c-format
@@ -1548,16 +1550,16 @@ msgstr "Broadcast von %s"
 
 #: src/xmon.c:1445
 msgid "No routing-table entries"
-msgstr "Keine Routing-Table Einträge"
+msgstr "Keine Routing-Table EintrÃ¤ge"
 
 #: src/xmon.c:1451
 msgid "Routing-table entries corrupt"
-msgstr "Routing-Table Einträge defekt"
+msgstr "Routing-Table EintrÃ¤ge defekt"
 
 #: src/xmon.c:1464
 #, c-format
 msgid "%s(%s) via %s quality: %u"
-msgstr "%s(%s) über %s Qualität: %u"
+msgstr "%s(%s) Ã¼ber %s QualitÃ¤t: %u"
 
 #: src/yapp.c:570
 msgid "YAPP reception started"
@@ -1566,11 +1568,11 @@ msgstr "YAPP Empfang gestartet"
 #: src/yapp.c:638
 #, c-format
 msgid "Unable to open %s"
-msgstr "Kann %s nicht öffnen"
+msgstr "Kann %s nicht Ã¶ffnen"
 
 #: src/yapp.c:640
 msgid "Invalid filename"
-msgstr "Ungültiger Dateiname"
+msgstr "UngÃ¼ltiger Dateiname"
 
 #: src/yapp.c:645
 #, c-format
@@ -1597,11 +1599,11 @@ msgstr "RX: %d, %d Baud"
 
 #: src/yapp.c:970
 msgid "YAPP transmission ended"
-msgstr "YAPP Übertragung beendet"
+msgstr "YAPP Ãœbertragung beendet"
 
 #: src/yapp.c:1008
 msgid "YAPP transmission started"
-msgstr "YAPP Übertragung gestartet"
+msgstr "YAPP Ãœbertragung gestartet"
 
 #~ msgid "%2.2u.%2.2u.%2.2u %2.2u:%2.2u.%2.2u: Resync started\n"
 #~ msgstr "%2.2u.%2.2u.%2.2u %2.2u:%2.2u.%2.2u: Resync gestartet\n"

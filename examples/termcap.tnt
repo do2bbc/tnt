@@ -38,9 +38,12 @@
 console 0 1 0 0 0 0
 con*    0 1 0 0 0 0
 linux   0 1 0 0 0 0
-# xterm or clones: termcap, no color, charconv, xtermkeys,
+# xterm or clones: termcap, color, charconv, xtermkeys,
 #                  no supp_hicntl, no auto_newline
-xterm   1 0 1 1 0 0
+xterm*  1 2 1 1 0 0
+rxvt*   1 2 1 1 0 0
+screen* 1 2 1 1 0 0
+tmux*   1 2 1 1 0 0
 # default: termcap, no color, charconv, no xtermkeys,
 #          no supp_hicntl, no auto_newline
 *       1 0 1 0 0 0

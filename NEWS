@@ -1,3 +1,13 @@
+2026/11/03: Terminal modernization beta (V1.9.3-beta1).
+            Use system gettext and checked UTF-8 translation catalogs.
+            Match modern xterm/rxvt/screen/tmux terminal profiles.
+            Detect color capability, reset intensity correctly and support
+            optional indexed/RGB role palettes with reduced-color fallback.
+            Add UTF-8 terminal I/O while preserving legacy radio/file bytes.
+            Keep the legacy frontend wire format and reject keyboard
+            characters that cannot be represented in Latin-1.
+            Add sanitizer-backed terminal and color regression tests.
+
 2026/11/03: Fixed signed-char bugs that disabled binary-frame detection,
             control-character display conversion and umlaut upcasing on
             platforms with signed char. Matched status attribute extern

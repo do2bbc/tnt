@@ -9,6 +9,7 @@
 */
 
 #include "tnt.h"
+#include "terminal.h"
 #include <netdb.h>
 
 #define INIT_FILE "tntc.ini"
@@ -349,6 +350,14 @@ int main(int argc, char *argv[])
   char *term;
   char frontend_para[MAXCHAR];
 
+  terminal_encoding_init();
+#ifdef HAVE_NLS
+  setlocale(LC_MESSAGES, "");
+  bindtextdomain(PACKAGE, LOCALEDIR);
+  bind_textdomain_codeset(PACKAGE, "ISO-8859-1");
+  textdomain(PACKAGE);
+#endif
+
   if ((term = getenv("TERM")) == NULL) {
     printf(_("ERROR: environment variable TERM not set\n"));
     return(1);
@@ -412,6 +421,13 @@ int main(int argc, char *argv[])
     if (FD_ISSET(0,&fdmask)) {
       nrread = read(0,buffer,256);
       if (nrread > 0) {
+        int decoded = 0;
+        for (i = 0; i < nrread; ++i) {
+          char ch = buffer[i];
+          if (terminal_input(&ch))
+            buffer[decoded++] = ch;
+        }
+        nrread = decoded;
         if (tnt_write_all(sockfd,buffer,nrread) < 0) {
           active = 0;
           exit_status = 1;
@@ -453,7 +469,7 @@ int main(int argc, char *argv[])
         }
         i++;
       }
-      if (nrread > 0 && tnt_write_all(1,buffer,nrread) < 0) {
+      if (nrread > 0 && terminal_write(1,buffer,nrread) < 0) {
         active = 0;
         exit_status = 1;
       }
