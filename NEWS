@@ -2,6 +2,8 @@
             Switch channels by left-clicking the lower channel overview in
             local xterm-compatible terminals. Keep terminal text selection
             available through Shift and disable mouse tracking on exit.
+            Restore scroll regions without resetting terminal modes, so
+            mouse reporting survives initial drawing and screen switches.
             Display INP transport times in milliseconds and mark withdrawn
             routes. Decode TNN L3RTT probes, reported timings and INP
             capability/maximum-time tokens alongside existing RIF options.

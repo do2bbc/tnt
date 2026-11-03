@@ -615,6 +615,20 @@ static void check_resize(void)
   assert(saved.line_offset == old_line);
   assert(input.column == 178 && input.view_column == 33);
   assert(get_line(line, &input) == 179);
+  /* Reset only the scrolling region, never terminal modes such as mouse tracking. */
+  termcap = 1;
+  scroll_reg = 1;
+  CS = "\033[%i%p1%d;%p2%dr";
+  CM = "\033[%i%p1%d;%p2%dH";
+  NL = "\n";
+  rendered_size = 0;
+  rendered[0] = '\0';
+  phy_scrnor();
+  assert(strcmp(rendered, "\033[1;56r") == 0);
+  real_screen(screen);
+  assert(strstr(rendered, "\033c") == NULL);
+  assert(strstr(rendered, "\033[!p") == NULL);
+  termcap = scroll_reg = 0;
   assert(close_window(&input) == 0);
   assert(close_window(&saved) == 0);
   assert(dup2(old_stdin, 0) == 0);

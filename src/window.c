@@ -96,7 +96,7 @@ static char *AL, *DL, *IC, *DC, *WR;
 static char *CL, *CM, *CS, *IS;
 char *BC;
 static char *ND, *CE, *NL, *SO, *SE;
-static char *US, *UE, *VE, *VI, *RS;
+static char *US, *UE, *VE, *VI;
 static char *MB, *MR, *MD, *MH, *ME;
 static char CRNL[10];
 static char RUBOUT[10];
@@ -748,7 +748,6 @@ int term_init(char *extterm, int extlines, int extcols)
   }
   if ((IS = (char*)tgetstr("is", &_tptr)) == NULL)
     IS = "\033[r";
-  RS = (char*)tgetstr("rs", &_tptr);
   if ((ND = (char*)tgetstr("nd", &_tptr)) == NULL) {
   	printf(_("No cursor right capability (nd)\n"));
   	return(1);
@@ -823,7 +822,6 @@ int term_init(char *extterm, int extlines, int extcols)
   del_char = 1;
   CL = strdup("\033[H\033[J");
   IS = strdup("\033[r");
-  RS = NULL;
   ND = strdup("\033[a");
   CE = strdup("\033[0K");
   WR = strdup("\015");
@@ -1019,22 +1017,7 @@ static void phy_scrreg(int lin1, int lin2)
 
 static void phy_scrnor(void)
 {
-  if (scroll_reg) {
-    if (termcap) {
-      if (RS != NULL)
-        tputs(RS,1,phy_charout);
-      else
-        tputs(IS,1,phy_charout);
-    }
-    else {
-      if (!tnt_daemon) {
-        phy_strout("\033[r");
-      }
-      else {
-        write_frontend("\033[r",3);
-      }
-    }
-  }
+  phy_scrreg(0, LINES - 1);
 }
 
 static void phy_rubout(void)
