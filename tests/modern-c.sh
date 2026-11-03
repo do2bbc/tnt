@@ -104,7 +104,7 @@ awk '
 extract 'static void cmd_selscreen(' keyboard.c
 cat >> "$tmp/test.c" <<'EOF'
 #include "keys.h"
-static int esc_flag, chan_flag, analysed;
+static int esc_flag, chan_flag, analysed, special_key = 1;
 static char func_str[11];
 static void statlin_update(void) { ++status_updates; }
 static void dispatch_control(char *ch)

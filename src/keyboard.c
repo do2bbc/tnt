@@ -1054,6 +1054,7 @@ void keyboard_server(int *state, char *ch)
   int i;
   int found;
   int analysed;
+  int special_key = 0;
   int input_len;
   int num_func;
   struct func_keys *spec_keys;
@@ -1223,6 +1224,7 @@ void keyboard_server(int *state, char *ch)
           }
           else {
             *ch = spec_keys[i].res_code;
+            special_key = 1;
           }
         }
         else {
@@ -1236,7 +1238,8 @@ void keyboard_server(int *state, char *ch)
       return;
     }
   }
-  if ((*ch < SPACE) || ((*ch >= '\240') && (*ch <= '\247'))) {
+  if ((*ch < SPACE) ||
+      (special_key && (*ch >= '\240') && (*ch <= '\247'))) {
     analysed = 1;
     switch (*ch) {
       case ESC:

@@ -2305,18 +2305,16 @@ void win_charout_cntl(char ch, struct window *win)
     if (!termcap && (win->real != -1)) {
       phy_no_transl();
     }
-    if (ch != 0xC3) {
-     if (ch >= 0x80) {
-       cnt = conv_local_to_umlaut(ch,&newch1,&newch2);
-       if (cnt) {
-         win_charout_noctl(newch1,win,1);
-         if (cnt == 2)
-           win_charout_noctl(newch2,win,1);
-       }
-       else win_charout_noctl(ch,win,1);
-     }
-     else win_charout_noctl(ch,win,1);
+    if (ch >= 0x80) {
+      cnt = conv_local_to_umlaut(ch,&newch1,&newch2);
+      if (cnt) {
+        win_charout_noctl(newch1,win,1);
+        if (cnt == 2)
+          win_charout_noctl(newch2,win,1);
+      }
+      else win_charout_noctl(ch,win,1);
     }
+    else win_charout_noctl(ch,win,1);
     if (!termcap && (win->real != -1)) {
       phy_normal_transl();
     }

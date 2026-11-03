@@ -10,6 +10,7 @@ trap 'rm -f "$tmp/test.c" "$tmp/test"; rmdir "$tmp"' EXIT HUP INT TERM
 cat > "$tmp/test.c" <<'EOF'
 #include "tnt.h"
 #include "terminal.h"
+#include "xmon.h"
 #include <assert.h>
 #include <locale.h>
 
@@ -22,6 +23,11 @@ static struct termcaplist *termcaplist_root;
 static int tnt_daemon;
 static char frontend_output[128];
 static size_t frontend_used;
+int charconv = 1, ibm_umlaut_flag = 1;
+extern int umlaut;
+extern int conv_rx_to_local(char code, char *first, char *second);
+extern int conv_local_to_tx(char code, char *first, char *second);
+extern int conv_local_to_umlaut(char code, char *first, char *second);
 static void write_frontend(char *buffer, int length)
 {
   assert(length >= 0 && frontend_used + length <= sizeof(frontend_output));
@@ -44,6 +50,205 @@ for signature in 'static void phy_strout(' 'static int phy_charout('; do
   ' "$source_dir/src/window.c" >> "$tmp/test.c"
 done
 cat >> "$tmp/test.c" <<'EOF'
+static int termcap = 1;
+static int COLS = 80, auto_newline, supp_hicntl, ins_char;
+static struct win_info real_info[5];
+static struct window input_window;
+static char att_normal;
+static char cells[320];
+static int act_mode = M_CONNECT, act_channel = 1, xmon_screen;
+static int tnc_channels = 11, ax25k_active, queue_activ;
+static int exit_flag, chan_flag, chan_val1, esc_flag, pass_flag;
+static int wordwrap_flag, txecho_flag, selected;
+static time_t sysopactiv;
+static char func_str[12], input_str[MAXCOLS + 1];
+static struct channel_stat channels[11], *ch_stat = channels;
+static struct { char string[100]; } macro_strings[13];
+#include "keys.h"
+static void set_cursor(int win) { (void)win; }
+static int last_phy_line(struct window *win, int line)
+{ (void)win; (void)line; return 0; }
+static void phy_charins(void) { assert(0); }
+static void phy_cr(void) { assert(0); }
+static void update_line(struct window *win, int line)
+{ (void)win; (void)line; assert(0); }
+static void phy_gotoxy(int x, int y) { (void)x; (void)y; assert(0); }
+static void phy_curright(void) { assert(0); }
+static void newline(struct window *win) { win->column = 0; }
+static void crstatline(struct window *win) { win->column = 0; }
+#define UNUSED_EDIT(name) \
+  static void name(struct window *win) { (void)win; assert(0); }
+UNUSED_EDIT(backspace)
+UNUSED_EDIT(cur_left)
+UNUSED_EDIT(cur_right)
+UNUSED_EDIT(cur_up)
+UNUSED_EDIT(cur_down)
+UNUSED_EDIT(cur_up_page)
+UNUSED_EDIT(cur_down_page)
+UNUSED_EDIT(cur_top)
+UNUSED_EDIT(cur_bot)
+UNUSED_EDIT(cur_stline)
+UNUSED_EDIT(cur_eoline)
+UNUSED_EDIT(cur_eroline)
+UNUSED_EDIT(cur_delchar)
+static void statlin_update(void) {}
+static void phy_no_transl(void) { assert(0); }
+static void phy_normal_transl(void) { assert(0); }
+EOF
+for signature in 'static void win_charout_noctl(' 'void win_charout_cntl(' \
+                 'static int get_line2('; do
+  awk -v signature="$signature" '
+    index($0, signature) == 1 && $0 !~ /;[ \t]*$/ { found = 1 }
+    found { print }
+    found && /^}/ { exit }
+    END { if (!found) exit 1 }
+  ' "$source_dir/src/window.c" >> "$tmp/test.c"
+done
+cat >> "$tmp/test.c" <<'EOF'
+static void pre_charout(int channel, char ch)
+{ assert(channel == 1); win_charout_cntl(ch, &input_window); }
+static void pre_charout_nobnd(int channel, char ch) { pre_charout(channel, ch); }
+static void pre_charout_cntl(int channel, char ch) { pre_charout(channel, ch); }
+static void cmd_charout(int channel, char ch) { pre_charout(channel, ch); }
+static void cmd_charout_nobnd(int channel, char ch) { pre_charout(channel, ch); }
+static int pre_lineend(int channel) { (void)channel; return 0; }
+static int pre_wordwrap(int channel, char *str)
+{ (void)channel; (void)str; assert(0); return 0; }
+static int pre_newline(int channel, char *str)
+{ assert(channel == 1); return get_line2(str, &input_window); }
+static int cmd_newline(int channel, char *str) { return pre_newline(channel, str); }
+static char transmitted[MAXCOLS + 1];
+static int transmitted_len;
+static void dat_input(int channel, char *str, int len)
+{
+  assert(channel == 1 && len <= MAXCOLS + 1);
+  memcpy(transmitted, str, len);
+  transmitted_len = len;
+}
+static void cmd_input(int channel, int mode, char *str, int len, int flag)
+{ (void)mode; (void)flag; dat_input(channel, str, len); }
+static void cmd_display(int mode, int channel, char *str, int cr)
+{ (void)mode; (void)channel; (void)str; (void)cr; assert(0); }
+static void beep(void) { assert(0); }
+static int data_allowed(int channel) { (void)channel; return 1; }
+static void rem_sendonact(void) { assert(0); }
+static void open_dwnfile(int *state) { (void)state; assert(0); }
+static void rem_data_display(int channel, char *str)
+{ (void)channel; (void)str; assert(0); }
+static void rem_data_display_buf(int channel, char *str, int len)
+{ (void)channel; (void)str; (void)len; assert(0); }
+static void insert_cr_rx(int channel) { (void)channel; assert(0); }
+static void real_window_up(int part, int page)
+{ (void)part; (void)page; assert(0); }
+static void real_window_down(int part, int page)
+{ (void)part; (void)page; assert(0); }
+static void real_window_top(int part) { (void)part; assert(0); }
+static void real_window_bot(int part) { (void)part; assert(0); }
+static void sel_connect(int channel) { selected = channel; }
+static void sel_monitor(void) { selected = 20; }
+static void sel_command(void) { selected = 21; }
+static void sel_xmon(int screen) { (void)screen; selected = 22; }
+static void sel_heardlist(void) { selected = 23; }
+static void sel_boxlist(void) { selected = 24; }
+static void sel_help(void) { selected = 25; }
+#ifdef USE_IFACE
+static void sel_mailbox(void) { selected = 26; }
+#endif
+EOF
+# Use the production Escape dispatcher and connect/command editor branches.
+awk '
+  /^void keyboard_server\(/ { found = 1 }
+  found && /^    case M_MONITOR:/ { print "#endif\n    }\n  }\n}"; exit }
+  found { print }
+  END { if (!found) exit 1 }
+' "$source_dir/src/keyboard.c" >> "$tmp/test.c"
+cat >> "$tmp/test.c" <<'EOF'
+static void feed_keys(const char *text)
+{
+  int state = S_NORMAL;
+  for (; *text; ++text) {
+    char ch = *text;
+    if (terminal_input(&ch))
+      keyboard_server(&state, &ch);
+  }
+}
+
+static void check_keyboard(void)
+{
+  const char latin1[] = "\xe4\xf6\xfc\xc4\xd6\xdc\xdf";
+  const char utf8[] = "\xc3\xa4\xc3\xb6\xc3\xbc\xc3\x84\xc3\x96\xc3\x9c\xc3\x9f";
+  const char *locales[] = {"C", "C.UTF-8"};
+  const char *keys[] = {"\033OP", "\033OQ", "\033OR", "\033OS", "\033[15~",
+                       "\033[17~", "\033[18~", "\033[19~", "\033[20~",
+                       "\033[21~", "\033[23~", "\033[24~",
+                       "\033m", "\033b", "\033l", "\033c"};
+  const int targets[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 20, 21, 20, 26, 24, 21};
+  memset(&input_window, 0, sizeof(input_window));
+  input_window.real = -1;
+  input_window.num_lines = 2;
+  input_window.window_buffer = cells;
+  for (size_t locale = 0; locale < 2; ++locale) {
+    assert(setenv("LC_ALL", locales[locale], 1) == 0);
+    terminal_encoding_init();
+    for (umlaut = 0; umlaut <= 1; ++umlaut) {
+      for (int command = 0; command <= 1; ++command) {
+        const char *expected = umlaut ? latin1 : "aeoeueAeOeUess";
+        size_t length = strlen(expected);
+        input_window.column = selected = transmitted_len = 0;
+        act_mode = command ? M_COMMAND : M_CONNECT;
+        feed_keys(locale ? utf8 : latin1);
+        assert(selected == 0 && input_window.column == (int)length);
+        for (size_t i = 0; i < length; ++i)
+          assert(cells[2 * i + 1] == expected[i]);
+        feed_keys("\n");
+        assert(transmitted_len == (int)length + 1);
+        assert(memcmp(transmitted, expected, length) == 0);
+        assert(transmitted[length] == CR);
+      }
+    }
+    /* Latin-1 text must not be mistaken for synthetic Alt screen codes. */
+    input_window.column = selected = 0;
+    umlaut = 1;
+    feed_keys(locale ? "\xc2\xa3\xc2\xa4\xc2\xa5" : "\xa3\xa4\xa5");
+    assert(selected == 0 && input_window.column == 3);
+    for (size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); ++i) {
+#ifndef USE_IFACE
+      if (targets[i] == 26) continue;
+#endif
+      act_mode = M_COMMAND;
+      selected = 0;
+      int column = input_window.column;
+      feed_keys(keys[i]);
+      assert(selected == targets[i] && input_window.column == column);
+    }
+    /* The former UTF-8 lead-byte workaround must not swallow Latin-1 A-tilde. */
+    input_window.column = 0;
+    feed_keys(locale ? "\xc3\x83" : "\xc3");
+    assert(input_window.column == 1 && cells[1] == (char)0xc3);
+  }
+  /* Radio/file IBM mappings, including the Atari sharp-s alias. */
+  const unsigned char radio[] = {0x84, 0x94, 0x81, 0x8e, 0x99, 0x9a, 0xe1, 0x9e};
+  const char transliterated[] = "aeoeueAeOeUessss";
+  for (size_t i = 0; i < sizeof(radio); ++i) {
+    char first, second;
+    umlaut = 1;
+    assert(conv_rx_to_local(radio[i], &first, &second) == 1);
+    assert(first == latin1[i < 7 ? i : 6]);
+    assert(conv_local_to_tx(first, &first, &second) == 1);
+    assert((unsigned char)first == radio[i < 7 ? i : 6]);
+    umlaut = 0;
+    assert(conv_rx_to_local(radio[i], &first, &second) == 2);
+    assert(first == transliterated[2 * i] && second == transliterated[2 * i + 1]);
+    assert(conv_local_to_tx(latin1[i < 7 ? i : 6], &first, &second) == 2);
+    assert(first == transliterated[2 * i] && second == transliterated[2 * i + 1]);
+    charconv = 0;
+    umlaut = 1;
+    assert(conv_local_to_umlaut(latin1[i < 7 ? i : 6], &first, &second) == 1);
+    assert((unsigned char)first == radio[i < 7 ? i : 6]);
+    charconv = 1;
+  }
+}
+
 static void check_profiles(void)
 {
   struct termcaplist xterm = {"xterm*", 1, 2, 1, 1, 0, 0, NULL};
@@ -182,6 +387,7 @@ int main(void)
 {
   check_profiles();
   check_unicode();
+  check_keyboard();
   check_boundary("C", 0);
   /* C.UTF-8 is available on the supported Linux CI platforms and Raspberry Pi. */
   assert(setlocale(LC_CTYPE, "C.UTF-8") != NULL);
@@ -194,5 +400,5 @@ EOF
 ${CC:-cc} -g -O1 -funsigned-char -Wall -Wextra -Wstrict-prototypes \
   -Wold-style-definition -Werror -fsanitize=address,undefined \
   -I"$build_dir" -I"$source_dir/src" "$tmp/test.c" \
-  "$source_dir/src/terminal.c" -o "$tmp/test"
+  "$source_dir/src/terminal.c" "$source_dir/src/codconv.c" -o "$tmp/test"
 "$tmp/test"

@@ -106,6 +106,10 @@ Legacy locales, including the Pi's existing `de_DE` locale, keep byte-for-byte
 terminal I/O. Use a valid UTF-8 locale and the matching terminal encoding to
 enable conversion; changing the locale alone does not change LXTerminal's
 encoding preference. No system-wide locale change is required.
+`UMLAUT ON` keeps entered umlauts; `UMLAUT OFF` transliterates them to
+`ae`, `oe`, `ue`, `Ae`, `Oe`, `Ue` and `ss`. The legacy IBM/Latin-1
+conversion tables remain separate from terminal UTF-8 decoding. Ordinary
+high-bit text characters do not trigger Alt screen shortcuts.
 
 When upgrading an existing installation, merge the new terminal-profile
 patterns into the user's active `termcap.tnt`; installing example files does
@@ -115,7 +119,10 @@ the configured 80-256-column limit and start-script geometry remain in effect.
 The terminal regression suite tests all 256 byte conversions, split UTF-8
 input, unsupported/invalid sequences, legacy and UTF-8 I/O, terminal-profile
 matching, intensity reset, indexed/RGB colors, reduced-palette fallback and
-attribute-buffer limits under ASan/UBSan.
+attribute-buffer limits under ASan/UBSan. It also exercises the production
+keyboard dispatcher and connect/command editors through to their screen
+buffers and submitted bytes: both UMLAUT settings, legacy/UTF-8 input,
+F1-F12 and the Alt-M/B/L/C shortcuts.
 
 Configure enables `-Wall`, `-Wextra`, `-Wstrict-prototypes` and
 `-Wold-style-definition` when supported. No legacy-warning suppressions or
