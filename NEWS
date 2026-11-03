@@ -1,4 +1,8 @@
 2026/11/03: Terminal modernization beta (V1.9.3-beta1).
+            Follow local terminal resizes without losing buffered rows or
+            unsent input. Clip existing rows instead of reflowing them and
+            scroll long input horizontally. Show a notice below 80x16;
+            continue network processing while local keyboard input is paused.
             Define UMLAUT ON as ASCII transliteration (ae/oe/ue/ss) and
             UMLAUT OFF as preserving umlauts, consistently for keyboard,
             receive and log-file conversion. Default to OFF to retain

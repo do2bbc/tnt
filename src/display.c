@@ -103,6 +103,7 @@ extern void write_file_yapp(int channel, char *str, int len);
 extern void write_iface(int channel, int len, char *str);
 extern void write_mon_info(char *buffer, int xmon_ch);
 extern void write_monfile(int len, char *str, int append_cr);
+extern int tnt_daemon;
 extern int write_pty(int channel, int len, char *str);
 extern int xconnect_active(int channel);
 extern void xm_pre_display(int screen, char *buffer, int cr);
@@ -1474,14 +1475,35 @@ int init_screen(void)
 #endif
 
 void reinit_help(void);
+void reinit_screen(void);
+
+void resize_screen(void)
+{
+#ifndef DPBOXT
+  int i;
+#endif
+
+  if (!resize_terminal()) return;
+#ifndef DPBOXT
+  for (i = 0; i < tnc_channels; i++)
+    stat_display(i);
+#endif
+  reinit_screen();
+  statlin_update();
+}
 
 void reinit_screen(void)
 {
   int i;
   int j;
+#ifndef DPBOXT
+  int monitor_lines = lines_moncon;
+  int divide = scr_divide;
+  if (monitor_lines > LINES - 10) monitor_lines = LINES - 10;
+#endif
 
 #ifdef DPBOXT
-  if (input_linelen > COLS) input_linelen = COLS;
+  if (tnt_daemon && input_linelen > COLS) input_linelen = COLS;
   reinit_help();
   reinit_mb();
   reinit_blist();
@@ -1498,7 +1520,7 @@ void reinit_screen(void)
     break;
   }
 #else
-  if (input_linelen > COLS) input_linelen = COLS;
+  if (tnt_daemon && input_linelen > COLS) input_linelen = COLS;
   for (j = 0; j < LAYOUTPARTS; j++) {
     cmd_layout[j].win = NULL;
     cmd_layout[j].first_real_line = 0;
@@ -1535,32 +1557,32 @@ void reinit_screen(void)
   mon_layout[1].win_num_lines = 1;
   mon_layout[1].pagesize = 0;
 
-  if ((((LINES-lines_moncon)/scr_divide-1) < 2) ||
-      (scr_divide < 2) || (scr_divide > 40)) scr_divide = 3;
+  if (divide < 2 || divide > 40 ||
+      (LINES-monitor_lines)/divide < 3) divide = 3;
   for (i = 0; i < tnc_channels; i++) {
     layout[i][0].win = &prewin[i];
     layout[i][0].first_real_line = 0;
-    layout[i][0].win_num_lines = (LINES-lines_moncon)/scr_divide-1;
-    layout[i][0].pagesize = (LINES-lines_moncon)/scr_divide-2;
+    layout[i][0].win_num_lines = (LINES-monitor_lines)/divide-1;
+    layout[i][0].pagesize = (LINES-monitor_lines)/divide-2;
     layout[i][1].win = &statwin[i];
-    layout[i][1].first_real_line = (LINES-lines_moncon)/scr_divide-1;
+    layout[i][1].first_real_line = (LINES-monitor_lines)/divide-1;
     layout[i][1].win_num_lines = 1;
     layout[i][1].pagesize = 0;
     layout[i][2].win = &textwin[i];
-    layout[i][2].first_real_line = (LINES-lines_moncon)/scr_divide;
+    layout[i][2].first_real_line = (LINES-monitor_lines)/divide;
     layout[i][2].win_num_lines =
-      (LINES-lines_moncon)-(LINES-lines_moncon)/scr_divide-1;
+      (LINES-monitor_lines)-(LINES-monitor_lines)/divide-1;
     layout[i][2].pagesize =
-      (LINES-lines_moncon)-(LINES-lines_moncon)/scr_divide-4;
+      (LINES-monitor_lines)-(LINES-monitor_lines)/divide-4;
     layout[i][3].win = &statlin;
-    layout[i][3].first_real_line = (LINES-lines_moncon)-1;
+    layout[i][3].first_real_line = (LINES-monitor_lines)-1;
     layout[i][3].win_num_lines = 1;
     layout[i][3].pagesize = 0;
-    if (lines_moncon) {
+    if (monitor_lines) {
       layout[i][4].win = &monwin;
-      layout[i][4].first_real_line = (LINES-lines_moncon);
-      layout[i][4].win_num_lines = lines_moncon;
-      layout[i][4].pagesize = lines_moncon - 1;
+      layout[i][4].first_real_line = (LINES-monitor_lines);
+      layout[i][4].win_num_lines = monitor_lines;
+      layout[i][4].pagesize = monitor_lines - 1;
     }
   }
   reinit_help();
@@ -1802,7 +1824,7 @@ write_last_n_lines(int channel, int nLines , FILE *f)
   int i, startline;
   char *ptr;
   struct window *win;
-  char sRes[COLS+2];
+  char sRes[MAXCOLS+2];
   char *pcRes;
   char *pcLastChar;
 
@@ -1810,11 +1832,11 @@ write_last_n_lines(int channel, int nLines , FILE *f)
   if( win->phys_line <= nLines )
      nLines = win->phys_line;
   startline = win->phys_line-nLines;
-  ptr = win->window_buffer + startline * 2 * COLS;
+  ptr = win->window_buffer + startline * 2 * MAXCOLS;
   while (nLines-- > 0 ) {
       sRes[0] = '\0';
       pcRes = pcLastChar = sRes;
-      for (i = 0; i < COLS; i++) {
+      for (i = 0; i < MAXCOLS; i++) {
        ptr++; /* skip attributbyte */
        if( *ptr != ' ' ) /* store pointer to last nonspace-char */
           pcLastChar = pcRes;

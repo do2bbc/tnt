@@ -117,8 +117,22 @@ high-bit text characters do not trigger Alt screen shortcuts.
 
 When upgrading an existing installation, merge the new terminal-profile
 patterns into the user's active `termcap.tnt`; installing example files does
-not override private profiles. The beta does not add live resize handling:
-the configured 80-256-column limit and start-script geometry remain in effect.
+not override private profiles.
+
+Local TNT terminals follow `SIGWINCH` size changes without reconnecting.
+Existing output and boxlist rows are clipped, not reflowed; their hidden
+right-hand contents return when the terminal is widened. Unsent input remains
+intact and scrolls horizontally when its cursor is beyond the visible width.
+Buffers use a fixed 256-column stride, independent of the visible width.
+Below 80 columns or 16 rows, TNT shows a size notice and ignores local
+keyboard commands until the terminal is enlarged; network processing continues.
+Widths above 256 columns use the leftmost 256 columns. The desktop launcher's
+geometry remains the initial size only. The `tntc` frontend still uses its
+connection-time dimensions; reconnect it after changing its terminal size.
+
+The channel status separator uses `attc_cstatline` / `attm_cstatline` and the
+optional `palette_cstatline`. To match the channel overview, give these the
+same values as `attc_statline` / `attm_statline` / `palette_statline`.
 
 The terminal regression suite tests all 256 byte conversions, split UTF-8
 input, unsupported/invalid sequences, legacy and UTF-8 I/O, terminal-profile
@@ -127,6 +141,8 @@ attribute-buffer limits under ASan/UBSan. It also exercises the production
 keyboard dispatcher and connect/command editors through to their screen
 buffers and submitted bytes: both UMLAUT settings, legacy/UTF-8 input,
 F1-F12 and the Alt-M/B/L/C shortcuts.
+Resize tests use a pseudo-terminal to verify size limits, redraws, retained
+history, saved boxlist-window ownership and editing of hidden input tails.
 
 Configure enables `-Wall`, `-Wextra`, `-Wstrict-prototypes` and
 `-Wold-style-definition` when supported. No legacy-warning suppressions or

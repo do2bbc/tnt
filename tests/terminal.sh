@@ -5,7 +5,7 @@ build_dir=${top_builddir:-$source_dir}
 grep -Eq '^xterm\*[[:space:]]+1[[:space:]]+2[[:space:]]+1[[:space:]]+1' \
   "$source_dir/examples/termcap.tnt"
 tmp=$(mktemp -d)
-trap 'rm -f "$tmp/test.c" "$tmp/test"; rmdir "$tmp"' EXIT HUP INT TERM
+trap 'rm -f "$tmp/test.c" "$tmp/test" "$tmp/resize.c" "$tmp/resize"; rmdir "$tmp"' EXIT HUP INT TERM
 
 cat > "$tmp/test.c" <<'EOF'
 #include "tnt.h"
@@ -21,6 +21,7 @@ struct termcaplist {
 };
 static struct termcaplist *termcaplist_root;
 static int tnt_daemon;
+static int size_blocked;
 static char frontend_output[128];
 static size_t frontend_used;
 int charconv = 1, ibm_umlaut_flag = 1;
@@ -56,7 +57,7 @@ static int COLS = 80, auto_newline, supp_hicntl, ins_char;
 static struct win_info real_info[5];
 static struct window input_window;
 static char att_normal;
-static char cells[320];
+static char cells[4 * MAXCOLS];
 static int act_mode = M_CONNECT, act_channel = 1, xmon_screen;
 static int tnc_channels = 11, ax25k_active, queue_activ;
 static int exit_flag, chan_flag, chan_val1, esc_flag, pass_flag;
@@ -67,6 +68,7 @@ static struct channel_stat channels[11], *ch_stat = channels;
 static struct { char string[100]; } macro_strings[13];
 #include "keys.h"
 static void set_cursor(int win) { (void)win; }
+static void redraw_editor(struct window *win) { (void)win; assert(0); }
 static int last_phy_line(struct window *win, int line)
 { (void)win; (void)line; return 0; }
 static void phy_charins(void) { assert(0); }
@@ -405,3 +407,195 @@ ${CC:-cc} -g -O1 -funsigned-char -Wall -Wextra -Wstrict-prototypes \
   -I"$build_dir" -I"$source_dir/src" "$tmp/test.c" \
   "$source_dir/src/terminal.c" "$source_dir/src/codconv.c" -o "$tmp/test"
 "$tmp/test"
+
+cat > "$tmp/resize.c" <<'EOF'
+#define terminal_write capture_terminal_write
+#include "window.c"
+#undef terminal_write
+#include <assert.h>
+#include <pty.h>
+
+char attc_normal, attc_statline, attc_monitor, attc_cstatline;
+char attc_controlchar, attc_remote, attc_special, attc_monport1, attc_monport2;
+char attm_normal, attm_statline, attm_monitor, attm_cstatline;
+char attm_controlchar, attm_remote, attm_special, attm_monport1, attm_monport2;
+int color = 2, color_save, termcap, termcap_save;
+int wholeline_flag, bscrhold_flag, tabexp_flag, input_linelen = 200;
+int ibm_umlaut_flag = 1;
+char tnt_termcapfile[MAXCHAR];
+static char rendered[262144];
+static size_t rendered_size;
+
+int capture_terminal_write(int fd, const char *buffer, size_t length)
+{
+  assert(fd == 1 && rendered_size + length < sizeof(rendered));
+  memcpy(rendered + rendered_size, buffer, length);
+  rendered_size += length;
+  rendered[rendered_size] = '\0';
+  return 0;
+}
+void statlin_update(void) {}
+
+static void dimensions(int rows, int cols)
+{
+  struct winsize size = {0};
+  size.ws_row = rows;
+  size.ws_col = cols;
+  assert(ioctl(0, TIOCSWINSZ, &size) == 0);
+  rendered_size = 0;
+  rendered[0] = '\0';
+}
+
+static void check_resize(void)
+{
+  struct window input = {0}, history = {0}, saved;
+  struct real_layout screen[LAYOUTPARTS] = {0};
+  char line[MAXCOLS + 1], expected[121];
+  int master, slave, old_stdin;
+
+  assert(openpty(&master, &slave, NULL, NULL, NULL) == 0);
+  old_stdin = dup(0);
+  assert(old_stdin >= 0 && dup2(slave, 0) == 0);
+  assert(close(slave) == 0);
+  COLS = 146;
+  LINES = 56;
+  att_normal = 0;
+  cur_always_vis = 1;
+  CL = "\033[H\033[2J";
+  WR = "\r";
+  BC = "\b";
+  CE = "\033[K";
+  ND = "\033[C";
+  AL = "\033[L";
+  DL = "\033[M";
+  strcpy(CRNL, "\r\n");
+  strcpy(RUBOUT, "\b \b");
+  assert(open_window(4, &input, 1) == 0);
+  assert(open_window(4, &history, 1) == 0);
+  for (int i = 0; i < 120; ++i) {
+    expected[i] = 'a' + i % 26;
+    win_charout_cntl(expected[i], &input);
+    win_charout(expected[i], &history, 0);
+  }
+  expected[120] = '\0';
+  screen[0].win = &input;
+  screen[0].win_num_lines = 2;
+  screen[0].pagesize = 1;
+  screen[1].win = &history;
+  screen[1].first_real_line = 2;
+  screen[1].win_num_lines = 2;
+  screen[1].pagesize = 1;
+  real_screen(screen);
+  dimensions(24, 80);
+  assert(resize_terminal() == 1 && COLS == 80 && LINES == 24);
+  assert(input.real == -1 && history.real == -1);
+  real_screen(screen);
+  assert(input.view_column == 41 && input.column == 120);
+  assert(history.view_column == 0);
+  assert(get_line(line, &input) == 121);
+  assert(memcmp(line, expected, 120) == 0 && line[120] == CR);
+  assert(get_line(line, &history) == 121 && memcmp(line, expected, 120) == 0);
+  win_charout_cntl(BS, &input);
+  assert(input.column == 119 && input.view_column == 40);
+  win_charout_cntl(expected[119], &input);
+  assert(input.column == 120 && input.view_column == 41);
+  win_charout_cntl(C_STLINE, &input);
+  assert(input.column == 0 && input.view_column == 0);
+  win_charout_cntl(C_EOLINE, &input);
+  assert(input.column == 120 && input.view_column == 41);
+  win_charout_cntl(C_CULEFT, &input);
+  win_charout_cntl(C_DELCHAR, &input);
+  assert(input.column == 119);
+  win_charout_cntl(expected[119], &input);
+  dimensions(60, 200);
+  assert(resize_terminal() == 1);
+  real_screen(screen);
+  assert(input.view_column == 0 && input.column == 120);
+  assert(get_line(line, &input) == 121 && memcmp(line, expected, 120) == 0);
+  assert(get_line(line, &history) == 121 && memcmp(line, expected, 120) == 0);
+  /* Ownership moves used by saved mailbox boxlists need no resize registry. */
+  saved = history;
+  memset(&history, 0, sizeof(history));
+  screen[1].win = &saved;
+  dimensions(16, 256);
+  assert(resize_terminal() == 1 && COLS == MAXCOLS);
+  real_screen(screen);
+  assert(get_line(line, &saved) == 121 && memcmp(line, expected, 120) == 0);
+  dimensions(15, 79);
+  assert(resize_terminal() == 0 && terminal_size_blocked());
+  assert(strstr(rendered, "minimum size 80 x 16") != NULL);
+  size_t notice_size = rendered_size;
+  win_charout('!', &saved, 0);
+  assert(rendered_size == notice_size); /* incoming data cannot corrupt notice */
+  assert(get_line(line, &saved) == 122 && line[120] == '!');
+  dimensions(16, 256);
+  assert(resize_terminal() == 1 && !terminal_size_blocked());
+  real_screen(screen);
+  dimensions(24, 300);
+  assert(resize_terminal() == 1 && COLS == MAXCOLS && LINES == 24);
+  assert(resize_terminal() == 0);
+  /* Switching from a five-part to a two-part screen clears stale bindings. */
+  real_info[4].win = &input;
+  real_screen(screen);
+  assert(real_info[4].win == NULL);
+  dimensions(24, 80);
+  assert(resize_terminal() == 1);
+  real_screen(screen);
+  int old_line = saved.phys_line;
+  win_charout('Z', &saved, 0);
+  assert(saved.column == 1 && get_line(line, &saved) == 2 && line[0] == 'Z');
+  for (int i = 0; i < 120; ++i)
+    assert(saved.window_buffer[old_line * 2 * MAXCOLS + 2 * i + 1] == expected[i]);
+  assert(input.column == 120 && input.view_column == 41);
+  old_line = input.phys_line;
+  win_charout_cntl(CR, &input);
+  assert(input.column == 0 && input.view_column == 0);
+  for (int i = 0; i < 120; ++i)
+    assert(input.window_buffer[old_line * 2 * MAXCOLS + 2 * i + 1] == expected[i]);
+  clear_window(&input);
+  real_screen(screen);
+  for (int i = 0; i < 199; ++i)
+    win_charout_cntl(i == 20 ? SPACE : 'b', &input);
+  assert(input.column == 199 && input.view_column == 120);
+  win_charout_cntl(C_CURIGHT, &input);
+  assert(input.column == 199);
+  assert(wordwrap(line, &input) == 21 && line[20] == CR);
+  assert(input.column == 178 && input.view_column == 99);
+  assert(get_line(line, &input) == 179 && line[178] == CR);
+  for (int i = 0; i < 178; ++i) assert(line[i] == 'b');
+  set_cursor_column(&input, 0);
+  wholeline_flag = 1;
+  assert(get_line(line, &input) == 179 && input.view_column == 99);
+  wholeline_flag = 0;
+  /* Scrolled ring rows survive resizing as well as newly allocated rows. */
+  for (int i = 0; i < 6; ++i) {
+    win_charout('R', &saved, 0);
+    win_charout(CR, &saved, 0);
+  }
+  assert(saved.line_offset != 0);
+  old_line = saved.line_offset;
+  dimensions(56, 146);
+  assert(resize_terminal() == 1);
+  real_screen(screen);
+  assert(saved.line_offset == old_line);
+  assert(input.column == 178 && input.view_column == 33);
+  assert(get_line(line, &input) == 179);
+  assert(close_window(&input) == 0);
+  assert(close_window(&saved) == 0);
+  assert(dup2(old_stdin, 0) == 0);
+  assert(close(old_stdin) == 0 && close(master) == 0);
+}
+
+int main(void)
+{
+  check_resize();
+  return 0;
+}
+EOF
+${CC:-cc} -g -O1 -funsigned-char -ffunction-sections -fdata-sections \
+  -Wall -Wextra -Wstrict-prototypes -Wold-style-definition -Werror \
+  -fsanitize=address,undefined -Wl,--gc-sections \
+  -I"$build_dir" -I"$source_dir/src" "$tmp/resize.c" \
+  "$source_dir/src/terminal.c" "$source_dir/src/codconv.c" -ltinfo -lutil \
+  -o "$tmp/resize"
+"$tmp/resize"

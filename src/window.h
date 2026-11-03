@@ -22,7 +22,7 @@
 #define ESC2	'\233'
 
 struct window {
-  char *window_buffer;	/* pointer to buffer for window data */
+  char *window_buffer;	/* num_lines rows of MAXCOLS attribute/character pairs */
   int num_lines;	/* number of lines in this window */
   int line;		/* current line (counting 0 to num_lines-1) */
   int column;		/* current column (counting 0 to NUM_COLUMNS-1) */
@@ -36,6 +36,7 @@ struct window {
   int insertflag;	/* flag if insertmode active */
   int holdflag;         /* flag if windowposition shall be holden */
   int first_win_line;   /* first line of display-window */
+  int view_column;      /* horizontal offset while editing a hidden tail */
 
 };
 
@@ -58,3 +59,6 @@ struct real_layout {
 };
 
 #define LAYOUTPARTS 5
+
+int resize_terminal(void);
+int terminal_size_blocked(void);

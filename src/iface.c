@@ -1714,9 +1714,9 @@ void init_mb(void)
 void reinit_mb(void)
 {
   int j;
+  int divide = mbscr_divide;
   
-  if (((LINES/mbscr_divide-1) < 2) ||
-      (mbscr_divide < 2 ) || (mbscr_divide > 40)) mbscr_divide = 3;
+  if (divide < 2 || divide > 40 || LINES/divide < 3) divide = 3;
   for (j = 0; j < LAYOUTPARTS; j++) {
     mb_layout[j].win = NULL;
     mb_layout[j].first_real_line = 0;
@@ -1725,20 +1725,21 @@ void reinit_mb(void)
   }
   mb_layout[0].win = &mb_prewin;
   mb_layout[0].first_real_line = 0;
-  mb_layout[0].win_num_lines = LINES/mbscr_divide-1;
-  mb_layout[0].pagesize = LINES/mbscr_divide-2;
+  mb_layout[0].win_num_lines = LINES/divide-1;
+  mb_layout[0].pagesize = LINES/divide-2;
   mb_layout[1].win = &mb_statwin;
-  mb_layout[1].first_real_line = LINES/mbscr_divide-1;
+  mb_layout[1].first_real_line = LINES/divide-1;
   mb_layout[1].win_num_lines = 1;
   mb_layout[1].pagesize = 0;
   mb_layout[2].win = &mb_textwin;
-  mb_layout[2].first_real_line = LINES/mbscr_divide;
-  mb_layout[2].win_num_lines = LINES-LINES/mbscr_divide-1;
-  mb_layout[2].pagesize = LINES-LINES/mbscr_divide-4;
+  mb_layout[2].first_real_line = LINES/divide;
+  mb_layout[2].win_num_lines = LINES-LINES/divide-1;
+  mb_layout[2].pagesize = LINES-LINES/divide-4;
   mb_layout[3].win = &statlin;
   mb_layout[3].first_real_line = LINES-1;
   mb_layout[3].win_num_lines = 1;
   mb_layout[3].pagesize = 0;
+  mb_stat_display();
 }
 
 void exit_mb(void)

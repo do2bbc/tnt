@@ -119,6 +119,7 @@ extern void open_logfile(int type, int flag, int channel, int len, int mode, cha
 extern void open_upfile(int *state);
 extern int read_init_file(int argc, char *argv[], int *unlock);
 extern void reinit_screen(void);
+extern void resize_screen(void);
 extern void resync_tnc(int *state);
 extern void handle_tx_queue(void);
 extern int serial_server(int *state, char *buffer, int len);
@@ -159,6 +160,7 @@ int act_mode;
 int act_state;
 int is_root;
 int terminated;
+static volatile sig_atomic_t resize_pending;
 int errfd;
 #ifdef DEBUGIO
 int fddebugio ; 
@@ -270,6 +272,11 @@ static void sighup(int signum __attribute__((unused)))
 {
   terminated = 1;
   signal(SIGHUP, SIG_IGN);
+}
+
+static void sigwinch(int signum __attribute__((unused)))
+{
+  resize_pending = 1;
 }
 
 int main(int argc, char *argv[])
@@ -389,6 +396,7 @@ int main(int argc, char *argv[])
     signal(SIGTTIN, SIG_IGN);
     signal(SIGTTOU, SIG_IGN);
     signal(SIGTERM, sigterm);
+    signal(SIGWINCH, sigwinch);
   }
   else {
 #ifndef DPBOXT
@@ -514,6 +522,10 @@ int main(int argc, char *argv[])
 #endif
   
   while (act_state) {
+    if (resize_pending) {
+      resize_pending = 0;
+      resize_screen();
+    }
     if (terminated) {
       exit_tnt(0,0,0,0,M_REMOTE,NULL);
       terminated = 0;
@@ -586,7 +598,7 @@ int main(int argc, char *argv[])
       if (!tnt_daemon) {
         if (FD_ISSET(0,&fdmask)) {
           if (read(0,&ch,1) == 1) {
-            if (terminal_input(&ch))
+            if (terminal_input(&ch) && !terminal_size_blocked())
               keyboard_server(&act_state,&ch);
           } 
 #ifdef TNT_SERIAL
@@ -720,7 +732,7 @@ int main(int argc, char *argv[])
       kbd_res = 1;
       if (!tnt_daemon) {
         if (read(0,&ch,1) == 1) {
-          if (terminal_input(&ch))
+          if (terminal_input(&ch) && !terminal_size_blocked())
             keyboard_server(&act_state,&ch);
           kbd_res = 0;
         }

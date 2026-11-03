@@ -109,6 +109,7 @@ static int cur_always_vis;
 static int no_attr;
 static int terminal_colors = 8;
 static int terminal_truecolor;
+static int size_blocked;
 char *_tptr = NULL;
 
 void frontend_exit(int deact);
@@ -138,6 +139,8 @@ void * memmove(void *dst, const void *src, unsigned int len)
 
 static struct win_info real_info[5]; /* real scr contains up to 5 windows */
 static int get_line2(char *str, struct window *win);
+static void update_window(int part);
+static void set_cursor(int part);
 
 struct termcaplist {
   char term[83];
@@ -484,6 +487,7 @@ static void write_frontend(char *buf, int len)
 static void phy_strout(char *str)
 {
   if (!tnt_daemon) {
+    if (size_blocked) return;
     terminal_write(1,str,strlen(str));
   }
   else {
@@ -495,6 +499,7 @@ static int phy_charout(int value)
 {
   char ch = value;
   if (!tnt_daemon) {
+    if (size_blocked) return 0;
     return terminal_write(1,&ch,1);
   }
   else {
@@ -507,6 +512,46 @@ void set_linescols(void)
 {
    LINES = 25;
    COLS = input_linelen;
+}
+
+int terminal_size_blocked(void)
+{
+  return size_blocked;
+}
+
+int resize_terminal(void)
+{
+  int rows, cols;
+  int changed;
+  int i;
+
+  if (tnt_daemon) return 0;
+  getrowcols(&rows, &cols);
+  if (rows == 0 || cols == 0) {
+    fprintf(stderr, "TNT: cannot determine resized terminal dimensions.\n");
+    return 0;
+  }
+  if (rows < 16 || cols < MINCOLS) {
+    static const char message[] =
+      "\033[0m\033[r\033[H\033[2JTNT: minimum size 80 x 16";
+    size_blocked = 1;
+    if (terminal_write(1, message, sizeof(message) - 1) < 0)
+      perror("TNT resize notice");
+    return 0;
+  }
+  if (cols > MAXCOLS) cols = MAXCOLS;
+  changed = size_blocked || rows != LINES || cols != COLS;
+  size_blocked = 0;
+  LINES = rows;
+  COLS = cols;
+  if (changed) {
+    for (i = 0; i < 5; i++) {
+      if (real_info[i].win != NULL)
+        real_info[i].win->real = -1;
+      real_info[i].win = NULL;
+    }
+  }
+  return changed;
 }
 
 void term_exit(void)
@@ -912,8 +957,12 @@ static void phy_clrscr(void)
 
 static void phy_gotoxy(int col, int lin)
 {
-  char tmpstr[20];
+  char tmpstr[32];
 
+  if (col >= COLS) col = COLS - 1;
+  if (col < 0) col = 0;
+  if (lin >= LINES) lin = LINES - 1;
+  if (lin < 0) lin = 0;
   if (!termcap) {
     sprintf(tmpstr,"\033[%u;%uH",lin+1,col+1);
     phy_strout(tmpstr);
@@ -1081,7 +1130,7 @@ static void phy_attrout(char ch)
     if (str_attrout(str,sizeof(str),ch) < 0) return;
     if ((i = strlen(str))) {
       if (!tnt_daemon) {
-        tnt_write_all(1,str,i);
+        phy_strout(str);
       }
       else {
         write_frontend(str,i);
@@ -1200,7 +1249,8 @@ int open_window(int lines, struct window *win, int bot)
   win->attribut = att_normal;
   win->insertflag = insertmode;
   win->holdflag = 0;
-  buffer_len = lines * 2 * COLS;
+  win->view_column = 0;
+  buffer_len = lines * 2 * MAXCOLS;
   win->window_buffer = (char *)malloc(buffer_len);
   if (win->window_buffer == NULL) return(1);
   add = win->window_buffer;
@@ -1228,7 +1278,8 @@ void clear_window(struct window *win)
   win->attribut = att_normal;
   win->insertflag = insertmode;
   win->holdflag = 0;
-  buffer_len = lines * 2 * COLS;
+  win->view_column = 0;
+  buffer_len = lines * 2 * MAXCOLS;
   add = win->window_buffer;
   while (buffer_len > 0) {
     *add++ = att_normal;
@@ -1274,8 +1325,8 @@ static void cl_eoline(struct window *win)
   char *add;
   int i;
   
-  add = win->window_buffer + 2 * (COLS * win->phys_line + win->column);
-  i = COLS - win->column;
+  add = win->window_buffer + 2 * (MAXCOLS * win->phys_line + win->column);
+  i = MAXCOLS - win->column;
   while (i > 0) {
     *add++ = att_normal;
     *add++ = SPACE;
@@ -1313,7 +1364,7 @@ static void update_line(struct window *win, int phy_line)
   if (auto_newline) {
     if (last_phy_line(win,phy_line)) max_col = COLS - 1;
   }
-  addr = win->window_buffer + phy_line * 2 * COLS;
+  addr = win->window_buffer + phy_line * 2 * MAXCOLS + 2 * win->view_column;
   phy_attrout(att = *addr);
   strcpy(tmpstr,"");
   for (i = 0; i < max_col; i++) {
@@ -1365,6 +1416,8 @@ static void win_scrollup(int part)
 /* put cursor in window to new line and scroll if needed */
 static void newline(struct window *win)
 {
+  int old_view = win->view_column;
+  win->view_column = 0;
   /* new column is 0 */
   win->column = 0;
   /* next line */
@@ -1426,6 +1479,10 @@ static void newline(struct window *win)
       }
     }
   }
+  if (old_view && win->real != -1) {
+    update_window(win->real);
+    set_cursor(win->real);
+  }
 }
 
 /* put cursor to start of line (for statuslines) */
@@ -1473,7 +1530,7 @@ static void set_cursor(int part)
       (win->line <= real_info[part].last_log_line)) {
     line = win->line - real_info[part].first_log_line
                      + real_info[part].first_real_line;
-    phy_gotoxy(win->column,line);
+    phy_gotoxy(win->column - win->view_column,line);
     phy_attrout(win->attribut);
     if (part != 0) phy_curinvis(); 
     else phy_curvis();
@@ -1481,6 +1538,22 @@ static void set_cursor(int part)
   else {
     phy_curinvis();
   }
+}
+
+static void redraw_editor(struct window *win)
+{
+  int real = win->real;
+
+  if (real == -1) return;
+  win->view_column = win->column >= COLS ? win->column - COLS + 1 : 0;
+  if (win->line < real_info[real].first_log_line)
+    real_info[real].first_log_line = win->line;
+  if (win->line >= real_info[real].first_log_line + real_info[real].win_num_lines)
+    real_info[real].first_log_line = win->line - real_info[real].win_num_lines + 1;
+  real_info[real].last_log_line =
+    real_info[real].first_log_line + real_info[real].win_num_lines - 1;
+  update_window(real);
+  set_cursor(0);
 }
 
 void hold_save(int part)
@@ -1497,6 +1570,7 @@ void real_screen(struct real_layout *layout)
   for (i = 0; ((i < 5) && (real_info[i].win != NULL)); i++) {
     real_info[i].win->real = -1;
   }
+  for (i = 0; i < 5; i++) real_info[i].win = NULL;
   if (tnt_daemon && !frontend_active) return;
   phy_clrscr();
   phy_curinvis();
@@ -1504,6 +1578,9 @@ void real_screen(struct real_layout *layout)
   for (i = 0; ((i < 5) && (layout[i].win != NULL)); i++) {
     real_info[i].win = layout[i].win;
     real_info[i].win->real = i;
+    real_info[i].win->view_column = 0;
+    if (i == 0 && real_info[i].win->column >= COLS)
+      real_info[i].win->view_column = real_info[i].win->column - COLS + 1;
     real_info[i].first_real_line = layout[i].first_real_line;
     real_info[i].pagesize = layout[i].pagesize;
     
@@ -1514,6 +1591,10 @@ void real_screen(struct real_layout *layout)
       layout[i].first_real_line + real_info[i].win_num_lines - 1;
     if (real_info[i].win->holdflag) {
       real_info[i].first_log_line = real_info[i].win->first_win_line;
+      if (real_info[i].first_log_line >
+          real_info[i].win->num_lines - real_info[i].win_num_lines)
+        real_info[i].first_log_line =
+          real_info[i].win->num_lines - real_info[i].win_num_lines;
       real_info[i].last_log_line = real_info[i].first_log_line
                                  + real_info[i].win_num_lines - 1;
       real_info[i].win->holdflag = 0;
@@ -1687,10 +1768,10 @@ static void backspace(struct window *win)
   if (win->column == 0) return;
   win->column--;
   /* calculate character position and store in buffer */
-  pos = win->window_buffer + win->phys_line*2*COLS + 2*win->column;
+  pos = win->window_buffer + win->phys_line*2*MAXCOLS + 2*win->column;
   if (win->insertflag) {
-    memmove(pos,pos+2,2*(COLS - 1 - win->column));
-    pos = win->window_buffer + (win->phys_line+1)*2*COLS - 2;
+    memmove(pos,pos+2,2*(MAXCOLS - 1 - win->column));
+    pos = win->window_buffer + (win->phys_line+1)*2*MAXCOLS - 2;
   } 
   *pos++ = win->attribut;
   *pos = SPACE;
@@ -1723,11 +1804,11 @@ static void cur_delchar(struct window *win)
   char *pos;
   int line;
   
-  if (win->column >= COLS - 1) return;
+  if (win->column >= MAXCOLS - 1) return;
   /* calculate character position and store in buffer */
-  pos = win->window_buffer + win->phys_line*2*COLS + 2*win->column;
-  memmove(pos,pos+2,2*(COLS - 1 - win->column));
-  pos = win->window_buffer + (win->phys_line+1)*2*COLS - 2;
+  pos = win->window_buffer + win->phys_line*2*MAXCOLS + 2*win->column;
+  memmove(pos,pos+2,2*(MAXCOLS - 1 - win->column));
+  pos = win->window_buffer + (win->phys_line+1)*2*MAXCOLS - 2;
   *pos++ = win->attribut;
   *pos = SPACE;
   /* output on real screen ? */
@@ -1764,7 +1845,7 @@ static void cur_left(struct window *win)
 /* execute cursor right */
 static void cur_right(struct window *win)
 {
-  if (win->column == (COLS - 1)) return;
+  if (win->column >= MAXCOLS - 1 || win->column >= input_linelen - 1) return;
   win->column++;
   /* output on real screen ? */
   if (win->real != -1) {
@@ -1778,19 +1859,9 @@ static void cur_right(struct window *win)
 /* position cursor in line */
 void set_cursor_column(struct window *win, int column)
 {
-  int line;
-  
-  if ((column < 0) || (column > COLS - 1)) return;
+  if ((column < 0) || (column > MAXCOLS - 1)) return;
   win->column = column;
-  /* output on real screen ? */
-  if (win->real != -1) {
-    if ((win->line >= real_info[win->real].first_log_line) &&
-        (win->line <= real_info[win->real].last_log_line)) {
-      line = win->line - real_info[win->real].first_log_line
-                       + real_info[win->real].first_real_line;
-      phy_gotoxy(win->column,line);
-    }
-  }
+  redraw_editor(win);
 }
 
 /* execute cursor start of line */
@@ -1814,14 +1885,14 @@ static void cur_eoline(struct window *win)
   int column;
   int line;
   
-  column = COLS-1;
-  pos = win->window_buffer + win->phys_line*2*COLS + 2*column + 1;
+  column = MAXCOLS-1;
+  pos = win->window_buffer + win->phys_line*2*MAXCOLS + 2*column + 1;
   /* find first position not SPACE */
   while ((*pos == SPACE) && (column > 0)) {
     pos -= 2;
     column--;
   }
-  if (column < COLS-1 &&
+  if (column < MAXCOLS-1 &&
       *pos != SPACE) /* DH3MB */
     column++; /* position at space after char */
   win->column = column;
@@ -1852,16 +1923,16 @@ static void cur_eroline(struct window *win)
 /* do wordwrap at end of line */
 int wordwrap(char *str, struct window *win)
 {
-  int line;
   int column;
   char *pos;
   char *linesave;
   int len;
+  int real = win->real;
   
   /* save line */
-  linesave = malloc(2*COLS);
+  linesave = malloc(2*MAXCOLS);
   if (linesave == NULL) return(0);
-  memcpy(linesave,win->window_buffer + win->phys_line*2*COLS,2*COLS);
+  memcpy(linesave,win->window_buffer + win->phys_line*2*MAXCOLS,2*MAXCOLS);
   
   /* search backwards for SPACE */
   column = input_linelen-2;
@@ -1875,19 +1946,10 @@ int wordwrap(char *str, struct window *win)
     return(0);
   }
 
+  win->real = -1;
   /* delete incomplete word and position at end of resulting line */
   win->column = column;
   cl_eoline(win);
-  /* output on real screen ? */
-  if (win->real != -1) {
-    if ((win->line >= real_info[win->real].first_log_line) &&
-        (win->line <= real_info[win->real].last_log_line)) {
-      line = win->line - real_info[win->real].first_log_line
-                       + real_info[win->real].first_real_line;
-      phy_gotoxy(win->column,line);
-      phy_clreol();
-    }
-  }
   
   /* now copy line */
   len = get_line2(str,win);
@@ -1897,16 +1959,12 @@ int wordwrap(char *str, struct window *win)
   
   /* copy incomplete word to line and position cursor */
   if (column < input_linelen-2) {
-    memcpy(win->window_buffer + win->phys_line*2*COLS,
+    memcpy(win->window_buffer + win->phys_line*2*MAXCOLS,
            pos+1,2*(input_linelen-2-column));
     win->column = input_linelen-2-column;
-    if (win->real != -1) {
-      update_line(win,win->phys_line);
-      line = win->line - real_info[win->real].first_log_line
-             + real_info[win->real].first_real_line;
-      phy_gotoxy(win->column,line);
-    }
   }
+  win->real = real;
+  redraw_editor(win);
   free(linesave);
   return(len);
 }
@@ -2006,6 +2064,8 @@ static void win_charout_noctl(char ch, struct window *win, int ins)
   char *pos;
   int line;
 
+  if (!ins && win->column >= COLS && win->num_lines != 1)
+    newline(win);
   if (auto_newline) {
     /* don't print last character of screen */
     if ((win->column == (COLS - 1)) &&
@@ -2017,11 +2077,12 @@ static void win_charout_noctl(char ch, struct window *win, int ins)
     if ((ch >= 128) && (ch <= 160)) ch = '.'; 
   }
   /* no scroll for statuslines, ignore characters at end of line */
-  if ((win->column == COLS) && (win->num_lines == 1)) return;
+  if (win->column >= MAXCOLS ||
+      ((win->column >= COLS) && (win->num_lines == 1))) return;
   /* calculate character position and store in buffer */
-  pos = win->window_buffer + win->phys_line*2*COLS + 2*win->column;
-  if (ins && (win->insertflag) && (win->column < COLS - 2)) {
-    memmove(pos+2,pos,2*(COLS - 1 - win->column));
+  pos = win->window_buffer + win->phys_line*2*MAXCOLS + 2*win->column;
+  if (ins && (win->insertflag) && (win->column < MAXCOLS - 2)) {
+    memmove(pos+2,pos,2*(MAXCOLS - 1 - win->column));
   }
   *pos++ = win->attribut;
   *pos = ch;
@@ -2047,7 +2108,7 @@ static void win_charout_noctl(char ch, struct window *win, int ins)
     }
   }
   /* advance cursor in buffer */
-  if (++win->column == COLS) { /* was in last column ? */
+  if (++win->column == (ins ? MAXCOLS : COLS)) {
     if (win->num_lines != 1) newline(win);
   }
 }
@@ -2115,6 +2176,10 @@ void win_charout(char ch, struct window *win, int conv)
     set_cursor(win->real);
   }
   win_charout_2(ch,win,conv);
+  if (win->view_column && win->column < COLS) {
+    win->view_column = 0;
+    if (win->real != -1) update_window(win->real);
+  }
   if ((win->real != -1) && (win->real != 0)) {
     set_cursor(0);
   }
@@ -2194,7 +2259,7 @@ static int get_line2(char *str, struct window *win)
   char *ptr;
   char attr;
   
-  ptr = win->window_buffer + win->phys_line * 2 * COLS;
+  ptr = win->window_buffer + win->phys_line * 2 * MAXCOLS;
   for (i = 0; i < win->column; i++) {
     attr = *ptr++;
     str[i] = *ptr++;
@@ -2208,8 +2273,13 @@ static int get_line2(char *str, struct window *win)
 
 int get_line(char *str, struct window *win)
 {
-  if (wholeline_flag)
+  if (wholeline_flag) {
+    int real = win->real;
+    win->real = -1;
     cur_eoline(win);
+    win->real = real;
+    redraw_editor(win);
+  }
   return(get_line2(str,win));
 }
 
@@ -2219,7 +2289,7 @@ int get_line_noconv(char *str, struct window *win)
   int i;
   char *ptr;
   
-  ptr = win->window_buffer + win->phys_line * 2 * COLS;
+  ptr = win->window_buffer + win->phys_line * 2 * MAXCOLS;
   for (i = 0; i < win->column; i++) {
     ptr++;
     str[i] = *ptr++;
@@ -2233,6 +2303,12 @@ void win_charout_cntl(char ch, struct window *win)
 {
   char newch1,newch2;
   int cnt;
+  int real = win->real;
+  int redraw = real != -1 &&
+               (win->view_column != 0 || win->column >= COLS - 2 ||
+                ch == C_EOLINE || ch == C_CURIGHT);
+
+  if (redraw) win->real = -1;
 
   if ((win->real != -1) && (win->real != 0)) {
     set_cursor(win->real);
@@ -2322,6 +2398,10 @@ void win_charout_cntl(char ch, struct window *win)
   if ((win->real != -1) && (win->real != 0)) {
     set_cursor(0);
   }
+  if (redraw) {
+    win->real = real;
+    redraw_editor(win);
+  }
 }
 
 /* mark part of line with a specific attribute */
@@ -2341,7 +2421,7 @@ void win_part_attrib(struct window *win, int start_col, int num_col, char attrib
     set_cursor(win->real);
   }
   count = num_col;
-  pos = win->window_buffer + win->phys_line*2*COLS + 2*start_col;
+  pos = win->window_buffer + win->phys_line*2*MAXCOLS + 2*start_col;
   while (count) {
     *pos = attrib;
     pos += 2;

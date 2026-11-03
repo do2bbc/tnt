@@ -102,6 +102,7 @@ int lines_xmon;
 int lines_xmon_pre;
 int xmon_scr_divide;
 int num_heardentries;
+static void xmonstat_display(int screen);
 
 void init_xmon(void)
 {
@@ -159,9 +160,9 @@ void reinit_xmon(void)
 {
   int i;
   int j;
+  int divide = xmon_scr_divide;
 
-  if (((LINES/xmon_scr_divide-1) < 2) ||
-      (xmon_scr_divide < 2) || (xmon_scr_divide > 40)) xmon_scr_divide = 3;  
+  if (divide < 2 || divide > 40 || LINES/divide < 3) divide = 3;
   for (i=0;i<XMON_SCREENS;i++) {
     for (j=0;j<LAYOUTPARTS;j++) {
       xmon_layout[i][j].win = NULL;
@@ -173,20 +174,21 @@ void reinit_xmon(void)
   for (i=0;i<XMON_SCREENS;i++) {
     xmon_layout[i][0].win = &xmonprewin[i];
     xmon_layout[i][0].first_real_line = 0;
-    xmon_layout[i][0].win_num_lines = LINES/xmon_scr_divide-1;
-    xmon_layout[i][0].pagesize = LINES/xmon_scr_divide-2;
+    xmon_layout[i][0].win_num_lines = LINES/divide-1;
+    xmon_layout[i][0].pagesize = LINES/divide-2;
     xmon_layout[i][1].win = &xmonstatwin[i];
-    xmon_layout[i][1].first_real_line = LINES/xmon_scr_divide-1;
+    xmon_layout[i][1].first_real_line = LINES/divide-1;
     xmon_layout[i][1].win_num_lines = 1;
     xmon_layout[i][1].pagesize = 0;
     xmon_layout[i][2].win = &xmonwin[i];
-    xmon_layout[i][2].first_real_line = LINES/xmon_scr_divide;
-    xmon_layout[i][2].win_num_lines = LINES-LINES/xmon_scr_divide-1;
-    xmon_layout[i][2].pagesize = LINES-LINES/xmon_scr_divide-4;
+    xmon_layout[i][2].first_real_line = LINES/divide;
+    xmon_layout[i][2].win_num_lines = LINES-LINES/divide-1;
+    xmon_layout[i][2].pagesize = LINES-LINES/divide-4;
     xmon_layout[i][3].win = &statlin;
     xmon_layout[i][3].first_real_line = LINES - 1;
     xmon_layout[i][3].win_num_lines = 1;
     xmon_layout[i][3].pagesize = 0;
+    xmonstat_display(i);
   }
 }
 

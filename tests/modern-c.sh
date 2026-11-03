@@ -21,6 +21,7 @@ cat > "$tmp/test.c" <<'EOF'
 static char captured[16];
 static int used;
 static int tnt_daemon, charconv = 1, tabexp_flag;
+static int size_blocked;
 static char proc_file[80] = "tnntest.pid";
 static int act_channel = 7, xmon_screen = 2, selected;
 static struct channel_stat channels[9];
