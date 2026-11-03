@@ -87,7 +87,10 @@ int gen_cookie(char *tmpname, int headfoot)
      return(1);
    }
    /* minimal size ok cookie-file is 2048 byte */
-   if (file_stat.st_size < 2048) return(1);
+   if (file_stat.st_size < 2048) {
+      close(org);
+      return(1);
+   }
    dest=open(tmpname,O_RDWR|O_CREAT|O_APPEND,PMODE);
    if (dest<0) {
       close(org);

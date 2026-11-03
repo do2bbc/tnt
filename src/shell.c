@@ -1587,7 +1587,8 @@ void close_shell2(int channel, int report, int disc, int errmode)
       active_socket->channel = -1;
       if (active_socket->login_stat == LS_ACTDAT) {
         strcpy(ans_str, CMDPT);
-        write_socket(active_socket,strlen(ans_str),ans_str,0);
+        if (!write_socket(active_socket,strlen(ans_str),ans_str,0))
+          break; /* socket was closed and freed on write failure */
       }
       active_socket->login_stat = LS_NOTACT;
       break;
@@ -1917,6 +1918,7 @@ int write_socket(ACTIVE_SOCKET *active_socket, int len, char *str, int noconv)
   if (active_socket->type == STYP_NETCMD) {
     if (active_socket->login_stat != NC_CONNECT) return(0);
   }
+  if (len > (int)sizeof(buffer)) len = sizeof(buffer);
   memcpy(buffer,str,len);
   newlen = len;
   if (!noconv && active_socket->lfcrconv) {

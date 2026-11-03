@@ -56,7 +56,7 @@ int conv_rx_to_local(char code, char *newcode1, char *newcode2)
       }
     }
   }
-  if ((code >= 0x80) && (code < 0xA0)) {
+  if (((unsigned char)code >= 0x80) && ((unsigned char)code < 0xA0)) {
     *newcode1 = '^';
     *newcode2 = code - 0x20;
     return(2);

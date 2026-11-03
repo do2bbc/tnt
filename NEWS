@@ -1,3 +1,13 @@
+2026/11/03: Fixed signed-char bugs that disabled binary-frame detection,
+            control-character display conversion and umlaut upcasing on
+            platforms with signed char. Matched status attribute extern
+            declarations with their char definitions. Fixed a use-after-free
+            when closing an AXSERV socket after a failed write, bounded the
+            socket write buffer, chunked oversized frontend buffer writes,
+            and plugged descriptor/memory leaks in cookie generation and
+            broadcast file conversion. Hardened script comment stripping
+            against empty lines.
+
 2026/11/02: Modern C function definitions and complete prototypes.
             Removed legacy compiler-warning suppressions and forced GNU C99.
             Corrected callback signatures, character conversion calls and

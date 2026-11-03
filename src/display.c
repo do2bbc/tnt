@@ -1181,10 +1181,10 @@ int check_bin(char *buffer)
 
   a = 0;
   b = 0;
-  len = (*buffer + 1);
+  len = ((unsigned char)*buffer + 1);
 
   for (i = 1; i <= len; i++) {
-    if ((buffer[i] > 128)) 
+    if (((unsigned char)buffer[i] > 128))
       b++;
     if ((buffer[i] == 'e') || (buffer[i] == 'E') || (buffer[i] == 'n') || (buffer[i] == ' ')) 
       a++;

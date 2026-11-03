@@ -446,9 +446,10 @@ void cut(char *s, short newlength)
 char upcase_(char ch)
 {
   /* ist zwar in TP schon drin, aber ohne Umlaute */
-  char Result;
+  unsigned char Result;
+  unsigned char uch = (unsigned char)ch;
 
-  switch (ch) {
+  switch (uch) {
 
   case 132:
     Result = 142;
@@ -463,13 +464,13 @@ char upcase_(char ch)
     break;
 
   default:
-    if (islower(ch))
-      Result = ch - 0x20;
+    if (islower(uch))
+      Result = uch - 0x20;
     else
-      Result = ch;
+      Result = uch;
     break;
   }
-  return Result;
+  return (char)Result;
 }
 
 void upper(char *s)

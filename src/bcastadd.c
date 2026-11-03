@@ -839,7 +839,11 @@ int del_cr(char *filename)
   
   srcbuffer = (char *)malloc(BUFSIZE);
   destbuffer = (char *)malloc(BUFSIZE);
-  if ((srcbuffer == NULL) || (destbuffer == NULL)) return(0);
+  if ((srcbuffer == NULL) || (destbuffer == NULL)) {
+    free(srcbuffer);
+    free(destbuffer);
+    return(0);
+  }
 
   strcpy(tmpname,filename);
   strcat(tmpname,"XXXXXX");

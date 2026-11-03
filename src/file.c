@@ -1377,9 +1377,9 @@ static void execute_line(int *state, int statevalid)
 
   len = strlen(line);
 
-  if (line < ptr) 
-    *ptr = 0; 
-  else if (line[len-1] == '\n') 
+  if (ptr != NULL)
+    *ptr = 0;
+  else if ((len > 0) && (line[len-1] == '\n'))
     line[len-1] = 0;
 
   cmd_display(tx_file_com.flag,act_channel,line,1);

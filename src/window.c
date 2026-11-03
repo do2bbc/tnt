@@ -428,25 +428,25 @@ static void queue_fr_buffer(char *buf, int len)
     fr_buffer_root = fr_buffer_work;
     fr_buffer_last = fr_buffer_work;
   }
-  else {
+  while (len > 0) {
     fr_buffer_work = fr_buffer_last;
-  }
-  if (fr_buffer_work->buflen + len < FR_BUFSIZE) {
-    memcpy(fr_buffer_work->buffer + fr_buffer_work->buflen,buf,len);
-    fr_buffer_work->buflen += len;
-  }
-  else {
     tmplen = FR_BUFSIZE - fr_buffer_work->buflen;
-    memcpy(fr_buffer_work->buffer + fr_buffer_work->buflen,buf,tmplen);
-    fr_buffer_work->buflen = FR_BUFSIZE;
-    if ((fr_buffer_work = alloc_fr_buffer()) == NULL) {
-      frontend_exit(0);
-      return;
+    if (tmplen > len)
+      tmplen = len;
+    if (tmplen > 0) {
+      memcpy(fr_buffer_work->buffer + fr_buffer_work->buflen,buf,tmplen);
+      fr_buffer_work->buflen += tmplen;
+      buf += tmplen;
+      len -= tmplen;
     }
-    fr_buffer_last->next = fr_buffer_work;
-    fr_buffer_last = fr_buffer_work;
-    memcpy(fr_buffer_work->buffer,buf+tmplen,len-tmplen);
-    fr_buffer_work->buflen = len-tmplen;
+    if (len > 0) {
+      if ((fr_buffer_work = alloc_fr_buffer()) == NULL) {
+        frontend_exit(0);
+        return;
+      }
+      fr_buffer_last->next = fr_buffer_work;
+      fr_buffer_last = fr_buffer_work;
+    }
   }
 }
 
