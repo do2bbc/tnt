@@ -860,6 +860,7 @@ void cmd_concall(int par1 __attribute__((unused)), int par2 __attribute__((unuse
     update_name(channel);
   }
   stat_display(channel);
+  statlin_update();
   set_pwmode(channel);
   set_remmode(channel);
   cmd_display(mode,channel,OK_TEXT,1);
@@ -1005,4 +1006,3 @@ void free_connect(void)
 {
   free(xc_stat);
 }
-

@@ -23,6 +23,11 @@ static int used;
 static int tnt_daemon, charconv = 1, tabexp_flag;
 static char proc_file[80] = "tnntest.pid";
 static int act_channel = 7, xmon_screen = 2, selected;
+static struct channel_stat channels[9];
+static struct channel_stat *ch_stat = channels;
+static int altstat, status_updates, name_updates, channel_updates;
+static int password_updates, remote_updates;
+static const char *expected_message = OK_TEXT;
 int enchufmem(char *input, long size, char **output, long *output_size,
               char *filename, int convert);
 int dechufmem(char *input, long size, char **output, long *output_size,
@@ -78,8 +83,12 @@ static void sel_mailbox(void) { selected = 8; }
 static void cmd_display(int mode, int channel, char *text, int cr)
 {
   (void)mode; (void)channel; (void)cr;
-  assert(strcmp(text, OK_TEXT) == 0);
+  assert(strcmp(text, expected_message) == 0);
 }
+static void update_name(int channel) { assert(channel == 7); ++name_updates; }
+static void stat_display(int channel) { assert(channel == 7); ++channel_updates; }
+static void set_pwmode(int channel) { assert(channel == 7); ++password_updates; }
+static void set_remmode(int channel) { assert(channel == 7); ++remote_updates; }
 EOF
 extract 'void win_charout_2(' window.c
 extract 'static int split_udp_endpoint(' serial.c
@@ -97,7 +106,7 @@ cat >> "$tmp/test.c" <<'EOF'
 #include "keys.h"
 static int esc_flag, chan_flag, analysed;
 static char func_str[11];
-static void statlin_update(void) {}
+static void statlin_update(void) { ++status_updates; }
 static void dispatch_control(char *ch)
 {
 EOF
@@ -139,6 +148,36 @@ static void check_mailbox_shortcuts(void)
 #endif
 }
 EOF
+extract 'void cmd_concall(' connect.c
+cat >> "$tmp/test.c" <<'EOF'
+static void check_concall_refresh(void)
+{
+  for (altstat = 0; altstat <= 1; ++altstat) {
+    channels[7].conn_state = CS_CONN;
+    strcpy(channels[7].disp_call, "OLD");
+    strcpy(channels[7].log_call, "OLD");
+    status_updates = name_updates = channel_updates = 0;
+    password_updates = remote_updates = 0;
+    cmd_concall(0, 0, 7, 6, 0, "eu1box");
+    assert(strcmp(channels[7].disp_call, "EU1BOX") == 0);
+    assert(strcmp(channels[7].log_call, "EU1BOX") == 0);
+    assert(status_updates == 1 && channel_updates == 1);
+    assert(name_updates == altstat);
+    assert(password_updates == 1 && remote_updates == 1);
+  }
+  status_updates = channel_updates = 0;
+  expected_message = _("Invalid callsign");
+  cmd_concall(0, 0, 7, 0, 0, "");
+  assert(status_updates == 0 && channel_updates == 0);
+  assert(strcmp(channels[7].disp_call, "EU1BOX") == 0);
+  channels[7].conn_state = CS_DISCON;
+  expected_message = _("Only while connected");
+  cmd_concall(0, 0, 7, 6, 0, "other");
+  assert(status_updates == 0 && channel_updates == 0);
+  assert(strcmp(channels[7].disp_call, "EU1BOX") == 0);
+  expected_message = OK_TEXT;
+}
+EOF
 cat >> "$tmp/test.c" <<'EOF'
 int main(void)
 {
@@ -149,6 +188,7 @@ int main(void)
   char text[4096], *compressed = NULL, *decoded = NULL;
   long compressed_size, decoded_size;
   check_mailbox_shortcuts();
+  check_concall_refresh();
   win.num_lines = 2;
   put_character(0xe4);
   tnt_daemon = 1;

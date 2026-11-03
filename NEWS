@@ -1,4 +1,5 @@
 2026/11/03: Terminal modernization beta (V1.9.3-beta1).
+            Refresh the channel overview immediately after CONCALL changes.
             Restore Alt-B/Alt-Shift-B mailbox screen shortcuts instead of
             interpreting the internal mailbox key code as text ("ae").
             Use system gettext and checked UTF-8 translation catalogs.
