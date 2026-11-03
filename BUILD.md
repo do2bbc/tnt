@@ -134,6 +134,32 @@ The channel status separator uses `attc_cstatline` / `attm_cstatline` and the
 optional `palette_cstatline`. To match the channel overview, give these the
 same values as `attc_statline` / `attm_statline` / `palette_statline`.
 
+In local xterm-compatible terminals, left-click a channel entry in the lower
+overview to switch channels. Connected entries displaying a callsign are
+clickable too. Hit targets follow the displayed channel group and status-row
+position after resizing or changing screens; clicks elsewhere, releases,
+other buttons and modified clicks do not switch channels. Unsent input stays
+with its channel. Hold Shift to use the terminal's own text selection, paste
+or scrolling instead of TNT's mouse reporting. Mouse tracking is disabled on
+exit and is not enabled for `tntc` clients.
+
+With `LAYER3 ON`, the monitor decodes INP routing information frames (RIF):
+callsign, advertised hops, transport time in milliseconds (wire values are
+10-ms ticks), alias and IPv4 prefix options. Zero metrics and the TNN routing
+horizon of 60000 or higher are shown as withdrawn routes. Unknown options
+remain visible by tag and length; malformed/truncated entries are reported.
+TNN `L3RTT:` probes to the `L3RTT` pseudo-destination show sender uptime,
+reported SRTT/RTT, peer identification, INP capability (`$N`) and the advertised
+maximum transport time (`$M`). These are reported values, not a local
+measurement of the round trip. Classic NET/ROM NODES broadcasts and ordinary
+Layer-4 traffic retain their existing interpretation.
+
+The protocol interpretation was checked against the Layer-3/4 description
+in TheNetNode 1.78 manual, appendix F, and the TNN 1.79 INP implementation
+(`src/l3inp.c`, `src/l3rtt.c`, `include/l3local.h` in the TNN source tree).
+The older appendix describes the general framing and RTT mechanism, not the
+complete newer INP option format.
+
 The terminal regression suite tests all 256 byte conversions, split UTF-8
 input, unsupported/invalid sequences, legacy and UTF-8 I/O, terminal-profile
 matching, intensity reset, indexed/RGB colors, reduced-palette fallback and
@@ -141,6 +167,8 @@ attribute-buffer limits under ASan/UBSan. It also exercises the production
 keyboard dispatcher and connect/command editors through to their screen
 buffers and submitted bytes: both UMLAUT settings, legacy/UTF-8 input,
 F1-F12 and the Alt-M/B/L/C shortcuts.
+Mouse reports are exercised through the keyboard dispatcher in legacy and
+UTF-8 locales, and click targets are checked against rendered channel rows.
 Resize tests use a pseudo-terminal to verify size limits, redraws, retained
 history, saved boxlist-window ownership and editing of hidden input tails.
 Status separators are tested through 256 columns, including densely populated

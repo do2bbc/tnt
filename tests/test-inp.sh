@@ -19,7 +19,11 @@ cat > "$tmp/test.c" <<'EOF'
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <errno.h>
 #include "xmon.h"
+#define SPACE ' '
+#define CR '\r'
+#define LF '\n'
 #define _(s) (s)
 static char output[32768];
 static void moni_display2(const char *s,int attr) {
@@ -59,7 +63,7 @@ int main(void) {
   packet[n++]=2;packet[n++]=3;packet[n++]=24;
   packet[n++]=4;packet[n++]=77;packet[n++]=0xff;packet[n++]=0x80;packet[n++]=0;
   run(packet,n,1);
-  assert(strstr(output,"DB0ABC hops: 3 transport time: 4660"));
+  assert(strstr(output,"DB0ABC hops: 3 transport time: 46600 ms"));
   assert(strstr(output,"alias: ABC"));
   assert(strstr(output,"IP: 44.1.2.3/24"));
   assert(strstr(output,"option 77 (2 bytes)"));
@@ -80,6 +84,30 @@ int main(void) {
   assert(strstr(output,"Broadcast from CLASS"));
   assert(strstr(output,"quality: 200"));
   assert(!strstr(output,"INP"));
+  /* The TNN horizon is 60000; zero is also a withdrawal, not a fast route. */
+  memset(test,0,sizeof(test));test[0]=0xff;axcall(test+1);test[8]=2;
+  run(test,12,1);assert(strstr(output,"route withdrawn (metric: 0)"));
+  test[9]=0xea;test[10]=0x60;run(test,12,1);
+  assert(strstr(output,"route withdrawn (metric: 60000)"));
+  test[9]=0;test[10]=1;run(test,12,1);
+  assert(strstr(output,"transport time: 10 ms"));
+  /* L3RTT numeric fields are decimal 10-ms ticks; the fourth is opaque. */
+  memset(test,0,sizeof(test));axcall(test);
+  for(i=0;i<6;i++)test[7+i]=(unsigned char)("L3RTT "[i]<<1);
+  test[13]=0x61;test[14]=2;test[19]=5;
+  const char *probe="L3RTT: 12345 60 40 123456 TEST LEVEL3_V2.1 TNN179 $M2000 $N\r";
+  memcpy(test+20,probe,strlen(probe));n=20+strlen(probe);
+  run(test,n,1);
+  assert(strstr(output,"L3RTT DB0ABC>L3RTT TTL:2"));
+  assert(strstr(output,"sender uptime 123.45 s"));
+  assert(strstr(output,"reported SRTT: 0.60 s; reported RTT: 0.40 s"));
+  assert(strstr(output,"INP maximum transport time: 20000 ms"));
+  assert(strstr(output,"INP supported ($N)"));
+  assert(!strstr(output,"IllOpcode") && !strstr(output,"malformed"));
+  for(i=26;i<41;i++) {
+    run(test,i,1);assert(strstr(output,"malformed"));
+  }
+  test[26]='-';run(test,n,1);assert(strstr(output,"malformed"));
   for(i=1;i<=6;i++) {
     memset(test,0,20);axcall(test);axcall(test+7);test[19]=(unsigned char)i;
     if(i==1) {axcall(test+21);axcall(test+28);}

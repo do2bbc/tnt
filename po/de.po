@@ -1605,5 +1605,57 @@ msgstr "YAPP Übertragung beendet"
 msgid "YAPP transmission started"
 msgstr "YAPP Übertragung gestartet"
 
+msgid "INP Routing Information (RIF):"
+msgstr "INP-Routinginformationen (RIF):"
+
+#, c-format
+msgid "%s hops: %u route withdrawn (metric: %u)"
+msgstr "%s Hops: %u Route abgemeldet (Metrik: %u)"
+
+#, c-format
+msgid "%s hops: %u transport time: %u ms"
+msgstr "%s Hops: %u Laufzeit: %u ms"
+
+#, c-format
+msgid "  alias: %s"
+msgstr "  Alias: %s"
+
+#, c-format
+msgid "  IP: %u.%u.%u.%u/%u"
+msgstr "  IP: %u.%u.%u.%u/%u"
+
+#, c-format
+msgid "  unknown INP option %u (%u bytes)"
+msgstr "  Unbekannte INP-Option %u (%u Bytes)"
+
+msgid "INP: malformed or truncated routing information"
+msgstr "INP: fehlerhafte oder unvollständige Routinginformationen"
+
+#, c-format
+msgid "L3RTT probe: sender uptime %lu.%02lu s"
+msgstr "L3RTT-Messpaket: Senderlaufzeit %lu.%02lu s"
+
+#, c-format
+msgid "  reported SRTT: %lu.%02lu s; reported RTT: %lu.%02lu s"
+msgstr "  Gemeldete SRTT: %lu.%02lu s; gemeldete RTT: %lu.%02lu s"
+
+#, c-format
+msgid "  peer: %.140s"
+msgstr "  Gegenstelle: %.140s"
+
+#, c-format
+msgid "  INP maximum transport time: %lu ms"
+msgstr "  Maximale INP-Laufzeit: %lu ms"
+
+msgid "  INP supported ($N)"
+msgstr "  INP unterstützt ($N)"
+
+msgid "L3RTT: malformed or truncated measurement"
+msgstr "L3RTT: fehlerhaftes oder unvollständiges Messpaket"
+
+#, c-format
+msgid "L3RTT %s>%s TTL:%u"
+msgstr "L3RTT %s>%s TTL:%u"
+
 #~ msgid "%2.2u.%2.2u.%2.2u %2.2u:%2.2u.%2.2u: Resync started\n"
 #~ msgstr "%2.2u.%2.2u.%2.2u %2.2u:%2.2u.%2.2u: Resync gestartet\n"

@@ -12,6 +12,7 @@
 */
 
 #include "tnt.h"
+#include "terminal.h"
 #include "keys.h"
 #include "boxlist.h"
 #ifndef DPBOXT
@@ -21,6 +22,7 @@
 
 /* external function declarations */
 extern void sel_connect(int channel);
+extern void statlin_mouse(unsigned int button, unsigned int column, unsigned int row);
 extern void sel_monitor(void);
 extern void sel_command(void);
 extern void sel_heardlist(void);
@@ -1051,6 +1053,10 @@ void dat_input(int channel, char *str, int len)
 
 void keyboard_server(int *state, char *ch)
 {
+#ifndef DPBOXT
+  static struct terminal_mouse mouse;
+  static int mouse_pending;
+#endif
   int i;
   int found;
   int analysed;
@@ -1070,7 +1076,25 @@ void keyboard_server(int *state, char *ch)
   sysopactiv = time(&sysopactiv);
   if(queue_activ!=0) rem_sendonact();
 
-  if (exit_flag) { /* Do you really want to exit (y/n)? */
+#ifndef DPBOXT
+  if (!tnt_daemon && mouse_pending) {
+    int result = terminal_mouse_parse(&mouse, (unsigned char)*ch);
+    if (result != 0) {
+      mouse_pending = 0;
+      if (result > 0 && !exit_flag && !pass_flag)
+        statlin_mouse(mouse.values[0], mouse.values[1], mouse.values[2]);
+    }
+    return;
+  }
+  if (!tnt_daemon && esc_flag == 2 && func_str[1] == '[' && *ch == '<') {
+    memset(&mouse, 0, sizeof(mouse));
+    mouse_pending = 1;
+    esc_flag = 0;
+    return;
+  }
+#endif
+
+  if (exit_flag && !esc_flag && *ch != ESC) { /* Do you really want to exit (y/n)? */
     switch (*ch) {
       case 'Y':
       case 'y':
@@ -1109,7 +1133,7 @@ void keyboard_server(int *state, char *ch)
     return;
   }
 #ifndef DPBOXT
-  else if (chan_flag) { /* Switching channel with TAB */
+  else if (chan_flag && !esc_flag && *ch != ESC) { /* Switching channel with TAB */
     if (act_mode == M_EXTMON) {
       if ((*ch >= '0') && (*ch <= '9')) {
         chan_val1 = (int)((*ch) - '0');
@@ -1159,6 +1183,7 @@ void keyboard_server(int *state, char *ch)
         found = 1;
         if ((int)strlen(spec_keys[i].code) == (esc_flag + 1)) {
           esc_flag = 0;
+          if (exit_flag || chan_flag) return;
           if (spec_keys[i].sel_channel == 2) {
 #ifdef DPBOXT
             if (act_mode != M_MAILBOX)

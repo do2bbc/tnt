@@ -6,6 +6,44 @@
 static int terminal_utf8;
 static unsigned int input_pending;
 
+void terminal_mouse_tracking(int enabled)
+{
+  const char *sequence = enabled ? "\033[?1000h\033[?1006h" :
+                                   "\033[?1000l\033[?1006l";
+  if (terminal_write(1, sequence, strlen(sequence)) < 0)
+    perror("TNT mouse tracking");
+}
+
+/* Parse the numeric tail after ESC [ <; consume invalid reports to their end. */
+int terminal_mouse_parse(struct terminal_mouse *mouse, unsigned char byte)
+{
+  if (++mouse->bytes > 32) return -1;
+  if (byte == 'M' || byte == 'm') {
+    if (mouse->invalid || mouse->field != 2 || !mouse->digits ||
+        mouse->values[1] == 0 || mouse->values[2] == 0)
+      return -1;
+    return byte == 'M' ? 1 : -1;
+  }
+  if (byte >= 0x40 && byte <= 0x7e) return -1;
+  if (mouse->invalid) return 0;
+  if (byte == ';' && mouse->field < 2 && mouse->digits) {
+    ++mouse->field;
+    mouse->digits = 0;
+  }
+  else if (byte >= '0' && byte <= '9') {
+    unsigned int value = mouse->values[mouse->field];
+    if (value > (65535U - (byte - '0')) / 10)
+      mouse->invalid = 1;
+    else {
+      mouse->values[mouse->field] = value * 10 + byte - '0';
+      mouse->digits = 1;
+    }
+  }
+  else
+    mouse->invalid = 1;
+  return 0;
+}
+
 static const char *const palette_roles[] = {
   "normal", "statline", "monitor", "cstatline", "controlchar",
   "remote", "special", "monport1", "monport2"

@@ -1606,5 +1606,57 @@ msgstr "Fin de la transmission YAPP"
 msgid "YAPP transmission started"
 msgstr "Demarrage de la transmission YAPP"
 
+msgid "INP Routing Information (RIF):"
+msgstr "Informations de routage INP (RIF) :"
+
+#, c-format
+msgid "%s hops: %u route withdrawn (metric: %u)"
+msgstr "%s sauts : %u route retiree (metrique : %u)"
+
+#, c-format
+msgid "%s hops: %u transport time: %u ms"
+msgstr "%s sauts : %u temps de transport : %u ms"
+
+#, c-format
+msgid "  alias: %s"
+msgstr "  alias : %s"
+
+#, c-format
+msgid "  IP: %u.%u.%u.%u/%u"
+msgstr "  IP : %u.%u.%u.%u/%u"
+
+#, c-format
+msgid "  unknown INP option %u (%u bytes)"
+msgstr "  Option INP inconnue %u (%u octets)"
+
+msgid "INP: malformed or truncated routing information"
+msgstr "INP : informations de routage incorrectes ou tronquees"
+
+#, c-format
+msgid "L3RTT probe: sender uptime %lu.%02lu s"
+msgstr "Sonde L3RTT : temps de fonctionnement de l'emetteur %lu.%02lu s"
+
+#, c-format
+msgid "  reported SRTT: %lu.%02lu s; reported RTT: %lu.%02lu s"
+msgstr "  SRTT annonce : %lu.%02lu s ; RTT annonce : %lu.%02lu s"
+
+#, c-format
+msgid "  peer: %.140s"
+msgstr "  Voisin : %.140s"
+
+#, c-format
+msgid "  INP maximum transport time: %lu ms"
+msgstr "  Temps de transport maximal INP : %lu ms"
+
+msgid "  INP supported ($N)"
+msgstr "  INP pris en charge ($N)"
+
+msgid "L3RTT: malformed or truncated measurement"
+msgstr "L3RTT : mesure incorrecte ou tronquee"
+
+#, c-format
+msgid "L3RTT %s>%s TTL:%u"
+msgstr "L3RTT %s>%s TTL:%u"
+
 #~ msgid "%2.2u.%2.2u.%2.2u %2.2u:%2.2u.%2.2u: Resync started\n"
 #~ msgstr "%2.2u.%2.2u.%2.2u %2.2u:%2.2u.%2.2u: Resynchro lancee\n"

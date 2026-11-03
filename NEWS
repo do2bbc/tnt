@@ -1,4 +1,10 @@
 2026/11/03: Terminal modernization beta (V1.9.3-beta1).
+            Switch channels by left-clicking the lower channel overview in
+            local xterm-compatible terminals. Keep terminal text selection
+            available through Shift and disable mouse tracking on exit.
+            Display INP transport times in milliseconds and mark withdrawn
+            routes. Decode TNN L3RTT probes, reported timings and INP
+            capability/maximum-time tokens alongside existing RIF options.
             Follow local terminal resizes without losing buffered rows or
             unsent input. Clip existing rows instead of reflowing them and
             scroll long input horizontally. Show a notice below 80x16;

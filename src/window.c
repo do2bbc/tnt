@@ -519,6 +519,14 @@ int terminal_size_blocked(void)
   return size_blocked;
 }
 
+int window_on_row(const struct window *win, int row)
+{
+  return !size_blocked && win->real >= 0 && win->real < 5 &&
+    real_info[win->real].win == win &&
+    row >= real_info[win->real].first_real_line &&
+    row <= real_info[win->real].last_real_line;
+}
+
 int resize_terminal(void)
 {
   int rows, cols;
@@ -1212,11 +1220,14 @@ void window_init(void)
   }
   if (!tnt_daemon)
     phy_clrscr();
+  if (!tnt_daemon && xtermkeys)
+    terminal_mouse_tracking(1);
 }
 
 void window_exit(void)
 {
   if (!tnt_daemon) {
+    if (xtermkeys) terminal_mouse_tracking(0);
     phy_clrscr();
     phy_scrnor();
     phy_treset();

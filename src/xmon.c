@@ -1372,7 +1372,7 @@ static int display_inp(const unsigned char *data, size_t length)
   char line[160];
   char call[10];
 
-  moni_display2("INP Routing Information:",0);
+  moni_display2(_("INP Routing Information (RIF):"),0);
   while (pos < length) {
     unsigned hops, metric;
     int ended = 0;
@@ -1383,8 +1383,12 @@ static int display_inp(const unsigned char *data, size_t length)
     hops = data[pos++];
     metric = ((unsigned)data[pos] << 8) | data[pos + 1];
     pos += 2;
-    snprintf(line,sizeof(line),"%s hops: %u transport time: %u",
-             call,hops,metric);
+    if (metric == 0 || metric >= 60000)
+      snprintf(line,sizeof(line),_("%s hops: %u route withdrawn (metric: %u)"),
+               call,hops,metric);
+    else
+      snprintf(line,sizeof(line),_("%s hops: %u transport time: %u ms"),
+               call,hops,metric * 10);
     moni_display2(line,0);
     while (pos < length) {
       unsigned option_length = data[pos++];
@@ -1407,16 +1411,16 @@ static int display_inp(const unsigned char *data, size_t length)
           if ((unsigned char)call[i] < 32 || (unsigned char)call[i] > 126)
             call[i] = '?';
         call[count] = '\0';
-        snprintf(line,sizeof(line),"  alias: %s",call);
+        snprintf(line,sizeof(line),_("  alias: %s"),call);
         break;
       case 1:
         if (count != 5 || data[pos + 4] > 32)
           goto malformed;
-        snprintf(line,sizeof(line),"  IP: %u.%u.%u.%u/%u",
+        snprintf(line,sizeof(line),_("  IP: %u.%u.%u.%u/%u"),
                  data[pos],data[pos+1],data[pos+2],data[pos+3],data[pos+4]);
         break;
       default:
-        snprintf(line,sizeof(line),"  INP option %u (%u bytes)",tag,
+        snprintf(line,sizeof(line),_("  unknown INP option %u (%u bytes)"),tag,
                  (unsigned)count);
         break;
       }
@@ -1429,8 +1433,69 @@ static int display_inp(const unsigned char *data, size_t length)
   return 0;
 
 malformed:
-  moni_display2("INP: malformed or truncated routing information",0);
+  moni_display2(_("INP: malformed or truncated routing information"),0);
   return 0;
+}
+
+static void display_l3rtt(const char *data, size_t length)
+{
+  char text[257], line[160], *cursor, *end;
+  unsigned long values[4];
+  int inp = 0;
+
+  if (length > sizeof(text) - 1) goto malformed;
+  memcpy(text, data, length);
+  text[length] = '\0';
+  for (size_t i = 0; i < length; ++i)
+    if ((unsigned char)text[i] < SPACE && text[i] != CR && text[i] != LF)
+      goto malformed;
+  cursor = text;
+  for (int i = 0; i < 4; ++i) {
+    while (*cursor == SPACE) ++cursor;
+    if (*cursor < '0' || *cursor > '9') goto malformed;
+    errno = 0;
+    values[i] = strtoul(cursor, &end, 10);
+    if (errno || *end != SPACE) goto malformed;
+    cursor = end + 1;
+  }
+  snprintf(line, sizeof(line), _("L3RTT probe: sender uptime %lu.%02lu s"),
+           values[0] / 100, values[0] % 100);
+  moni_display2(line, 0);
+  snprintf(line, sizeof(line),
+           _("  reported SRTT: %lu.%02lu s; reported RTT: %lu.%02lu s"),
+           values[1] / 100, values[1] % 100, values[2] / 100, values[2] % 100);
+  moni_display2(line, 0);
+  /* The remaining text contains the alias, versions and optional capability tokens. */
+  for (size_t i = 0; cursor[i]; ++i) {
+    if (cursor[i] == CR || cursor[i] == LF) cursor[i] = SPACE;
+    else if ((unsigned char)cursor[i] > 126) cursor[i] = '?';
+  }
+  snprintf(line, sizeof(line), _("  peer: %.140s"), cursor);
+  moni_display2(line, 0);
+  while (*cursor) {
+    while (*cursor == SPACE) ++cursor;
+    end = strchr(cursor, SPACE);
+    if (end == NULL) end = cursor + strlen(cursor);
+    if (end - cursor == 2 && memcmp(cursor, "$N", 2) == 0)
+      inp = 1;
+    else if (end - cursor > 2 && memcmp(cursor, "$M", 2) == 0) {
+      char *number_end;
+      unsigned long limit;
+      if (cursor[2] < '0' || cursor[2] > '9') goto malformed;
+      errno = 0;
+      limit = strtoul(cursor + 2, &number_end, 10);
+      if (errno || number_end != end || limit > 65535) goto malformed;
+      snprintf(line, sizeof(line), _("  INP maximum transport time: %lu ms"),
+               limit * 10);
+      moni_display2(line, 0);
+    }
+    cursor = end;
+  }
+  if (inp) moni_display2(_("  INP supported ($N)"), 0);
+  return;
+
+malformed:
+  moni_display2(_("L3RTT: malformed or truncated measurement"), 0);
 }
 
 int display_layer3(char *buffer, int is_i)
@@ -1505,6 +1570,16 @@ int display_layer3(char *buffer, int is_i)
       strcat(flags,", NAK");
     if (l3_opcode & 0x20)
       strcat(flags,", MOR");
+    if (strcmp(call2, "L3RTT") == 0 &&
+        (l3_opcode & 0x0f) == L3OP_INFO &&
+        len >= L3_HEADERLEN + 6 &&
+        memcmp(bufcur + L3_HEADERLEN, "L3RTT:", 6) == 0) {
+      snprintf(line, sizeof(line), _("L3RTT %s>%s TTL:%u"),
+               call1, call2, (unsigned char)bufcur[L3_TTL]);
+      moni_display2(line, 1);
+      display_l3rtt(bufcur + L3_HEADERLEN + 6, len - L3_HEADERLEN - 6);
+      break;
+    }
     switch (l3_opcode & 0x0f) {
     case L3OP_CONREQ:
       if (len < L3_CONREQLEN) return(1);

@@ -62,3 +62,4 @@ struct real_layout {
 
 int resize_terminal(void);
 int terminal_size_blocked(void);
+int window_on_row(const struct window *win, int row);

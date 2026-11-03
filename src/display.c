@@ -215,6 +215,10 @@ extern int scanmbea_valid;
 #endif /* DPBOXT */
 
 static int old_mode;
+#ifndef DPBOXT
+static int channel_at_column[MAXCOLS];
+void sel_connect(int channel);
+#endif
 static int help_available;
 char tnt_help_file[MAXCHAR];
 
@@ -270,6 +274,9 @@ void statlin_update(void)
   char call_sign[12];
 
   tmpstr = (char *)malloc(COLS+2);
+#ifndef DPBOXT
+  for (i = 0; i < MAXCOLS; ++i) channel_at_column[i] = -1;
+#endif
   switch (act_mode) {
 #ifdef DPBOXT
   case M_BOXLIST:
@@ -492,6 +499,14 @@ void statlin_update(void)
       if(tmp_call[j] == '-') tmp_call[j] = '\0';
     while(strlen(tmp_call) < 6) strcat(tmp_call, " ");
     }
+    {
+      size_t start = strlen(tmpstr) - 1;
+      size_t end = start + strlen(tmp_call);
+      if (i < tnc_channels) {
+        for (size_t col = start; col < end && col < (size_t)COLS; ++col)
+          channel_at_column[col] = i;
+      }
+    }
     strcat(tmpstr,tmp_call);
   }
   for (i=strlen(tmpstr);i<COLS+1;i++) {
@@ -504,6 +519,20 @@ void statlin_update(void)
 }
 
 #ifndef DPBOXT
+void statlin_mouse(unsigned int button, unsigned int column, unsigned int row)
+{
+  int channel;
+  if (button != 0 || column == 0 || column > (unsigned int)COLS ||
+      row == 0 || row > (unsigned int)LINES ||
+      !window_on_row(&statlin, (int)row - 1))
+    return;
+  channel = channel_at_column[column - 1];
+  if (channel < 0 || channel >= tnc_channels) return;
+  chan_flag = 0;
+  sel_connect(channel);
+  statlin_update();
+}
+
 void newdata(int channel)
 {
   ch_stat[channel].not_disp = 1;

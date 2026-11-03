@@ -10,6 +10,7 @@ trap 'rm -f "$tmp/test.c" "$tmp/test" "$tmp/resize.c" "$tmp/resize"; rmdir "$tmp
 cat > "$tmp/test.c" <<'EOF'
 #include "tnt.h"
 #include "terminal.h"
+#include "terminal.h"
 #include "xmon.h"
 #include <assert.h>
 #include <locale.h>
@@ -148,6 +149,9 @@ static void real_window_down(int part, int page)
 static void real_window_top(int part) { (void)part; assert(0); }
 static void real_window_bot(int part) { (void)part; assert(0); }
 static void sel_connect(int channel) { selected = channel; }
+static unsigned int mouse_button, mouse_column, mouse_row;
+static void statlin_mouse(unsigned int button, unsigned int column, unsigned int row)
+{ mouse_button = button; mouse_column = column; mouse_row = row; }
 static void sel_monitor(void) { selected = 20; }
 static void sel_command(void) { selected = 21; }
 static void sel_xmon(int screen) { (void)screen; selected = 22; }
@@ -186,6 +190,17 @@ static void check_keyboard(void)
                        "\033[21~", "\033[23~", "\033[24~",
                        "\033m", "\033b", "\033l", "\033c"};
   const int targets[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 20, 21, 20, 26, 24, 21};
+  struct terminal_mouse mouse = {0};
+  const char *report = "0;65535;65535M";
+  for (size_t i = 0; i < strlen(report); ++i)
+    assert(terminal_mouse_parse(&mouse, report[i]) ==
+           (i == strlen(report) - 1 ? 1 : 0));
+  assert(mouse.values[1] == 65535 && mouse.values[2] == 65535);
+  memset(&mouse, 0, sizeof(mouse));
+  report = "0;65536;1M";
+  for (size_t i = 0; i < strlen(report); ++i)
+    assert(terminal_mouse_parse(&mouse, report[i]) ==
+           (i == strlen(report) - 1 ? -1 : 0));
   memset(&input_window, 0, sizeof(input_window));
   input_window.real = -1;
   input_window.num_lines = 2;
@@ -228,6 +243,27 @@ static void check_keyboard(void)
     input_window.column = 0;
     feed_keys(locale ? "\xc3\x83" : "\xc3");
     assert(input_window.column == 1 && cells[1] == (char)0xc3);
+    int column = input_window.column;
+    mouse_column = 0;
+    feed_keys("\033[<0;12;46M");
+    assert(mouse_button == 0 && mouse_column == 12 && mouse_row == 46);
+    assert(input_window.column == column);
+    mouse_column = 0;
+    feed_keys("\033[<0;12;46m");
+    assert(mouse_column == 0 && input_window.column == column);
+    feed_keys("\033[<0;999999999999;46M");
+    assert(mouse_column == 0 && input_window.column == column);
+    chan_flag = 1;
+    feed_keys("\033[<0;20;46M");
+    assert(mouse_column == 20 && input_window.column == column);
+    chan_flag = 0;
+    mouse_column = 0;
+    exit_flag = 1;
+    feed_keys("\033[<0;20;46M");
+    assert(mouse_column == 0 && exit_flag == 1 && input_window.column == column);
+    feed_keys("\033OP");
+    assert(exit_flag == 1);
+    exit_flag = 0;
   }
   /* Radio/file IBM mappings, including the Atari sharp-s alias. */
   const unsigned char radio[] = {0x84, 0x94, 0x81, 0x8e, 0x99, 0x9a, 0xe1, 0x9e};
@@ -434,7 +470,6 @@ int capture_terminal_write(int fd, const char *buffer, size_t length)
   rendered[rendered_size] = '\0';
   return 0;
 }
-void statlin_update(void) {}
 
 static void dimensions(int rows, int cols)
 {
@@ -591,19 +626,28 @@ cat >> "$tmp/resize.c" <<'EOF'
 #include "xmon.h"
 static char *ax_state[] = {"************"};
 static char *ax_state_alt[] = {" discon  "};
-static struct channel_stat channel_status[2];
+static struct channel_stat channel_status[21];
 static struct channel_stat *ch_stat = channel_status;
 static struct window statwin[2], xmonstatwin[XMON_SCREENS];
 static struct xmon_stat xm_stat[MAX_XMON];
+static struct window statlin;
+static int channel_at_column[MAXCOLS];
+static int act_mode = M_CONNECT, act_channel = 1, xmon_screen;
+static int chan_flag, chan_val1, resync, tnc_busy, bl_mode, selected_channel;
+static int tnc_channels = 21;
+static int xconnect_active(int channel) { (void)channel; return 0; }
+static int extcomp_active(int screen) { (void)screen; return 0; }
+static void sel_connect(int channel) { selected_channel = channel; }
 static void strip_call_log(char *str, int channel)
 {
-  assert(channel == 1);
-  strcpy(str, "DBW400");
+  assert(channel >= 0 && channel < tnc_channels);
+  strcpy(str, channel % 10 == 3 ? "DBW4-15" : "DBW400");
 }
 EOF
 for signature in 'static void append_char(' 'static void append_spaces(' \
                  'static void append_limited(' 'void stat_display_org(' \
-                 'void stat_display_alt('; do
+                 'void stat_display_alt(' 'void statlin_update(' \
+                 'void statlin_mouse('; do
   awk -v signature="$signature" '
     index($0, signature) == 1 && $0 !~ /;[ \t]*$/ { found = 1 }
     found { print }
@@ -653,10 +697,77 @@ static void check_status_widths(void)
   assert(close_window(&xmonstatwin[0]) == 0);
 }
 
+static void check_channel_clicks(void)
+{
+  struct window input = {0};
+  struct real_layout screen[LAYOUTPARTS] = {0};
+  assert(open_window(4, &input, 1) == 0);
+  assert(open_window(1, &statlin, 1) == 0);
+  COLS = 80;
+  LINES = 24;
+  screen[0].win = &input;
+  screen[0].win_num_lines = 2;
+  screen[1].win = &statlin;
+  screen[1].first_real_line = 13;
+  screen[1].win_num_lines = 1;
+  real_screen(screen);
+  for (int mode = 0; mode < 3; ++mode) {
+    act_mode = mode == 0 ? M_CONNECT : mode == 1 ? M_COMMAND : M_MAILBOX;
+    for (int base = 1; base <= 11; base += 10) {
+      act_channel = base;
+      ch_stat[base + 2].state = 4;
+      ch_stat[base + 3].not_disp = 1;
+      statlin_update();
+      for (int col = 0; col < COLS; ++col) {
+        int expected = channel_at_column[col];
+        selected_channel = -1;
+        statlin_mouse(0, col + 1, 14);
+        assert(selected_channel == expected);
+        selected_channel = -1;
+        statlin_mouse(0, col + 1, 13);
+        statlin_mouse(1, col + 1, 14);
+        statlin_mouse(2, col + 1, 14);
+        statlin_mouse(64, col + 1, 14);
+        statlin_mouse(4, col + 1, 14);
+        assert(selected_channel == -1);
+      }
+      /* Derive a click from the rendered channel number, not just the hit map. */
+      const char *label = base == 1 ? "02:===" : "12:===";
+      char row[MAXCOLS + 2];
+      assert(get_line_noconv(row, &statlin) == COLS + 1);
+      row[COLS] = '\0';
+      char *number = strstr(row, label);
+      assert(number != NULL);
+      selected_channel = -1;
+      chan_flag = 1;
+      statlin_mouse(0, number - row + 1, 14);
+      assert(selected_channel == base + 1 && chan_flag == 0);
+    }
+  }
+  /* The status row moves when a new layout is installed. */
+  screen[1].first_real_line = 22;
+  real_screen(screen);
+  act_mode = M_CONNECT;
+  act_channel = 1;
+  statlin_update();
+  selected_channel = -1;
+  statlin_mouse(0, 12, 14);
+  assert(selected_channel == -1);
+  statlin_mouse(0, 12, 23);
+  assert(selected_channel == 1);
+  tnc_channels = 4;
+  statlin_update();
+  for (int col = 0; col < COLS; ++col)
+    assert(channel_at_column[col] < 4);
+  assert(close_window(&input) == 0);
+  assert(close_window(&statlin) == 0);
+}
+
 int main(void)
 {
   check_resize();
   check_status_widths();
+  check_channel_clicks();
   return 0;
 }
 EOF
