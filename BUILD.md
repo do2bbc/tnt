@@ -143,6 +143,8 @@ buffers and submitted bytes: both UMLAUT settings, legacy/UTF-8 input,
 F1-F12 and the Alt-M/B/L/C shortcuts.
 Resize tests use a pseudo-terminal to verify size limits, redraws, retained
 history, saved boxlist-window ownership and editing of hidden input tails.
+Status separators are tested through 256 columns, including densely populated
+extended-monitor status lines clipped to the current width.
 
 Configure enables `-Wall`, `-Wextra`, `-Wstrict-prototypes` and
 `-Wold-style-definition` when supported. No legacy-warning suppressions or

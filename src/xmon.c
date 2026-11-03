@@ -276,19 +276,21 @@ static void xmonstat_display(int screen)
   strcpy(stat_str,"\015*******************");
   for (i=0;i<MAX_XMON;i++) {
     if ((xm_stat[i].active) && (xm_stat[i].screen == screen)) {
-      strcat(stat_str," ");
-      strcat(stat_str,xm_stat[i].srccall);
-      strcat(stat_str,"->");
-      strcat(stat_str,xm_stat[i].destcall);
-      strcat(stat_str," ***");
+      size_t used = strlen(stat_str);
+      int written = snprintf(stat_str + used, COLS + 2 - used,
+                             " %s->%s ***", xm_stat[i].srccall,
+                             xm_stat[i].destcall);
+      if (written < 0) {
+        perror("TNT extended-monitor status");
+        free(stat_str);
+        return;
+      }
+      if ((size_t)written >= COLS + 2 - used) break;
     }
   }
   if ((stat_len = strlen(stat_str)) < (COLS + 1)) {
-    strncat(stat_str,
-      "********************************************************************"
-      "****************************************"
-      "****************************************",
-      COLS + 1 - stat_len);
+    memset(stat_str + stat_len, '*', COLS + 1 - stat_len);
+    stat_str[COLS+1] = '\0';
   }
   win_stringout(stat_str,&xmonstatwin[screen],0);
   free(stat_str);

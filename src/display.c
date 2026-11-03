@@ -594,12 +594,8 @@ void stat_display_org(int channel)
   strcpy(stat_str,"");
   strcat(stat_str,"\015**");
   if (channel == 0) {
-    /* for max length 160 chars */
-    strncat(stat_str,"**************************************"
-                     "****************************************"
-                     "****************************************"
-                     "****************************************",COLS - 2);
-    stat_str[COLS+1] = '\0'; /* shorten string */
+    memset(stat_str + 3, '*', COLS - 2);
+    stat_str[COLS+1] = '\0';
     memcpy(&stat_str[(COLS/2 - 9) + 1]," UNPROTO CHANNEL ",17);
   }
   else {
@@ -657,11 +653,9 @@ void stat_display_org(int channel)
     else
       append_limited(stat_str, COLS + 2, ch_stat[channel].disp_call, 40);
     if ((stat_len = strlen(stat_str)) < (COLS + 1)) {
-      strncat(stat_str,
-              " ***************************************"
-              "****************************************"
-              "****************************************",
-              COLS + 1 - stat_len);
+      stat_str[stat_len++] = ' ';
+      memset(stat_str + stat_len, '*', COLS + 1 - stat_len);
+      stat_str[COLS+1] = '\0';
     }
   }
   win_stringout(stat_str,&statwin[channel],0);
@@ -680,12 +674,8 @@ void stat_display_alt(int channel)
   strcpy(stat_str,"");
   strcat(stat_str,"\015");
   if (channel == 0) {
-    /* for max length 160 chars */
-    strncat(stat_str,"****************************************"
-                     "****************************************"
-                     "****************************************"
-                     "****************************************",COLS);
-    stat_str[COLS+1] = '\0'; /* shorten string */
+    memset(stat_str + 1, '*', COLS);
+    stat_str[COLS+1] = '\0';
     memcpy(&stat_str[(COLS/2 - 9) + 1]," UNPROTO CHANNEL ",17);
   }
   else
@@ -718,11 +708,7 @@ void stat_display_alt(int channel)
     /* Leerzeichen einfuegen */
     if ((stat_len = strlen(stat_str)) < (COLS - 26))
      {
-      strncat(stat_str, "                                          "
-                        "                                          "
-                        "                                          "
-                        "                                          ",
-                        (COLS - 26 - stat_len));
+      append_spaces(stat_str, COLS + 2, COLS - 26 - stat_len);
                                                                                                                                }
                                                                                                                                
     

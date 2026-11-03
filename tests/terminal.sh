@@ -586,9 +586,77 @@ static void check_resize(void)
   assert(close(old_stdin) == 0 && close(master) == 0);
 }
 
+EOF
+cat >> "$tmp/resize.c" <<'EOF'
+#include "xmon.h"
+static char *ax_state[] = {"************"};
+static char *ax_state_alt[] = {" discon  "};
+static struct channel_stat channel_status[2];
+static struct channel_stat *ch_stat = channel_status;
+static struct window statwin[2], xmonstatwin[XMON_SCREENS];
+static struct xmon_stat xm_stat[MAX_XMON];
+static void strip_call_log(char *str, int channel)
+{
+  assert(channel == 1);
+  strcpy(str, "DBW400");
+}
+EOF
+for signature in 'static void append_char(' 'static void append_spaces(' \
+                 'static void append_limited(' 'void stat_display_org(' \
+                 'void stat_display_alt('; do
+  awk -v signature="$signature" '
+    index($0, signature) == 1 && $0 !~ /;[ \t]*$/ { found = 1 }
+    found { print }
+    found && /^}/ { exit }
+    END { if (!found) exit 1 }
+  ' "$source_dir/src/display.c" >> "$tmp/resize.c"
+done
+awk '
+  /^static void xmonstat_display\(/ && $0 !~ /;[ \t]*$/ { found = 1 }
+  found { print }
+  found && /^}/ { exit }
+  END { if (!found) exit 1 }
+' "$source_dir/src/xmon.c" >> "$tmp/resize.c"
+cat >> "$tmp/resize.c" <<'EOF'
+static void check_status_widths(void)
+{
+  int widths[] = {80, 146, 200, MAXCOLS};
+  char line[MAXCOLS + 2];
+  assert(open_window(1, &statwin[0], 1) == 0);
+  assert(open_window(1, &statwin[1], 1) == 0);
+  assert(open_window(1, &xmonstatwin[0], 1) == 0);
+  strcpy(ch_stat[1].call, "CHANNEL NOT CONNECTED");
+  for (size_t w = 0; w < sizeof(widths) / sizeof(widths[0]); ++w) {
+    COLS = widths[w];
+    for (int channel = 0; channel < 2; ++channel) {
+      stat_display_org(channel);
+      assert(get_line_noconv(line, &statwin[channel]) == COLS + 1);
+      assert(line[COLS - 1] == '*');
+      stat_display_alt(channel);
+      assert(get_line_noconv(line, &statwin[channel]) == COLS + 1);
+    }
+    memset(xm_stat, 0, sizeof(xm_stat));
+    xmonstat_display(0);
+    assert(get_line_noconv(line, &xmonstatwin[0]) == COLS + 1);
+    assert(line[COLS - 1] == '*');
+    for (int i = 0; i < MAX_XMON; ++i) {
+      xm_stat[i].active = 1;
+      strcpy(xm_stat[i].srccall, "DBW400-15");
+      strcpy(xm_stat[i].destcall, "DNO484-15");
+    }
+    xmonstat_display(0);
+    assert(get_line_noconv(line, &xmonstatwin[0]) == COLS + 1);
+    assert(memcmp(line + 20, "DBW400-15->DNO484-15", 19) == 0);
+  }
+  assert(close_window(&statwin[0]) == 0);
+  assert(close_window(&statwin[1]) == 0);
+  assert(close_window(&xmonstatwin[0]) == 0);
+}
+
 int main(void)
 {
   check_resize();
+  check_status_widths();
   return 0;
 }
 EOF
