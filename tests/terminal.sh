@@ -25,6 +25,7 @@ static char frontend_output[128];
 static size_t frontend_used;
 int charconv = 1, ibm_umlaut_flag = 1;
 extern int umlaut;
+extern void init_conv(void);
 extern int conv_rx_to_local(char code, char *first, char *second);
 extern int conv_local_to_tx(char code, char *first, char *second);
 extern int conv_local_to_umlaut(char code, char *first, char *second);
@@ -192,7 +193,7 @@ static void check_keyboard(void)
     terminal_encoding_init();
     for (umlaut = 0; umlaut <= 1; ++umlaut) {
       for (int command = 0; command <= 1; ++command) {
-        const char *expected = umlaut ? latin1 : "aeoeueAeOeUess";
+        const char *expected = umlaut ? "aeoeueAeOeUess" : latin1;
         size_t length = strlen(expected);
         input_window.column = selected = transmitted_len = 0;
         act_mode = command ? M_COMMAND : M_CONNECT;
@@ -208,7 +209,7 @@ static void check_keyboard(void)
     }
     /* Latin-1 text must not be mistaken for synthetic Alt screen codes. */
     input_window.column = selected = 0;
-    umlaut = 1;
+    umlaut = 0;
     feed_keys(locale ? "\xc2\xa3\xc2\xa4\xc2\xa5" : "\xa3\xa4\xa5");
     assert(selected == 0 && input_window.column == 3);
     for (size_t i = 0; i < sizeof(keys) / sizeof(keys[0]); ++i) {
@@ -231,18 +232,18 @@ static void check_keyboard(void)
   const char transliterated[] = "aeoeueAeOeUessss";
   for (size_t i = 0; i < sizeof(radio); ++i) {
     char first, second;
-    umlaut = 1;
+    umlaut = 0;
     assert(conv_rx_to_local(radio[i], &first, &second) == 1);
     assert(first == latin1[i < 7 ? i : 6]);
     assert(conv_local_to_tx(first, &first, &second) == 1);
     assert((unsigned char)first == radio[i < 7 ? i : 6]);
-    umlaut = 0;
+    umlaut = 1;
     assert(conv_rx_to_local(radio[i], &first, &second) == 2);
     assert(first == transliterated[2 * i] && second == transliterated[2 * i + 1]);
     assert(conv_local_to_tx(latin1[i < 7 ? i : 6], &first, &second) == 2);
     assert(first == transliterated[2 * i] && second == transliterated[2 * i + 1]);
     charconv = 0;
-    umlaut = 1;
+    umlaut = 0;
     assert(conv_local_to_umlaut(latin1[i < 7 ? i : 6], &first, &second) == 1);
     assert((unsigned char)first == radio[i < 7 ? i : 6]);
     charconv = 1;
@@ -385,6 +386,8 @@ static void check_render_paths(void)
 
 int main(void)
 {
+  init_conv();
+  assert(umlaut == 0);
   check_profiles();
   check_unicode();
   check_keyboard();

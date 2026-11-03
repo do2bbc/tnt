@@ -106,8 +106,12 @@ Legacy locales, including the Pi's existing `de_DE` locale, keep byte-for-byte
 terminal I/O. Use a valid UTF-8 locale and the matching terminal encoding to
 enable conversion; changing the locale alone does not change LXTerminal's
 encoding preference. No system-wide locale change is required.
-`UMLAUT ON` keeps entered umlauts; `UMLAUT OFF` transliterates them to
-`ae`, `oe`, `ue`, `Ae`, `Oe`, `Ue` and `ss`. The legacy IBM/Latin-1
+`UMLAUT ON` enables transliteration to `ae`, `oe`, `ue`, `Ae`, `Oe`,
+`Ue` and `ss`; `UMLAUT OFF` preserves umlauts (the startup default).
+This beta intentionally reverses the historical ON/OFF meaning, consistently
+for keyboard input, received text and log-file conversion. Update startup
+scripts that explicitly set `UMLAUT` to retain their intended behavior.
+The legacy IBM/Latin-1
 conversion tables remain separate from terminal UTF-8 decoding. Ordinary
 high-bit text characters do not trigger Alt screen shortcuts.
 

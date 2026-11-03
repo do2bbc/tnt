@@ -1421,15 +1421,15 @@ file was updated, it can be reread using command LDEXTREM.
 If the LINUX-console control codes are used, for a display on the screen the
 IBM-characterset is used. No umlaut-conversion will be done. If termcap is
 used a received IBM-umlaut is converted depending on UMLAUT. If UMLAUT is
-on, the IBM-umlaut is converted into the 8-bit Latin-1 umlaut. If UMLAUT is
-off, it is converted to a two character representation ("ae").
+off, the IBM-umlaut is converted into the 8-bit Latin-1 umlaut. If UMLAUT is
+on, it is converted to a two character representation ("ae").
 
 ----------------------------------------------------------------------------
 
 3.2.2. Sending text
 
-If UMLAUT is off, all entered umlauts are converted to a two character
-representation ("ae"). If UMLAUT is on, umlauts will not be converted and
+If UMLAUT is on, all entered umlauts are converted to a two character
+representation ("ae"). If UMLAUT is off, umlauts will not be converted and
 sent as an IBM-umlaut.
 
 ----------------------------------------------------------------------------
@@ -1437,16 +1437,16 @@ sent as an IBM-umlaut.
 3.2.3. File-receive
 
 Only log-files (LOGREC, LOGSND, LOGQSO, LOGMON and LOGXMON) are affected by
-umlaut conversion. If UMLAUT is on, the IBM-umlaut is converted into the
-8-bit Latin-1 umlaut. If UMLAUT is off, it is converted to a two character
+umlaut conversion. If UMLAUT is off, the IBM-umlaut is converted into the
+8-bit Latin-1 umlaut. If UMLAUT is on, it is converted to a two character
 representation ("ae").
 
 ----------------------------------------------------------------------------
 
 3.2.4. File-send
 
-Only log-files (SENDLOG) are affected by umlaut conversion. If UMLAUT is on,
-the 8-Bit Latin-1 umlaut is converted into the IBM-umlaut. If UMLAUT is off,
+Only log-files (SENDLOG) are affected by umlaut conversion. If UMLAUT is off,
+the 8-Bit Latin-1 umlaut is converted into the IBM-umlaut. If UMLAUT is on,
 it is converted to a two character representation ("ae").
 
 ----------------------------------------------------------------------------

@@ -1614,16 +1614,16 @@ Si les codes de controle console de LINUX sont utilises, a l'affichage les
 codes de caracteres IBM sont utilises. Aucune conversion des umlaut ne sera
 faite. Si un termcap est utilise un umlaut IBM sera converti suivant le
 parametre UMLAUT.
-Si UMLAUT est ON, l'umlaut IBM est converti en umlaut Latin-1 8-bit.
-Si UMLAUT est OFF, il est converti en une representation a deux caracteres 
+Si UMLAUT est OFF, l'umlaut IBM est converti en umlaut Latin-1 8-bit.
+Si UMLAUT est ON, il est converti en une representation a deux caracteres
 ("ae").
 
 ----------------------------------------------------------------------------
 
 3.2.2. Envoi d'un texte
 
-Si UMLAUT est OFF, tous les umlauts entres seront convertis en une
-representation a deux caracteres ("ae"). Si UMLAUT est ON, les umlauts ne 
+Si UMLAUT est ON, tous les umlauts entres seront convertis en une
+representation a deux caracteres ("ae"). Si UMLAUT est OFF, les umlauts ne
 seront pas convertis et seront envoyes comme un umlaut IBM.
 
 ----------------------------------------------------------------------------
@@ -1632,8 +1632,8 @@ seront pas convertis et seront envoyes comme un umlaut IBM.
 
 
 Seuls les fichiers log (LOGREC, LOGSND, LOGQSO, LOGMON et LOGXMON) sont
-affectes par la conversion des umlaut. Si UMLAUT est ON, l'umlaut IBM est
-converti en un umlaut Latin-1 8-bit. Si UMLAUT est OFF, il est converti en
+affectes par la conversion des umlaut. Si UMLAUT est OFF, l'umlaut IBM est
+converti en un umlaut Latin-1 8-bit. Si UMLAUT est ON, il est converti en
 une representation a deux caracteres ("ae").
 
 ----------------------------------------------------------------------------
@@ -1642,8 +1642,8 @@ une representation a deux caracteres ("ae").
 
 
 Seuls les fichiers log (SENDLOG) sont affectes par la conversion des umlaut.
-Si UMLAUT est ON, l'umlaut Latin-1 8-bit est converti en un umlaut IBM. 
-Si UMLAUT est OFF, il est converti en une representation a deux caracteres 
+Si UMLAUT est OFF, l'umlaut Latin-1 8-bit est converti en un umlaut IBM.
+Si UMLAUT est ON, il est converti en une representation a deux caracteres
 ("ae").
 
 ----------------------------------------------------------------------------

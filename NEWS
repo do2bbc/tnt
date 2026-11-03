@@ -1,5 +1,9 @@
 2026/11/03: Terminal modernization beta (V1.9.3-beta1).
-            Restore Latin-1/IBM umlaut tables and UMLAUT ON/OFF semantics.
+            Define UMLAUT ON as ASCII transliteration (ae/oe/ue/ss) and
+            UMLAUT OFF as preserving umlauts, consistently for keyboard,
+            receive and log-file conversion. Default to OFF to retain
+            umlauts at startup. This reverses the historical ON/OFF meaning.
+            Restore Latin-1/IBM umlaut tables.
             Remove the obsolete UTF-8 lead-byte workaround and distinguish
             decoded Alt shortcuts from ordinary high-bit text characters.
             Refresh the channel overview immediately after CONCALL changes.

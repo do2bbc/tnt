@@ -15,7 +15,7 @@ struct codeconv_tab {
   char conv_code2;
 };
 
-/* flag if umlauts shall be displayed (!=0) or converted to 2 chars (==0) */
+/* Nonzero enables ASCII transliteration; zero preserves umlauts. */
 int umlaut;
 extern int charconv;
 extern int ibm_umlaut_flag;
@@ -34,7 +34,7 @@ static struct codeconv_tab codeconv_tab[] = {
 
 void init_conv(void)
 {
-  umlaut = 1;
+  umlaut = 0;
 }
 
 int conv_rx_to_local(char code, char *newcode1, char *newcode2)
@@ -43,7 +43,7 @@ int conv_rx_to_local(char code, char *newcode1, char *newcode2)
 
   for (i = 0; (codeconv_tab[i].code != 0); i++) {
     if (code == codeconv_tab[i].code) {
-      if (umlaut) {
+      if (!umlaut) {
         if(ibm_umlaut_flag == 0)
           return(0);
         *newcode1 = codeconv_tab[i].conv_code;
@@ -70,7 +70,7 @@ int conv_local_to_tx(char code, char *newcode1, char *newcode2)
   
   for (i = 0; (codeconv_tab[i].conv_code != 0); i++) {
     if (code == codeconv_tab[i].conv_code) {
-      if (umlaut) {
+      if (!umlaut) {
         *newcode1 = codeconv_tab[i].code;
         return(1);
       }
@@ -107,7 +107,7 @@ int conv_local_to_umlaut(char code, char *newcode1, char *newcode2)
   
   for (i = 0; (codeconv_tab[i].conv_code != 0); i++) {
     if (code == codeconv_tab[i].conv_code) {
-      if (!umlaut) {
+      if (umlaut) {
         *newcode1 = codeconv_tab[i].conv_code1;
         *newcode2 = codeconv_tab[i].conv_code2;
         return(2);

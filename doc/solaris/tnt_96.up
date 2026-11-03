@@ -8,7 +8,7 @@ y 9
 # bell for every received packet
 infobell on
 # no umlaut
-umlaut off
+umlaut on
 # kein piepsen bei jeder zeile 
 info off
 # logfile append
