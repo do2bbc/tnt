@@ -1267,9 +1267,9 @@ void keyboard_server(int *state, char *ch)
         sel_help();
         break;
 #ifdef USE_IFACE
-/*      case C_MAILBOX:
+      case C_MAILBOX:
         sel_mailbox();
-        break; */
+        break;
 #endif
 #ifndef DPBOXT    
       case C_CHANNEL:

@@ -94,6 +94,52 @@ awk '
 ' "$source_dir/src/keyboard.c" >> "$tmp/test.c"
 extract 'static void cmd_selscreen(' keyboard.c
 cat >> "$tmp/test.c" <<'EOF'
+#include "keys.h"
+static int esc_flag, chan_flag, analysed;
+static char func_str[11];
+static void statlin_update(void) {}
+static void dispatch_control(char *ch)
+{
+EOF
+awk '
+  /^  if \(\(\*ch < SPACE\)/ { found = 1 }
+  found { print }
+  found && /^    if \(analysed\) return;/ {
+    print "  }"
+    exit
+  }
+  END { if (!found) exit 1 }
+' "$source_dir/src/keyboard.c" >> "$tmp/test.c"
+cat >> "$tmp/test.c" <<'EOF'
+}
+static void check_mailbox_shortcuts(void)
+{
+#ifdef USE_IFACE
+  const char *shortcuts[] = {"\033b", "\033B"};
+  for (size_t key = 0; key < sizeof(shortcuts) / sizeof(shortcuts[0]); ++key) {
+    int found = 0;
+    for (size_t i = 0; i < sizeof(special_keys) / sizeof(special_keys[0]); ++i) {
+      if (strcmp(special_keys[i].code, shortcuts[key]) == 0) {
+        char ch = special_keys[i].res_code;
+        selected = 0;
+        assert(special_keys[i].sel_channel == 0 && ch == C_MAILBOX);
+        dispatch_control(&ch);
+        assert(analysed == 1 && selected == 8);
+        found = 1;
+        break;
+      }
+    }
+    assert(found);
+  }
+#else
+  char ch = C_HELP;
+  assert(sizeof(special_keys) > 0);
+  dispatch_control(&ch);
+  assert(selected == 6);
+#endif
+}
+EOF
+cat >> "$tmp/test.c" <<'EOF'
 int main(void)
 {
   struct window win = {0};
@@ -102,6 +148,7 @@ int main(void)
   int port = -1;
   char text[4096], *compressed = NULL, *decoded = NULL;
   long compressed_size, decoded_size;
+  check_mailbox_shortcuts();
   win.num_lines = 2;
   put_character(0xe4);
   tnt_daemon = 1;
