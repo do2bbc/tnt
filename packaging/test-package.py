@@ -14,7 +14,7 @@ def main(package, arch):
             metadata = subprocess.check_output(
                 ["dpkg-deb", "-f", package, "Package", "Version", "Architecture"])
             assert b"Package: tnt\n" in metadata, metadata
-            assert b"Version: 2.0.0~rc1-1\n" in metadata, metadata
+            assert b"Version: 2.0.0~rc2-1\n" in metadata, metadata
             assert f"Architecture: {arch}\n".encode() in metadata, metadata
             subprocess.run(["dpkg-deb", "-x", package, root], check=True)
             subprocess.run(["dpkg-deb", "-e", package, root / "control"], check=True)
@@ -36,11 +36,11 @@ def main(package, arch):
             assert not (root / "etc/tnt/tnt.ini").exists()
             assert (root / "etc/tnt/tnt.ini.ex").exists()
             assert (root / "usr/share/doc/tnt/SOURCE.tar.gz").exists()
-            assert b"V2.0.0-rc1" in (root / "usr/bin/tnt").read_bytes()
+            assert b"V2.0.0-rc2" in (root / "usr/bin/tnt").read_bytes()
         else:
             metadata = subprocess.check_output(
                 ["rpm", "-qp", "--qf", "%{NAME} %{VERSION}-%{RELEASE} %{ARCH}", package])
-            assert metadata == b"tnt 2.0.0~rc1-1 x86_64", metadata
+            assert metadata == b"tnt 2.0.0~rc2-1 x86_64", metadata
             result = subprocess.run(["rpm", "-qp", "--scripts", package],
                                     check=True, stdout=subprocess.PIPE)
             assert not result.stdout.strip(), result.stdout
@@ -51,7 +51,7 @@ def main(package, arch):
             assert result.returncode != 0 and b"Usage" in result.stdout, result.stdout
             assert not Path("/etc/tnt/tnt.ini").exists()
             assert Path("/etc/tnt/tnt.ini.ex").exists()
-            assert b"V2.0.0-rc1" in Path("/usr/bin/tnt").read_bytes()
+            assert b"V2.0.0-rc2" in Path("/usr/bin/tnt").read_bytes()
         print(f"{arch}: packaged programs load correctly; no service or active configuration")
 
 

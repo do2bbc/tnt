@@ -10,7 +10,7 @@ Configure respects the compiler's default C dialect and explicit user flags.
 
 ### Ready-to-install release packages
 
-Linux release candidate 2.0.0-rc1 provides Debian 12 `.deb` packages for
+Linux release candidate 2.0.0-rc2 provides Debian 12 `.deb` packages for
 amd64, arm64 and ARMv7 armhf, plus an openSUSE Leap 16 x86_64 RPM.
 See [package installation and upgrade notes](packaging/README.packages).
 No package starts a service or overwrites an active `tnt.ini`.
@@ -26,11 +26,11 @@ no reconnect or restart is required. Pending password challenges are reset,
 so request authentication again with `PRIV`. Removed entries become unavailable.
 If the replacement file cannot be read or is malformed, TNT reports an error
 and retains the previous assignments. An empty valid file clears all assignments.
-These reload fixes are newer than the original 2.0.0-rc1 packages.
+These reload fixes are included in 2.0.0-rc2, but not the original RC1 packages.
 The same applies to the immediate lower channel overview refresh after received
 `connected to` / `reconnected to` messages; no additional received line is needed.
 
-### Other runtime updates (newer than the original RC1 packages)
+### Other runtime updates (included in RC2)
 
 - The extended channel status line is enabled by default (`altstat 1`).
   It shows a database name before the remote callsign when available.
@@ -117,9 +117,9 @@ make
 
 ## Compiler Checks and Tests
 
-### Terminal modernization / 2.0.0-rc1
+### Terminal modernization / 2.0.0-rc2
 
-The release candidate identifies itself as `V2.0.0-rc1`. It uses the system
+The release candidate identifies itself as `V2.0.0-rc2`. It uses the system
 ncurses/libtinfo library and system gettext; the historical bundled gettext
 sources are no longer compiled or used as a fallback. Install gettext tools
 for catalog compilation, or configure with `--disable-nls`. Translation

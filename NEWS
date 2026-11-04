@@ -1,3 +1,8 @@
+2026/11/04: TNT V2.0.0-rc2 release candidate.
+            Include immediate password assignment and status/name updates,
+            transactional LOADSYS/LDBLCMD reloads, and the extended status
+            line default. Keep existing explicit configuration settings.
+
 2026/11/04: Enable the extended channel status line with database names by
             default. Explicit altstat settings in existing configurations
             remain unchanged; altstat 0 selects the classic display.

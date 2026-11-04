@@ -1,4 +1,4 @@
-TNT 2.0.0-rc1 - Linux release candidate
+TNT 2.0.0-rc2 - Linux release candidate
 =====================================
 
 Only Linux. This is a release candidate, not a final stable release.
@@ -6,17 +6,17 @@ No Windows version is provided.
 
 Debian 12 / Ubuntu 24.04 / Raspberry Pi OS Bookworm or newer:
   dpkg --print-architecture
-  sudo apt install ./tnt_2.0.0-rc1-1_arm64.deb
+  sudo apt install ./tnt_2.0.0-rc2-1_arm64.deb
 Use the matching amd64, arm64 or armhf file.
 armhf requires ARMv7 hard-float: Pi 2 and newer with a 32-bit OS.
 It is NOT compatible with the original Pi 1, Zero or Zero W (ARMv6).
 arm64 requires a 64-bit OS; CPU capability alone does not determine the package.
 
 openSUSE Leap 16 x86_64:
-  sudo zypper install ./tnt-2.0.0-rc1-1.x86_64.rpm
+  sudo zypper install ./tnt-2.0.0-rc2-1.x86_64.rpm
 The RPM is built/tested on Leap 16, NOT a universal Fedora/RHEL/openSUSE RPM.
-Package metadata uses 2.0.0~rc1 for correct ordering before stable 2.0.0.
-Download filenames use 2.0.0-rc1 because GitHub rewrites tilde characters.
+Package metadata uses 2.0.0~rc2 for correct ordering before stable 2.0.0.
+Download filenames use 2.0.0-rc2 because GitHub rewrites tilde characters.
 Packages are not cryptographically signed; SHA256SUMS detects corruption,
 but is not a substitute for an independently trusted signature.
 
@@ -27,6 +27,12 @@ Check "command -v tnt": older private installations may take precedence.
 Upgrades do not restart sessions. Stop TNT cleanly before deliberately switching.
 
 FIRST CONFIGURATION
+RC2 defaults to the extended channel status line with database names
+(altstat 1). Existing configurations retain their explicit altstat setting;
+altstat 0 selects the classic display. Changing it requires restarting TNT.
+RC2 also fixes LOADPRIV on existing connections, delayed callsign/name/status
+updates, and failed LOADSYS/LDBLCMD reloads. See BUILD.md for details.
+
 Example files are installed as /etc/tnt/*.ex; they are not active tnt.ini files.
 The historical interactive setup is available as:
   sudo tnt_setup.de

@@ -1,10 +1,10 @@
 Name:           tnt
-Version:        2.0.0~rc1
+Version:        2.0.0~rc2
 Release:        1
 Summary:        Packet-radio hostmode terminal
 License:        GPL-2.0-or-later
 URL:            https://github.com/do2bbc/tnt
-Source0:        tnt-2.0.0-rc1.tar.gz
+Source0:        tnt-2.0.0-rc2.tar.gz
 BuildRequires:  gcc
 BuildRequires:  make
 BuildRequires:  autoconf
@@ -21,7 +21,7 @@ No service or active node configuration is installed or started.
 This RPM targets openSUSE Leap 16 x86_64.
 
 %prep
-%setup -q -n tnt-2.0.0-rc1
+%setup -q -n tnt-2.0.0-rc2
 
 %build
 autoreconf -fi
