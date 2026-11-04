@@ -1971,6 +1971,8 @@ static int block_decoder(char *rxbuffer, int *state)
       if (((res) && (*state != S_STAT)) ||
           (*state == S_STAT)) {
         stat_display(channel);
+        if (ch_stat[channel].oldstate != ch_stat[channel].state)
+          statlin_update();
 #ifdef USE_IFACE
         frames = calc_xframes(channel);
         send_cstatus(channel,frames);
@@ -2001,6 +2003,7 @@ static int block_decoder(char *rxbuffer, int *state)
     case RQ_CALL:
       strcpy(ch_stat[channel].call,rxbuffer+2);
       stat_display(channel);
+      statlin_update();
       if ((ch_stat[channel].conn_state == CS_CONN) &&
           (strcmp(ch_stat[channel].call,"CHANNEL NOT CONNECTED") != 0)) {
         set_pwmode(channel);
@@ -2080,6 +2083,10 @@ static int block_decoder(char *rxbuffer, int *state)
       break;
     case RQ_RECONNECT:
       strcpy(ch_stat[channel].call,ch_stat[channel].call_save);
+      if (altstat)
+        update_name(channel);
+      stat_display(channel);
+      statlin_update();
       cmd_display(req_flag,channel,rxbuffer+2,1);
       next_command(state);
       break;

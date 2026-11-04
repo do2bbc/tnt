@@ -72,3 +72,14 @@
 2026/11/04: Refresh the lower channel overview immediately when a received
             connected/reconnected message changes the displayed callsign.
             Do not wait for another received line or keyboard event.
+2026/11/04: Update cached names and all connected extended status lines after
+            NAME changes the database, including SSID fallback names.
+            Refresh the lower channel overview on Hostmode callsign replies
+            and link-state changes, without waiting for later traffic.
+            Restore cached names and both displays after a rejected
+            Hostmode reconnect command restores the previous callsign.
+            Make LOADSYS and LDBLCMD retain their valid tables on reload
+            failure and report errors instead of claiming success.
+            LOADSYS resets pending challenges after successful reload;
+            already authenticated sessions keep their access level.
+            Add sanitizer regressions for display and reload state changes.

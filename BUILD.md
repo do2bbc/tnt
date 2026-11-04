@@ -30,6 +30,21 @@ These reload fixes are newer than the original 2.0.0-rc1 packages.
 The same applies to the immediate lower channel overview refresh after received
 `connected to` / `reconnected to` messages; no additional received line is needed.
 
+### Other runtime updates (newer than the original RC1 packages)
+
+- `NAME <name>` refreshes cached names and extended status displays on connected
+  channels, including channels that use an SSID fallback from the names database.
+  Editing the names file externally is not a new automatic reload feature.
+- Hostmode callsign replies and link-state changes refresh the lower overview
+  immediately; counter-only polls do not redraw it unnecessarily. A rejected
+  reconnect command also restores cached names and both status displays.
+- `LOADSYS` and `LDBLCMD` replace their in-memory tables only after a successful
+  read. Missing, unreadable or malformed replacements report an error and retain
+  the last valid table. Valid empty files deliberately clear their tables.
+- Successful `LOADSYS` resets pending sysop challenges. Request a new challenge
+  using the remote `SYSOP` command. Existing authenticated access levels are
+  unchanged; reloading is not a command for revoking already granted access.
+
 ### Prerequisites
 - C compiler such as GCC
 - GNU Autotools (autoconf, automake)

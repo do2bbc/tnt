@@ -46,6 +46,7 @@ extern char tnt_7plus_dir[];
 extern int file_paclen;
 extern int tnt_comp;
 extern int tnc_channels;
+extern int altstat;
 extern char tnt_telltext_file[];
 #ifdef TNT_SOUND
 extern char tnt_sound_file[];
@@ -75,6 +76,8 @@ extern void rest_priv(int mode, int channel, int uid, int gid);
 extern int sel_remhlist(int fd1, int flag);
 extern void send_huffstat(int channel);
 extern void statlin_update(void);
+extern void stat_display(int channel);
+extern void update_name(int channel);
 extern void write_file(int channel, int len, int flag, char *str);
 extern void write_file_yapp(int channel, char *str, int len);
 extern int xconnect_active(int channel);
@@ -321,6 +324,7 @@ static int sysline_analyse(char *str1, char *str2, int val1, struct sysoplist **
   
   if (strlen(str1) > 9) return(1); /* callsign maximum 9 characters */
   sysoplist_wrk = (struct sysoplist *)malloc(sizeof(struct sysoplist));
+  if (sysoplist_wrk == NULL) return(1);
   for (i=0;i<(int)strlen(str1);i++) {
     sysoplist_wrk->callsign[i] = toupper(str1[i]);
   }
@@ -340,7 +344,7 @@ static int sysline_analyse(char *str1, char *str2, int val1, struct sysoplist **
 } 
 
 /* load sysop file */
-static void load_sysfile(void)
+static int load_sysfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -356,7 +360,7 @@ static void load_sysfile(void)
   strcpy(file_str,tnt_sysfile);
   if (!(sys_file_fp = fopen(file_str,"r"))) {
     /* no file present, exit */
-    return;
+    return(1);
   }
   file_end = 0;
   file_corrupt = 0;
@@ -391,13 +395,18 @@ static void load_sysfile(void)
       }
     }
   }
-  fclose(sys_file_fp);
+  if (ferror(sys_file_fp)) {
+    fclose(sys_file_fp);
+    return(1);
+  }
+  if (fclose(sys_file_fp) != 0) return(1);
   if (file_corrupt) {
     cmd_display(M_COMMAND,0,
       _("WARNING: sysfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
-    return;
+    return(1);
   }
+  return(0);
 }
 
 static void clear_sysfile(void)
@@ -2241,6 +2250,7 @@ void rem_name(int par1 __attribute__((unused)), int par2 __attribute__((unused))
   char call[10];
   char tempstr[250];
   char namestr[90];
+  int i;
 
   if (ch_stat[channel].conn_state != CS_CONN) {
     cmd_display(mode,channel, _("Only while connected"),1);
@@ -2267,6 +2277,15 @@ void rem_name(int par1 __attribute__((unused)), int par2 __attribute__((unused))
   if (add_line_for_call(call,str) > 0) {
     cmd_display(mode,channel,rem_name_err,1);
     return;
+  }
+  if (altstat) {
+    /* The names database can also supply fallback names for other SSIDs. */
+    for (i=1;i<tnc_channels;i++) {
+      if (ch_stat[i].conn_state == CS_CONN) {
+        update_name(i);
+        stat_display(i);
+      }
+    }
   }
   if (mode == M_REMOTE) {
     sprintf(tempstr,"%s%s%s",rem_name_str1,str,rem_name_str2);
@@ -2624,8 +2643,27 @@ void cmd_sysop(int par1 __attribute__((unused)), int par2 __attribute__((unused)
 /* reload password file */
 void cmd_loadsys(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
 {
-  clear_sysfile();  
-  load_sysfile();
+  struct sysoplist *old_list = sysoplist_root;
+  struct sysoplist *new_list;
+  int i;
+
+  sysoplist_root = NULL;
+  if (load_sysfile()) {
+    clear_sysfile();
+    sysoplist_root = old_list;
+    cmd_display(mode,channel,
+      _("Cannot reload sysop file; previous entries retained"),1);
+    return;
+  }
+  new_list = sysoplist_root;
+  sysoplist_root = old_list;
+  clear_sysfile();
+  sysoplist_root = new_list;
+  for (i=0;i<tnc_channels;i++) {
+    ch_stat[i].pwwait = 0;
+    ch_stat[i].pwstr[0] = '\0';
+    ch_stat[i].rootlevel = 0;
+  }
   cmd_display(mode,channel,OK_TEXT,1);
   return;
 }

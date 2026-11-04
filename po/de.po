@@ -19,6 +19,14 @@ msgstr ""
 msgid "Cannot reload password file; previous entries retained"
 msgstr "Passwortdatei nicht neu geladen; bisherige Einträge bleiben erhalten"
 
+#: src/remote.c
+msgid "Cannot reload sysop file; previous entries retained"
+msgstr "Sysop-Datei nicht neu geladen; bisherige Einträge bleiben erhalten"
+
+#: src/boxlist.c
+msgid "Cannot reload boxlist command file; previous commands retained"
+msgstr "Boxlist-Kommandodatei nicht neu geladen; bisherige Kommandos bleiben erhalten"
+
 #: src/ax25k.c:310
 msgid "tnt: monitor already active\n"
 msgstr "tnt: Monitor ist bereits aktiv\n"

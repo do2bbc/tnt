@@ -149,7 +149,7 @@ static void blist_analyse_line(int channel,char key,int flag);
 void cmd_xblist(int par1,int par2,int channel,int len,int mode, char *str);
 
 /* load boxlist commands file */
-static void load_blcmdfile(void)
+static int load_blcmdfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -172,7 +172,7 @@ static void load_blcmdfile(void)
   strcpy(file_str,tnt_blcmdfile);
   if (!(blcmd_file_fp = fopen(file_str,"r"))) {
     /* no file present, exit */
-    return;
+    return(1);
   }
   file_end = 0;
   file_corrupt = 0;   
@@ -259,6 +259,10 @@ static void load_blcmdfile(void)
           if (!append) {
             blcmdlist_wrk =
               (struct blcmdlist *)malloc(sizeof(struct blcmdlist));
+            if (blcmdlist_wrk == NULL) {
+              file_corrupt = 1;
+              continue;
+            }
             blcmdlist_wrk->key = key;
             blcmdlist_wrk->appl_flag = appl_mode;
             blcmdlist_wrk->boxline_type = boxline_type;
@@ -266,6 +270,11 @@ static void load_blcmdfile(void)
 
             blcmdstr_wrk =
               (struct blcmdstr *)malloc(sizeof(struct blcmdstr));
+            if (blcmdstr_wrk == NULL) {
+              free(blcmdlist_wrk);
+              file_corrupt = 1;
+              continue;
+            }
             strcpy(blcmdstr_wrk->command,&line[5]);
             blcmdstr_wrk->next = NULL;
             blcmdlist_wrk->blcmd = blcmdstr_wrk;
@@ -283,6 +292,10 @@ static void load_blcmdfile(void)
           else {
             blcmdstr_wrk =
               (struct blcmdstr *)malloc(sizeof(struct blcmdstr));
+            if (blcmdstr_wrk == NULL) {
+              file_corrupt = 1;
+              continue;
+            }
             strcpy(blcmdstr_wrk->command,&line[5]);
             blcmdstr_wrk->next = NULL;
             blcmdstr_cur = blcmdlist_wrk->blcmd;
@@ -295,13 +308,18 @@ static void load_blcmdfile(void)
       }
     }
   }
-  fclose(blcmd_file_fp);
+  if (ferror(blcmd_file_fp)) {
+    fclose(blcmd_file_fp);
+    return(1);
+  }
+  if (fclose(blcmd_file_fp) != 0) return(1);
   if (file_corrupt) { 
     cmd_display(M_COMMAND,0,
       _("WARNING: blcmdfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
-    return;
+    return(1);
   }
+  return(0);
 }
 
 static void clear_blcmdfile(void)
@@ -330,8 +348,21 @@ static void clear_blcmdfile(void)
 /* reload boxlist command file */
 void cmd_ldblcmd(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
 {
+  struct blcmdlist *old_list = blcmdlist_root;
+  struct blcmdlist *new_list;
+
+  blcmdlist_root = NULL;
+  if (load_blcmdfile()) {
+    clear_blcmdfile();
+    blcmdlist_root = old_list;
+    cmd_display(mode,channel,
+      _("Cannot reload boxlist command file; previous commands retained"),1);
+    return;
+  }
+  new_list = blcmdlist_root;
+  blcmdlist_root = old_list;
   clear_blcmdfile();
-  load_blcmdfile();
+  blcmdlist_root = new_list;
   cmd_display(mode,channel,OK_TEXT,1);
   return;
 }
