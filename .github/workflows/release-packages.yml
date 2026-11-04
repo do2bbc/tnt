@@ -60,5 +60,7 @@ jobs:
       - uses: actions/upload-artifact@v6
         with:
           name: TNT-openSUSE-Leap16-x86_64
-          path: /tmp/packages/*.rpm
+          path: |
+            /tmp/packages/*.rpm
+            /tmp/packages/*.tar.gz
           if-no-files-found: error
