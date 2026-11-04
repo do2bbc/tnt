@@ -33,13 +33,7 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           sh packaging/build-deb.sh "${{ matrix.arch }}" /tmp/packages
           python3 packaging/test-package.py /tmp/packages/*.deb "${{ matrix.arch }}"
-          apt-get -y -o 'Dpkg::Options::=--path-include=/usr/share/doc/tnt/*' install /tmp/packages/*.deb
-          test -f /usr/share/doc/tnt/SOURCE.tar.gz
-          test ! -f /etc/tnt/tnt.ini
-          test ! -e /usr/local/bin/tnt
-          dpkg --verify tnt
-          apt-get remove -y tnt
-          test ! -e /usr/bin/tnt
+          python3 packaging/test-package.py /tmp/packages/*.deb --preservation
       - uses: actions/upload-artifact@v6
         with:
           name: TNT-Debian12-${{ matrix.arch }}
@@ -62,7 +56,7 @@ jobs:
           python3 packaging/test-package.py /tmp/packages/*.x86_64.rpm x86_64
           rpm -V tnt
           rpm -e tnt
-          test ! -e /usr/bin/tnt
+          python3 packaging/test-package.py /tmp/packages/*.x86_64.rpm --preservation
       - uses: actions/upload-artifact@v6
         with:
           name: TNT-openSUSE-Leap16-x86_64

@@ -17,10 +17,10 @@ version=$(sed -n 's/^AC_INIT(\[tnt\], \[\(.*\)\])/\1/p' configure.ac)
 debversion=$(printf '%s' "$version" | sed 's/-rc/~rc/')-1
 tmp=$(mktemp -d)
 trap 'rm -rf -- "$tmp"' EXIT HUP INT TERM
-mkdir -p "$tmp/source" "$tmp/package" "$output"
+mkdir -p "$tmp/source" "$tmp/debian/tnt" "$output"
 git archive HEAD | tar -C "$tmp/source" -xf -
 source="$tmp/source"
-package="$tmp/package"
+package="$tmp/debian/tnt"
 export SOURCE_DATE_EPOCH=$(git show -s --format=%ct HEAD)
 cd "$source"
 autoreconf -fi
@@ -48,17 +48,14 @@ if [ "$arch" = armhf ]; then
   readelf -A "$package/usr/bin/tnt" | grep -q 'Tag_CPU_arch: v7'
   readelf -A "$package/usr/bin/tnt" | grep -q 'Tag_ABI_VFP_args: VFP registers'
 fi
-mkdir "$package/debian"
-printf 'Source: tnt\n\nPackage: tnt\nArchitecture: any\n' > "$package/debian/control"
-dependencies=$(cd "$package" && DEB_HOST_ARCH="$arch" dpkg-shlibdeps -O \
-  -l"/usr/lib/$host" -eusr/bin/tnt -eusr/bin/tntc \
-  -eusr/libexec/tnt/help -eusr/libexec/tnt/logcall \
-  -eusr/libexec/tnt/tnt-info \
+printf 'Source: tnt\n\nPackage: tnt\nArchitecture: any\n' > "$tmp/debian/control"
+dependencies=$(cd "$tmp" && DEB_HOST_ARCH="$arch" dpkg-shlibdeps -O \
+  -l"/usr/lib/$host" -edebian/tnt/usr/bin/tnt -edebian/tnt/usr/bin/tntc \
+  -edebian/tnt/usr/libexec/tnt/help -edebian/tnt/usr/libexec/tnt/logcall \
+  -edebian/tnt/usr/libexec/tnt/tnt-info \
   2>"$tmp/dependencies.log" | sed 's/^shlibs:Depends=//')
 cat "$tmp/dependencies.log" >&2
 test -n "$dependencies"
-rm "$package/debian/control"
-rmdir "$package/debian"
 cat > "$package/DEBIAN/control" <<EOF
 Package: tnt
 Version: $debversion

@@ -6,6 +6,8 @@ import tempfile
 
 
 def main(package, arch):
+    os.environ["TERM"] = "xterm"
+    os.environ["LC_ALL"] = "C"
     with tempfile.TemporaryDirectory() as temporary:
         root = Path(temporary)
         if package.endswith(".deb"):
@@ -15,7 +17,6 @@ def main(package, arch):
                            check=True, stdout=subprocess.DEVNULL)
             assert not any((root / "control" / script).exists()
                            for script in ("preinst", "postinst", "prerm", "postrm"))
-            program = root / "usr/bin/tnt"
             prefix = {
                 "amd64": [],
                 "arm64": ["qemu-aarch64", "-L", "/"],
@@ -44,5 +45,42 @@ def main(package, arch):
         print(f"{arch}: packaged programs load correctly; no service or active configuration")
 
 
+def preservation(package):
+    active = Path("/etc/tnt/tnt.ini")
+    example = Path("/etc/tnt/tnt.ini.ex")
+    private = Path("/usr/local/bin/tnt")
+    assert not active.exists() and not private.exists()
+    if package.endswith(".deb"):
+        install = ["apt-get", "-y",
+                   "-o", "Dpkg::Options::=--path-include=/usr/share/doc/tnt/*",
+                   "install", package]
+        reinstall = ["dpkg", "--force-confold", "-i", package]
+        remove = ["apt-get", "-y", "remove", "tnt"]
+    else:
+        install = ["zypper", "--non-interactive", "--no-gpg-checks",
+                   "install", "--no-recommends", package]
+        reinstall = ["rpm", "-U", "--replacepkgs", package]
+        remove = ["rpm", "-e", "tnt"]
+    subprocess.run(install, check=True)
+    assert not active.exists() and not private.exists()
+    active.write_text("active configuration sentinel\n")
+    private.parent.mkdir(parents=True, exist_ok=True)
+    private.write_text("private executable sentinel\n")
+    example.write_text("modified example sentinel\n")
+    subprocess.run(reinstall, check=True)
+    assert active.read_text() == "active configuration sentinel\n"
+    assert private.read_text() == "private executable sentinel\n"
+    assert example.read_text() == "modified example sentinel\n"
+    subprocess.run(remove, check=True)
+    assert active.read_text() == "active configuration sentinel\n"
+    assert private.read_text() == "private executable sentinel\n"
+    assert not Path("/usr/bin/tnt").exists()
+    print("Install/reinstall/removal preserve active configuration and private binary")
+
+
 if __name__ == "__main__":
+    assert len(sys.argv) == 3, "Usage: test-package.py PACKAGE ARCH|--preservation"
+    if sys.argv[2] == "--preservation":
+        preservation(str(Path(sys.argv[1]).resolve()))
+        sys.exit(0)
     main(str(Path(sys.argv[1]).resolve()), sys.argv[2])
