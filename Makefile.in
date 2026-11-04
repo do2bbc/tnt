@@ -528,9 +528,9 @@ EXTRA_DIST = ABOUT-NLS AUTHORS AX25-NOTES COPYING ChangeLog \
 		  tnt.spec BUILD.md tests/modern-c.sh tests/test-inp.sh tests/io.sh \
 		  tests/terminal.sh packaging/README.packages \
 		  packaging/build-deb.sh packaging/build-rpm.sh \
-		  packaging/test-package.py
+		  packaging/test-package.py tests/priv.sh
 
-TESTS = tests/modern-c.sh tests/test-inp.sh tests/io.sh tests/terminal.sh
+TESTS = tests/modern-c.sh tests/test-inp.sh tests/io.sh tests/terminal.sh tests/priv.sh
 LOG_COMPILER = $(SHELL)
 TESTS_ENVIRONMENT = top_srcdir='$(abs_top_srcdir)' \
 		   top_builddir='$(abs_top_builddir)' CC='$(CC)'
@@ -860,6 +860,13 @@ tests/io.sh.log: tests/io.sh
 tests/terminal.sh.log: tests/terminal.sh
 	@p='tests/terminal.sh'; \
 	b='tests/terminal.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+tests/priv.sh.log: tests/priv.sh
+	@p='tests/priv.sh'; \
+	b='tests/priv.sh'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

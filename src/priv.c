@@ -121,6 +121,7 @@ static int pwline_analyse(char *str1, char *str2, char *str3, char *str4, char *
   }
   if (!found) return(1);
   calllist_wrk = (struct calllist *)malloc(sizeof(struct calllist));
+  if (calllist_wrk == NULL) return(1);
   for (i=0;i<(int)strlen(str1);i++) {
     calllist_wrk->callsign[i] = toupper(str1[i]);
   }
@@ -153,7 +154,7 @@ static int pwline_analyse(char *str1, char *str2, char *str3, char *str4, char *
 } 
 
 /* load password file */
-static void load_pwfile(void)
+static int load_pwfile(void)
 {
   int file_end;
   int file_corrupt;
@@ -171,7 +172,7 @@ static void load_pwfile(void)
   strcpy(file_str,tnt_pwfile);
   if (!(pw_file_fp = fopen(file_str,"r"))) {
     /* no file present, exit */
-    return;
+    return(1);
   }
   file_end = 0;
   file_corrupt = 0;
@@ -209,13 +210,18 @@ static void load_pwfile(void)
       }
     }
   }
-  fclose(pw_file_fp);
+  if (ferror(pw_file_fp)) {
+    fclose(pw_file_fp);
+    return(1);
+  }
+  if (fclose(pw_file_fp) != 0) return(1);
   if (file_corrupt) {
     cmd_display(M_COMMAND,0,
       _("WARNING: pwfile is in wrong format, wrong line:"),1);
     cmd_display(M_COMMAND,0,line,1);
-    return;
+    return(1);
   }
+  return(0);
 }
 
 static void clear_pwfile(void)
@@ -232,6 +238,17 @@ static void clear_pwfile(void)
   calllist_root = NULL;
 }
 
+/* clear password information on disconnect */
+void clear_pwmode(int channel)
+{
+  pw_stat[channel].pwmode = PW_NONE;
+  pw_stat[channel].entry = NULL;
+  pw_stat[channel].box_login[0] = '\0';
+  pw_stat[channel].pass_wait = 0;
+  pw_stat[channel].tries = 0;
+  pw_stat[channel].valid_try = 0;
+}
+
 /* the callsign has changed on channel, check if callsign in calllist
    and if found set pwmode */
 void set_pwmode(int channel)
@@ -241,7 +258,7 @@ void set_pwmode(int channel)
   int found;
   
   strip_call_log(callsign,channel);
-  pw_stat[channel].pwmode = PW_NONE;
+  clear_pwmode(channel);
   calllist_wrk = calllist_root;
   found = 0;
   while ((!found) && (calllist_wrk != NULL)) {
@@ -270,15 +287,6 @@ void set_pwmode(int channel)
       calllist_wrk = calllist_wrk->next;
     }
   }
-}
-
-/* clear password information on disconnect */
-void clear_pwmode(int channel)
-{
-  pw_stat[channel].pwmode = PW_NONE;
-  pw_stat[channel].entry = NULL;
-  pw_stat[channel].box_login[0] = '\0';
-  pw_stat[channel].pass_wait = 0;
 }
 
 static char gen_rand_char(void)
@@ -1073,8 +1081,31 @@ static void priv_diebox(int channel, int mode)
 /* reload password file */
 void cmd_loadpriv(int par1 __attribute__((unused)), int par2 __attribute__((unused)), int channel, int len __attribute__((unused)), int mode, char *str __attribute__((unused)))
 {
-  clear_pwfile();  
-  load_pwfile();
+  struct calllist *old_list = calllist_root;
+  struct calllist *new_list;
+  int i;
+
+  /* Keep the old table and channel references until the replacement is valid. */
+  calllist_root = NULL;
+  if (load_pwfile()) {
+    clear_pwfile();
+    calllist_root = old_list;
+    cmd_display(mode,channel,
+      _("Cannot reload password file; previous entries retained"),1);
+    return;
+  }
+  new_list = calllist_root;
+  calllist_root = old_list;
+  clear_pwfile();
+  calllist_root = new_list;
+  for (i=0;i<tnc_channels;i++) {
+    if (ch_stat[i].conn_state == CS_CONN) {
+      set_pwmode(i);
+    }
+    else {
+      clear_pwmode(i);
+    }
+  }
   cmd_display(mode,channel,OK_TEXT,1);
   return;
 }

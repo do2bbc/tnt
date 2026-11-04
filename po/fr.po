@@ -16,6 +16,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: iso-8859-1\n"
 
+#: src/priv.c
+msgid "Cannot reload password file; previous entries retained"
+msgstr "Impossible de recharger le fichier de mots de passe ; entrées précédentes conservées"
+
 #: src/ax25k.c:310
 msgid "tnt: monitor already active\n"
 msgstr "tnt: monitor deja actif\n"

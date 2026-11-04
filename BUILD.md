@@ -18,6 +18,16 @@ Verify downloads with the release's `SHA256SUMS`.
 These packages do not update a running TNT process or a private binary.
 The RPM is not advertised as compatible with other RPM distributions.
 
+### Reloading password assignments
+
+After editing the file configured as `tnt_pwfile`, enter `LOADPRIV` in TNT's
+command window. Connected channels immediately use the updated assignments;
+no reconnect or restart is required. Pending password challenges are reset,
+so request authentication again with `PRIV`. Removed entries become unavailable.
+If the replacement file cannot be read or is malformed, TNT reports an error
+and retains the previous assignments. An empty valid file clears all assignments.
+These reload fixes are newer than the original 2.0.0-rc1 packages.
+
 ### Prerequisites
 - C compiler such as GCC
 - GNU Autotools (autoconf, automake)

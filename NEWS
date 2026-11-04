@@ -65,3 +65,7 @@
             Leap 16 x86_64 RPM with matching source and checksums.
             Packages do not start a service or replace user configurations.
             This remains a release candidate, not a final 2.0 release.
+2026/11/04: Fix LOADPRIV for existing connections: refresh channel password
+            assignments, discard pending challenges and clear removed entries
+            instead of retaining references to freed password records.
+            Keep the previous table if a replacement cannot be loaded.
