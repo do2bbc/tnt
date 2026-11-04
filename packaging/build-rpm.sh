@@ -16,6 +16,6 @@ printf 'Repository: https://github.com/do2bbc/tnt\nSource commit: %s\nTarget: op
   "$(git rev-parse HEAD)" > "$tmp/source/tnt-2.0.0-rc1/BUILD.txt"
 tar -C "$tmp/source" -czf "$tmp/rpmbuild/SOURCES/tnt-2.0.0-rc1.tar.gz" tnt-2.0.0-rc1
 rpmbuild -ba --define "_topdir $tmp/rpmbuild" tnt.spec
-cp "$tmp"/rpmbuild/RPMS/x86_64/tnt-[0-9]*.rpm "$output/"
-cp "$tmp"/rpmbuild/SRPMS/tnt-*.src.rpm "$output/"
+cp "$tmp/rpmbuild/RPMS/x86_64/tnt-2.0.0~rc1-1.x86_64.rpm" "$output/tnt-2.0.0-rc1-1.x86_64.rpm"
+cp "$tmp/rpmbuild/SRPMS/tnt-2.0.0~rc1-1.src.rpm" "$output/tnt-2.0.0-rc1-1.src.rpm"
 cp "$tmp/rpmbuild/SOURCES/tnt-2.0.0-rc1.tar.gz" "$output/"

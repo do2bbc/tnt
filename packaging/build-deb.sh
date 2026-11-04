@@ -74,4 +74,4 @@ EOF
 cd "$package"
 find etc -type f | LC_ALL=C sort | sed 's@^@/@' > DEBIAN/conffiles
 find usr etc -type f -print0 | LC_ALL=C sort -z | xargs -0 md5sum > DEBIAN/md5sums
-dpkg-deb --root-owner-group --build "$package" "$output/tnt_${debversion}_${arch}.deb"
+dpkg-deb --root-owner-group --build "$package" "$output/tnt_${version}-1_${arch}.deb"
