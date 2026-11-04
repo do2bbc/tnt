@@ -69,3 +69,6 @@
             assignments, discard pending challenges and clear removed entries
             instead of retaining references to freed password records.
             Keep the previous table if a replacement cannot be loaded.
+2026/11/04: Refresh the lower channel overview immediately when a received
+            connected/reconnected message changes the displayed callsign.
+            Do not wait for another received line or keyboard event.

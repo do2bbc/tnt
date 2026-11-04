@@ -126,6 +126,7 @@ static int test_connected(int channel, char *buffer, int len)
   stat_display(channel);
   if (result == T_CON) /* if connect copy to call for logbook */
     strcpy(ch_stat[channel].log_call,ch_stat[channel].disp_call);
+  statlin_update();
   return(result);
 }
 

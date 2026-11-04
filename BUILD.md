@@ -27,6 +27,8 @@ so request authentication again with `PRIV`. Removed entries become unavailable.
 If the replacement file cannot be read or is malformed, TNT reports an error
 and retains the previous assignments. An empty valid file clears all assignments.
 These reload fixes are newer than the original 2.0.0-rc1 packages.
+The same applies to the immediate lower channel overview refresh after received
+`connected to` / `reconnected to` messages; no additional received line is needed.
 
 ### Prerequisites
 - C compiler such as GCC
