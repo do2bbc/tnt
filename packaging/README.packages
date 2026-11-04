@@ -1,0 +1,54 @@
+TNT 2.0.0-rc1 - Linux release candidate
+=====================================
+
+Only Linux. This is a release candidate, not a final stable release.
+No Windows version is provided.
+
+Debian 12 / Ubuntu 24.04 / Raspberry Pi OS Bookworm or newer:
+  dpkg --print-architecture
+  sudo apt install ./tnt_2.0.0~rc1-1_arm64.deb
+Use the matching amd64, arm64 or armhf file.
+armhf requires ARMv7 hard-float: Pi 2 and newer with a 32-bit OS.
+It is NOT compatible with the original Pi 1, Zero or Zero W (ARMv6).
+arm64 requires a 64-bit OS; CPU capability alone does not determine the package.
+
+openSUSE Leap 16 x86_64:
+  sudo zypper install ./tnt-2.0.0~rc1-1.x86_64.rpm
+The RPM is built/tested on Leap 16, NOT a universal Fedora/RHEL/openSUSE RPM.
+Packages are not cryptographically signed; SHA256SUMS detects corruption,
+but is not a substitute for an independently trusted signature.
+
+Installation does not start TNT or change a running process, create a service,
+or replace /usr/local/bin/tnt, ~/.local/bin/tnt or existing tnt.ini files.
+The packaged programs are /usr/bin/tnt and /usr/bin/tntc.
+Check "command -v tnt": older private installations may take precedence.
+Upgrades do not restart sessions. Stop TNT cleanly before deliberately switching.
+
+FIRST CONFIGURATION
+Example files are installed as /etc/tnt/*.ex; they are not active tnt.ini files.
+The historical interactive setup is available as:
+  sudo tnt_setup.de
+It requires dialog and writes system configuration after your choices.
+Do not run setup over an existing installation without a backup.
+The French and English scripts are tnt_setup.fr and tnt_setup.en.
+Configure your own hostmode TNC or TNN connection, callsign and file permissions.
+Serial access usually requires membership in the distribution's dialout group;
+log in again after changing group membership. Do not chmod a serial device 777.
+
+For an EXISTING node/terminal, retain its config and working directory.
+After backup and clean shutdown, test the packaged binary explicitly:
+  /usr/bin/tnt -i /absolute/path/to/your/tnt.ini
+Do not copy the example .ex files over your active configuration.
+Read BUILD.md for updating termcap.tnt terminal profiles and UTF-8 locales.
+The packaged terminal supports at most 256 columns and needs at least 80x16.
+
+Important behavior change: UMLAUT ON now means ae/oe/ue/ss transliteration.
+UMLAUT OFF (default) retains umlauts. Radio/file data remain legacy encoded;
+UTF-8 conversion happens only at the terminal boundary.
+Local resize and mouse channel switching are not enabled for tntc clients.
+
+BUILD.txt identifies the repository, exact commit and target.
+The release SOURCE archive / source RPM provides matching complete sources.
+Debian ARM programs are cross-built and tested with QEMU, not every Pi model.
+No live Pi/XP installation is modified by publishing these packages.
+Use the separate SHA256SUMS file to check downloads before installation.

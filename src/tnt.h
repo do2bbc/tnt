@@ -95,8 +95,8 @@
 #endif
 
 /* Global version and date */
-#define TNT_DATE "2026/11/03"
-#define TNT_VERSION "V1.9.3-beta1"
+#define TNT_DATE "2026/11/04"
+#define TNT_VERSION "V2.0.0-rc1"
 
 
 /*

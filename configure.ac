@@ -1,6 +1,6 @@
 dnl configure.ac for tnt, 2002/11/17
 AC_PREREQ([2.69])
-AC_INIT([tnt], [1.9.3-beta1])
+AC_INIT([tnt], [2.0.0-rc1])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CANONICAL_HOST

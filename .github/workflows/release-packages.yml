@@ -1,0 +1,70 @@
+name: Linux release packages
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  debian:
+    runs-on: ubuntu-24.04
+    container: debian:bookworm-slim
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64, armhf]
+    steps:
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential autoconf automake gettext libncurses-dev dpkg-dev git ca-certificates python3 qemu-user gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf libc6-dev-arm64-cross libc6-dev-armhf-cross
+          dpkg --add-architecture arm64
+          dpkg --add-architecture armhf
+          apt-get update
+          apt-get install -y --no-install-recommends libncurses-dev:arm64 libncurses-dev:armhf
+      - uses: actions/checkout@v6
+      - name: Build and verify Debian package
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          sh packaging/build-deb.sh "${{ matrix.arch }}" /tmp/packages
+          python3 packaging/test-package.py /tmp/packages/*.deb "${{ matrix.arch }}"
+          apt-get -y -o 'Dpkg::Options::=--path-include=/usr/share/doc/tnt/*' install /tmp/packages/*.deb
+          test -f /usr/share/doc/tnt/SOURCE.tar.gz
+          test ! -f /etc/tnt/tnt.ini
+          test ! -e /usr/local/bin/tnt
+          dpkg --verify tnt
+          apt-get remove -y tnt
+          test ! -e /usr/bin/tnt
+      - uses: actions/upload-artifact@v6
+        with:
+          name: TNT-Debian12-${{ matrix.arch }}
+          path: /tmp/packages/*.deb
+          if-no-files-found: error
+  rpm:
+    runs-on: ubuntu-24.04
+    container: registry.opensuse.org/opensuse/leap:16.0
+    timeout-minutes: 20
+    steps:
+      - name: Install build dependencies
+        run: |
+          zypper --non-interactive refresh
+          zypper --non-interactive install --no-recommends gcc make autoconf automake gettext-tools ncurses-devel rpm-build git-core tar gzip xz python3
+      - uses: actions/checkout@v6
+      - name: Build and verify Leap 16 RPM
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          sh packaging/build-rpm.sh /tmp/packages
+          python3 packaging/test-package.py /tmp/packages/*.x86_64.rpm x86_64
+          rpm -V tnt
+          rpm -e tnt
+          test ! -e /usr/bin/tnt
+      - uses: actions/upload-artifact@v6
+        with:
+          name: TNT-openSUSE-Leap16-x86_64
+          path: /tmp/packages/*.rpm
+          if-no-files-found: error

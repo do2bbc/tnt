@@ -8,6 +8,16 @@ Configure respects the compiler's default C dialect and explicit user flags.
 
 ## Compilation Instructions
 
+### Ready-to-install release packages
+
+Linux release candidate 2.0.0-rc1 provides Debian 12 `.deb` packages for
+amd64, arm64 and ARMv7 armhf, plus an openSUSE Leap 16 x86_64 RPM.
+See [package installation and upgrade notes](packaging/README.packages).
+No package starts a service or overwrites an active `tnt.ini`.
+Verify downloads with the release's `SHA256SUMS`.
+These packages do not update a running TNT process or a private binary.
+The RPM is not advertised as compatible with other RPM distributions.
+
 ### Prerequisites
 - C compiler such as GCC
 - GNU Autotools (autoconf, automake)
@@ -76,9 +86,9 @@ make
 
 ## Compiler Checks and Tests
 
-### Terminal modernization beta
+### Terminal modernization / 2.0.0-rc1
 
-The `beta` branch identifies itself as `V1.9.3-beta1`. It uses the system
+The release candidate identifies itself as `V2.0.0-rc1`. It uses the system
 ncurses/libtinfo library and system gettext; the historical bundled gettext
 sources are no longer compiled or used as a fallback. Install gettext tools
 for catalog compilation, or configure with `--disable-nls`. Translation
@@ -108,7 +118,7 @@ enable conversion; changing the locale alone does not change LXTerminal's
 encoding preference. No system-wide locale change is required.
 `UMLAUT ON` enables transliteration to `ae`, `oe`, `ue`, `Ae`, `Oe`,
 `Ue` and `ss`; `UMLAUT OFF` preserves umlauts (the startup default).
-This beta intentionally reverses the historical ON/OFF meaning, consistently
+This release candidate intentionally reverses the historical ON/OFF meaning, consistently
 for keyboard input, received text and log-file conversion. Update startup
 scripts that explicitly set `UMLAUT` to retain their intended behavior.
 The legacy IBM/Latin-1

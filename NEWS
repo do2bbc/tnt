@@ -59,3 +59,9 @@
 2000/01/06: created CVS repository
 
 1999/09/09: Version 1.9 in development
+2026/11/04: TNT V2.0.0-rc1 release candidate.
+            Promote the overnight-tested terminal modernization to main.
+            Provide Debian 12 amd64/arm64/armhf packages and an openSUSE
+            Leap 16 x86_64 RPM with matching source and checksums.
+            Packages do not start a service or replace user configurations.
+            This remains a release candidate, not a final 2.0 release.
