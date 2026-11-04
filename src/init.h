@@ -102,7 +102,7 @@
 #define DEF_YAPP_DIR ""
 #define DEF_DOWNLOAD_DIR ""
 #define DEF_BLIST_ADD_PLUS 0
-#define DEF_ALTSTAT 0
+#define DEF_ALTSTAT 1
 #define DEF_DISC_ON_START 0
 #ifdef HAVE_SOCKET
 #define DEF_SOCKPASS_FILE "netpass.tnt"

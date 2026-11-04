@@ -2,6 +2,8 @@
 set -eu
 source_dir=${top_srcdir:-$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)}
 build_dir=${top_builddir:-$source_dir}
+grep -q '^#define DEF_ALTSTAT 1$' "$source_dir/src/init.h"
+grep -q '^altstat 1$' "$source_dir/examples/tnt.ini.in"
 tmp=$(mktemp -d)
 trap 'rm -f "$tmp/test.c" "$tmp/test" "$tmp/sys" "$tmp/blcmd"; rmdir "$tmp"' EXIT HUP INT TERM
 

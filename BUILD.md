@@ -32,6 +32,10 @@ The same applies to the immediate lower channel overview refresh after received
 
 ### Other runtime updates (newer than the original RC1 packages)
 
+- The extended channel status line is enabled by default (`altstat 1`).
+  It shows a database name before the remote callsign when available.
+  Existing configurations keep their explicit setting; use `altstat 0` for
+  the classic display. Changing this setting requires restarting TNT.
 - `NAME <name>` refreshes cached names and extended status displays on connected
   channels, including channels that use an SSID fallback from the names database.
   Editing the names file externally is not a new automatic reload feature.

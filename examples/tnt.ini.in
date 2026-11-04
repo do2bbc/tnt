@@ -265,8 +265,8 @@ color 1
 # 0: don't use termcap, 1: use termcap
 termcap 0
 
-# 1: alternative channel status line
-altstat 0
+# 1: alternative channel status line with database names (default), 0: classic
+altstat 1
 
 # --------------------------------------------------------------------------
 
