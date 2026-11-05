@@ -3131,6 +3131,11 @@ Number of lines of the input part of the connect screen
 Number of lines of the output part of the connect screen
 (reduced backscroll buffer).
 
+The command, monitor, and connect-screen backscroll buffers are saved as
+@code{scrollback.dat} in @code{tnt_work_dir} when TNT exits normally and are
+restored on the next start. If a configured buffer size changes, TNT restores
+as many of the newest saved lines as fit.
+
 @item 'scr_divide'
 Input/output-lines ratio on real screen (connect).
 The value can be changed with command CONDiv.

@@ -169,6 +169,7 @@ extern int lines_moncon;
 extern int lines_r_input;
 extern int lines_r_output;
 extern int input_linelen;
+extern char tnt_work_dir[];
 extern char rem_tnt_str[];
 extern char rem_newlin_str[];
 extern int infobell_flag;
@@ -213,6 +214,224 @@ extern struct real_layout mbboxlist_layout[LAYOUTPARTS];
 extern int scanmbea_valid;
 #endif /* USE_IFACE */
 #endif /* DPBOXT */
+
+#ifndef DPBOXT
+#define SCROLLBACK_FILE "scrollback.dat"
+#define SCROLLBACK_TMP_FILE "scrollback.dat.tmp"
+#define SCROLLBACK_MAX_LINES 100000
+#define SCROLLBACK_COMMAND 1
+#define SCROLLBACK_MONITOR 2
+#define SCROLLBACK_INPUT 3
+#define SCROLLBACK_OUTPUT 4
+
+static const char scrollback_magic[8] = {
+  'T', 'N', 'T', 'S', 'C', 'B', '1', '\0'
+};
+
+static int scrollback_write_uint(FILE *fp, unsigned long value)
+{
+  unsigned char data[4];
+
+  data[0] = (unsigned char)(value & 0xff);
+  data[1] = (unsigned char)((value >> 8) & 0xff);
+  data[2] = (unsigned char)((value >> 16) & 0xff);
+  data[3] = (unsigned char)((value >> 24) & 0xff);
+  return fwrite(data,1,sizeof(data),fp) == sizeof(data);
+}
+
+static int scrollback_read_uint(FILE *fp, unsigned long *value)
+{
+  unsigned char data[4];
+
+  if (fread(data,1,sizeof(data),fp) != sizeof(data)) return(0);
+  *value = (unsigned long)data[0] |
+           ((unsigned long)data[1] << 8) |
+           ((unsigned long)data[2] << 16) |
+           ((unsigned long)data[3] << 24);
+  return(1);
+}
+
+static struct window *scrollback_window(unsigned long kind,
+                                        unsigned long channel)
+{
+  switch (kind) {
+  case SCROLLBACK_COMMAND:
+    return(&cmdwin);
+  case SCROLLBACK_MONITOR:
+    return(&monwin);
+  case SCROLLBACK_INPUT:
+    if (channel < (unsigned long)tnc_channels) return(&prewin[channel]);
+    break;
+  case SCROLLBACK_OUTPUT:
+    if (channel < (unsigned long)tnc_channels) return(&textwin[channel]);
+    break;
+  }
+  return(NULL);
+}
+
+static int scrollback_write_window(FILE *fp, unsigned long kind,
+                                   unsigned long channel, struct window *win)
+{
+  int i;
+  int physical_line;
+  size_t row_size = 2 * MAXCOLS;
+
+  if (!scrollback_write_uint(fp,kind) ||
+      !scrollback_write_uint(fp,channel) ||
+      !scrollback_write_uint(fp,(unsigned long)win->num_lines) ||
+      !scrollback_write_uint(fp,(unsigned long)win->column) ||
+      !scrollback_write_uint(fp,(unsigned char)win->attribut)) return(0);
+
+  for (i = 0; i < win->num_lines; i++) {
+    physical_line = i + win->line_offset;
+    if (physical_line >= win->num_lines) physical_line -= win->num_lines;
+    if (fwrite(win->window_buffer + physical_line * row_size,
+               1,row_size,fp) != row_size) return(0);
+  }
+  return(1);
+}
+
+static int scrollback_read_window(FILE *fp)
+{
+  unsigned long kind;
+  unsigned long channel;
+  unsigned long source_lines;
+  unsigned long column;
+  unsigned long attribut;
+  unsigned long source_start;
+  unsigned long copy_lines;
+  unsigned long i;
+  unsigned long destination_line;
+  char row[2 * MAXCOLS];
+  struct window *win;
+
+  if (!scrollback_read_uint(fp,&kind) ||
+      !scrollback_read_uint(fp,&channel) ||
+      !scrollback_read_uint(fp,&source_lines) ||
+      !scrollback_read_uint(fp,&column) ||
+      !scrollback_read_uint(fp,&attribut) ||
+      source_lines == 0 || source_lines > SCROLLBACK_MAX_LINES ||
+      column >= MAXCOLS || attribut >= 9) return(0);
+
+  win = scrollback_window(kind,channel);
+  copy_lines = 0;
+  source_start = source_lines;
+  if ((win != NULL) && (win->window_buffer != NULL)) {
+    copy_lines = source_lines;
+    if (copy_lines > (unsigned long)win->num_lines)
+      copy_lines = (unsigned long)win->num_lines;
+    source_start = source_lines - copy_lines;
+  }
+
+  for (i = 0; i < source_lines; i++) {
+    if (fread(row,1,sizeof(row),fp) != sizeof(row)) return(0);
+    if (i >= source_start) {
+      destination_line = (unsigned long)win->num_lines - copy_lines +
+                         i - source_start;
+      memcpy(win->window_buffer + destination_line * sizeof(row),
+             row,sizeof(row));
+    }
+  }
+
+  if (win != NULL) {
+    win->line = win->num_lines - 1;
+    win->line_offset = 0;
+    win->phys_line = win->line;
+    win->column = (int)column;
+    win->attribut = (char)attribut;
+    win->first_win_line = 0;
+    win->view_column = 0;
+  }
+  return(1);
+}
+
+static void scrollback_path(char *path, size_t size, const char *filename)
+{
+  snprintf(path,size,"%s%s",tnt_work_dir,filename);
+}
+
+static void load_scrollback(void)
+{
+  char path[MAXCHAR * 2];
+  char magic[sizeof(scrollback_magic)];
+  unsigned long records;
+  unsigned long i;
+  FILE *fp;
+
+  scrollback_path(path,sizeof(path),SCROLLBACK_FILE);
+  fp = fopen(path,"rb");
+  if (fp == NULL) {
+    if (errno != ENOENT) perror(path);
+    return;
+  }
+
+  if (fread(magic,1,sizeof(magic),fp) != sizeof(magic) ||
+      memcmp(magic,scrollback_magic,sizeof(magic)) != 0 ||
+      !scrollback_read_uint(fp,&records) ||
+      records > 10000) {
+    fprintf(stderr,_("ERROR: invalid scrollback file %s\n"),path);
+    fclose(fp);
+    return;
+  }
+
+  for (i = 0; i < records; i++) {
+    if (!scrollback_read_window(fp)) {
+      fprintf(stderr,_("ERROR: invalid scrollback file %s\n"),path);
+      fclose(fp);
+      return;
+    }
+  }
+  fclose(fp);
+}
+
+static void save_scrollback(void)
+{
+  char path[MAXCHAR * 2];
+  char tmp_path[MAXCHAR * 2];
+  unsigned long records = 2 + 2 * (unsigned long)tnc_channels;
+  int i;
+  int ok;
+  FILE *fp;
+
+  scrollback_path(path,sizeof(path),SCROLLBACK_FILE);
+  scrollback_path(tmp_path,sizeof(tmp_path),SCROLLBACK_TMP_FILE);
+  fp = fopen(tmp_path,"wb");
+  if (fp == NULL) {
+    perror(tmp_path);
+    return;
+  }
+  if (chmod(tmp_path,S_IRUSR | S_IWUSR) < 0) {
+    perror(tmp_path);
+    fclose(fp);
+    remove(tmp_path);
+    return;
+  }
+
+  ok = fwrite(scrollback_magic,1,sizeof(scrollback_magic),fp) ==
+       sizeof(scrollback_magic);
+  if (ok) ok = scrollback_write_uint(fp,records);
+  if (ok) ok = scrollback_write_window(fp,SCROLLBACK_COMMAND,0,&cmdwin);
+  if (ok) ok = scrollback_write_window(fp,SCROLLBACK_MONITOR,0,&monwin);
+  for (i = 0; ok && (i < tnc_channels); i++)
+    ok = scrollback_write_window(fp,SCROLLBACK_INPUT,(unsigned long)i,
+                                 &prewin[i]);
+  for (i = 0; ok && (i < tnc_channels); i++)
+    ok = scrollback_write_window(fp,SCROLLBACK_OUTPUT,(unsigned long)i,
+                                 &textwin[i]);
+  if (fflush(fp) != 0) ok = 0;
+  if (fclose(fp) != 0) ok = 0;
+
+  if (!ok) {
+    fprintf(stderr,_("ERROR: cannot save scrollback file %s\n"),path);
+    remove(tmp_path);
+    return;
+  }
+  if (rename(tmp_path,path) < 0) {
+    perror(path);
+    remove(tmp_path);
+  }
+}
+#endif
 
 static int old_mode;
 #ifndef DPBOXT
@@ -1467,6 +1686,7 @@ int init_screen(void)
       layout[i][4].pagesize = lines_moncon - 1;
     }
   }
+  load_scrollback();
   real_screen(cmd_layout);
   act_mode = M_COMMAND;
   old_mode = M_COMMAND;
@@ -1653,6 +1873,7 @@ void exit_screen(void)
 #ifdef DPBOXT
   close_window(&statlin);
 #else  
+  save_scrollback();
   close_window(&cmdwin);
   close_window(&monwin);
   close_window(&statlin);
