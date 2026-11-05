@@ -224,18 +224,18 @@ num_heardentries 100
 # number of lines for backscroll
 
 # command-screen
-lines_command 50
+lines_command 10000
 # monitor-screen
-lines_monitor 400
+lines_monitor 10000
 
 # input area of connect-screens
-lines_input 20
+lines_input 10000
 # output area of connect-screens
-lines_output 100
+lines_output 10000
 # input area of connect-screens (reduced backscroll)
-lines_r_input 5
+lines_r_input 2000
 # output area of connect-screens (reduced backscroll)
-lines_r_output 20
+lines_r_output 2000
 # input/output-lines ratio on real screen (connect)
 scr_divide 5
 # monitor lines on connect-screens
