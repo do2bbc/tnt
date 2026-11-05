@@ -13,7 +13,8 @@ case "$arch" in
 esac
 test "$(getconf GNU_LIBC_VERSION)" = 'glibc 2.36'
 test "$(dpkg --print-architecture)" = amd64
-version=$(sed -n 's/^AC_INIT(\[tnt\], \[\(.*\)\])/\1/p' configure.ac)
+version=$(sed -n 's/^set(TNT_VERSION "\(.*\)")/\1/p' CMakeLists.txt)
+test -n "$version"
 debversion=$(printf '%s' "$version" | sed 's/-rc/~rc/')-1
 tmp=$(mktemp -d)
 trap 'rm -rf -- "$tmp"' EXIT HUP INT TERM
@@ -23,15 +24,19 @@ source="$tmp/source"
 package="$tmp/debian/tnt"
 export SOURCE_DATE_EPOCH=$(git show -s --format=%ct HEAD)
 cd "$source"
-autoreconf -fi
 export PKG_CONFIG_LIBDIR="/usr/lib/$host/pkgconfig:/usr/share/pkgconfig"
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
-  --host="$host" --build=x86_64-linux-gnu CC="$host-gcc"
-make -j2
-if [ "$arch" = amd64 ]; then
-  make check
+cross=
+if [ "$arch" != amd64 ]; then
+  cross="-DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=$arch"
 fi
-make DESTDIR="$package" install
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_SYSCONFDIR=/etc \
+  -DTNT_LOCALSTATEDIR=/var -DCMAKE_C_COMPILER="$host-gcc" $cross
+cmake --build build --parallel 2
+if [ "$arch" = amd64 ]; then
+  ctest --test-dir build --output-on-failure
+fi
+DESTDIR="$package" cmake --install build
 doc="$package/usr/share/doc/tnt"
 mkdir -p "$package/DEBIAN" "$doc"
 cp COPYING "$doc/copyright"

@@ -22,7 +22,7 @@ jobs:
       - name: Install build dependencies
         run: |
           apt-get update
-          apt-get install -y --no-install-recommends build-essential autoconf automake gettext libncurses-dev dpkg-dev git ca-certificates python3 qemu-user gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf libc6-dev-arm64-cross libc6-dev-armhf-cross
+          apt-get install -y --no-install-recommends build-essential cmake ninja-build gettext libncurses-dev dpkg-dev git ca-certificates python3 qemu-user gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf libc6-dev-arm64-cross libc6-dev-armhf-cross
           dpkg --add-architecture arm64
           dpkg --add-architecture armhf
           apt-get update
@@ -47,7 +47,7 @@ jobs:
       - name: Install build dependencies
         run: |
           zypper --non-interactive refresh
-          zypper --non-interactive install --no-recommends gcc make autoconf automake gettext-tools ncurses-devel rpm-build git-core tar gzip xz python3
+          zypper --non-interactive install --no-recommends gcc make cmake ninja gettext-tools ncurses-devel rpm-build git-core tar gzip xz python3
       - uses: actions/checkout@v6
       - name: Build and verify Leap 16 RPM
         run: |

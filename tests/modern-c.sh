@@ -124,6 +124,12 @@ cat >> "$tmp/test.c" <<'EOF'
 }
 static void check_mailbox_shortcuts(void)
 {
+  char escape = ESC;
+  char channel = C_CHANNEL;
+  dispatch_control(&escape);
+  assert(esc_flag == 1 && func_str[0] == ESC);
+  dispatch_control(&channel);
+  assert(chan_flag == 1);
 #ifdef USE_IFACE
   const char *shortcuts[] = {"\033b", "\033B"};
   for (size_t key = 0; key < sizeof(shortcuts) / sizeof(shortcuts[0]); ++key) {

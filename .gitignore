@@ -1,4 +1,7 @@
 # Build artifacts and object files
+build/
+build-*/
+CMakeUserPresets.json
 *.o
 *.a
 *.so

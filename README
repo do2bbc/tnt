@@ -1,171 +1,95 @@
-Note: This is release of TNT 1.9, originally developed by Mark Wahl.
-This release is the work of several people. Take a look in ./doc/CHANGES
-for more information.
+TNT - Hostmode Terminal for TNC
+==============================
 
----------------------------------------------------------------------
-QUICK-INSTALLATION, please read carefully
+TNT is a packet-radio hostmode terminal, originally developed by Mark Wahl.
+See AUTHORS, COPYING, NEWS and the doc directory for contributors, licensing,
+release history and operating documentation.
 
-Build requirements (required for a standard build):
-   - gcc (C compiler)
-   - make
-   - autoconf + automake (only needed if you regenerate build scripts)
-   - ncurses development files (libncurses + headers)
-   - gettext tools (xgettext, msgfmt)
-   - dialog, for the interactive tnt_setup configuration scripts
+Building
+--------
 
-Optional/feature-specific libraries:
-   - AX.25 support (--enable-ax25k or --enable-ax25k2):
-      requires ax25 headers and libax25 (from axutils/libax25 packages)
-   - Included gettext fallback:
-      if your system gettext is missing, use --with-included-gettext
+Requirements:
+  - C compiler such as GCC or Clang
+  - CMake 3.20 or newer
+  - Make, or optionally Ninja
+  - ncurses development headers and libraries
+  - system gettext tools for translations
+  - dialog for the optional interactive setup scripts
 
-Typical package names on Linux:
-   - Debian/Ubuntu:
-      sudo apt install build-essential autoconf automake libncurses-dev gettext dialog
-   - Fedora/RHEL:
-      sudo dnf install gcc make autoconf automake ncurses-devel gettext dialog
-   - Arch Linux:
-      sudo pacman -S base-devel autoconf automake ncurses gettext dialog
-   - Raspberry Pi OS / Debian on Raspberry Pi:
-      sudo apt install build-essential autoconf automake libncurses-dev gettext dialog
+Debian, Ubuntu and Raspberry Pi OS:
 
-To install TNT:
-  1) Type "./configure --help" to see the options you may be want to
-     change (for example sound-support is defaultly compiled in).
-  2) Type "./configure" or "./configure --[ARGS]" to configure TNT.
-     (For example "./configure --disable-sound" to compile TNT without
-     sound).
-  3) Type "make" to build TNT.
-  4) Type "make install" to install TNT.
-  5) Good Luck ;-)
+    sudo apt install build-essential cmake ninja-build libncurses-dev gettext dialog
 
-To uninstall TNT:
-  1) Type "make uninstall" to uninstall TNT.
-     You don't want to do this I think ;-) If you do, all files which were
-     installed (and only these) will be deleted.
----------------------------------------------------------------------
-Configure-Options:
-  There are five options for TNT:
-  a) sound
-  b) ax25k
-  c) dpboxt
-  d) hibaud (only supported on linux-systems)
-  e) genuser
+Fedora:
 
- Defaultly only sound and english is activated.
- To disable sound: ./configure --disable-sound
- To enable ax25k:  ./configure --enable-ax25k   (or --enable-ax25k2)
- To enable hibaud: ./configure --enable-hibaud
- To enable newuser:./configure --enable-newuser
- To enable dpboxt: ./configure --enable-dpboxt
- (Note: the dpbox-terminal is broken at the moment, so compilation with
-        DPBOXT will fail!
-  Note2: DPBOXT will disappear in further versions, so use an old TNT
-         version, or wait for a new console, I will write if I have the
-         time to do so ;-)
+    sudo dnf install gcc cmake ninja-build ncurses-devel gettext dialog
 
- Language: actually TNT supports
- -en = english
- -de = Deutsch
- -fr = french
- 
- Enable your language with option "--with-language=xx", where xx is one of
- en, de, fr.
+Arch Linux:
 
-If your system does not include gettext, you should at the option
-"--with-included-gettext" to ./configure (mostly older or non-GNU systems).
- 
-AX25-kernel support:
-If you want to use TNT with ax25-kernel support, the only thing to do, is
-configuring TNT with ax25k enabled.
-Please Note: you MUST have the axutils installed. TNT needs the ax25lib
-(libax25.a) and the include-files (there should exists in /usr/include/ax25
-for example). TNT searches for an include-dir named "ax25".
-If you compiled axutils, there must be a library "libax25.a". copy this file
-to /usr/lib or /usr/local/lib and run "ldconfig", so TNT can find this lib.
+    sudo pacman -S base-devel cmake ninja ncurses gettext dialog
 
-With newer AX25-libs, you should use "--enable-ax25k2" instead of
-"--enable-ax25k"
+Configure, compile and test:
 
-Please also read AX25-NOTES
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+    cmake --build build --parallel 2
+    ctest --test-dir build --output-on-failure
 
-HIBAUD:
-Enable this, if you using a baudrate >38400 to your TNC. (Only supported on
-Linux).
+Add -G Ninja when configuring to use Ninja instead of Make. Generated files
+and executables stay in build/. Autoconf and Automake are no longer used.
 
-NEWUSER:
-Use this carefully. Generation of newusers it disable by default, because it
-is to unsecure. If you really want to use it, use this configure-option.
-Because of this, some things have changed in tnt.ini, so take a look at
-"tnt.ini" in examples-dir.
+Installation
+------------
 
-Installation is easy: "./configure", "make" and "make install".
-After the installation is finished the program "tnt_setup" will be called.
-Here you can do some important settings for your tnc, boxsocket or your
-callsign. If you do not want this, just leave the program.
+    cmake --install build
 
-Raspberry Pi / ARM systems:
-TNT is expected to build on 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5,
-and on 32-bit Raspberry Pi OS using the normal autotools flow:
-   autoreconf -fi
-   ./configure
-   make
+Use suitable permissions for the chosen prefix. Installation does not start
+a service or overwrite an active tnt.ini; example files use .ex suffixes.
+To install privately with runtime data under your home directory:
 
-The CI build covers amd64, arm64 and 32-bit armhf Linux. For AX.25 kernel
-support on Raspberry Pi OS, also install the AX.25 development package available
-for your distribution and configure with --enable-ax25k2.
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX="$HOME/.local" \
+      -DTNT_LOCALSTATEDIR="$HOME/.local/var"
 
-AX25UDP soft-TNC mode uses soft_tnc 3. Set device to host:port, or to
-localport@host:port when the local UDP source port must be fixed, for example
-10093@44.148.230.93:93.
+Set paths at configuration time. Runtime state otherwise defaults to /var,
+even with a custom prefix. The interactive tnt_setup.de, tnt_setup.en and
+tnt_setup.fr scripts can be run manually after installation.
 
-INSTALL-LOCATIONS:
+Common options
+--------------
+
+    -DTNT_SERIAL=OFF       Disable serial/soft-TNC device handling
+    -DTNT_SOUND=OFF        Disable sound
+    -DTNT_NLS=OFF          Disable translations and gettext dependency
+    -DTNT_LANGUAGE=de      Default configuration language (en, de, fr)
+    -DTNT_AX25K2=ON        Enable modern Linux kernel AX.25 (requires libax25)
+    -DTNT_AX25K=ON         Enable legacy AX.25 library interface
+    -DTNT_HIBAUD=ON        Enable Linux high-baud-rate support
+    -DTNT_GENUSER=ON       Enable legacy Unix user generation (off by default)
+    -DTNT_FLAT=ON          Install everything under PREFIX/tnt
+
+The historical DPBOXT mode was already broken and is not supported.
+System gettext is used; there is no bundled-gettext fallback.
+Use Unix user generation cautiously and see AX25-NOTES before enabling
+kernel AX.25 support.
+
+Raspberry Pi / ARM
 ------------------
-If you do not want to install in /usr/[local/]... and /var, you should
-call ./configure with --prefix= AND --localstatedir=
 
-For example: if you want to put TNT completly in your homedirectory under tnt
-use:
-./configure --prefix=~/tnt --localstatedir=~/tnt [--other-options...]
+The same CMake commands apply to Raspberry Pi OS. CI covers native amd64
+and arm64 Linux, plus 32-bit ARMv7 armhf under QEMU. Debian packaging also
+supports cross-compilation; see BUILD.md and packaging/README.packages.
 
-For a really flat installation you can now use the --enable-flat option
-while configuring. Just set $prefix and activate --flat.
-For example: if you want to put TNT completly into /usr/local/tnt, just use:
-./configure --prefix=/usr/local/tnt --enable-flat [--other-options...]
+AX25UDP soft-TNC mode uses soft_tnc 3. Set device to host:port or to
+localport@host:port when a fixed local UDP source port is required.
 
--------------------------------------------------------------------------
-IMPORTANT:
-TNT can now used by more than one user. Just install TNT as normal, and
-than create a dir ".tnt" in your homedirectory and put ALL the Configuration-
-files in it (tnt.ini and the *.tnt files).
+Configuration
+-------------
 
-If you don't start TNT with a given directory explizit (with the -i option),
-TNT will search "tnt.ini" (or ".tntrc") in these places:
-First in your $HOME/.tnt directory, e.g.  /home/you/.tnt/tnt.ini
-Then in the current directory.
-After this TNT will look in the directory you installed TNT in (Note: the
-path in configure.h "TNT_INSTALL_PATH" will be hardcoded into TNT).
-At last TNT looks in /etc/tnt.ini
+For private settings, create ~/.tnt and copy the configuration files there.
+TNT searches ~/.tnt/tnt.ini, ~/.tnt/.tntrc, the current directory, the compiled
+installation configuration directory, and finally /etc/tnt.ini. The -i option
+selects an explicit file. TNTC uses its corresponding tntc.ini configuration.
 
-The same thing is the "tntc.ini" (or ".tntrc"),
----------------------------------------------------------------------
-NEW IN THIS VERSION: READ CAREFULLY!
-
-Some start-options of TNT have been changed, so it is possible that tnt
-won't start, because of a wrong tnt.ini.
-Maybe you should comment out the lines for new_user generation and the
-line for tnt_user_dir.
-Take a deep look at "tnt.ini" in example-dir, to figure out all of the
-changes.
----------------------------------------------------------------------
-
-documentation of TNT can be found in /doc-dir.
-source-code is found in /src-dir.
-solaris-stuff is found in /doc/solaris-dir.
-examples-configuration files can be found in /examples-dir.
-
-for information about what has changed, take a look at /doc/CHANGES
-
-------------------------------------------------------------------------------
-Contents last checked by Boris Bruns.
-(WSPse, 31. Jan 2000)
+See BUILD.md for feature mappings from the old configure options, installation
+paths, strict compiler checks, tests and the current terminal behavior.
+Runtime documentation and translated help files are in doc/ and examples/.

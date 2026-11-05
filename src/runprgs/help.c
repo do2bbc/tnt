@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <string.h>
-#include "tntrun.h"
+#include <tntrun.h>
 
 #define CUR_VER "1.0c"
 #define CUR_DAT "31.1.00"

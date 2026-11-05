@@ -11,11 +11,11 @@ test "$(uname -m)" = x86_64
 tmp=$(mktemp -d)
 trap 'rm -rf -- "$tmp"' EXIT HUP INT TERM
 mkdir -p "$tmp/source" "$tmp/rpmbuild/SOURCES" "$output"
-git archive --prefix=tnt-2.0.0-rc2/ HEAD | tar -C "$tmp/source" -xf -
+git archive --prefix=tnt-2.0.0-rc3/ HEAD | tar -C "$tmp/source" -xf -
 printf 'Repository: https://github.com/do2bbc/tnt\nSource commit: %s\nTarget: openSUSE Leap 16 x86_64\n' \
-  "$(git rev-parse HEAD)" > "$tmp/source/tnt-2.0.0-rc2/BUILD.txt"
-tar -C "$tmp/source" -czf "$tmp/rpmbuild/SOURCES/tnt-2.0.0-rc2.tar.gz" tnt-2.0.0-rc2
+  "$(git rev-parse HEAD)" > "$tmp/source/tnt-2.0.0-rc3/BUILD.txt"
+tar -C "$tmp/source" -czf "$tmp/rpmbuild/SOURCES/tnt-2.0.0-rc3.tar.gz" tnt-2.0.0-rc3
 rpmbuild -ba --define "_topdir $tmp/rpmbuild" tnt.spec
-cp "$tmp/rpmbuild/RPMS/x86_64/tnt-2.0.0~rc2-1.x86_64.rpm" "$output/tnt-2.0.0-rc2-1.x86_64.rpm"
-cp "$tmp/rpmbuild/SRPMS/tnt-2.0.0~rc2-1.src.rpm" "$output/tnt-2.0.0-rc2-1.src.rpm"
-cp "$tmp/rpmbuild/SOURCES/tnt-2.0.0-rc2.tar.gz" "$output/"
+cp "$tmp/rpmbuild/RPMS/x86_64/tnt-2.0.0~rc3-1.x86_64.rpm" "$output/tnt-2.0.0-rc3-1.x86_64.rpm"
+cp "$tmp/rpmbuild/SRPMS/tnt-2.0.0~rc3-1.src.rpm" "$output/tnt-2.0.0-rc3-1.src.rpm"
+cp "$tmp/rpmbuild/SOURCES/tnt-2.0.0-rc3.tar.gz" "$output/"

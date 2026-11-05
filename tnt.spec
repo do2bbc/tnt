@@ -1,14 +1,14 @@
 Name:           tnt
-Version:        2.0.0~rc2
+Version:        2.0.0~rc3
 Release:        1
 Summary:        Packet-radio hostmode terminal
 License:        GPL-2.0-or-later
 URL:            https://github.com/do2bbc/tnt
-Source0:        tnt-2.0.0-rc2.tar.gz
+Source0:        tnt-2.0.0-rc3.tar.gz
 BuildRequires:  gcc
 BuildRequires:  make
-BuildRequires:  autoconf
-BuildRequires:  automake
+BuildRequires:  cmake >= 3.20
+BuildRequires:  ninja
 BuildRequires:  gettext-tools
 BuildRequires:  ncurses-devel
 Recommends:     dialog
@@ -21,18 +21,22 @@ No service or active node configuration is installed or started.
 This RPM targets openSUSE Leap 16 x86_64.
 
 %prep
-%setup -q -n tnt-2.0.0-rc2
+%setup -q -n tnt-2.0.0-rc3
 
 %build
-autoreconf -fi
-%configure
-%make_build
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_BINDIR=%{_bindir} \
+  -DCMAKE_INSTALL_SBINDIR=%{_sbindir} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} \
+  -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_INFODIR=%{_infodir} \
+  -DTNT_LOCALSTATEDIR=%{_localstatedir} \
+  -DCMAKE_C_FLAGS="%{optflags}"
+cmake --build build --parallel 2
 
 %check
-make check
+ctest --test-dir build --output-on-failure
 
 %install
-make DESTDIR=%{buildroot} install
+DESTDIR=%{buildroot} cmake --install build
 mkdir -p %{buildroot}%{_docdir}/tnt
 cp BUILD.md NEWS packaging/README.packages BUILD.txt %{buildroot}%{_docdir}/tnt/
 mkdir -p %{buildroot}%{_licensedir}/tnt

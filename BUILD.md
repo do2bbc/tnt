@@ -4,13 +4,13 @@
 TNT (Hostmode Terminal for TNC) uses typed C function declarations and
 definitions, including the legacy code translated from Pascal. It builds with
 modern GCC without suppressing implicit declarations or old-style definitions.
-Configure respects the compiler's default C dialect and explicit user flags.
+CMake respects the compiler's default C dialect and explicit user flags.
 
 ## Compilation Instructions
 
 ### Ready-to-install release packages
 
-Linux release candidate 2.0.0-rc2 provides Debian 12 `.deb` packages for
+Linux release candidate 2.0.0-rc3 provides Debian 12 `.deb` packages for
 amd64, arm64 and ARMv7 armhf, plus an openSUSE Leap 16 x86_64 RPM.
 See [package installation and upgrade notes](packaging/README.packages).
 No package starts a service or overwrites an active `tnt.ini`.
@@ -51,78 +51,133 @@ The same applies to the immediate lower channel overview refresh after received
 
 ### Prerequisites
 - C compiler such as GCC
-- GNU Autotools (autoconf, automake)
+- CMake 3.20 or newer
+- Ninja (recommended) or Make
 - ncurses development library
 - GNU gettext
 - dialog, for the interactive `tnt_setup` configuration scripts
 
 ### Build Steps
 
-1. **Regenerate autotools files when building from Git:**
+1. **Configure in a separate build directory:**
    ```bash
-   autoreconf -fi
+   cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
    ```
 
-2. **Configure the project:**
+2. **Compile and test:**
    ```bash
-   ./configure
+   cmake --build build --parallel 2
+   ctest --test-dir build --output-on-failure
    ```
 
-   To build TNT without opening or polling a serial/soft-TNC device, configure with:
+3. **Install (optional):**
    ```bash
-   ./configure --disable-serial
+   cmake --install build
    ```
 
-3. **Compile:**
-   ```bash
-   make
-   ```
+Omit `-G Ninja` to use the default Make generator. Autoconf, Automake and
+`autoreconf` are no longer used. In-source CMake builds are rejected.
+Executables, generated examples, setup scripts and `config.h` live in `build/`.
+`build/compile_commands.json` supports VS Code and clang-based tooling.
 
-4. **Install (optional):**
-   ```bash
-   make install
-   ```
+### Options and installation compatibility
+
+| Former configure option | CMake equivalent |
+|---|---|
+| `--disable-serial` | `-DTNT_SERIAL=OFF` |
+| `--disable-sound` | `-DTNT_SOUND=OFF` |
+| `--disable-nls` | `-DTNT_NLS=OFF` |
+| `--enable-ax25k` | `-DTNT_AX25K=ON` |
+| `--enable-ax25k2` | `-DTNT_AX25K2=ON` |
+| `--enable-hibaud` | `-DTNT_HIBAUD=ON` |
+| `--enable-genuser` | `-DTNT_GENUSER=ON` |
+| `--enable-flat` | `-DTNT_FLAT=ON` |
+| `--with-language=de` | `-DTNT_LANGUAGE=de` |
+| `--prefix=PATH` | `-DCMAKE_INSTALL_PREFIX=PATH` |
+| `--sysconfdir=PATH` | `-DCMAKE_INSTALL_SYSCONFDIR=PATH` |
+| `--localstatedir=PATH` | `-DTNT_LOCALSTATEDIR=PATH` |
+
+Serial, sound and translations default to ON; optional kernel AX.25, HIBAUD,
+user generation and flat installation default to OFF. The language defaults to
+English. The already-broken historical DPBOXT option now fails at configuration
+with an explicit explanation; it is not repaired by this migration.
+Other legacy-only limitations also remain: HIBAUD currently misses the
+`waitpid` declaration on modern Linux compilers, and user generation reports
+a signedness warning under `-Werror`. Neither is enabled by default.
+
+Release builds retain the previous `-O2` optimization level. Set
+`CMAKE_C_FLAGS`, `CMAKE_C_FLAGS_RELEASE` or `CMAKE_C_COMPILER` explicitly when
+needed. Use `-DBUILD_TESTING=OFF` to omit test registration.
+`-DTNT_EDITOR=/path/to/editor` selects the external editor. If no editor is
+available during the build, CMake warns and retains the historical runtime
+default `ed`; the editor must be available when that command is used.
+
+Platform settings are retained for Linux, NetBSD/OpenBSD and Solaris; this
+migration is validated on Linux. The obsolete Interactive UNIX (ISC) build
+configuration is not carried forward.
+
+The existing installation layout is retained: configuration examples have
+`.ex` suffixes, helper programs live under `PREFIX/libexec/tnt`, and runtime
+state defaults to `/var`, even with a custom prefix. For a private installation
+matching the Pi configuration:
+
+```bash
+cmake -S . -B build-pi -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$HOME/.local" \
+  -DTNT_LOCALSTATEDIR="$HOME/.local/var" \
+  -DTNT_SOUND=OFF -DTNT_LANGUAGE=de
+```
+
+Installation does not start TNT, replace an active `tnt.ini`, or delete history.
+Use `DESTDIR="$PWD/stage" cmake --install build` to inspect a staged install.
+Set the prefix at configuration time: generated configuration and helper paths
+are compiled in, so `cmake --install --prefix` is not a relocation mechanism.
+The installation test uses its own staging directory inside the build tree.
+`cmake --build build --target uninstall` removes installed files using the
+build's install manifest; use the same `DESTDIR` for a staged uninstall.
+Active configuration and runtime history are not installed files and remain.
 
 ### Raspberry Pi / ARM builds
 
 On Raspberry Pi OS, install the standard build dependencies:
 
 ```bash
-sudo apt install build-essential autoconf automake libncurses-dev gettext dialog
+sudo apt install build-essential cmake ninja-build libncurses-dev gettext dialog
 ```
 
 Then build normally:
 
 ```bash
-autoreconf -fi
-./configure
-make
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel 2
+ctest --test-dir build --output-on-failure
 ```
 
-The GitHub Actions workflow builds on `amd64`, native `arm64` Ubuntu runners, and 32-bit `armhf` Debian under QEMU. That covers 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5, plus the 32-bit Raspberry Pi OS userland. For AX.25 kernel support on Raspberry Pi OS, install the distribution's AX.25 development package and configure with `--enable-ax25k2`.
+The GitHub Actions workflow builds on `amd64`, native `arm64` Ubuntu runners, and 32-bit `armhf` Debian under QEMU. That covers 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5, plus the 32-bit Raspberry Pi OS userland. For AX.25 kernel support on Raspberry Pi OS, install the distribution's AX.25 development package and configure with `-DTNT_AX25K2=ON`.
 
 For AX25UDP soft-TNC mode, configure TNT with `soft_tnc 3` and set `device` to `host:port` or `localport@host:port`, for example `10093@44.148.230.93:93`.
 
 ### Slackware 14.2 builds
 
-On Slackware 14.2, make sure the development tools and gettext tools are installed before bootstrapping from Git. A full development install normally provides these; on minimal systems, install the `d` series tools plus `gettext-tools` and the runtime libraries needed by Slackware's `gcc`, `make`, and gettext packages.
+On Slackware 14.2, install CMake 3.20 or newer in addition to the compiler,
+ncurses and gettext development tools. The original distribution's older CMake
+may need upgrading. Make remains a supported backend; Ninja is optional.
 
-Then use the same autotools flow:
+Then use the same CMake flow:
 
 ```bash
-autoreconf -fi
-./configure
-make
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel 2
 ```
 
 ## Compiler Checks and Tests
 
-### Terminal modernization / 2.0.0-rc2
+### Terminal modernization / 2.0.0-rc3
 
-The release candidate identifies itself as `V2.0.0-rc2`. It uses the system
+The release candidate identifies itself as `V2.0.0-rc3`. It uses the system
 ncurses/libtinfo library and system gettext; the historical bundled gettext
 sources are no longer compiled or used as a fallback. Install gettext tools
-for catalog compilation, or configure with `--disable-nls`. Translation
+for catalog compilation, or configure with `-DTNT_NLS=OFF`. Translation
 catalogs are maintained as UTF-8 and checked for printf-format mismatches.
 
 Terminal profiles recognize `xterm*`, `rxvt*`, `screen*` and `tmux*`, including
@@ -225,26 +280,25 @@ history, saved boxlist-window ownership and editing of hidden input tails.
 Status separators are tested through 256 columns, including densely populated
 extended-monitor status lines clipped to the current width.
 
-Configure enables `-Wall`, `-Wextra`, `-Wstrict-prototypes` and
+CMake enables `-Wall`, `-Wextra`, `-Wstrict-prototypes` and
 `-Wold-style-definition` when supported. No legacy-warning suppressions or
 forced pre-C23 dialect are added.
 
 To treat these warnings as errors during compilation:
 
 ```bash
-make CFLAGS="$(sed -n 's/^CFLAGS = //p' Makefile) -Werror"
-make check
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DTNT_WARNINGS_AS_ERRORS=ON
+cmake --build build --parallel 2
+ctest --test-dir build --output-on-failure
 ```
 
 CI additionally enables `_FORTIFY_SOURCE=3` on all three architectures.
-To reproduce those checks locally, add `-D_FORTIFY_SOURCE=3` to the build's
-`CFLAGS` above (after running `make clean` if objects already exist).
+To reproduce those checks locally, add `-DCMAKE_C_FLAGS=-D_FORTIFY_SOURCE=3`
+when configuring the build.
 The QEMU-based `armhf` job sets `ASAN_OPTIONS=detect_leaks=0` because
 LeakSanitizer cannot inspect processes under userspace emulation. AddressSanitizer
 and UndefinedBehaviorSanitizer remain enabled; native jobs also check leaks.
 
-Run configure normally before this strict build: some historical Autoconf
-feature probes deliberately compile snippets that warn on current compilers.
 The tests compile extracted production functions with AddressSanitizer and
 UndefinedBehaviorSanitizer. They cover typed screen callbacks, character
 conversion, byte output, compression round trips, AX25UDP endpoint parsing,
@@ -253,39 +307,52 @@ interrupted and partial transfers, full output devices, premature EOF, cookie
 header/footer lengths, bounded log lines, empty/short sysop password rejection
 and help files without a final newline.
 They run offline and do not open a TNC or connect to a node.
+CTest also checks a staged installation, including repeated installation without
+overwriting active configuration or scrollback data. The standard and AX.25
+builds are checked with warnings as errors. Disabling gettext exposes additional
+pre-existing format-size warnings in legacy runtime code; the minimal CI build
+keeps warnings enabled but does not promote them to errors.
 
 Verified configurations: GCC 12 on Debian 12/ARM64, GCC 13 on Ubuntu 24.04
 (also a full 32-bit `gcc -m32` build), GCC 16 with its default
-C23 dialect on x86_64 (also with `--enable-ax25k2`), and Clang 23/C23 with
-`--disable-serial`. All were compiled with the enabled warnings as errors.
+C23 dialect on x86_64 (also with AX.25 kernel support), and Clang 23/C23 with
+serial disabled. All were compiled with the enabled warnings as errors.
 
 ## Build Artifacts
 
 After successful compilation, the following executables will be created:
 
-- `src/tnt` - Main TNT terminal application
-- `src/tntc` - TNT terminal client
-- `src/runprgs/help` - Help utility
-- `src/runprgs/info` - Information utility
+- `build/src/tnt` - Main TNT terminal application
+- `build/src/tntc` - TNT terminal client
+- `build/src/runprgs/tnt-help` - Help utility (installed as `help`)
+- `build/src/runprgs/logcall` - Log utility
+- `build/src/runprgs/tnt-info` - Information utility (`info` symlink)
+
+The help build artifact uses `tnt-help` to avoid Ninja's reserved `help` target;
+its installed name and runtime behavior are unchanged.
 
 ## Troubleshooting
 
 **Error: "too many arguments for function"**
-- Make sure all source files are from the same revision, then run
-  `autoreconf -fi` and `./configure` again.
+- Make sure all source files are from the same revision and configure a fresh
+  build directory.
 
 **Error: "implicit declaration of function"**
 - Make sure you have the required development libraries installed (ncurses, gettext)
 
-**Error: "install-sh not found"**
-- Run `autoreconf -i` to regenerate build scripts
+**Error: missing CMake or a required library**
+- Install CMake 3.20 or newer, ncurses development headers and gettext tools.
+- Use `-DTNT_NLS=OFF` only if translations are intentionally disabled.
 
 ## Clean Build
 
 To perform a clean rebuild:
 ```bash
-make distclean
-autoreconf -fi
-./configure
-make
+cmake -S . -B build-clean -DCMAKE_BUILD_TYPE=Release
+cmake --build build-clean --parallel 2
+ctest --test-dir build-clean --output-on-failure
 ```
+
+`cmake --build build --target package_source` creates a source tarball using
+CPack. Debian and RPM build scripts use CMake too; cross-builds set the CMake
+target system and compiler and do not run native shell tests on target binaries.

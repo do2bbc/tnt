@@ -789,6 +789,6 @@ ${CC:-cc} -g -O1 -funsigned-char -ffunction-sections -fdata-sections \
   -Wall -Wextra -Wstrict-prototypes -Wold-style-definition -Werror \
   -fsanitize=address,undefined -Wl,--gc-sections \
   -I"$build_dir" -I"$source_dir/src" "$tmp/resize.c" \
-  "$source_dir/src/terminal.c" "$source_dir/src/codconv.c" -ltinfo -lutil \
+  "$source_dir/src/terminal.c" "$source_dir/src/codconv.c" "${TNT_TERMCAP_LIBRARY:--ltinfo}" -lutil \
   -o "$tmp/resize"
 "$tmp/resize"

@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <time.h>
-#include "tntrun.h"
+#include <tntrun.h>
 
 #define TNT_NAMES  TNT_INIT_PATH "/names.tnt"
 #define TNT_ROUTES TNT_INIT_PATH "/routes.tnt"
