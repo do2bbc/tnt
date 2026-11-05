@@ -73,6 +73,10 @@ extern void exit_priv(void);
 extern void exit_proc(void);
 extern void exit_remote(void);
 extern void exit_screen(void);
+#ifndef DPBOXT
+extern void scrollback_tick(void);
+extern int scrollback_sync_pending(void);
+#endif
 extern int exit_serial(void);
 extern void exit_shell(void);
 extern void exit_tnt(int par1 , int par2 , int channel, int len , int mode, char *str);
@@ -522,6 +526,9 @@ int main(int argc, char *argv[])
 #endif
   
   while (act_state) {
+#ifndef DPBOXT
+    scrollback_tick();
+#endif
     if (resize_pending) {
       resize_pending = 0;
       resize_screen();
@@ -585,6 +592,9 @@ int main(int argc, char *argv[])
       else {
         timevalue.tv_usec = 0;
         timevalue.tv_sec = RESY_TIME;
+#ifndef DPBOXT
+        if (scrollback_sync_pending()) timevalue.tv_sec = 1;
+#endif
       }
       count = select(max_fd,&fdmask,
                     (fd_set *) 0,(fd_set *) 0,&timevalue);

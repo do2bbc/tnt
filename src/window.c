@@ -1244,6 +1244,7 @@ int open_window(int lines, struct window *win, int bot)
   win->insertflag = insertmode;
   win->holdflag = 0;
   win->view_column = 0;
+  win->line_complete = NULL;
   buffer_len = lines * 2 * MAXCOLS;
   win->window_buffer = (char *)malloc(buffer_len);
   if (win->window_buffer == NULL) return(1);
@@ -1411,6 +1412,7 @@ static void win_scrollup(int part)
 static void newline(struct window *win)
 {
   int old_view = win->view_column;
+  if (win->line_complete != NULL) win->line_complete(win);
   win->view_column = 0;
   /* new column is 0 */
   win->column = 0;

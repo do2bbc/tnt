@@ -175,6 +175,16 @@ The channel status separator uses `attc_cstatline` / `attm_cstatline` and the
 optional `palette_cstatline`. To match the channel overview, give these the
 same values as `attc_statline` / `attm_statline` / `palette_statline`.
 
+Command and channel scrollback is journaled as lines are completed, including
+submitted input, and restored after a TNT process crash. The monitor is never
+persisted. Journal writes go immediately to Linux; changed data is `fsync`ed
+approximately once per second, so power loss can still lose recent records.
+Snapshots and the bounded journal live in `tnt_work_dir` as `scrollback.dat`
+and `scrollback.journal`, with owner-only permissions. Existing snapshot-only
+files are migrated automatically. Normal/reduced buffer defaults are
+10,000/2,000 rows; explicit `lines_*` settings in existing configurations still
+take precedence. See the manual for checkpointing and recovery details.
+
 In local xterm-compatible terminals, left-click a channel entry in the lower
 overview to switch channels. Connected entries displaying a callsign are
 clickable too. Hit targets follow the displayed channel group and status-row

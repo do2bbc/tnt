@@ -37,6 +37,7 @@ struct window {
   int holdflag;         /* flag if windowposition shall be holden */
   int first_win_line;   /* first line of display-window */
   int view_column;      /* horizontal offset while editing a hidden tail */
+  void (*line_complete)(struct window *win);
 
 };
 

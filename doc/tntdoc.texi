@@ -3131,10 +3131,28 @@ Number of lines of the input part of the connect screen
 Number of lines of the output part of the connect screen
 (reduced backscroll buffer).
 
-The command, monitor, and connect-screen backscroll buffers are saved as
-@code{scrollback.dat} in @code{tnt_work_dir} when TNT exits normally and are
-restored on the next start. If a configured buffer size changes, TNT restores
-as many of the newest saved lines as fit.
+The command and connect-screen backscroll buffers are persistent; the monitor
+buffer stays in memory only. Completed received lines and submitted input
+lines are immediately appended to @code{scrollback.journal} in
+@code{tnt_work_dir}, without writing on every keystroke. Wrapped output lines
+are recorded too. A TNT process crash therefore does not discard completed
+lines already written to the operating system. Incomplete received lines and
+unsubmitted edits since the last snapshot are not guaranteed to survive.
+
+Changed journal data is synchronized to the storage device approximately
+once per second. A power failure or operating-system crash can still lose
+the latest unsynchronized records; this is not a per-line power-loss guarantee.
+Only changed data is synchronized, and the monitor generates no persistence
+writes. A full snapshot, @code{scrollback.dat}, is taken at startup, on normal
+exit, and when the journal reaches 32 MiB. Checkpoints use a durable atomic
+replacement and a sequence watermark so a crash during compaction cannot
+replay completed lines twice. Journal files have owner-only permissions.
+
+The previous snapshot-only format is imported automatically, ignoring its
+saved monitor data. If a configured buffer size changes, TNT restores as many
+of the newest saved lines as fit. An incomplete or damaged final journal
+record is reported and discarded; other corrupt data or disk errors are
+reported and disable persistence for that run without overwriting the files.
 
 @item 'scr_divide'
 Input/output-lines ratio on real screen (connect).

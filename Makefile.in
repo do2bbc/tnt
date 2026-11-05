@@ -528,9 +528,10 @@ EXTRA_DIST = ABOUT-NLS AUTHORS AX25-NOTES COPYING ChangeLog \
 		  tnt.spec BUILD.md tests/modern-c.sh tests/test-inp.sh tests/io.sh \
 		  tests/terminal.sh packaging/README.packages \
 		  packaging/build-deb.sh packaging/build-rpm.sh \
-		  packaging/test-package.py tests/priv.sh tests/connect.sh tests/updates.sh
+		  packaging/test-package.py tests/priv.sh tests/connect.sh tests/updates.sh \
+		  tests/scrollback.sh
 
-TESTS = tests/modern-c.sh tests/test-inp.sh tests/io.sh tests/terminal.sh tests/priv.sh tests/connect.sh tests/updates.sh
+TESTS = tests/modern-c.sh tests/test-inp.sh tests/io.sh tests/terminal.sh tests/priv.sh tests/connect.sh tests/updates.sh tests/scrollback.sh
 LOG_COMPILER = $(SHELL)
 TESTS_ENVIRONMENT = top_srcdir='$(abs_top_srcdir)' \
 		   top_builddir='$(abs_top_builddir)' CC='$(CC)'
@@ -881,6 +882,13 @@ tests/connect.sh.log: tests/connect.sh
 tests/updates.sh.log: tests/updates.sh
 	@p='tests/updates.sh'; \
 	b='tests/updates.sh'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+tests/scrollback.sh.log: tests/scrollback.sh
+	@p='tests/scrollback.sh'; \
+	b='tests/scrollback.sh'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
