@@ -31,6 +31,14 @@ amount_wait 20
 # number of channels of TNC
 tnc_channels 10
 
+# Optional second Unix hostmode backend. tnc_channels remains the number
+# on the first backend; these channels are appended (e.g. 11-20).
+# Both backends need their own TNC/TNN; this is not a raw AXUDP endpoint.
+#backend2_device /run/tnn-ham/tnn-socket
+#backend2_channels 10
+#backend1_name CB
+#backend2_name HAM
+
 # first channel with reduced backscroll buffer
 r_channels 4
 

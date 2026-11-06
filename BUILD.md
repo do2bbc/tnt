@@ -55,6 +55,7 @@ The same applies to the immediate lower channel overview refresh after received
 - Ninja (recommended) or Make
 - ncurses development library
 - GNU gettext
+- Python 3 for the full native regression suite (`BUILD_TESTING=ON`)
 - dialog, for the interactive `tnt_setup` configuration scripts
 
 ### Build Steps
@@ -142,7 +143,7 @@ Active configuration and runtime history are not installed files and remain.
 On Raspberry Pi OS, install the standard build dependencies:
 
 ```bash
-sudo apt install build-essential cmake ninja-build libncurses-dev gettext dialog
+sudo apt install build-essential cmake ninja-build libncurses-dev gettext dialog python3
 ```
 
 Then build normally:
@@ -155,7 +156,53 @@ ctest --test-dir build --output-on-failure
 
 The GitHub Actions workflow builds on `amd64`, native `arm64` Ubuntu runners, and 32-bit `armhf` Debian under QEMU. That covers 64-bit Raspberry Pi OS on Raspberry Pi 3, 4 and 5, plus the 32-bit Raspberry Pi OS userland. For AX.25 kernel support on Raspberry Pi OS, install the distribution's AX.25 development package and configure with `-DTNT_AX25K2=ON`.
 
-For AX25UDP soft-TNC mode, configure TNT with `soft_tnc 3` and set `device` to `host:port` or `localport@host:port`, for example `10093@44.148.230.93:93`.
+UDP soft-TNC mode (`soft_tnc 3`) transports hostmode commands, not raw AXUDP
+frames. Its `device` syntax is `host:port` or `localport@host:port`, and the peer
+must understand that hostmode transport. For a raw AXUDP node, configure the
+UDP route in a TNN backend and connect TNT to its hostmode socket instead.
+
+### Two isolated hostmode backends in one terminal
+
+With serial support enabled, two Unix-domain TNC/TNN hostmode sockets can be
+combined without forwarding packet frames between the backends:
+
+```
+soft_tnc 1
+device /path/to/first/tnn-socket
+tnc_channels 10
+backend2_device /path/to/second/tnn-socket
+backend2_channels 10
+backend1_name CB
+backend2_name HAM
+```
+
+Channels 1-10 belong to the first backend; channels 11-20 map to channels 1-10
+of the second. Set the correct own callsign and network routes independently
+in each backend before starting TNT. A second backend is a hostmode endpoint,
+not a raw AXUDP destination. Separate TNN instances are needed when one is a
+CB build and the other is an amateur-radio build. Never share their routing
+tables or working directories.
+
+The upper channel status line identifies the backend. `BACKEND 1` or
+`BACKEND 2` selects the shared monitor and unproto target; `MONITOR` commands
+follow that selection. Monitor headers are tagged with their source backend.
+Connected-channel commands and text always follow their channel assignment,
+regardless of the monitor selection. `BACKEND` without arguments shows both
+channel ranges. Configure monitor reception on each backend as needed; the
+shared monitor polls only the selected backend, not both simultaneously.
+
+Hostmode transactions are serialized and use ordinary channel polling instead
+of the single-backend extended poll. Buffer accounting and duplicate-connection
+checks remain backend-specific. Legacy automatic channel allocation for
+mailbox/interfaces/sockets stays on the first backend. There is no automatic
+CB/HAM bridge or automatic connection to the configured remote node.
+If either active backend disconnects or times out, TNT reports the failure and
+closes rather than rerouting queued traffic to the other network; the backend
+services remain running. Restart TNT after restoring both sockets.
+
+The second backend is opt-in. Existing single-backend configurations and
+extended polling retain their previous behavior. Regression tests also require
+Python 3 and exercise a real TNT process against two isolated mock backends.
 
 ### Slackware 14.2 builds
 
@@ -230,10 +277,12 @@ The channel status separator uses `attc_cstatline` / `attm_cstatline` and the
 optional `palette_cstatline`. To match the channel overview, give these the
 same values as `attc_statline` / `attm_statline` / `palette_statline`.
 
-Command and channel scrollback is journaled as lines are completed, including
-submitted input, and restored after a TNT process crash. The monitor is never
-persisted. Journal writes go immediately to Linux; changed data is `fsync`ed
-approximately once per second, so power loss can still lose recent records.
+Channel scrollback is journaled as lines are completed, including submitted
+input, and restored after a TNT process crash. The command and monitor windows
+are never persisted, so each command window starts with only the current
+version banner. Journal writes go immediately to Linux; changed data is
+`fsync`ed approximately once per second, so power loss can still lose recent
+records.
 Snapshots and the bounded journal live in `tnt_work_dir` as `scrollback.dat`
 and `scrollback.journal`, with owner-only permissions. Existing snapshot-only
 files are migrated automatically. Normal/reduced buffer defaults are

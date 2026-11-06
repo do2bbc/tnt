@@ -14,19 +14,20 @@ Requirements:
   - Make, or optionally Ninja
   - ncurses development headers and libraries
   - system gettext tools for translations
+  - Python 3 for the full native regression suite
   - dialog for the optional interactive setup scripts
 
 Debian, Ubuntu and Raspberry Pi OS:
 
-    sudo apt install build-essential cmake ninja-build libncurses-dev gettext dialog
+    sudo apt install build-essential cmake ninja-build libncurses-dev gettext dialog python3
 
 Fedora:
 
-    sudo dnf install gcc cmake ninja-build ncurses-devel gettext dialog
+    sudo dnf install gcc cmake ninja-build ncurses-devel gettext dialog python3
 
 Arch Linux:
 
-    sudo pacman -S base-devel cmake ninja ncurses gettext dialog
+    sudo pacman -S base-devel cmake ninja ncurses gettext dialog python
 
 Configure, compile and test:
 

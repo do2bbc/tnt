@@ -14,6 +14,7 @@
 #include "tnt.h"
 #include "terminal.h"
 #include "keys.h"
+#include "backend.h"
 #include "boxlist.h"
 #ifndef DPBOXT
 #include "xmon.h"
@@ -494,6 +495,7 @@ static struct com_list gen_com_list[] = {
   {"VALCALL" ,3,0,NULL,"@V" ,0,0},
   {"@V"      ,4,0,NULL,"@V" ,0,0},
   {"CHANNEL" ,4,2,NULL,"" ,0,0},
+  {"BACKEND" ,4,1,cmd_backend,"",0,0},
   {"S"       ,1,2,NULL,"" ,0,0},
   {"TNC"     ,3,1,cmd_tnc,"",0,0},
   {"LOGQSO"  ,4,1,open_logfile,"",RX_NORM,RX_RCV | RX_SND},
@@ -2006,6 +2008,8 @@ static void cmd_mycall(int par1 __attribute__((unused)), int par2 __attribute__(
       /* set mycall in all channels if channel is 0 */
       if (channel == 0) {
         for (j=1;j<tnc_channels;j++) {
+          if (backend_enabled() && backend_channel_index(j) != backend_monitor)
+            continue;
           strcpy(ch_stat[j].mycall,ch_stat[channel].mycall);
           if (ax25k_active) {
             strcpy(tnc_string,"I");
@@ -2022,6 +2026,11 @@ static void cmd_mycall(int par1 __attribute__((unused)), int par2 __attribute__(
     }
   }
   else {
+    if (backend_enabled() && channel == 0) {
+      tnc_command = 1;
+      queue_cmd_data(0, X_COMM, 1, mode, "I");
+      return;
+    }
     if (ch_stat[channel].mycall[0] == '\0') 
       cmd_display(mode,channel, _("<empty>"),1);
     else

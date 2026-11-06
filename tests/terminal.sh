@@ -12,6 +12,7 @@ cat > "$tmp/test.c" <<'EOF'
 #include "terminal.h"
 #include "terminal.h"
 #include "xmon.h"
+#include "backend.h"
 #include <assert.h>
 #include <locale.h>
 
@@ -447,6 +448,7 @@ ${CC:-cc} -g -O1 -funsigned-char -Wall -Wextra -Wstrict-prototypes \
 cat > "$tmp/resize.c" <<'EOF'
 #define terminal_write capture_terminal_write
 #include "window.c"
+#include "backend.h"
 #undef terminal_write
 #include <assert.h>
 #include <pty.h>
@@ -706,6 +708,16 @@ static void check_status_widths(void)
     assert(get_line_noconv(line, &xmonstatwin[0]) == COLS + 1);
     assert(memcmp(line + 20, "DBW400-15->DNO484-15", 19) == 0);
   }
+  backend2_channels = 10;
+  backend_primary_channels = 1;
+  stat_display_alt(1);
+  assert(get_line_noconv(line, &statwin[1]) == COLS + 1);
+  assert(memcmp(line, "CB ", 3) == 0);
+  backend_primary_channels = 0;
+  stat_display_alt(1);
+  assert(get_line_noconv(line, &statwin[1]) == COLS + 1);
+  assert(memcmp(line, "HAM", 3) == 0);
+  backend2_channels = 0;
   assert(close_window(&statwin[0]) == 0);
   assert(close_window(&statwin[1]) == 0);
   assert(close_window(&xmonstatwin[0]) == 0);
@@ -789,6 +801,6 @@ ${CC:-cc} -g -O1 -funsigned-char -ffunction-sections -fdata-sections \
   -Wall -Wextra -Wstrict-prototypes -Wold-style-definition -Werror \
   -fsanitize=address,undefined -Wl,--gc-sections \
   -I"$build_dir" -I"$source_dir/src" "$tmp/resize.c" \
-  "$source_dir/src/terminal.c" "$source_dir/src/codconv.c" "${TNT_TERMCAP_LIBRARY:--ltinfo}" -lutil \
+  "$source_dir/src/terminal.c" "$source_dir/src/codconv.c" "$source_dir/src/backend.c" "${TNT_TERMCAP_LIBRARY:--ltinfo}" -lutil \
   -o "$tmp/resize"
 "$tmp/resize"

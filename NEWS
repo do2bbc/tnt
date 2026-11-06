@@ -1,9 +1,10 @@
 2026/11/05: TNT V2.0.0-rc3 release candidate.
             Increase default scrollback to 10000 rows per ordinary buffer
             and 2000 rows per reduced buffer; retain explicit configuration.
-            Restore non-monitor scrollback across restarts and crashes using
-            an incremental completed-line journal with periodic durable
-            writes and bounded compaction. Keep monitor history memory-only.
+            Restore channel input/output scrollback across restarts and crashes
+            using an incremental completed-line journal with periodic durable
+            writes and bounded compaction. Keep command and monitor history
+            memory-only so startup banners are not duplicated.
             Add crash recovery, migration and journal corruption regressions.
             Replace Autotools with CMake 3.20+, Ninja/Make and CTest.
             Preserve installation paths, active configuration and history;

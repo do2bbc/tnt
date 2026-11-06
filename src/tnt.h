@@ -354,6 +354,7 @@ struct channel_stat {
 
 struct block_buffer_ptr {
   int channel;
+  int backend;
   char code;
   int len;
   int flag;

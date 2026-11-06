@@ -13,6 +13,7 @@
 */
 
 #include "tnt.h"
+#include "backend.h"
 #include "terminal.h"
 #include "ax25k.h"
 
@@ -195,7 +196,7 @@ char signon[] =
 "Thanks to many people for testing, suggestions and ideas\015"
 "forked by: Boris Bruns (DO2BBC)\015"
 "Find new versions at https://github.com/do2bbc/tnt\015"
-"Send bugreports to mailto:do2bbc@darc.de\015\015"
+"Report bugs at https://github.com/do2bbc/tnt/issues\015\015"
 
 #ifdef TNT_SOLARIS
 "SOLARIS version port by mayer hans OE1SMC 9/1998-2/2000 \015"
@@ -367,6 +368,7 @@ int main(int argc, char *argv[])
   if (alloc_all())
     exit(1);
 
+  signal(SIGPIPE, SIG_IGN);
   if (ax25k_active) {
 #ifdef USE_AX25K
     init_xconnect();
@@ -394,7 +396,6 @@ int main(int argc, char *argv[])
       exit(1);
     }
 #endif
-    signal(SIGPIPE, SIG_IGN);
     signal(SIGHUP, sighup);
     signal(SIGTSTP, SIG_IGN);
     signal(SIGTTIN, SIG_IGN);
@@ -456,7 +457,6 @@ int main(int argc, char *argv[])
       exit(1);
     }
     setsid();
-    signal(SIGPIPE, SIG_IGN);
     signal(SIGHUP, sighup);
     signal(SIGTSTP, SIG_IGN);
     signal(SIGTTIN, SIG_IGN);
@@ -678,6 +678,7 @@ int main(int argc, char *argv[])
           }
           else {
             if ((soft_tnc) && (len == 0)) {
+              fprintf(stderr, "TNT: hostmode backend disconnected\n");
               act_state = S_END;
               softtnc_error = 1;
             }
@@ -732,6 +733,7 @@ int main(int argc, char *argv[])
         }
         else {
           if ((soft_tnc) && (len == 0)) {
+            fprintf(stderr, "TNT: hostmode backend disconnected\n");
             act_state = S_END;
             softtnc_error = 1;
           }
@@ -891,5 +893,5 @@ int main(int argc, char *argv[])
   }
 #endif
   free_all();
-  exit(0);
+  exit(backend_enabled() && softtnc_error ? 1 : 0);
 }

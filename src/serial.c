@@ -15,6 +15,7 @@
 #include "tnt.h"
 #include "ax25k.h"
 #include "macro.h"
+#include "backend.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -273,6 +274,9 @@ static int req_flag_save;
 static int busy_count;
 static int len_save;
 static int ok_display;
+static int zero_backend_override = -1;
+static int txbackend_save;
+static int buffer_poll_backend;
 static struct termios org_termios;
 static struct termios wrk_termios;
 static char xhost_list[259];
@@ -289,9 +293,9 @@ static char hostmode_exit[] = "\0\001\006JHOST 0";
 static char resync_string[] = "\001\002INVALID COMMAND: ";
 
 /* strings for broadcast push/pop functions */
-static char pushed_pid[256];
-static char pushed_monstat[256];
-static char pushed_unproto[256];
+static char pushed_pid[2][256];
+static char pushed_monstat[2][256];
+static char pushed_unproto[2][256];
 
 #ifdef HOSTDEBUG
 void debug_copy_rx(char *buffer, int len)
@@ -357,6 +361,8 @@ int find_free_channel(void)
   int i;
   
   for (i=1;i<tnc_channels;i++) {
+    if (backend_enabled() && i > backend_primary_channels)
+      break;
     if ((ch_stat[i].auto_xconnect) &&
         (ch_stat[i].conn_state == CS_DISCON) &&
         (!xconnect_active(i))) {
@@ -395,7 +401,8 @@ static int check_double_conn(int channel, char *srccall, char *destcall)
   char cmpcall[10];
 
   for (i=1;i<tnc_channels;i++) {
-    if ((i != channel) && (ch_stat[i].conn_state != CS_DISCON)) {
+    if ((i != channel) && (ch_stat[i].conn_state != CS_DISCON) &&
+        (!backend_enabled() || backend_channel_index(i) == backend_channel_index(channel))) {
       strip_call(cmpcall,i);
       if ((strcmp(destcall,cmpcall) == 0) &&
           (strcmp(srccall,ch_stat[i].curcall) == 0)) {
@@ -895,6 +902,11 @@ int init_serial(char *serstr, unsigned int speed, int speedflag __attribute__((u
   free_buffers = -1;
   sent_bytes = 0;
   softtnc_error = 0;
+  if (backend_attach(serial)) {
+    close(serial);
+    unlink(tnt_lockfile);
+    return 1;
+  }
   return(0);
 }
 
@@ -906,6 +918,10 @@ int exit_serial(void)
   int len;
   struct block_buffer_ptr *old_block_buffer;
 
+  if (backend_enabled()) {
+    serial = backend_primary_fd();
+    backend_close();
+  }
   while (block_buffer_root != NULL) {
     old_block_buffer = block_buffer_root;
     block_buffer_root = old_block_buffer->next;
@@ -993,6 +1009,14 @@ void resync_tnc(int *state)
   int disc_channel;
   int res;
 
+  if (backend_enabled()) {
+    fprintf(stderr, "TNT: backend %s stopped responding; closing the frontend "
+            "without switching traffic to another backend\n",
+            backend_names[backend_current()]);
+    softtnc_error = 1;
+    *state = S_END;
+    return;
+  }
   if (soft_tnc && softtnc_error) {
     act_state = S_END;
     return;
@@ -1351,7 +1375,12 @@ static void send_block(int channel,char code,int len,char *data)
 #ifdef HOSTDEBUG
   debug_copy_tx(txbuffer,len + 3);
 #endif
-  res = serial_write_data(txbuffer,len + 3);
+  if (backend_enabled())
+    res = backend_send(txbuffer, len + 3,
+                       zero_backend_override >= 0 ? zero_backend_override : backend_current(),
+                       &serial);
+  else
+    res = serial_write_data(txbuffer,len + 3);
 #ifdef DEBUGIO
   wrdebugio ( "w ", txbuffer, len+3 ) ;
 #endif 
@@ -1396,6 +1425,7 @@ static int block_receiver(char *rxbuffer, int len, char *buffer)
   int block_ok;
   int i;
   int error;
+  int incoming_channel;
   FILE *fp;
   struct tm *cvtime;
   time_t c_time;
@@ -1410,18 +1440,22 @@ static int block_receiver(char *rxbuffer, int len, char *buffer)
   while ((!block_ok) && (i < len) && (!error)) {
     switch (rcv_stat) {
     case R_CHANNEL:
-      if ((buffer[i] >= tnc_channels) && (buffer[i] != 255)) {
+      incoming_channel = (unsigned char)buffer[i];
+      if (backend_enabled())
+        incoming_channel = backend_receive_channel(incoming_channel);
+      if (incoming_channel < 0 ||
+          ((incoming_channel >= tnc_channels) && (incoming_channel != 255))) {
         error = 1;
         rcv_stat = R_CHANNEL;
       }
       else {
         /* channel 255 only on response to XHOST-request */
-        if ((buffer[i] == 255) && (req_info != RQ_XHOST)) {
+        if ((incoming_channel == 255) && (req_info != RQ_XHOST)) {
           error = 1;
           rcv_stat = R_CHANNEL;
         }
         else {
-          rxbuffer[0] = buffer[i];
+          rxbuffer[0] = incoming_channel;
           rcv_stat = R_CODE;
           i++;
         }
@@ -1924,6 +1958,8 @@ static int block_decoder(char *rxbuffer, int *state)
           staterr.free_buffers++;
         }
       }
+      if (backend_enabled())
+        backend_set_buffers(free_buffers);
       break;
 #ifdef BCAST
     case RQ_BCBUFFERS:
@@ -1937,13 +1973,13 @@ static int block_decoder(char *rxbuffer, int *state)
       break;
 #endif
     case RQ_PID:
-      strcpy(pushed_pid,rxbuffer+2);
+      strcpy(pushed_pid[backend_current()],rxbuffer+2);
       break;
     case RQ_MONSTAT:
-      strcpy(pushed_monstat,rxbuffer+2);
+      strcpy(pushed_monstat[backend_current()],rxbuffer+2);
       break;
     case RQ_UNPROTO:
-      strcpy(pushed_unproto,rxbuffer+2);
+      strcpy(pushed_unproto[backend_current()],rxbuffer+2);
       break;
     case RQ_XHOST:
       if (*state == S_TSTXHOST) {
@@ -2046,6 +2082,7 @@ static int block_decoder(char *rxbuffer, int *state)
       busy_count = WAIT_BUSY; /* nbr of times before sending resumed */
       req_info_save = req_info;
       req_flag_save = req_flag;
+      txbackend_save = backend_current();
       len_save = (int)(txbuffer[2] + 1); /* get length of packet */
       memcpy(txbuffer_save,txbuffer,len_save + 3); /* save packet */
       statlin_update();
@@ -2096,13 +2133,13 @@ static int block_decoder(char *rxbuffer, int *state)
       next_command(state);
       break;
     case RQ_PID:
-      strcpy(pushed_pid,"240");
+      strcpy(pushed_pid[backend_current()],"240");
       break;
     case RQ_MONSTAT:
-      strcpy(pushed_monstat,"UISC");
+      strcpy(pushed_monstat[backend_current()],"UISC");
       break;
     case RQ_UNPROTO:
-      strcpy(pushed_unproto,"CQ");
+      strcpy(pushed_unproto[backend_current()],"CQ");
       break;
     default:
       cmd_display(req_flag,channel,rxbuffer+2,1);
@@ -2180,10 +2217,14 @@ int queue_cmd_data(int channel,char code,int len,int flag,char *data)
   char huffbuffer[PACKETSIZE];
   struct block_buffer_ptr *head;
   char *buffer;
-  
+
+  if (backend_enabled() && code == X_COMM && len > 0 && data[0] == 'M')
+    channel = 0;
   if ((code == X_DATA) && (channel != 0)) {
     ch_stat[channel].snd_queue_frms++;
-    if (free_buffers != -1)
+    if (backend_enabled())
+      backend_reserve_buffers(channel, len / 32 + 1);
+    else if (free_buffers != -1)
       free_buffers -= (len / 32 + 1);
     stat_display(channel);
   }
@@ -2210,6 +2251,7 @@ int queue_cmd_data(int channel,char code,int len,int flag,char *data)
   }
 
   head->channel = channel;
+  head->backend = backend_monitor;
   head->code = code;
   head->len = newlen;
   head->flag = flag;
@@ -2290,7 +2332,7 @@ static int send_cmd_data(void)
         }
         if ((channel == 0) && (len == 5) && (flag == M_PUSHPOP)) {
           if (strncmp((*buffer_root)->data,"Cpush",5) == 0) {
-            snprintf(new_buffer, sizeof(new_buffer), "C%s", pushed_unproto);
+            snprintf(new_buffer, sizeof(new_buffer), "C%s", pushed_unproto[(*buffer_root)->backend]);
             new_buffer_len = strlen(new_buffer);
           }
         }
@@ -2344,7 +2386,7 @@ static int send_cmd_data(void)
         if ((channel == 0) && (len == 1) && (flag == M_PUSHPOP))
           req_info = RQ_MONSTAT;
         else if ((channel == 0) && (len == 5) && (flag == M_PUSHPOP)) {
-          snprintf(new_buffer, sizeof(new_buffer), "M%.255s", pushed_monstat);
+          snprintf(new_buffer, sizeof(new_buffer), "M%.255s", pushed_monstat[(*buffer_root)->backend]);
           new_buffer_len = strlen(new_buffer);
         }
         break;
@@ -2361,7 +2403,7 @@ static int send_cmd_data(void)
         else if (len == 6) {
           if (((*buffer_root)->data[1] == 'B') &&
               (channel == 0) && (flag == M_PUSHPOP)) {
-            snprintf(new_buffer, sizeof(new_buffer), "@B%.254s", pushed_monstat);
+            snprintf(new_buffer, sizeof(new_buffer), "@B%.254s", pushed_monstat[(*buffer_root)->backend]);
             new_buffer_len = strlen(new_buffer);
           }
 #endif
@@ -2371,10 +2413,12 @@ static int send_cmd_data(void)
     }
     if (code == X_COMM) req_flag = flag;
     else req_flag = M_COMMAND;
+    zero_backend_override = (*buffer_root)->backend;
     if (new_buffer_len)
       send_block(channel,code,new_buffer_len,new_buffer);
     else
       send_block(channel,code,len,(*buffer_root)->data);
+    zero_backend_override = -1;
     (*buffer_len)--;
     old_block_buffer = *buffer_root;
     *buffer_root = old_block_buffer->next;
@@ -2416,6 +2460,16 @@ static void poll_tnc(int *state)
   if (buffers_req) { /* free buffers were requested */
     buffers_req = 0;
     if (*state == S_STAT) { /* xhost-test after startup */
+      if (backend_enabled()) {
+        *state = S_TNT_UP;
+        open_upfile(state);
+        poll_channel = 0;
+        zero_backend_override = backend_monitor;
+        send_block(0, X_COMM, 1, "L");
+        zero_backend_override = -1;
+        req_info = RQ_CHSTAT;
+        return;
+      }
       *state = S_TSTXHOST;
       send_block(255,X_COMM,1,"G");
       req_info = RQ_XHOST;
@@ -2432,7 +2486,10 @@ static void poll_tnc(int *state)
     else { /* ordinary poll */
       poll_channel = 0;
       poll_cycle = 0;
+      if (backend_enabled())
+        zero_backend_override = backend_monitor;
       send_block(poll_channel,X_COMM,1,"L");
+      zero_backend_override = -1;
       req_info = RQ_CHSTAT;
     }
   }
@@ -2484,7 +2541,12 @@ static void poll_tnc(int *state)
   else { /* ordinary poll, next channel */
     poll_channel++;
     if (poll_channel >= tnc_channels) { /* all channels polled */
+      if (backend_enabled()) {
+        zero_backend_override = buffer_poll_backend;
+        buffer_poll_backend = !buffer_poll_backend;
+      }
       send_block(0,X_COMM,2,"@B");
+      zero_backend_override = -1;
       req_info = RQ_BUFFERS;
       buffers_req = 1;
     }
@@ -2495,24 +2557,28 @@ static void poll_tnc(int *state)
   }
 }
 
-int calc_maxframes(int channel __attribute__((unused)))
+int calc_maxframes(int channel)
 {
   int max_frames;
   int conn_channels;
   int i;
+  int available;
   
   if (ax25k_active) {
     return(MAX_FRAMES-1);
   }
   conn_channels = 0;
   for (i=1;i<tnc_channels;i++) {
-    if (ch_stat[i].conn_state != CS_DISCON) conn_channels++;
+    if (ch_stat[i].conn_state != CS_DISCON &&
+        (!backend_enabled() || backend_channel_index(i) == backend_channel_index(channel)))
+      conn_channels++;
   }
   if (conn_channels == 0) conn_channels = 1;
   max_frames = MAX_FRAMES - 1;
-  if (free_buffers != -1) {
-    if (free_buffers < MINBUFFERS) return(0);
-    max_frames = ((free_buffers - ABSMINBUFFERS) / conn_channels) / 8;
+  available = backend_buffer_count(channel, free_buffers);
+  if (available != -1) {
+    if (available < MINBUFFERS) return(0);
+    max_frames = ((available - ABSMINBUFFERS) / conn_channels) / 8;
     if (max_frames > MAX_FRAMES - 1)
       max_frames = MAX_FRAMES -1;
   }
@@ -2588,7 +2654,10 @@ int serial_server(int *state, char *buffer, int len)
 #ifdef HOSTDEBUG
               debug_copy_tx(txbuffer_save,len_save + 3);
 #endif
-              res = serial_write_data(txbuffer_save,len_save + 3);
+              if (backend_enabled())
+                res = backend_send(txbuffer_save, len_save + 3, txbackend_save, &serial);
+              else
+                res = serial_write_data(txbuffer_save,len_save + 3);
 #ifdef DEBUGIO
   	      wrdebugio ( "w ", txbuffer_save,len_save + 3 ) ; 
 #endif
@@ -2629,5 +2698,32 @@ int alloc_serial(void)
   ch_stat = (struct channel_stat *)
     malloc(tnc_channels * sizeof(struct channel_stat));
   return(ch_stat == NULL);
+}
+
+void cmd_backend(int par1 __attribute__((unused)), int par2 __attribute__((unused)),
+                 int channel, int len, int mode, char *str)
+{
+  int selected;
+  char tail;
+  char text[160];
+
+  if (!backend_enabled()) {
+    cmd_display(mode, channel, _("Only one backend is configured"), 1);
+    return;
+  }
+  if (len) {
+    if (sscanf(str, "%d%c", &selected, &tail) != 1 || selected < 1 || selected > 2) {
+      cmd_display(mode, channel, _("Usage: BACKEND 1|2 (monitor and unproto target)"), 1);
+      return;
+    }
+    backend_monitor = selected - 1;
+    ch_stat[0].pause_flag = 0;
+  }
+  snprintf(text, sizeof(text), "1=%s channels 1-%d; 2=%s channels %d-%d; monitor/unproto=%s",
+           backend_names[0], backend_primary_channels, backend_names[1],
+           backend_primary_channels + 1, tnc_channels - 1, backend_names[backend_monitor]);
+  cmd_display(mode, channel, text, 1);
+  stat_display(0);
+  statlin_update();
 }
 #endif

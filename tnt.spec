@@ -11,6 +11,7 @@ BuildRequires:  cmake >= 3.20
 BuildRequires:  ninja
 BuildRequires:  gettext-tools
 BuildRequires:  ncurses-devel
+BuildRequires:  python3
 Recommends:     dialog
 ExclusiveArch:  x86_64
 

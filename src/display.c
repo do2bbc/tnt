@@ -11,6 +11,7 @@
 */
 
 #include "tnt.h"
+#include "backend.h"
 #ifndef DPBOXT
 #include "xmon.h"
 #endif
@@ -275,7 +276,6 @@ static struct window *scrollback_window(unsigned long kind,
 {
   switch (kind) {
   case SCROLLBACK_COMMAND:
-    if (channel == 0) return(&cmdwin);
     break;
   case SCROLLBACK_MONITOR:
     break;
@@ -431,7 +431,7 @@ static int save_scrollback(void)
 {
   char path[MAXCHAR * 2];
   char tmp_path[MAXCHAR * 2];
-  unsigned long records = 1 + 2 * (unsigned long)tnc_channels;
+  unsigned long records = 2 * (unsigned long)tnc_channels;
   int i;
   int ok;
   FILE *fp;
@@ -462,7 +462,6 @@ static int save_scrollback(void)
        sizeof(scrollback_magic);
   if (ok) ok = scrollback_write_uint(fp,records);
   if (ok) ok = scrollback_write_uint(fp,scrollback_sequence);
-  if (ok) ok = scrollback_write_window(fp,SCROLLBACK_COMMAND,0,&cmdwin);
   for (i = 0; ok && (i < tnc_channels); i++)
     ok = scrollback_write_window(fp,SCROLLBACK_INPUT,(unsigned long)i,
                                  &prewin[i]);
@@ -644,21 +643,20 @@ static int scrollback_checkpoint(void)
 static void scrollback_complete_line(struct window *win)
 {
   unsigned char record[SCROLLBACK_RECORD_SIZE];
-  unsigned long kind = SCROLLBACK_COMMAND;
+  unsigned long kind = SCROLLBACK_INPUT;
   unsigned long channel = 0;
   int i;
 
   if (scrollback_fd < 0 || scrollback_failed) return;
-  if (win != &cmdwin) {
-    for (i = 0; i < tnc_channels; i++) {
-      if (win == &prewin[i] || win == &textwin[i]) {
-        kind = win == &prewin[i] ? SCROLLBACK_INPUT : SCROLLBACK_OUTPUT;
-        channel = (unsigned long)i;
-        break;
-      }
+  if (win == &cmdwin) return;
+  for (i = 0; i < tnc_channels; i++) {
+    if (win == &prewin[i] || win == &textwin[i]) {
+      kind = win == &prewin[i] ? SCROLLBACK_INPUT : SCROLLBACK_OUTPUT;
+      channel = (unsigned long)i;
+      break;
     }
-    if (i == tnc_channels) return;
   }
+  if (i == tnc_channels) return;
   if (scrollback_sequence == 0xffffffffUL) {
     fprintf(stderr,_("ERROR: scrollback journal sequence exhausted\n"));
     scrollback_disable();
@@ -754,7 +752,6 @@ static void init_scrollback(void)
     scrollback_disable();
     return;
   }
-  cmdwin.line_complete = scrollback_complete_line;
   for (i = 0; i < tnc_channels; i++) {
     prewin[i].line_complete = scrollback_complete_line;
     textwin[i].line_complete = scrollback_complete_line;
@@ -1184,8 +1181,14 @@ void stat_display_org(int channel)
     memset(stat_str + 3, '*', COLS - 2);
     stat_str[COLS+1] = '\0';
     memcpy(&stat_str[(COLS/2 - 9) + 1]," UNPROTO CHANNEL ",17);
+    if (backend_enabled())
+      memcpy(stat_str + 3, backend_channel_name(0), strlen(backend_channel_name(0)));
   }
   else {
+    if (backend_enabled()) {
+      append_limited(stat_str, COLS + 2, backend_channel_name(channel), 3);
+      append_char(stat_str, COLS + 2, ' ');
+    }
     strcat(stat_str,ax_state[ch_stat[channel].state & 0x0f]);
     strcat(stat_str,"**");
     if (ch_stat[channel].snd_frms) {
@@ -1236,9 +1239,9 @@ void stat_display_org(int channel)
     strcat(stat_str,"** ");
 
     if (ch_stat[channel].disp_call[0] == '\0')
-      append_limited(stat_str, COLS + 2, ch_stat[channel].call, 40);
+      append_limited(stat_str, COLS + 2, ch_stat[channel].call, backend_enabled() ? 36 : 40);
     else
-      append_limited(stat_str, COLS + 2, ch_stat[channel].disp_call, 40);
+      append_limited(stat_str, COLS + 2, ch_stat[channel].disp_call, backend_enabled() ? 36 : 40);
     if ((stat_len = strlen(stat_str)) < (COLS + 1)) {
       stat_str[stat_len++] = ' ';
       memset(stat_str + stat_len, '*', COLS + 1 - stat_len);
@@ -1264,10 +1267,18 @@ void stat_display_alt(int channel)
     memset(stat_str + 1, '*', COLS);
     stat_str[COLS+1] = '\0';
     memcpy(&stat_str[(COLS/2 - 9) + 1]," UNPROTO CHANNEL ",17);
+    if (backend_enabled())
+      memcpy(stat_str + 3, backend_channel_name(0), strlen(backend_channel_name(0)));
   }
   else
    {
-    strcat(stat_str,"Ch:");            /* CH:*/
+    if (backend_enabled()) {
+      const char *name = backend_channel_name(channel);
+      append_limited(stat_str, COLS + 2, name, 3);
+      append_spaces(stat_str, COLS + 2, 3 - (int)strlen(name));
+    }
+    else
+      strcat(stat_str,"Ch:");            /* CH:*/
                                        /* ChannelNr einblenden */    
     tmp = channel/10+'0';              /* HighByte */
     append_char(stat_str, COLS + 2, tmp);
@@ -1734,6 +1745,7 @@ static int monitor_is_iframe(const char *header)
 void moni_display(int channel __attribute__((unused)), char *buffer)
 {
   int port;
+  char tagged[300];
   
   layer3_frame = 0;
   layer3_inp = monitor_is_iframe(buffer);
@@ -1742,7 +1754,12 @@ void moni_display(int channel __attribute__((unused)), char *buffer)
   }
   xmon_ch = analyse_mon_header(buffer);
   port = get_port(buffer);
-  moni_display2(buffer, port + 1);
+  if (backend_enabled()) {
+    snprintf(tagged, sizeof(tagged), "[%s] %s", backend_names[backend_current()], buffer);
+    moni_display2(tagged, port + 1);
+  }
+  else
+    moni_display2(buffer, port + 1);
 }
 
 

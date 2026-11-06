@@ -12,6 +12,7 @@
 */
 
 #include "tnt.h"
+#include "backend.h"
 #include "terminal.h"
 #include "init.h"
 
@@ -262,6 +263,23 @@ static int analyse_value(char *str1, char *str2)
     if (sscanf(str2,"%d",&tmp) != 1) return(1);
     soft_tnc = tmp;
     return(0);
+  }
+  else if (strcmp(str1,"backend2_device") == 0) {
+    if (strlen(str2) >= sizeof(backend2_device)) return 1;
+    strcpy(backend2_device, str2);
+    return 0;
+  }
+  else if (strcmp(str1,"backend2_channels") == 0) {
+    char tail;
+    if (sscanf(str2, "%d%c", &tmp, &tail) != 1 || tmp < 1 || tmp > 254) return 1;
+    backend2_channels = tmp;
+    return 0;
+  }
+  else if (strcmp(str1,"backend1_name") == 0 || strcmp(str1,"backend2_name") == 0) {
+    int index = str1[7] == '2';
+    if (strlen(str2) >= sizeof(backend_names[index])) return 1;
+    strcpy(backend_names[index], str2);
+    return 0;
   }
 #ifdef HAVE_SOCKET
   else if (strcmp(str1,"fixed_wait") == 0) {
@@ -1546,6 +1564,14 @@ int read_init_file(int argc, char *argv[], int *unlock)
   termcap_save = termcap;
   supp_hicntl_save = supp_hicntl;
   auto_newline_save = auto_newline;
+#ifndef DPBOXT
+  if (backend_validate(tnc_channels - 1, soft_tnc, ax25k_active)) return 1;
+  if (backend_enabled() && strcmp(device, backend2_device) == 0) {
+    fprintf(stderr, "TNT: the two backend sockets must be different\n");
+    return 1;
+  }
+  tnc_channels += backend2_channels;
+#endif
   if (check_dir(tnt_work_dir,"tnt_work_dir")) return(1);
   if (check_dir(tnt_conf_dir,"tnt_conf_dir")) return(1);
   if (check_dir(tnt_doc_dir,"tnt_doc_dir")) return(1);

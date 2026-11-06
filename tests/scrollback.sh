@@ -134,13 +134,14 @@ int main(int argc, char **argv)
   legacy_snapshot();
   init_scrollback();
   assert(!scrollback_failed);
-  assert(marker(&cmdwin,0) == 'L');
+  assert(marker(&cmdwin,0) == SPACE);
   assert(marker(&monwin,0) == SPACE);
+  assert(cmdwin.line_complete == NULL);
   assert(monwin.line_complete == NULL);
   fp = fopen("scrollback.dat","rb");
   assert(fp != NULL && fread(magic,1,8,fp) == 8);
   assert(memcmp(magic,"TNTSCB2",8) == 0);
-  assert(scrollback_read_uint(fp,&records) && records == 5);
+  assert(scrollback_read_uint(fp,&records) && records == 4);
   assert(fclose(fp) == 0);
   assert(stat("scrollback.dat",&st) == 0 && (st.st_mode & 0777) == 0600);
   assert(stat("scrollback.journal",&st) == 0 && (st.st_mode & 0777) == 0600);
@@ -158,6 +159,9 @@ int main(int argc, char **argv)
   child = fork();
   assert(child >= 0);
   if (child == 0) {
+    before = (int)journal_size();
+    put_line(&cmdwin,'V');
+    assert(journal_size() == before);
     put_line(&outputs[1],'A');
     put_line(&outputs[1],'B');
     put_line(&inputs[1],'T');

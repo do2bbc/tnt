@@ -233,7 +233,7 @@ if(TNT_WARNINGS_AS_ERRORS)
   target_compile_options(tnt_build_options INTERFACE -Werror)
 endif()
 add_executable(tnt
-  src/ax25dump.c src/ax25k.c src/bcast.c src/bcastadd.c src/boxlist.c
+  src/ax25dump.c src/ax25k.c src/backend.c src/bcast.c src/bcastadd.c src/boxlist.c
   src/codconv.c src/comp.c src/connect.c src/cookie.c src/crc.c src/display.c
   src/file.c src/huffman.c src/iface.c src/init.c src/keyboard.c src/log.c
   src/macro.c src/main.c src/monbox.c src/priv.c src/remote.c src/serial.c
@@ -277,12 +277,27 @@ if(TNT_NLS)
 endif()
 if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
   find_program(TNT_TEST_SHELL sh REQUIRED)
-  foreach(test modern-c test-inp io terminal priv connect updates scrollback)
+  set(TNT_RUNTIME_TESTS modern-c test-inp io terminal priv connect updates scrollback)
+  if(TNT_SERIAL)
+    list(APPEND TNT_RUNTIME_TESTS backends)
+  endif()
+  foreach(test IN LISTS TNT_RUNTIME_TESTS)
     add_test(NAME "${test}" COMMAND "${CMAKE_COMMAND}" -E env
       "top_srcdir=${CMAKE_CURRENT_SOURCE_DIR}" "top_builddir=${CMAKE_CURRENT_BINARY_DIR}"
       "CC=${CMAKE_C_COMPILER}" "TNT_TERMCAP_LIBRARY=${TNT_TERMCAP_LIBRARY}"
       "${TNT_TEST_SHELL}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/${test}.sh")
   endforeach()
+  if(TNT_SERIAL)
+    find_program(TNT_TEST_PYTHON python3 REQUIRED)
+    add_test(NAME backends-integration COMMAND "${TNT_TEST_PYTHON}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/backends-integration.py"
+      "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+    set_tests_properties(backends-integration PROPERTIES TIMEOUT 60)
+    add_test(NAME backends-disconnect COMMAND "${TNT_TEST_PYTHON}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/backends-integration.py"
+      "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}" --disconnect)
+    set_tests_properties(backends-disconnect PROPERTIES TIMEOUT 60)
+  endif()
   add_test(NAME cmake-install COMMAND "${CMAKE_COMMAND}"
     "-DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}"
     "-DBINDIR=${CMAKE_INSTALL_FULL_BINDIR}" "-DSBINDIR=${CMAKE_INSTALL_FULL_SBINDIR}"

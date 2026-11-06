@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-19 21:35+0200\n"
+"POT-Creation-Date: 2026-11-03 17:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,246 +17,246 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/ax25k.c:310
+#: src/ax25k.c:345
 #, c-format
 msgid "tnt: monitor already active\n"
 msgstr ""
 
-#: src/ax25k.c:338
+#: src/ax25k.c:373
 #, c-format
 msgid "tnt: invalid monitor-socket\n"
 msgstr ""
 
-#: src/ax25k.c:343
+#: src/ax25k.c:378
 #, c-format
 msgid "tnt: error opening monitor-socket: %s\n"
 msgstr ""
 
-#: src/ax25k.c:349
+#: src/ax25k.c:384
 #, c-format
 msgid "tnt: error connecting monitor-socket\n"
 msgstr ""
 
-#: src/ax25k.c:365
+#: src/ax25k.c:400
 #, c-format
 msgid "tnt: monitor already deactived\n"
 msgstr ""
 
-#: src/ax25k.c:383
+#: src/ax25k.c:418
 #, c-format
 msgid "tnt: unproto already active\n"
 msgstr ""
 
-#: src/ax25k.c:388 src/ax25k.c:444 src/ax25k.c:517
+#: src/ax25k.c:423 src/ax25k.c:477 src/ax25k.c:548
 #, c-format
 msgid "tnt: invalid AX25 port: %s\n"
 msgstr ""
 
-#: src/ax25k.c:421
+#: src/ax25k.c:456
 #, c-format
 msgid "tnt: unproto already deactived\n"
 msgstr ""
 
-#: src/ax25k.c:461
+#: src/ax25k.c:494
 #, c-format
 msgid "tnt: malloc-error in 'act_listen'\n"
 msgstr ""
 
-#: src/ax25k.c:542
+#: src/ax25k.c:573
 #, c-format
 msgid "tnt: call %s, port %s not listening\n"
 msgstr ""
 
-#: src/ax25k.c:614
+#: src/ax25k.c:642
 #, c-format
 msgid "tnt: no AX.25 port data configured\n"
 msgstr ""
 
-#: src/ax25k.c:631
+#: src/ax25k.c:659
 #, c-format
 msgid "tnt: invalid default AX25 port: %s\n"
 msgstr ""
 
-#: src/ax25k.c:776
+#: src/ax25k.c:803
 msgid "Error: can't open socket"
 msgstr ""
 
-#: src/ax25k.c:791
+#: src/ax25k.c:818
 msgid "Error: can't bind socket"
 msgstr ""
 
-#: src/ax25k.c:802
+#: src/ax25k.c:829
 msgid "Error: connect"
 msgstr ""
 
-#: src/ax25k.c:858 src/ax25k.c:892 src/keyboard.c:996 src/keyboard.c:1030
+#: src/ax25k.c:885 src/ax25k.c:919 src/keyboard.c:1002 src/keyboard.c:1032
 msgid "Invalid command"
 msgstr ""
 
-#: src/ax25k.c:868
+#: src/ax25k.c:895
 msgid "Invalid command string"
 msgstr ""
 
-#: src/ax25k.c:1134
+#: src/ax25k.c:1156
 #, c-format
 msgid "tnt: error reading ax25-status (read_proc_ax25)\n"
 msgstr ""
 
-#: src/ax25k.c:1264
+#: src/ax25k.c:1286
 #, c-format
 msgid "tnt: Can't convert unproto address\n"
 msgstr ""
 
-#: src/ax25k.c:1269
+#: src/ax25k.c:1291
 #, c-format
 msgid "tnt: sendto: %s\n"
 msgstr ""
 
-#: src/ax25k.c:1328
+#: src/ax25k.c:1350
 #, c-format
 msgid "tnt: Error reading from monitor socket - monitor disabled\n"
 msgstr ""
 
-#: src/ax25k.c:1465
+#: src/ax25k.c:1480
 #, c-format
 msgid "tnt: Cannot get HWADDR\n"
 msgstr ""
 
-#: src/bcast.c:471
+#: src/bcast.c:473
 msgid "no mem for extended header informations"
 msgstr ""
 
-#: src/bcast.c:1024
+#: src/bcast.c:1040
 msgid "unpack error"
 msgstr ""
 
-#: src/bcast.c:1034
+#: src/bcast.c:1050
 msgid "unknown compression type"
 msgstr ""
 
-#: src/bcast.c:1078
+#: src/bcast.c:1094
 msgid "body checksum invalid"
 msgstr ""
 
-#: src/bcast.c:1084
+#: src/bcast.c:1100
 msgid "invalid length of body"
 msgstr ""
 
-#: src/bcast.c:1089
+#: src/bcast.c:1105
 msgid "invalid header checksum"
 msgstr ""
 
-#: src/bcast.c:1093
+#: src/bcast.c:1109
 msgid "invalid header"
 msgstr ""
 
-#: src/bcast.c:1097
+#: src/bcast.c:1113
 msgid "file open error"
 msgstr ""
 
-#: src/bcast.c:1102 src/bcast.c:2189
+#: src/bcast.c:1118 src/bcast.c:2212
 msgid "no mem"
 msgstr ""
 
-#: src/bcast.c:1685
+#: src/bcast.c:1708
 #, c-format
 msgid "file decoded: %s"
 msgstr ""
 
-#: src/bcast.c:1706
+#: src/bcast.c:1729
 #, c-format
 msgid "reception aborted: %s"
 msgstr ""
 
 #. splitting up a hole
-#: src/bcast.c:1778
+#: src/bcast.c:1801
 msgid "error in holelist"
 msgstr ""
 
-#: src/bcast.c:1792 src/bcast.c:2220
+#: src/bcast.c:1815 src/bcast.c:2243
 msgid "no mem for holelist"
 msgstr ""
 
-#: src/bcast.c:1953
+#: src/bcast.c:1976
 #, c-format
 msgid "header received: %s"
 msgstr ""
 
-#: src/bcast.c:1956
+#: src/bcast.c:1979
 #, c-format
 msgid "header received: %s.%s"
 msgstr ""
 
-#: src/bcast.c:1959
+#: src/bcast.c:1982
 msgid "invalid file header"
 msgstr ""
 
-#: src/bcast.c:2018
+#: src/bcast.c:2041
 msgid "open error"
 msgstr ""
 
-#: src/bcast.c:2024
+#: src/bcast.c:2047
 msgid "seek error"
 msgstr ""
 
-#: src/bcast.c:2028
+#: src/bcast.c:2051
 msgid "write error"
 msgstr ""
 
-#: src/bcast.c:2045
+#: src/bcast.c:2068
 msgid "administration failure"
 msgstr ""
 
-#: src/bcast.c:2154
+#: src/bcast.c:2177
 msgid "unmatching frame size"
 msgstr ""
 
-#: src/bcast.c:2162
+#: src/bcast.c:2185
 msgid "invalid frame crc"
 msgstr ""
 
-#: src/bcast.c:2171
+#: src/bcast.c:2194
 msgid "invalid file id in frame"
 msgstr ""
 
-#: src/bcast.c:2214
+#: src/bcast.c:2237
 msgid "invalid error"
 msgstr ""
 
-#: src/bcast.c:2228
+#: src/bcast.c:2251
 msgid "file create error"
 msgstr ""
 
-#: src/bcast.c:2260
+#: src/bcast.c:2283
 msgid "request frame too short"
 msgstr ""
 
-#: src/bcast.c:2266
+#: src/bcast.c:2289
 msgid "wrong request flags"
 msgstr ""
 
-#: src/bcast.c:2272
+#: src/bcast.c:2295
 msgid "wrong request frame length"
 msgstr ""
 
-#: src/bcast.c:2415
+#: src/bcast.c:2438
 msgid "rx aborted"
 msgstr ""
 
-#: src/bcast.c:2669
+#: src/bcast.c:2690
 msgid "No broadcast-RX files active"
 msgstr ""
 
-#: src/bcast.c:2673
+#: src/bcast.c:2694
 msgid ""
 "FileID   RX from   Nr  MsgID        Size     Holes RXrdy last RX  Fhead BBS"
 msgstr ""
 
-#: src/bcast.c:2733
+#: src/bcast.c:2752
 msgid "No broadcast-TX files active"
 msgstr ""
 
-#: src/bcast.c:2737
+#: src/bcast.c:2756
 msgid "FileID   MsgID        Size     last TX "
 msgstr ""
 
@@ -264,72 +264,72 @@ msgstr ""
 msgid "WARNING: blcmdfile is in wrong format, wrong line:"
 msgstr ""
 
-#: src/boxlist.c:413 src/priv.c:1118 src/remote.c:2700 src/remote.c:2818
-#: src/remote.c:2870 src/remote.c:2923 src/remote.c:2981 src/remote.c:3030
+#: src/boxlist.c:409 src/priv.c:1092 src/remote.c:2640 src/remote.c:2750
+#: src/remote.c:2797 src/remote.c:2845 src/remote.c:2899 src/remote.c:2944
 msgid "No lines found"
 msgstr ""
 
-#: src/boxlist.c:1230
+#: src/boxlist.c:1200
 msgid "Boxlist already active"
 msgstr ""
 
-#: src/boxlist.c:1246
+#: src/boxlist.c:1216
 msgid "No save buffer left"
 msgstr ""
 
-#: src/boxlist.c:1271
+#: src/boxlist.c:1241
 msgid "No boxlist file stored"
 msgstr ""
 
 #. file does not exist
-#: src/boxlist.c:1287
+#: src/boxlist.c:1257
 msgid "File not existing"
 msgstr ""
 
 #. mark all mails in box
-#: src/boxlist.c:1406
+#: src/boxlist.c:1376
 msgid "Scanning DPBox"
 msgstr ""
 
-#: src/boxlist.c:1462
+#: src/boxlist.c:1430
 msgid "No save buffer found"
 msgstr ""
 
-#: src/boxlist.c:1475
+#: src/boxlist.c:1441
 #, c-format
 msgid "Number of used save buffers: %d"
 msgstr ""
 
-#: src/boxlist.c:1697
+#: src/boxlist.c:1654
 msgid "Error: no command given"
 msgstr ""
 
-#: src/connect.c:900 src/keyboard.c:1792 src/priv.c:1174 src/remote.c:1791
-#: src/remote.c:2306
+#: src/connect.c:849 src/keyboard.c:1780 src/priv.c:1146 src/remote.c:1768
+#: src/remote.c:2246
 msgid "Only while connected"
 msgstr ""
 
-#: src/connect.c:904
+#: src/connect.c:853
 msgid "Invalid callsign"
 msgstr ""
 
-#: src/connect.c:934
+#: src/connect.c:879
 msgid "empty"
 msgstr ""
 
-#: src/connect.c:949
+#: src/connect.c:894
 msgid "Error: To change QRGs, do an update of 'axports'"
 msgstr ""
 
-#: src/connect.c:958
+#: src/connect.c:903
 msgid "invalid portnumber"
 msgstr ""
 
-#: src/connect.c:964
+#: src/connect.c:909
 msgid "not allowed to delete"
 msgstr ""
 
-#: src/connect.c:991
+#: src/connect.c:936
 msgid "Invalid syntax"
 msgstr ""
 
@@ -341,219 +341,231 @@ msgstr ""
 msgid "------ //INFO: Station-Description, //HELP: Possible Commands ------\n"
 msgstr ""
 
-#: src/display.c:1233
+#: src/display.c:1228
 #, c-format
 msgid ">>> Hufmann-compressed (%0.1f %%)"
 msgstr ""
 
-#: src/display.c:1241
+#: src/display.c:1236
 #, c-format
 msgid "<%d byte binary data...>"
 msgstr ""
 
-#: src/file.c:463
+#: src/file.c:448
 msgid "Warning: 'remote_user' not existing, using root permissions!"
 msgstr ""
 
-#: src/file.c:470
+#: src/file.c:455
 msgid "Can't change to remote gid"
 msgstr ""
 
-#: src/file.c:473
+#: src/file.c:458
 msgid "Can't change to remote uid"
 msgstr ""
 
-#: src/file.c:490
+#: src/file.c:471
 msgid "Can't change back uid"
 msgstr ""
 
-#: src/file.c:493
+#: src/file.c:474
 msgid "Can't change back gid"
 msgstr ""
 
-#: src/file.c:519 src/file.c:565 src/file.c:1506
+#: src/file.c:494 src/file.c:540 src/file.c:1421
 msgid "Illegal filename"
 msgstr ""
 
-#: src/file.c:543 src/file.c:602 src/file.c:764 src/file.c:839
+#: src/file.c:518 src/file.c:577 src/file.c:731 src/file.c:799
 msgid "File already exists"
 msgstr ""
 
-#: src/file.c:545 src/file.c:604 src/file.c:766 src/file.c:841
+#: src/file.c:520 src/file.c:579 src/file.c:733 src/file.c:801
 msgid "No permission to create file"
 msgstr ""
 
-#: src/file.c:547 src/file.c:571 src/file.c:606 src/file.c:768 src/file.c:843
+#: src/file.c:522 src/file.c:546 src/file.c:581 src/file.c:735 src/file.c:803
 msgid "Cannot create file"
 msgstr ""
 
-#: src/file.c:631
+#: src/file.c:606
 msgid "Ready for autoBIN-receive"
 msgstr ""
 
-#: src/file.c:648
+#: src/file.c:623
 msgid "Cannot create file (YAPP-malloc)"
 msgstr ""
 
-#: src/file.c:701 src/file.c:712 src/file.c:876
+#: src/file.c:673 src/file.c:684 src/file.c:833
 msgid "No file open"
 msgstr ""
 
-#: src/file.c:1111 src/yapp.c:719
+#: src/file.c:1050 src/yapp.c:723
 #, c-format
 msgid "RX: %d/%d [%d%%], %d Baud, remaining: %d minute"
 msgstr ""
 
-#: src/file.c:1135
+#: src/file.c:1074
 #, c-format
 msgid ""
 "AutoBIN-receive not successful !\r       Checksum: %d, Received Checksum: "
 "%d\r       Total time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
 
-#: src/file.c:1143
+#: src/file.c:1082
 #, c-format
 msgid ""
 "AutoBIN-receive not successful !\rChecksum: %d, Received Checksum: %d\rTotal "
 "time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
 
-#: src/file.c:1155
+#: src/file.c:1094
 #, c-format
 msgid ""
 "AutoBIN-receive finished\r       Checksum: %d, Received Checksum: %d\r       "
 "Total time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
 
-#: src/file.c:1163
+#: src/file.c:1102
 #, c-format
 msgid ""
 "AutoBIN-receive finished\rFilename: %s\rChecksum: %d, Received Checksum: "
 "%d\rTotal time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
 
-#: src/file.c:1355 src/file.c:1381 src/file.c:1410
+#: src/file.c:1281 src/file.c:1306 src/file.c:1334
 msgid "ERROR: "
 msgstr ""
 
-#: src/file.c:1357 src/file.c:1383 src/file.c:1412
+#: src/file.c:1283 src/file.c:1308 src/file.c:1336
 msgid " not found"
 msgstr ""
 
-#: src/file.c:1650
+#: src/file.c:1565
 msgid "Cannot open file (YAPP-malloc)"
 msgstr ""
 
-#: src/file.c:1690
+#: src/file.c:1603
 msgid "Sending no file"
 msgstr ""
 
-#: src/file.c:1757 src/yapp.c:1114
+#: src/file.c:1669 src/yapp.c:1118
 #, c-format
 msgid "TX: %d/%d [%d%%], %d Baud, remaining: %d minute"
 msgstr ""
 
-#: src/file.c:1785
+#: src/file.c:1697
 #, c-format
 msgid ""
 "AutoBIN-send finished\r       Total time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
 
-#: src/file.c:1792
+#: src/file.c:1704
 #, c-format
 msgid "AutoBIN-send finished\rTotal time: %d seconds, Transfer rate: %d Baud"
 msgstr ""
 
-#: src/file.c:1801
+#: src/file.c:1713
 msgid "Sending of file finished\n"
 msgstr ""
 
-#: src/file.c:1889
+#: src/file.c:1793
 #, c-format
 msgid "*** TNT ERROR: file %s not found\r"
 msgstr ""
 
-#: src/iface.c:1293
+#: src/iface.c:1235
 msgid "Starting S&F"
 msgstr ""
 
-#: src/iface.c:1297
+#: src/iface.c:1239
 msgid "Connect successful"
 msgstr ""
 
-#: src/iface.c:1308
+#: src/iface.c:1250
 #, c-format
 msgid "TNT:%s> Connected to %s-%d\r"
 msgstr ""
 
-#: src/iface.c:1311
+#: src/iface.c:1253
 #, c-format
 msgid "TNT:%s> Connected to %s\r"
 msgstr ""
 
-#: src/iface.c:1319
+#: src/iface.c:1261
 msgid "Activating program"
 msgstr ""
 
-#: src/iface.c:1528
+#: src/iface.c:1455
 msgid "All interfaces in use"
 msgstr ""
 
-#: src/iface.c:1529
+#: src/iface.c:1456
 msgid "Interface already open"
 msgstr ""
 
-#: src/iface.c:1530
+#: src/iface.c:1457
 msgid "Can't open stream socket, will try later again"
 msgstr ""
 
-#: src/iface.c:1531
+#: src/iface.c:1458
 msgid "Can't connect to program, will try later again"
 msgstr ""
 
-#: src/iface.c:1532
+#: src/iface.c:1459
 msgid "Interface not active"
 msgstr ""
 
-#: src/iface.c:1533
+#: src/iface.c:1460
 msgid "Interface already active"
 msgstr ""
 
-#: src/iface.c:1534
+#: src/iface.c:1461
 msgid "Try to connect to interface"
 msgstr ""
 
-#: src/iface.c:1536
+#: src/iface.c:1463
 msgid "Back at TNT"
 msgstr ""
 
-#: src/iface.c:1537
+#: src/iface.c:1464
 msgid "Program not active"
 msgstr ""
 
-#: src/init.c:937
+#: src/init.c:948
+#, c-format
+msgid ""
+"ERROR: Process file path is too long\n"
+"\n"
+msgstr ""
+
+#: src/init.c:967
+#, c-format
+msgid "WARNING: cannot create process file %s, trying %s\n"
+msgstr ""
+
+#: src/init.c:974
 #, c-format
 msgid ""
 "ERROR: Can't create process file\n"
 "\n"
 msgstr ""
 
-#: src/init.c:974
+#: src/init.c:1012
 #, c-format
 msgid "ERROR: %s is defined as %s, but directory is not existing\n"
 msgstr ""
 
-#: src/init.c:1395
+#: src/init.c:1428
 #, c-format
 msgid "Usage : dpboxt [-i <init-file>] [-s <box-socket>]\n"
 msgstr ""
 
-#: src/init.c:1397
+#: src/init.c:1430
 #, c-format
 msgid "Usage : tnt [-i <init-file>] [-l <log-file>] [-u] [-d]\n"
 msgstr ""
 
-#: src/init.c:1407 src/tntc.c:232
+#: src/init.c:1440 src/tntc.c:226
 #, c-format
 msgid ""
 "ERROR: explizit configuration \"%s\" not found.\n"
@@ -561,12 +573,12 @@ msgid ""
 msgstr ""
 
 #. give up
-#: src/init.c:1463 src/tntc.c:289
+#: src/init.c:1496 src/tntc.c:283
 #, c-format
 msgid "ERROR: no configuration file found\n"
 msgstr ""
 
-#: src/init.c:1501
+#: src/init.c:1534
 #, c-format
 msgid ""
 "ERROR: %s is in wrong format, wrong line:\n"
@@ -576,118 +588,118 @@ msgid ""
 "       the example files\n"
 msgstr ""
 
-#: src/keyboard.c:916 src/remote.c:901
+#: src/keyboard.c:922 src/remote.c:907
 msgid "Line too long, ignored"
 msgstr ""
 
-#: src/keyboard.c:925
+#: src/keyboard.c:931
 #, c-format
 msgid "Sysop forced execution of remote command %s..."
 msgstr ""
 
-#: src/keyboard.c:1015 src/keyboard.c:1019
+#: src/keyboard.c:1019 src/keyboard.c:1023
 msgid "Do you really want to exit (y/n)? "
 msgstr ""
 
-#: src/keyboard.c:1864 src/keyboard.c:1942 src/remote.c:2490
+#: src/keyboard.c:1852 src/keyboard.c:1925 src/remote.c:2422
 msgid "INVALID VALUE"
 msgstr ""
 
-#: src/keyboard.c:1973
+#: src/keyboard.c:1951
 msgid "String too long"
 msgstr ""
 
-#: src/keyboard.c:2024
+#: src/keyboard.c:1998
 msgid "<empty>"
 msgstr ""
 
-#: src/keyboard.c:2044
+#: src/keyboard.c:2014
 msgid "INVALID TNC STRING"
 msgstr ""
 
-#: src/keyboard.c:2063
+#: src/keyboard.c:2030
 msgid "Can't change directory"
 msgstr ""
 
-#: src/keyboard.c:2078
+#: src/keyboard.c:2043
 msgid "Can't get directory name"
 msgstr ""
 
-#: src/keyboard.c:2093
+#: src/keyboard.c:2056
 #, c-format
 msgid "Resyncs: %d"
 msgstr ""
 
-#: src/keyboard.c:2163
+#: src/keyboard.c:2120
 msgid "No corresponding control-character available"
 msgstr ""
 
-#: src/keyboard.c:2199
+#: src/keyboard.c:2152 src/keyboard.c:2159
 msgid "Can't load keyboard-macro-file"
 msgstr ""
 
-#: src/keyboard.c:2243
+#: src/keyboard.c:2187
 msgid "Invalid screen specified"
 msgstr ""
 
-#: src/keyboard.c:2290
+#: src/keyboard.c:2230
 msgid "*** Note: Using default number of lines"
 msgstr ""
 
-#: src/keyboard.c:2300
+#: src/keyboard.c:2240
 msgid "*** Error: Editor not defined"
 msgstr ""
 
-#: src/keyboard.c:2321
+#: src/keyboard.c:2261
 msgid "*** Note: reusing last aborted file for editing"
 msgstr ""
 
-#: src/keyboard.c:2335
+#: src/keyboard.c:2275
 msgid "*** problem accessing temp. file -> aborting"
 msgstr ""
 
-#: src/keyboard.c:2345
+#: src/keyboard.c:2285
 msgid "*** error calling the editor"
 msgstr ""
 
 #. tmpeditname doesn't exist?
 #. Keine Arme, keine Kekse :-)
-#: src/keyboard.c:2352
+#: src/keyboard.c:2292
 msgid "*** no edited file found -> send aborted..."
 msgstr ""
 
 #. no, exit
-#: src/keyboard.c:2358
+#: src/keyboard.c:2298
 msgid "*** file was not edited -> send aborted..."
 msgstr ""
 
-#: src/keyboard.c:2384
+#: src/keyboard.c:2324
 msgid "*** Enter your passphrase: "
 msgstr ""
 
-#: src/keyboard.c:2386
+#: src/keyboard.c:2326
 msgid "*** gpg/pgp password missing"
 msgstr ""
 
-#: src/keyboard.c:2403
+#: src/keyboard.c:2343
 #, c-format
 msgid "\r*** calling PGP *****\r"
 msgstr ""
 
-#: src/keyboard.c:2409
+#: src/keyboard.c:2349
 msgid "*** error: can't write tmpfile"
 msgstr ""
 
-#: src/keyboard.c:2423
+#: src/keyboard.c:2363
 #, c-format
 msgid "\r*** calling GnuPG *****\r"
 msgstr ""
 
-#: src/keyboard.c:2438
+#: src/keyboard.c:2378
 msgid "*** fatal error: can't rewrite tmpfile!"
 msgstr ""
 
-#: src/keyboard.c:2453
+#: src/keyboard.c:2393
 #, c-format
 msgid "*** end of gpg/pgp-messages ***\r"
 msgstr ""
@@ -700,649 +712,678 @@ msgstr ""
 msgid "Pse enter your name with //name <your_name>"
 msgstr ""
 
-#: src/main.c:332
+#: src/main.c:338
 #, c-format
-msgid "ERROR: cannot create/open file for errorlog: %s\n"
+msgid "WARNING: cannot create/open file for errorlog: %s\n"
 msgstr ""
 
-#: src/main.c:388
+#: src/main.c:394
 #, c-format
 msgid "ERROR: invalid definition of frontend socket\n"
 msgstr ""
 
-#: src/main.c:392
+#: src/main.c:398
 #, c-format
 msgid "ERROR: Can't open stream socket\n"
 msgstr ""
 
-#: src/main.c:408
+#: src/main.c:414
 #, c-format
 msgid "ERROR: Can't bind socket\n"
 msgstr ""
 
-#: src/main.c:417
+#: src/main.c:423
 #, c-format
 msgid "%s successfully started\n"
 msgstr ""
 
-#: src/monbox.c:2088
+#: src/monbox.c:2062
 #, c-format
 msgid "Too much folders in %s, rest ignored!"
 msgstr ""
 
-#: src/monbox.c:2139
+#: src/monbox.c:2113
 #, c-format
 msgid "%s corrupt, contents ignored"
 msgstr ""
 
-#: src/monbox.c:2477
+#: src/monbox.c:2428
 #, c-format
 msgid "scanning of mailbeacon not active"
 msgstr ""
 
-#: src/monbox.c:2479
+#: src/monbox.c:2430
 #, c-format
 msgid "(%s>%s); own call:%s, xconnect-parms:%s %d"
 msgstr ""
 
-#: src/monbox.c:2554
+#: src/monbox.c:2505
 #, c-format
 msgid ""
 "SCANMBEA [$] [<source> <destination> <own_call> <connectcall> [<timeout>] ]"
 msgstr ""
 
-#: src/priv.c:219
+#: src/priv.c:215
 msgid "WARNING: pwfile is in wrong format, wrong line:"
 msgstr ""
 
-#: src/priv.c:840
+#: src/priv.c:827
 msgid "Sorry, illegal character in password number"
 msgstr ""
 
-#: src/priv.c:887 src/priv.c:927 src/priv.c:960 src/priv.c:993 src/priv.c:1053
-#: src/priv.c:1088
+#: src/priv.c:872 src/priv.c:910 src/priv.c:941 src/priv.c:972 src/priv.c:1028
+#: src/priv.c:1066
 msgid "Sorry, passwordfile not found"
 msgstr ""
 
-#: src/priv.c:1067
+#: src/priv.c:1042
 msgid "Passwordfile has incorrect length"
 msgstr ""
 
-#: src/priv.c:1091
+#: src/priv.c:1057
+msgid "Can't read password file"
+msgstr ""
+
+#: src/priv.c:1069
 msgid "Sorry, no Logintime recorded"
 msgstr ""
 
-#: src/priv.c:1133
+#: src/priv.c:1107
 msgid "Calllist corrupt!"
 msgstr ""
 
-#: src/priv.c:1201
+#: src/priv.c:1173
 msgid "No password available"
 msgstr ""
 
-#: src/remote.c:391
+#: src/remote.c:397
 msgid "WARNING: sysfile is in wrong format, wrong line:"
 msgstr ""
 
-#: src/remote.c:473
+#: src/remote.c:479
 msgid "WARNING: noremfile is in wrong format, wrong line:"
 msgstr ""
 
-#: src/remote.c:555
+#: src/remote.c:561
 msgid "WARNING: flchkfile is in wrong format, wrong line:"
 msgstr ""
 
-#: src/remote.c:637
+#: src/remote.c:643
 msgid "WARNING: notownfile is in wrong format, wrong line:"
 msgstr ""
 
-#: src/remote.c:736
+#: src/remote.c:742
 msgid "WARNING: autostartfile is in wrong format, wrong line:"
 msgstr ""
 
-#: src/remote.c:860
+#: src/remote.c:866
 msgid "WARNING: extremotefile is in wrong format, wrong line:"
 msgstr ""
 
-#: src/remote.c:900
+#: src/remote.c:906
 msgid "Invalid command !"
 msgstr ""
 
-#: src/remote.c:904
+#: src/remote.c:910
 msgid "File closed"
 msgstr ""
 
-#: src/remote.c:905
+#: src/remote.c:911
 msgid "Transmission aborted"
 msgstr ""
 
-#: src/remote.c:906
+#: src/remote.c:912
 msgid "File open, end with //close"
 msgstr ""
 
-#: src/remote.c:907
+#: src/remote.c:913
 msgid "YAPP-reception activated"
 msgstr ""
 
-#: src/remote.c:908
+#: src/remote.c:914
 msgid "No such file or directory or no permission"
 msgstr ""
 
-#: src/remote.c:909
+#: src/remote.c:915
 msgid "Function not successful"
 msgstr ""
 
-#: src/remote.c:910
+#: src/remote.c:916
 msgid "Cookie-file not existing"
 msgstr ""
 
-#: src/remote.c:911
+#: src/remote.c:917
 msgid "Error writing to names-file"
 msgstr ""
 
-#: src/remote.c:912
+#: src/remote.c:918
 msgid "Thanks, "
 msgstr ""
 
-#: src/remote.c:913
+#: src/remote.c:919
 msgid ", your name has been stored"
 msgstr ""
 
-#: src/remote.c:914
+#: src/remote.c:920
 msgid "AutoBIN-receive started, filename: "
 msgstr ""
 
-#: src/remote.c:915
+#: src/remote.c:921
 msgid "AutoBIN-send aborted"
 msgstr ""
 
-#: src/remote.c:916
+#: src/remote.c:922
 msgid "Usage: //COMP ON/OFF"
 msgstr ""
 
-#: src/remote.c:917
+#: src/remote.c:923
 msgid "Sorry, compression not possible"
 msgstr ""
 
-#: src/remote.c:918
+#: src/remote.c:924
 msgid "Sorry, no access to this system"
 msgstr ""
 
-#: src/remote.c:919
+#: src/remote.c:925
 msgid "Sorry, box is down, please try later"
 msgstr ""
 
-#: src/remote.c:920
+#: src/remote.c:926
 msgid "Channel   From        To          Starttime"
 msgstr ""
 
-#: src/remote.c:922
+#: src/remote.c:928
 msgid "No stations connected"
 msgstr ""
 
-#: src/remote.c:1269
+#: src/remote.c:1264
 msgid "AutoBIN-receive aborted"
 msgstr ""
 
-#: src/remote.c:1459
+#: src/remote.c:1451
 #, c-format
 msgid "<TNT>:Channel out of range.%s"
 msgstr ""
 
-#: src/remote.c:1470
+#: src/remote.c:1462
 #, c-format
 msgid "<TNT>:missing text%s"
 msgstr ""
 
-#: src/remote.c:1476
+#: src/remote.c:1468
 #, c-format
 msgid "<TNT>:channel %d not connected"
 msgstr ""
 
-#: src/remote.c:1485
+#: src/remote.c:1477
 #, c-format
 msgid "<TNT>:sorry no chat to %s"
 msgstr ""
 
-#: src/remote.c:1493
+#: src/remote.c:1485
 #, c-format
 msgid "<Msg de %d:%s, reply with \"//%d ...\">%s%s%s"
 msgstr ""
 
-#: src/remote.c:1500
+#: src/remote.c:1492
 #, c-format
 msgid "<TNT>: illegal channel%s"
 msgstr ""
 
-#: src/remote.c:1671
+#: src/remote.c:1657
 msgid "<TNT>: Bell has rung.."
 msgstr ""
 
-#: src/remote.c:1702
+#: src/remote.c:1687
 #, c-format
 msgid "<TNT>: Lifetime of this session: %ldd %ldh %ldm %lds%s"
 msgstr ""
 
-#: src/remote.c:1709
+#: src/remote.c:1694
 #, c-format
 msgid "       Lifetime of TNT:          %ldd %ldh %ldm %lds%s"
 msgstr ""
 
-#: src/remote.c:1735
+#: src/remote.c:1719
 msgid "<TNT>: Last sysopactivity was before "
 msgstr ""
 
-#: src/remote.c:1743
+#: src/remote.c:1727
 #, c-format
 msgid "%ld seconds."
 msgstr ""
 
-#: src/remote.c:1763
+#: src/remote.c:1744
 msgid "<OK>: string clear"
 msgstr ""
 
-#: src/remote.c:1812
+#: src/remote.c:1789
 #, c-format
 msgid "<TNT>: Link time %02d:%02d:%02d (%02d.%02d.%04d %02d:%02d:%02d)"
 msgstr ""
 
-#: src/remote.c:1817 src/remote.c:1820
+#: src/remote.c:1794 src/remote.c:1797
 msgid "<TNT>: RTT failure!"
 msgstr ""
 
-#: src/remote.c:2316
+#: src/remote.c:2256
 msgid "No access to names database"
 msgstr ""
 
-#: src/remote.c:2371
+#: src/remote.c:2307
 msgid "Can't open file"
 msgstr ""
 
-#: src/remote.c:2578
+#: src/remote.c:2507
 msgid "Usage: SETACC <remote_command> [NORMAL/SYSOP/ROOT/ALWAYS/NEVER]"
 msgstr ""
 
-#: src/remote.c:3033
+#: src/remote.c:2947
 msgid "Alias    Level  Command"
 msgstr ""
 
-#: src/remote.c:3272
+#: src/remote.c:3183
 msgid "missing message"
 msgstr ""
 
-#: src/remote.c:3334 src/remote.c:3342 src/remote.c:3350 src/remote.c:3358
-#: src/remote.c:3366
+#: src/remote.c:3244 src/remote.c:3250 src/remote.c:3256 src/remote.c:3262
+#: src/remote.c:3268
 msgid "tnt-tellfile corrupt!"
 msgstr ""
 
-#: src/remote.c:3376
+#: src/remote.c:3276
 msgid "<TNT>: ONActivitytext disabled"
 msgstr ""
 
-#: src/remote.c:3382
+#: src/remote.c:3282
 msgid "<TNT>: ONActivitytext enabled"
 msgstr ""
 
-#: src/remote.c:3423
+#: src/remote.c:3328
 #, c-format
 msgid "<TNT>: use //CH <port/call> <text>%s"
 msgstr ""
 
-#: src/remote.c:3470
+#: src/remote.c:3375
 #, c-format
 msgid "<TNT>:station %s not connected!%s"
 msgstr ""
 
-#: src/remote.c:3479
+#: src/remote.c:3384
 #, c-format
 msgid "<TNT>:illegal channel %d%s"
 msgstr ""
 
-#: src/remote.c:3487
+#: src/remote.c:3392
 #, c-format
 msgid "<TNT>:channel %d not connected%s"
 msgstr ""
 
-#: src/remote.c:3496
+#: src/remote.c:3401
 #, c-format
 msgid "<TNT>:chat on channel %d not allowed%s"
 msgstr ""
 
-#: src/remote.c:3503
+#: src/remote.c:3408
 #, c-format
 msgid "<Msg de %d:%s, reply with \"//CH %d ...\">%s%s%s"
 msgstr ""
 
-#: src/remote.c:3624
+#: src/remote.c:3543
 #, c-format
 msgid "[listed %d from %d entries]"
 msgstr ""
 
-#: src/remote.c:3626
+#: src/remote.c:3545
 #, c-format
 msgid "[One entry (from %d) listed]"
 msgstr ""
 
-#: src/remote.c:3628 src/xmon.c:384
+#: src/remote.c:3547 src/xmon.c:385
 #, c-format
 msgid "[All entries listed]\n"
 msgstr ""
 
-#: src/remote.c:3641
+#: src/remote.c:3560
 #, c-format
 msgid "[<%s> not found]\n"
 msgstr ""
 
-#: src/remote.c:3644
+#: src/remote.c:3563
 #, c-format
 msgid "[%d entries with <%s>]"
 msgstr ""
 
-#: src/remote.c:3645
+#: src/remote.c:3564
 #, c-format
 msgid "[One entry with <%s>]"
 msgstr ""
 
-#: src/serial.c:522
+#: src/serial.c:189
 #, c-format
 msgid "Device %s is locked by process %d\n"
 msgstr ""
 
-#: src/serial.c:530
+#: src/serial.c:197
 #, c-format
 msgid "Unable to unlink stale lock file \"%s\"\n"
 msgstr ""
 
-#: src/serial.c:534
+#: src/serial.c:201
 #, c-format
 msgid ""
 "Unable to read from lock file \"%s\"\n"
 "It is not possible to determine if the device is locked or not.\n"
 msgstr ""
 
-#: src/serial.c:539
+#: src/serial.c:206
 #, c-format
 msgid "Unable to open existing lock file\"%s\"\n"
 msgstr ""
 
-#: src/serial.c:544
+#: src/serial.c:212 src/serial.c:699
 #, c-format
 msgid "Unable to create lockfile. Sorry.\n"
 msgstr ""
 
-#: src/serial.c:555
+#: src/serial.c:644
+#, c-format
+msgid "Serial port handling disabled\n"
+msgstr ""
+
+#: src/serial.c:689
+#, c-format
+msgid "WARNING: cannot create lockfile %s, trying %s\n"
+msgstr ""
+
+#: src/serial.c:711
+#, c-format
+msgid "Error: invalid AX25UDP socket definition\n"
+msgstr ""
+
+#: src/serial.c:721
 #, c-format
 msgid "Error: invalid parameters in socket definition for soft_tnc\n"
 msgstr ""
 
-#: src/serial.c:571
+#: src/serial.c:738
 #, c-format
 msgid "Error: Cannot open socket to soft_tnc\n"
 msgstr ""
 
-#: src/serial.c:583
+#: src/serial.c:744
+#, c-format
+msgid "Error: AX25UDP local port is only supported for IPv4 sockets\n"
+msgstr ""
+
+#: src/serial.c:754
+#, c-format
+msgid "Error: Cannot bind AX25UDP local port\n"
+msgstr ""
+
+#: src/serial.c:768
 #, c-format
 msgid "Error: Cannot connect to soft_tnc\n"
 msgstr ""
 
-#: src/serial.c:594
+#: src/serial.c:781
 #, c-format
 msgid "Error: can't open serial port\n"
 msgstr ""
 
-#: src/serial.c:602
+#: src/serial.c:789
 #, c-format
 msgid "Error: can't get serial info\n"
 msgstr ""
 
-#: src/serial.c:629
+#: src/serial.c:816
 #, c-format
 msgid "Error: can't set serial info\n"
 msgstr ""
 
-#: src/serial.c:643 src/serial.c:756
+#: src/serial.c:830 src/serial.c:947
 #, c-format
 msgid "Error: can't write to serial port\n"
 msgstr ""
 
-#: src/serial.c:653
+#: src/serial.c:840
 #, c-format
 msgid "TNC in Hostmode\n"
 msgstr ""
 
-#: src/serial.c:766
+#: src/serial.c:957
 #, c-format
 msgid "TNC in terminalmode\n"
 msgstr ""
 
-#: src/serial.c:818
+#: src/serial.c:1008
 #, c-format
 msgid "received characters before resync:\n"
 msgstr ""
 
-#: src/serial.c:839
+#: src/serial.c:1029
 #, c-format
 msgid "transmitted characters before resync:\n"
 msgstr ""
 
-#: src/serial.c:870
+#: src/serial.c:1060
 #, c-format
 msgid "%s: Resync started\n"
 msgstr ""
 
-#: src/serial.c:871
+#: src/serial.c:1061
 #, c-format
 msgid "State of hostmode-receiver:\n"
 msgstr ""
 
-#: src/serial.c:874
+#: src/serial.c:1064
 #, c-format
 msgid "waiting for channel\n"
 msgstr ""
 
-#: src/serial.c:877
+#: src/serial.c:1067
 #, c-format
 msgid "waiting for code, channel = %d\n"
 msgstr ""
 
-#: src/serial.c:880
+#: src/serial.c:1070
 #, c-format
 msgid "waiting for length, channel = %d, code = %d\n"
 msgstr ""
 
-#: src/serial.c:884
+#: src/serial.c:1074
 #, c-format
 msgid "waiting for data or null, channel = %d, code = %d\n"
 msgstr ""
 
-#: src/serial.c:886
+#: src/serial.c:1076
 #, c-format
 msgid "received data (%d bytes): "
 msgstr ""
 
-#: src/serial.c:901
+#: src/serial.c:1091
 #, c-format
 msgid "waiting for data, channel = %d, code = %d, length = %d\n"
 msgstr ""
 
-#: src/serial.c:903
+#: src/serial.c:1093
 #, c-format
 msgid "received data (%d bytes, %d bytes left): "
 msgstr ""
 
-#: src/serial.c:971
+#: src/serial.c:1161
 #, c-format
 msgid ""
 "\n"
 "Switching TNC to hostmode\n"
 msgstr ""
 
-#: src/serial.c:992
+#: src/serial.c:1182
 #, c-format
 msgid ""
 "\n"
 "Try next Resync\n"
 msgstr ""
 
-#: src/serial.c:1021
+#: src/serial.c:1211
 #, c-format
 msgid ""
 "\n"
 "Reading remaining data\n"
 msgstr ""
 
-#: src/serial.c:1031
+#: src/serial.c:1221
 #, c-format
 msgid ""
 "\n"
 "Resync successful\n"
 msgstr ""
 
-#: src/serial.c:1132
+#: src/serial.c:1322
 #, c-format
 msgid "%s: maximum packet size exceeded: %i\n"
 msgstr ""
 
-#: src/serial.c:1134
+#: src/serial.c:1324
 #, c-format
 msgid "packet contents follow:\n"
 msgstr ""
 
-#: src/serial.c:1325
+#: src/serial.c:1512
 #, c-format
 msgid "Illegal channel: %x\n"
 msgstr ""
 
-#: src/serial.c:1328
+#: src/serial.c:1515
 #, c-format
 msgid "Illegal command code: %x\n"
 msgstr ""
 
-#: src/serial.c:1331
+#: src/serial.c:1518
 #, c-format
 msgid "Additional data after block: "
 msgstr ""
 
-#: src/serial.c:1339
+#: src/serial.c:1526
 #, c-format
 msgid "String too long, remaining data: "
 msgstr ""
 
-#: src/shell.c:326 src/shell.c:525
+#: src/shell.c:318 src/shell.c:513
 msgid "Can't open pseudo terminal"
 msgstr ""
 
-#: src/shell.c:441
+#: src/shell.c:435
 #, c-format
 msgid "Can't redirect to %s"
 msgstr ""
 
-#: src/shell.c:451
+#: src/shell.c:445
 #, c-format
 msgid "Redirect to %s"
 msgstr ""
 
-#: src/shell.c:519
+#: src/shell.c:507
 msgid "program not found"
 msgstr ""
 
-#: src/shell.c:744
+#: src/shell.c:730
 msgid "Invalid par for sockconn"
 msgstr ""
 
-#: src/shell.c:748 src/shell.c:878
+#: src/shell.c:734 src/shell.c:860
 msgid "Can't open stream socket"
 msgstr ""
 
-#: src/shell.c:756
+#: src/shell.c:742
 msgid "Can't connect to socket"
 msgstr ""
 
-#: src/shell.c:799
+#: src/shell.c:781
 msgid "Sockettype   Mode/Mycall Socketaddress"
 msgstr ""
 
-#: src/shell.c:825
+#: src/shell.c:807
 msgid "No sockets listening"
 msgstr ""
 
-#: src/shell.c:868
+#: src/shell.c:850
 msgid "Invalid parameters"
 msgstr ""
 
-#: src/shell.c:873
+#: src/shell.c:855
 msgid "Cannot alloc memory"
 msgstr ""
 
-#: src/shell.c:895
+#: src/shell.c:877
 msgid "Can't bind socket"
 msgstr ""
 
-#: src/shell.c:901
+#: src/shell.c:883
 msgid "Can't listen to socket"
 msgstr ""
 
-#: src/shell.c:1145
+#: src/shell.c:1110
 #, c-format
 msgid "* Ok, back to cmd-mode with ':cmd' *\n"
 msgstr ""
 
-#: src/shell.c:1179
+#: src/shell.c:1143
 #, c-format
 msgid "* connect not successful * %s "
 msgstr ""
 
-#: src/shell.c:1212
+#: src/shell.c:1174
 #, c-format
 msgid "* connection aborted * %s "
 msgstr ""
 
-#: src/shell.c:1243
+#: src/shell.c:1202
 #, c-format
 msgid "* connection already active * %s "
 msgstr ""
 
-#: src/shell.c:1252
+#: src/shell.c:1211
 #, c-format
 msgid "* no free channel left * %s "
 msgstr ""
 
-#: src/shell.c:1258
+#: src/shell.c:1217
 #, c-format
 msgid "* Ok, link setup *\n"
 msgstr ""
 
-#: src/shell.c:1277
+#: src/shell.c:1236
 #, c-format
 msgid "* no callsign ? * %s "
 msgstr ""
 
-#: src/shell.c:1292
+#: src/shell.c:1251
 #, c-format
 msgid "* no connection active * %s "
 msgstr ""
 
-#: src/shell.c:1334
+#: src/shell.c:1293
 #, c-format
 msgid ""
 "\n"
 "* only while connected * %s "
 msgstr ""
 
-#: src/shell.c:1342
+#: src/shell.c:1301
 #, c-format
 msgid ""
 "\n"
 "* permission denied * %s "
 msgstr ""
 
-#: src/shell.c:1354
+#: src/shell.c:1313
 #, c-format
 msgid "* Back to converse mode *\n"
 msgstr ""
 
 #. do a little missionary work, help the user, hi
-#: src/shell.c:1374
+#: src/shell.c:1333
 #, c-format
 msgid ""
 "\n"
@@ -1355,12 +1396,12 @@ msgid ""
 "  To change from converse-mode to command-mode\n"
 msgstr ""
 
-#: src/shell.c:1379
+#: src/shell.c:1338
 #, c-format
 msgid "  enter ':cmd' while connection established. %s"
 msgstr ""
 
-#: src/shell.c:1415
+#: src/shell.c:1371
 #, c-format
 msgid ""
 "\n"
@@ -1369,12 +1410,12 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/shell.c:1444
+#: src/shell.c:1403
 #, c-format
 msgid "password: "
 msgstr ""
 
-#: src/shell.c:1456
+#: src/shell.c:1415
 #, c-format
 msgid ""
 "\n"
@@ -1382,7 +1423,7 @@ msgid ""
 msgstr ""
 
 #. an intruder, terminating telnet
-#: src/shell.c:1462
+#: src/shell.c:1421
 #, c-format
 msgid ""
 "\n"
@@ -1390,38 +1431,38 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/shell.c:1618
+#: src/shell.c:1572
 msgid "Nothing to close"
 msgstr ""
 
-#: src/shell.c:1715
+#: src/shell.c:1670
 msgid "Shell closed"
 msgstr ""
 
-#: src/shell.c:1723
+#: src/shell.c:1678
 msgid "Program finished"
 msgstr ""
 
-#: src/shell.c:1726
+#: src/shell.c:1681
 msgid "Redirection closed"
 msgstr ""
 
-#: src/shell.c:1729
+#: src/shell.c:1684
 msgid "Socket connection to server closed"
 msgstr ""
 
-#: src/shell.c:1737
+#: src/shell.c:1692
 msgid "Socket connection closed"
 msgstr ""
 
-#: src/shell.c:1794
+#: src/shell.c:1744
 #, c-format
 msgid ""
 "\n"
 "Welcome to %s remote AX25-server.\n"
 msgstr ""
 
-#: src/shell.c:1796
+#: src/shell.c:1746
 msgid ""
 "\n"
 "You have to login to establish access permission\n"
@@ -1430,20 +1471,20 @@ msgid ""
 "login: "
 msgstr ""
 
-#: src/shell.c:1951
+#: src/shell.c:1896
 msgid "Socket not found"
 msgstr ""
 
-#: src/shell.c:1956
+#: src/shell.c:1901
 msgid "Socket closed"
 msgstr ""
 
-#: src/tntc.c:225
+#: src/tntc.c:219
 #, c-format
 msgid "Usage : tntc [-i <init-file>] [-s <tnt-socket>]\n"
 msgstr ""
 
-#: src/tntc.c:328
+#: src/tntc.c:322
 #, c-format
 msgid ""
 "ERROR: %s is in wrong format, wrong line:\n"
@@ -1451,114 +1492,114 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/tntc.c:358
+#: src/tntc.c:353
 #, c-format
 msgid "ERROR: environment variable TERM not set\n"
 msgstr ""
 
-#: src/tntc.c:374
+#: src/tntc.c:369
 #, c-format
 msgid "ERROR: invalid socket definition\n"
 msgstr ""
 
-#: src/tntc.c:379
+#: src/tntc.c:374
 #, c-format
 msgid "ERROR: cannot open socket\n"
 msgstr ""
 
-#: src/tntc.c:387
+#: src/tntc.c:382
 #, c-format
 msgid "ERROR: cannot connect to program\n"
 msgstr ""
 
-#: src/window.c:575
+#: src/window.c:545
 #, c-format
 msgid "Environment variable TERM not set\n"
 msgstr ""
 
-#: src/window.c:634
+#: src/window.c:604
 #, c-format
 msgid "No termcap entry for %s\n"
 msgstr ""
 
-#: src/window.c:637
+#: src/window.c:607
 #, c-format
 msgid "No /etc/termcap present!\n"
 msgstr ""
 
-#: src/window.c:645
+#: src/window.c:615
 #, c-format
 msgid "No cursor motion capability (cm)\n"
 msgstr ""
 
-#: src/window.c:658 src/window.c:762
+#: src/window.c:628 src/window.c:732
 #, c-format
 msgid "Number of terminal lines unknown\n"
 msgstr ""
 
-#: src/window.c:662
+#: src/window.c:632
 #, c-format
 msgid "Illegal number of lines on terminal: %d (x >= 16)\n"
 msgstr ""
 
-#: src/window.c:667 src/window.c:767
+#: src/window.c:637 src/window.c:737
 #, c-format
 msgid "Number of terminal columns unknown\n"
 msgstr ""
 
-#: src/window.c:671
+#: src/window.c:641
 #, c-format
 msgid "Illegal number of columns on terminal: %d (80 <= x <= 256)\n"
 msgstr ""
 
-#: src/window.c:701
+#: src/window.c:671
 #, c-format
 msgid "No clear screen capability (cl)\n"
 msgstr ""
 
-#: src/window.c:708
+#: src/window.c:678
 #, c-format
 msgid "No cursor right capability (nd)\n"
 msgstr ""
 
-#: src/window.c:712
+#: src/window.c:682
 #, c-format
 msgid "No clear to end of line capability (ce)\n"
 msgstr ""
 
-#: src/window.c:727
+#: src/window.c:697
 #, c-format
 msgid "Neither scroll region(cs), nor insert/delete line (al,dl) capability\n"
 msgstr ""
 
-#: src/xmon.c:320
+#: src/xmon.c:318
 #, c-format
 msgid "     From    >    To         Last Heard       First Heard    \r"
 msgstr ""
 
-#: src/xmon.c:352
+#: src/xmon.c:350
 #, c-format
 msgid "     From    >    To         Last Heard       First Heard\n"
 msgstr ""
 
-#: src/xmon.c:383
+#: src/xmon.c:384
 msgid "[No entries]\n"
 msgstr ""
 
-#: src/xmon.c:1435
+#: src/xmon.c:1461
 #, c-format
 msgid "Broadcast from %s"
 msgstr ""
 
-#: src/xmon.c:1438
+#: src/xmon.c:1464
 msgid "No routing-table entries"
 msgstr ""
 
-#: src/xmon.c:1444
+#: src/xmon.c:1470
 msgid "Routing-table entries corrupt"
 msgstr ""
 
-#: src/xmon.c:1457
+#: src/xmon.c:1483
 #, c-format
 msgid "%s(%s) via %s quality: %u"
 msgstr ""
@@ -1594,15 +1635,15 @@ msgstr ""
 msgid "YAPP reception ended"
 msgstr ""
 
-#: src/yapp.c:725
+#: src/yapp.c:729
 #, c-format
 msgid "RX: %d, %d Baud"
 msgstr ""
 
-#: src/yapp.c:976
+#: src/yapp.c:980
 msgid "YAPP transmission ended"
 msgstr ""
 
-#: src/yapp.c:1014
+#: src/yapp.c:1018
 msgid "YAPP transmission started"
 msgstr ""

@@ -3,6 +3,7 @@ TNT installation
 
 Requirements: a C compiler, CMake 3.20 or newer, Make or Ninja, ncurses
 development headers, and system gettext tools (unless TNT_NLS=OFF).
+The full native regression suite also requires Python 3.
 The interactive setup scripts additionally require dialog.
 
 Configure, compile and test:
