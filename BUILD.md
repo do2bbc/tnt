@@ -196,8 +196,8 @@ of the single-backend extended poll. Buffer accounting and duplicate-connection
 checks remain backend-specific. Legacy automatic channel allocation for
 mailbox/interfaces/sockets stays on the first backend. There is no automatic
 CB/HAM bridge or automatic connection to the configured remote node.
-If either active backend disconnects or times out, TNT reports the failure and
-closes rather than rerouting queued traffic to the other network; the backend
+If either active backend disconnects or has a permanent I/O/protocol error, TNT
+reports the failure and closes rather than rerouting queued traffic; the backend
 services remain running. Restart TNT after restoring both sockets.
 
 The second backend is opt-in. Existing single-backend configurations and
@@ -297,6 +297,17 @@ other buttons and modified clicks do not switch channels. Unsent input stays
 with its channel. Hold Shift to use the terminal's own text selection, paste
 or scrolling instead of TNT's mouse reporting. Mouse tracking is disabled on
 exit and is not enabled for `tntc` clients.
+
+The mouse wheel scrolls the history under the pointer by three lines per notch,
+including the receive and monitor panes. Status lines do not scroll; modified
+wheel events are ignored. The existing keyboard scrollback controls still work.
+With two backends configured, the button after the ten channel entries shows
+the other backend (`[AFU]` for the default HAM name, otherwise its configured
+name). Clicking it selects the corresponding channel on that backend and changes
+the monitor/unproto target too. If that channel does not exist there, channel 1
+is selected. Command and monitor views stay open; unsent input and connections
+remain with their original channels. On narrow terminals, the last channel
+labels are shortened to leave room for the button.
 
 With `LAYER3 ON`, the monitor decodes INP routing information frames (RIF):
 callsign, advertised hops, transport time in milliseconds (wire values are

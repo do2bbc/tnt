@@ -114,6 +114,7 @@ char *_tptr = NULL;
 
 void frontend_exit(int deact);
 void real_window_down(int part, int page);
+void real_window_up(int part, int page);
 
 /* frontend buffer */
 #define FR_BUFSIZE 2048
@@ -525,6 +526,21 @@ int window_on_row(const struct window *win, int row)
     real_info[win->real].win == win &&
     row >= real_info[win->real].first_real_line &&
     row <= real_info[win->real].last_real_line;
+}
+
+void window_mouse_scroll(unsigned int button, int row)
+{
+  if (size_blocked || (button != 64 && button != 65)) return;
+  for (int part = 0; part < 5; ++part) {
+    struct window *win = real_info[part].win;
+    if (win == NULL || win->num_lines <= 1 || !window_on_row(win, row))
+      continue;
+    for (int line = 0; line < 3; ++line) {
+      if (button == 64) real_window_up(part, 0);
+      else real_window_down(part, 0);
+    }
+    return;
+  }
 }
 
 int resize_terminal(void)

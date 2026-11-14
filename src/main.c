@@ -126,6 +126,8 @@ extern int read_init_file(int argc, char *argv[], int *unlock);
 extern void reinit_screen(void);
 extern void resize_screen(void);
 extern void resync_tnc(int *state);
+extern void serial_timeout(int *state);
+extern int serial_receive(char *buffer, int length);
 extern void handle_tx_queue(void);
 extern int serial_server(int *state, char *buffer, int len);
 extern void set_linescols(void);
@@ -299,6 +301,9 @@ int main(int argc, char *argv[])
 #ifdef TNT_SERIAL
   int served;
   int resync_needed;
+#ifndef DPBOXT
+  int scrollback_wakeup = 0;
+#endif
 #endif
   int max_fd;
   int count;
@@ -593,7 +598,12 @@ int main(int argc, char *argv[])
         timevalue.tv_usec = 0;
         timevalue.tv_sec = RESY_TIME;
 #ifndef DPBOXT
+      #ifdef TNT_SERIAL
+        scrollback_wakeup = scrollback_sync_pending();
+        if (scrollback_wakeup) timevalue.tv_sec = 1;
+      #else
         if (scrollback_sync_pending()) timevalue.tv_sec = 1;
+      #endif
 #endif
       }
       count = select(max_fd,&fdmask,
@@ -673,15 +683,8 @@ int main(int argc, char *argv[])
 #ifdef TNT_SERIAL
       else {
         if (FD_ISSET(serial,&fdmask)) {
-          if ((len = read(serial,rdbuffer,259)) > 0) {
+          if ((len = serial_receive(rdbuffer,259)) > 0) {
             resync_needed = serial_server(&act_state,rdbuffer,len);
-          }
-          else {
-            if ((soft_tnc) && (len == 0)) {
-              fprintf(stderr, "TNT: hostmode backend disconnected\n");
-              act_state = S_END;
-              softtnc_error = 1;
-            }
           }
           served = 1;
         }
@@ -703,8 +706,11 @@ int main(int argc, char *argv[])
 #ifndef DPBOXT
 #ifdef TNT_SERIAL
       if (!ax25k_active) {
-        if ((!served) || (resync_needed)) {
+        if (resync_needed) {
           resync_tnc(&act_state);
+        }
+        else if (!served && !scrollback_wakeup) {
+          serial_timeout(&act_state);
         }
       }
 #endif
@@ -723,20 +729,11 @@ int main(int argc, char *argv[])
       }
 #ifdef TNT_SERIAL
       else {
-        if ((len = read(serial,rdbuffer,259))) {
-          if (len > 0) {
-            resync_needed = serial_server(&act_state,rdbuffer,len);
-            ser_res = 0;
-            ser_resp_time = time(NULL);
-            ser_rounds = 0;
-          }
-        }
-        else {
-          if ((soft_tnc) && (len == 0)) {
-            fprintf(stderr, "TNT: hostmode backend disconnected\n");
-            act_state = S_END;
-            softtnc_error = 1;
-          }
+        if ((len = serial_receive(rdbuffer,259)) > 0) {
+          resync_needed = serial_server(&act_state,rdbuffer,len);
+          ser_res = 0;
+          ser_resp_time = time(NULL);
+          ser_rounds = 0;
         }
       }
 #endif
@@ -820,7 +817,7 @@ int main(int argc, char *argv[])
             ser_rounds++;
             if (ser_rounds > 100*RESY_TIME) {
               if ((time(NULL) - ser_resp_time) >= RESY_TIME) {
-                resync_tnc(&act_state);
+                serial_timeout(&act_state);
                 ser_resp_time = time(NULL);
                 ser_rounds = 0;
                 empty_rounds = 0;

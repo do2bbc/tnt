@@ -94,3 +94,18 @@ selects an explicit file. TNTC uses its corresponding tntc.ini configuration.
 See BUILD.md for feature mappings from the old configure options, installation
 paths, strict compiler checks, tests and the current terminal behavior.
 Runtime documentation and translated help files are in doc/ and examples/.
+
+Dual-backend response delays
+---------------------------
+
+With two Unix hostmode backends configured, an unanswered request no longer
+terminates TNT after the six-second receive timeout. TNT logs a warning on
+each idle timeout and keeps waiting for the original response indefinitely.
+It preserves partial responses and does not resend commands, reset hostmode,
+or redirect traffic to the other backend. Polling resumes when the delayed
+response arrives. Keyboard input and normal shutdown remain available while
+waiting. An actual socket disconnect, permanent read/write error or invalid
+hostmode packet still ends the session with an error.
+
+This changes both use_select 1 and use_select 0. Single-backend serial
+resynchronization is unchanged.

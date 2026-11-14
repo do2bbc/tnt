@@ -249,6 +249,10 @@ static void check_keyboard(void)
     feed_keys("\033[<0;12;46M");
     assert(mouse_button == 0 && mouse_column == 12 && mouse_row == 46);
     assert(input_window.column == column);
+    feed_keys("\033[<64;12;30M");
+    assert(mouse_button == 64 && mouse_column == 12 && mouse_row == 30);
+    feed_keys("\033[<65;12;30M");
+    assert(mouse_button == 65 && input_window.column == column);
     mouse_column = 0;
     feed_keys("\033[<0;12;46m");
     assert(mouse_column == 0 && input_window.column == column);
@@ -648,12 +652,14 @@ static struct window statwin[2], xmonstatwin[XMON_SCREENS];
 static struct xmon_stat xm_stat[MAX_XMON];
 static struct window statlin;
 static int channel_at_column[MAXCOLS];
+static int backend_button_start = -1, backend_button_end = -1;
 static int act_mode = M_CONNECT, act_channel = 1, xmon_screen;
 static int chan_flag, chan_val1, resync, tnc_busy, bl_mode, selected_channel;
 static int tnc_channels = 21;
 static int xconnect_active(int channel) { (void)channel; return 0; }
 static int extcomp_active(int screen) { (void)screen; return 0; }
 static void sel_connect(int channel) { selected_channel = channel; }
+static void stat_display(int channel) { assert(channel == 0); }
 static void strip_call_log(char *str, int channel)
 {
   assert(channel >= 0 && channel < tnc_channels);
@@ -781,6 +787,44 @@ static void check_channel_clicks(void)
   assert(selected_channel == -1);
   statlin_mouse(0, 12, 23);
   assert(selected_channel == 1);
+  backend2_channels = 10;
+  backend_primary_channels = 10;
+  for (int col_width = 80; col_width <= 146; col_width += 66) {
+    COLS = col_width;
+    for (int backend = 0; backend < 2; ++backend) {
+      act_channel = backend ? 13 : 3;
+      act_mode = M_CONNECT;
+      backend_monitor = backend;
+      statlin_update();
+      char row[MAXCOLS + 2];
+      assert(get_line_noconv(row, &statlin) == COLS + 1);
+      row[COLS] = '\0';
+      char *button = strstr(row, backend ? "[CB]" : "[AFU]");
+      assert(button != NULL);
+      selected_channel = -1;
+      statlin_mouse(0, button - row + 1, 23);
+      assert(selected_channel == (backend ? 3 : 13));
+      assert(backend_monitor == 1 - backend);
+    }
+  }
+  /* No matching channel on the smaller backend: select its first channel. */
+  backend2_channels = 2;
+  act_channel = 9;
+  statlin_update();
+  selected_channel = -1;
+  statlin_mouse(0, backend_button_start + 1, 23);
+  assert(selected_channel == 11 && backend_monitor == 1);
+  act_mode = M_COMMAND;
+  act_channel = 3;
+  statlin_update();
+  selected_channel = -1;
+  statlin_mouse(0, backend_button_start + 1, 23);
+  assert(act_channel == 11 && selected_channel == -1 && act_mode == M_COMMAND);
+  backend2_channels = 0;
+  act_mode = M_CONNECT;
+  act_channel = 1;
+  statlin_update();
+  assert(backend_button_start == -1);
   tnc_channels = 4;
   statlin_update();
   for (int col = 0; col < COLS; ++col)
@@ -789,11 +833,47 @@ static void check_channel_clicks(void)
   assert(close_window(&statlin) == 0);
 }
 
+static void check_mouse_scroll(void)
+{
+  struct window history = {0}, status = {0};
+  struct real_layout screen[LAYOUTPARTS] = {0};
+  assert(open_window(30, &history, 1) == 0);
+  assert(open_window(1, &status, 1) == 0);
+  COLS = 80;
+  LINES = 24;
+  screen[0].win = &history;
+  screen[0].win_num_lines = 5;
+  screen[1].win = &status;
+  screen[1].first_real_line = 5;
+  screen[1].win_num_lines = 1;
+  real_screen(screen);
+  int bottom = real_info[0].first_log_line;
+  window_mouse_scroll(64, 2);
+  assert(real_info[0].first_log_line == bottom - 3);
+  window_mouse_scroll(65, 2);
+  assert(real_info[0].first_log_line == bottom);
+  window_mouse_scroll(64, 5);
+  window_mouse_scroll(64, 8);
+  window_mouse_scroll(68, 2);
+  assert(real_info[0].first_log_line == bottom);
+  for (int i = 0; i < 20; ++i) window_mouse_scroll(64, 2);
+  assert(real_info[0].first_log_line == 0);
+  for (int i = 0; i < 20; ++i) window_mouse_scroll(65, 2);
+  assert(real_info[0].first_log_line == bottom);
+  size_blocked = 1;
+  window_mouse_scroll(64, 2);
+  assert(real_info[0].first_log_line == bottom);
+  size_blocked = 0;
+  assert(close_window(&history) == 0);
+  assert(close_window(&status) == 0);
+}
+
 int main(void)
 {
   check_resize();
   check_status_widths();
   check_channel_clicks();
+  check_mouse_scroll();
   return 0;
 }
 EOF

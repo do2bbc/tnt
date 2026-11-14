@@ -1366,6 +1366,28 @@ static void fill_call(char *call, char *shift_call)
   *callpos = '\0';
 }
 
+static void display_inp_flags(const char *label, unsigned flags,
+                              const char *const names[8])
+{
+  char line[160];
+  size_t used;
+  unsigned bit;
+
+  snprintf(line,sizeof(line),"  %s:",label);
+  used = strlen(line);
+  for (bit = 0; bit < 8; bit++) {
+    if (flags & (1U << bit)) {
+      int written = snprintf(line + used,sizeof(line) - used," %s",names[bit]);
+      if (written < 0 || (size_t)written >= sizeof(line) - used)
+        break;
+      used += (size_t)written;
+    }
+  }
+  if (!flags)
+    snprintf(line + used,sizeof(line) - used," %s",_("none"));
+  moni_display2(line,0);
+}
+
 static int display_inp(const unsigned char *data, size_t length)
 {
   size_t pos = 1;
@@ -1419,10 +1441,118 @@ static int display_inp(const unsigned char *data, size_t length)
         snprintf(line,sizeof(line),_("  IP: %u.%u.%u.%u/%u"),
                  data[pos],data[pos+1],data[pos+2],data[pos+3],data[pos+4]);
         break;
+      case 0x10: {
+        unsigned long latitude, longitude;
+        double lat, lon;
+        if (count != 8)
+          goto malformed;
+        latitude = ((unsigned long)data[pos] << 24) | ((unsigned long)data[pos+1] << 16) |
+                   ((unsigned long)data[pos+2] << 8) | data[pos+3];
+        longitude = ((unsigned long)data[pos+4] << 24) | ((unsigned long)data[pos+5] << 16) |
+                    ((unsigned long)data[pos+6] << 8) | data[pos+7];
+        lat = (latitude & 0x80000000UL ? (double)latitude - 4294967296.0 : (double)latitude) / 6000.0;
+        lon = (longitude & 0x80000000UL ? (double)longitude - 4294967296.0 : (double)longitude) / 6000.0;
+        snprintf(line,sizeof(line),_("  position: %.4f, %.4f degrees"),lat,lon);
+        break;
+      }
+      case 0x11: {
+        static const char *const software[] = {
+          "Unknown", "BPQ16", "XRouter16", "XServ16", "XRouter32 GUI",
+          "XR32", "XS32", "XRLin", "XRouter Raspberry Pi", "BPQ32 Windows", "BPQ32 Linux"
+        };
+        static const char *const network[] = {
+          "INP3", "NET/ROM L3", "NRR", "NCMP", "NET/ROMX", "NDP", "GlobalNet", "IP over NET/ROM"
+        };
+        static const char *const services[] = {
+          "L7 CLI", "PMS", "XR chat", "roundtable chat", "BBS", "DX cluster", "RMS", "reserved"
+        };
+        if (count != 3)
+          goto malformed;
+        snprintf(line,sizeof(line),_("  software: %s (%u)"),
+                 data[pos] < sizeof(software) / sizeof(software[0]) ? software[data[pos]] : "Unknown",
+                 data[pos]);
+        moni_display2(line,0);
+        display_inp_flags(_("network"),data[pos+1],network);
+        display_inp_flags(_("services"),data[pos+2],services);
+        pos += count;
+        continue;
+      }
+      case 0x12: {
+        unsigned long seconds;
+        time_t timestamp;
+        struct tm *utc;
+        char formatted[32];
+        if (count != 4)
+          goto malformed;
+        seconds = ((unsigned long)data[pos] << 24) | ((unsigned long)data[pos+1] << 16) |
+                  ((unsigned long)data[pos+2] << 8) | data[pos+3];
+        timestamp = (time_t)seconds;
+        utc = timestamp >= 0 && (unsigned long)timestamp == seconds ? gmtime(&timestamp) : NULL;
+        if (utc && strftime(formatted,sizeof(formatted),"%Y-%m-%d %H:%M:%S",utc))
+          snprintf(line,sizeof(line),_("  metadata time: %s UTC"),formatted);
+        else
+          snprintf(line,sizeof(line),_("  metadata time: %lu Unix seconds"),seconds);
+        break;
+      }
+      case 0x13:
+        if (count != 2)
+          goto malformed;
+        snprintf(line,sizeof(line),_("  TCP port: %u"),
+                 ((unsigned)data[pos] << 8) | data[pos+1]);
+        break;
+      case 0x14: {
+        unsigned raw, minutes;
+        int offset;
+        if (count != 2)
+          goto malformed;
+        raw = ((unsigned)data[pos] << 8) | data[pos+1];
+        offset = raw >= 0x8000U ? (int)raw - 65536 : (int)raw;
+        minutes = offset < 0 ? (unsigned)-offset : (unsigned)offset;
+        snprintf(line,sizeof(line),_("  timezone: UTC%c%02u:%02u"),
+                 offset < 0 ? '-' : '+',minutes / 60,minutes % 60);
+        break;
+      }
+      case 0x15:
+      case 0x16:
+      case 0x17: {
+        char text[101];
+        size_t offset = 0;
+        do {
+          size_t chunk = count - offset;
+          if (chunk > sizeof(text) - 1)
+            chunk = sizeof(text) - 1;
+          for (i = 0; i < chunk; i++) {
+            unsigned char character = data[pos + offset + i];
+            text[i] = character >= 32 && character <= 126 ? character : '?';
+          }
+          text[chunk] = '\0';
+          if (tag == 0x15)
+            snprintf(line,sizeof(line),_("  locator: %s"),text);
+          else if (tag == 0x16)
+            snprintf(line,sizeof(line),_("  QTH: %s"),text);
+          else
+            snprintf(line,sizeof(line),_("  software version: %s"),text);
+          moni_display2(line,0);
+          offset += chunk;
+        } while (offset < count);
+        pos += count;
+        continue;
+      }
       default:
         snprintf(line,sizeof(line),_("  unknown INP option %u (%u bytes)"),tag,
                  (unsigned)count);
-        break;
+        moni_display2(line,0);
+        for (i = 0; i < count; i += 16) {
+          size_t index, used;
+          snprintf(line,sizeof(line) - 48,"%s",_("  data:"));
+          used = strlen(line);
+          for (index = i; index < count && index < i + 16; index++)
+            used += (size_t)snprintf(line + used,sizeof(line) - used,
+                                     " %02X",data[pos + index]);
+          moni_display2(line,0);
+        }
+        pos += count;
+        continue;
       }
       moni_display2(line,0);
       pos += count;

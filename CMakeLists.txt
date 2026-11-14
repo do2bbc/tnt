@@ -297,6 +297,34 @@ if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
       "${CMAKE_CURRENT_SOURCE_DIR}/tests/backends-integration.py"
       "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}" --disconnect)
     set_tests_properties(backends-disconnect PROPERTIES TIMEOUT 60)
+    add_test(NAME backends-scrollback-wakeup COMMAND "${TNT_TEST_PYTHON}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/backends-integration.py"
+      "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}" --scrollback-wakeup)
+    add_test(NAME backends-timeout COMMAND "${TNT_TEST_PYTHON}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/backends-integration.py"
+      "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}" --backend-timeout)
+    set_tests_properties(backends-scrollback-wakeup backends-timeout PROPERTIES TIMEOUT 60)
+    foreach(mode IN ITEMS partial-response stalled polling)
+      add_test(NAME "backends-timeout-${mode}" COMMAND "${TNT_TEST_PYTHON}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/backends-integration.py"
+        "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}"
+        --backend-timeout "--${mode}")
+      set_tests_properties("backends-timeout-${mode}" PROPERTIES TIMEOUT 60)
+    endforeach()
+    add_test(NAME backends-timeout-stalled-polling COMMAND "${TNT_TEST_PYTHON}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/backends-integration.py"
+      "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}"
+      --backend-timeout --stalled --polling)
+    set_tests_properties(backends-timeout-stalled-polling PROPERTIES TIMEOUT 60)
+    foreach(mode IN ITEMS shutdown disconnect malformed)
+      foreach(poll IN ITEMS select polling)
+        add_test(NAME "backends-waiting-${mode}-${poll}" COMMAND "${TNT_TEST_PYTHON}"
+          "${CMAKE_CURRENT_SOURCE_DIR}/tests/backends-integration.py"
+          "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}"
+          --backend-timeout --stalled "--${mode}-waiting" "--${poll}")
+        set_tests_properties("backends-waiting-${mode}-${poll}" PROPERTIES TIMEOUT 60)
+      endforeach()
+    endforeach()
   endif()
   add_test(NAME cmake-install COMMAND "${CMAKE_COMMAND}"
     "-DBINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}"

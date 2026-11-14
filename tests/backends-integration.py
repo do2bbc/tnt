@@ -16,7 +16,9 @@ import threading
 import time
 
 
-def run(source, build, disconnect=False):
+def run(source, build, disconnect=False, scrollback_wakeup=False,
+        backend_timeout=False, partial_response=False, stalled=False, polling=False,
+        finish_waiting="resume"):
     with tempfile.TemporaryDirectory(prefix="tnt-backends-") as directory:
         root = Path(directory)
         requests = [[], []]
@@ -24,6 +26,10 @@ def run(source, build, disconnect=False):
         stop = threading.Event()
         ready = [threading.Event(), threading.Event()]
         disconnected = threading.Event()
+        delayed_response = threading.Event()
+        waiting = threading.Event()
+        release_response = threading.Event()
+        resumed = threading.Event()
         calls = ["CBTEST", "HAMTEST"]
 
         def backend(index):
@@ -45,6 +51,7 @@ def run(source, build, disconnect=False):
                         connection.settimeout(0.1)
                         pending = bytearray()
                         hostmode = False
+                        delay_next_response = False
                         while not stop.is_set():
                             if index == 1 and disconnected.is_set():
                                 return
@@ -69,6 +76,11 @@ def run(source, build, disconnect=False):
                                 assert channel <= 10, (index, channel, command)
                                 if command == b"JHOST 0":
                                     return
+                                if (scrollback_wakeup or backend_timeout) and command == b"CCBLAST":
+                                    text = b"scrollback timeout regression\r"
+                                    connection.sendall(bytes((channel, 7, len(text) - 1)) + text)
+                                    delay_next_response = True
+                                    continue
                                 if command == b"L":
                                     text = b"0 0" if channel == 0 else b"0 0 0 0 0 0"
                                 elif command == b"I":
@@ -82,6 +94,33 @@ def run(source, build, disconnect=False):
                                 response = bytes((channel, 0)) if text is None else (
                                     bytes((channel, 1)) + text + b"\0"
                                 )
+                                if delay_next_response and (not backend_timeout or command == b"@B"):
+                                    delay_next_response = False
+                                    if partial_response:
+                                        connection.sendall(response[:3])
+                                        response = response[3:]
+                                    before_wait = [len(items) for items in requests]
+                                    waiting.set()
+                                    if not release_response.wait(
+                                        60 if stalled else 9 if backend_timeout else 2.5
+                                    ):
+                                        if stalled:
+                                            raise AssertionError("Stalled backend was not released")
+                                    if stop.is_set():
+                                        return
+                                    assert [len(items) for items in requests] == before_wait, (
+                                        "TNT resent or switched backend while awaiting a response", requests
+                                    )
+                                    assert not select.select([connection], [], [], 0)[0], (
+                                        "Additional traffic was queued on the stalled backend"
+                                    )
+                                    if finish_waiting == "disconnect":
+                                        return
+                                    if finish_waiting == "malformed":
+                                        response = b"\xff"
+                                    delayed_response.set()
+                                elif delayed_response.is_set():
+                                    resumed.set()
                                 # Exercise channel/code and text split across reads.
                                 connection.sendall(response[:1])
                                 time.sleep(0.001)
@@ -114,6 +153,8 @@ def run(source, build, disconnect=False):
                     line = f"tnt_lockfile {root}/lock"
                 elif key == "tnt_errlog":
                     line = f"tnt_errlog {root}/errors"
+                elif key == "use_select":
+                    line = f"use_select {0 if polling else 1}"
             lines.append(line)
         lines.extend([f"backend2_device {root}/backend1", "backend2_channels 10"])
         lines.append(f"tnt_errlog {root}/errors")
@@ -165,9 +206,58 @@ def run(source, build, disconnect=False):
             assert (0, 1, b"Mn") in requests[0], requests
             assert all(b"HAM" not in command for _, _, command in requests[0]), requests
             assert all(b"CB" not in command for _, _, command in requests[1]), requests
+            if not (disconnect or scrollback_wakeup or backend_timeout):
+                def wait_command(index, command):
+                    deadline = time.monotonic() + 5
+                    while time.monotonic() < deadline:
+                        if (1, 1, command) in requests[index]:
+                            return
+                        if select.select([master], [], [], 0.1)[0]:
+                            transcript.extend(os.read(master, 65536))
+                    raise AssertionError((index, command, requests))
+
+                # The command view keeps pending input while switching backend.
+                os.write(master, b"c MOUSE")
+                os.write(master, b"\033[<0;81;24M")
+                os.write(master, b"HAM\r")
+                wait_command(1, b"CMOUSEHAM")
+                os.write(master, b"\033[<64;12;5M\033[<65;12;5M")
+                os.write(master, b"\033[<0;81;24M")
+                os.write(master, b"c MOUSECB\r")
+                wait_command(0, b"CMOUSECB")
+            if scrollback_wakeup:
+                assert delayed_response.wait(5), "Delayed response did not complete"
+                assert process.poll() is None, "Scrollback wakeup stopped TNT"
+            if backend_timeout:
+                deadline = time.monotonic() + (18 if stalled else 14)
+                warning_count = 2 if stalled else 1
+                while time.monotonic() < deadline and process.poll() is None:
+                    if select.select([master], [], [], 0.1)[0]:
+                        try:
+                            transcript.extend(os.read(master, 65536))
+                        except OSError as error:
+                            if error.errno != errno.EIO:
+                                raise
+                            break
+                    errors = (root / "errors").read_text()
+                    if errors.count("still waiting") >= warning_count:
+                        if finish_waiting == "shutdown":
+                            break
+                        if stalled:
+                            release_response.set()
+                        if resumed.is_set():
+                            break
+                assert waiting.is_set(), "The @B delay was not exercised"
+                if finish_waiting in ("resume", "shutdown"):
+                    assert process.poll() is None, "A temporary response delay terminated TNT"
+                if finish_waiting == "resume":
+                    assert resumed.wait(2), "Polling did not resume after the delayed response"
+                errors = (root / "errors").read_text()
+                assert errors.count("still waiting") >= warning_count, errors
+                assert "backend CB" in errors and "request 6" in errors, errors
             if disconnect:
                 disconnected.set()
-            else:
+            elif finish_waiting in ("resume", "shutdown"):
                 process.send_signal(signal.SIGTERM)
             deadline = time.monotonic() + 8
             while time.monotonic() < deadline and process.poll() is None:
@@ -178,11 +268,16 @@ def run(source, build, disconnect=False):
                         if error.errno != errno.EIO:
                             raise
             result = process.wait(timeout=1)
-            assert (result != 0 if disconnect else result == 0), result
+            failed = disconnect or finish_waiting in ("disconnect", "malformed")
+            assert (result > 0 if failed else result == 0), result
             if disconnect:
                 errors = (root / "errors").read_text()
                 assert ("backend disconnected" in errors or
                         "backend HAM write failed" in errors), errors
+            if finish_waiting == "disconnect":
+                assert "backend disconnected" in (root / "errors").read_text()
+            if finish_waiting == "malformed":
+                assert "hostmode protocol error" in (root / "errors").read_text()
             assert not failures, failures
             print("Two backends: 10+10 channels, command isolation, monitor selection and clean exit")
         except BaseException:
@@ -195,6 +290,7 @@ def run(source, build, disconnect=False):
             raise
         finally:
             stop.set()
+            release_response.set()
             if process is not None and process.poll() is None:
                 process.kill()
                 process.wait(timeout=5)
@@ -207,4 +303,13 @@ def run(source, build, disconnect=False):
 
 if __name__ == "__main__":
     run(Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve(),
-        disconnect="--disconnect" in sys.argv[3:])
+        disconnect="--disconnect" in sys.argv[3:],
+        scrollback_wakeup="--scrollback-wakeup" in sys.argv[3:],
+        backend_timeout="--backend-timeout" in sys.argv[3:],
+        partial_response="--partial-response" in sys.argv[3:],
+        stalled="--stalled" in sys.argv[3:],
+        polling="--polling" in sys.argv[3:],
+        finish_waiting=next(
+            (mode for mode in ("shutdown", "disconnect", "malformed")
+             if f"--{mode}-waiting" in sys.argv[3:]), "resume"
+        ))

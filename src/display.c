@@ -772,6 +772,10 @@ static void exit_scrollback(void)
 static int old_mode;
 #ifndef DPBOXT
 static int channel_at_column[MAXCOLS];
+static int backend_button_start = -1;
+static int backend_button_end = -1;
+extern void window_mouse_scroll(unsigned int button, int row);
+void stat_display(int channel);
 void sel_connect(int channel);
 #endif
 static int help_available;
@@ -827,10 +831,22 @@ void statlin_update(void)
   int ch_offset;
   char tmp_call[13];
   char call_sign[12];
+#ifndef DPBOXT
+  char backend_button[20] = "";
+  size_t channel_size = COLS + 2;
+  if (backend_enabled()) {
+    int target = 1 - (act_channel ? backend_channel_index(act_channel) : backend_monitor);
+    const char *name = backend_names[target];
+    if (strcmp(name, "HAM") == 0) name = "AFU";
+    snprintf(backend_button, sizeof(backend_button), " [%s]", name);
+    channel_size -= strlen(backend_button);
+  }
+#endif
 
   tmpstr = (char *)malloc(COLS+2);
 #ifndef DPBOXT
   for (i = 0; i < MAXCOLS; ++i) channel_at_column[i] = -1;
+  backend_button_start = backend_button_end = -1;
 #endif
   switch (act_mode) {
 #ifdef DPBOXT
@@ -1056,13 +1072,19 @@ void statlin_update(void)
     }
     {
       size_t start = strlen(tmpstr) - 1;
-      size_t end = start + strlen(tmp_call);
+      append_limited(tmpstr, channel_size, tmp_call, strlen(tmp_call));
+      size_t end = strlen(tmpstr) - 1;
       if (i < tnc_channels) {
         for (size_t col = start; col < end && col < (size_t)COLS; ++col)
           channel_at_column[col] = i;
       }
     }
-    strcat(tmpstr,tmp_call);
+  }
+  if (backend_enabled()) {
+    size_t start = strlen(tmpstr) - 1;
+    strcat(tmpstr, backend_button);
+    backend_button_start = (int)start + 1;
+    backend_button_end = (int)(strlen(tmpstr) - 1);
   }
   for (i=strlen(tmpstr);i<COLS+1;i++) {
     tmpstr[i] = '*';
@@ -1077,10 +1099,34 @@ void statlin_update(void)
 void statlin_mouse(unsigned int button, unsigned int column, unsigned int row)
 {
   int channel;
-  if (button != 0 || column == 0 || column > (unsigned int)COLS ||
-      row == 0 || row > (unsigned int)LINES ||
-      !window_on_row(&statlin, (int)row - 1))
+  if (column == 0 || column > (unsigned int)COLS ||
+      row == 0 || row > (unsigned int)LINES)
     return;
+  if (button == 64 || button == 65) {
+    window_mouse_scroll(button, (int)row - 1);
+    return;
+  }
+  if (button != 0 || !window_on_row(&statlin, (int)row - 1))
+    return;
+  if ((int)column - 1 >= backend_button_start &&
+      (int)column - 1 < backend_button_end) {
+    int current = act_channel ? backend_channel_index(act_channel) : backend_monitor;
+    int target = 1 - current;
+    int local = act_channel - (current ? backend_primary_channels : 0);
+    int count = target ? backend2_channels : backend_primary_channels;
+    if (local < 1 || local > count) local = 1;
+    channel = local + (target ? backend_primary_channels : 0);
+    backend_monitor = target;
+    ch_stat[0].pause_flag = 0;
+    chan_flag = 0;
+    stat_display(0);
+    if (act_mode == M_COMMAND || act_mode == M_MONITOR)
+      act_channel = channel;
+    else
+      sel_connect(channel);
+    statlin_update();
+    return;
+  }
   channel = channel_at_column[column - 1];
   if (channel < 0 || channel >= tnc_channels) return;
   chan_flag = 0;

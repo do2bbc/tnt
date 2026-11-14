@@ -1010,7 +1010,7 @@ void resync_tnc(int *state)
   int res;
 
   if (backend_enabled()) {
-    fprintf(stderr, "TNT: backend %s stopped responding; closing the frontend "
+    fprintf(stderr, "TNT: backend %s hostmode protocol error; closing the frontend "
             "without switching traffic to another backend\n",
             backend_names[backend_current()]);
     softtnc_error = 1;
@@ -1282,6 +1282,42 @@ void resync_tnc(int *state)
 #endif
     }
   }
+}
+
+void serial_timeout(int *state)
+{
+  if (!backend_enabled()) {
+    resync_tnc(state);
+    return;
+  }
+  if (softtnc_error) {
+    *state = S_END;
+    return;
+  }
+  /* A delayed reply is still valid. Do not reset the parser or resend traffic. */
+  fprintf(stderr, "TNT: backend %s response timeout; still waiting for channel %u, "
+          "request %d (parser state %d); preserving the pending request\n",
+          backend_names[backend_current()], (unsigned char)txbuffer[0],
+          req_info, rcv_stat);
+}
+
+int serial_receive(char *buffer, int length)
+{
+  int count = read(serial, buffer, length);
+
+  if (soft_tnc && count == 0) {
+    fprintf(stderr, "TNT: hostmode backend disconnected\n");
+    act_state = S_END;
+    softtnc_error = 1;
+  }
+  else if (backend_enabled() && count < 0 &&
+           errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
+    fprintf(stderr, "TNT: backend %s read failed: %s\n",
+            backend_names[backend_current()], strerror(errno));
+    act_state = S_END;
+    softtnc_error = 1;
+  }
+  return count;
 }
 #endif
 
@@ -1568,7 +1604,7 @@ static int block_receiver(char *rxbuffer, int len, char *buffer)
       fclose(fp);
     }
   }
-  return(block_ok);
+  return(error ? -1 : block_ok);
 }
 
 static int fill_status(int channel, char *buffer)

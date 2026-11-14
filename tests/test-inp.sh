@@ -67,6 +67,7 @@ int main(void) {
   assert(strstr(output,"alias: ABC"));
   assert(strstr(output,"IP: 44.1.2.3/24"));
   assert(strstr(output,"option 77 (2 bytes)"));
+  assert(strstr(output,"data: FF 80"));
   assert(!strstr(output,"malformed"));
   for(i=1;i<n;i++) {
     run(packet,i,1);
@@ -75,6 +76,63 @@ int main(void) {
   memcpy(test,packet,n);test[11]=1;run(test,n,1);assert(strstr(output,"malformed"));
   memcpy(test,packet,n);test[11]=255;run(test,n,1);assert(strstr(output,"malformed"));
   memcpy(test,packet,n);test[23]=33;run(test,n,1);assert(strstr(output,"malformed"));
+  memset(test,0,sizeof(test));test[0]=0xff;axcall(test+1);test[8]=3;test[10]=10;
+  test[11]=36;test[12]=77;
+  for(i=0;i<34;i++)test[13+i]=(unsigned char)i;
+  test[47]=0;run(test,48,1);
+  assert(strstr(output,"data: 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F"));
+  assert(strstr(output,"data: 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F"));
+  assert(strstr(output,"data: 20 21"));
+  assert(!strstr(output,"malformed"));
+  memset(test,0,sizeof(test));test[0]=0xff;axcall(test+1);test[8]=3;test[10]=10;
+  n=11;
+  test[n++]=8;test[n++]=0x15;memcpy(test+n,"JO52IR",6);n+=6;
+  test[n++]=23;test[n++]=0x16;memcpy(test+n,"Wittingen NDS Germany",21);n+=21;
+  test[n++]=6;test[n++]=0x17;memcpy(test+n,"505q",4);n+=4;
+  test[n++]=0;run(test,n,1);
+  assert(strstr(output,"locator: JO52IR"));
+  assert(strstr(output,"QTH: Wittingen NDS Germany"));
+  assert(strstr(output,"software version: 505q"));
+  assert(!strstr(output,"unknown INP option") && !strstr(output,"malformed"));
+  memset(test,0,sizeof(test));test[0]=0xff;axcall(test+1);test[8]=3;test[10]=10;
+  n=11;
+  test[n++]=10;test[n++]=0x10;
+  { const unsigned char value[]={0x00,0x04,0xd3,0xa9,0x00,0x00,0xfb,0xd0};
+    memcpy(test+n,value,sizeof(value));n+=sizeof(value); }
+  test[n++]=5;test[n++]=0x11;test[n++]=8;test[n++]=0x1c;test[n++]=0x0c;
+  test[n++]=6;test[n++]=0x12;
+  test[n++]=0x6a;test[n++]=0xf0;test[n++]=0xc0;test[n++]=0xb0;
+  test[n++]=4;test[n++]=0x13;test[n++]=0;test[n++]=23;
+  test[n++]=4;test[n++]=0x14;test[n++]=0;test[n++]=60;
+  test[n++]=0;run(test,n,1);
+  assert(strstr(output,"position: 52.7215, 10.7440 degrees"));
+  assert(strstr(output,"software: XRouter Raspberry Pi (8)"));
+  assert(strstr(output,"network: NRR NCMP NET/ROMX"));
+  assert(strstr(output,"services: XR chat roundtable chat"));
+  assert(strstr(output,"metadata time:") && strstr(output," UTC"));
+  assert(strstr(output,"TCP port: 23"));
+  assert(strstr(output,"timezone: UTC+01:00"));
+  assert(!strstr(output,"unknown INP option") && !strstr(output,"malformed"));
+  memset(test,0,sizeof(test));test[0]=0xff;axcall(test+1);test[8]=3;test[10]=10;
+  n=11;
+  test[n++]=10;test[n++]=0x10;
+  { const unsigned char value[]={0xff,0xff,0xe8,0x90,0xff,0xff,0xd1,0x20};
+    memcpy(test+n,value,sizeof(value));n+=sizeof(value); }
+  test[n++]=4;test[n++]=0x14;test[n++]=0xff;test[n++]=0xe2;
+  test[n++]=0;run(test,n,1);
+  assert(strstr(output,"position: -1.0000, -2.0000 degrees"));
+  assert(strstr(output,"timezone: UTC-00:30"));
+  assert(!strstr(output,"malformed"));
+  for(i=0x10;i<=0x14;i++) {
+    memset(test,0,sizeof(test));test[0]=0xff;axcall(test+1);test[8]=3;test[10]=10;
+    test[11]=2;test[12]=(unsigned char)i;test[13]=0;run(test,14,1);
+    assert(strstr(output,"malformed"));
+  }
+  memset(test,0,sizeof(test));test[0]=0xff;axcall(test+1);test[8]=3;test[10]=10;
+  test[11]=242;test[12]=0x16;memset(test+13,'A',240);test[20]=0x1b;test[253]=0;
+  run(test,254,1);
+  assert(strstr(output,"QTH: AAAAAAA?"));
+  assert(!strchr(output,'\x1b') && !strstr(output,"malformed"));
   n=1;
   for(i=0;i<13;i++) {axcall(test+n);n+=7;test[n++]=1;test[n++]=0;test[n++]=10;test[n++]=0;}
   test[0]=0xff;run(test,n,1);assert(!strstr(output,"malformed"));

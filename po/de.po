@@ -1636,6 +1636,54 @@ msgstr "  Alias: %s"
 msgid "  IP: %u.%u.%u.%u/%u"
 msgstr "  IP: %u.%u.%u.%u/%u"
 
+msgid "  data:"
+msgstr "  Daten:"
+
+msgid "none"
+msgstr "keine"
+
+msgid "network"
+msgstr "Netzwerk"
+
+msgid "services"
+msgstr "Dienste"
+
+#, c-format
+msgid "  locator: %s"
+msgstr "  Locator: %s"
+
+#, c-format
+msgid "  QTH: %s"
+msgstr "  QTH: %s"
+
+#, c-format
+msgid "  software version: %s"
+msgstr "  Softwareversion: %s"
+
+#, c-format
+msgid "  position: %.4f, %.4f degrees"
+msgstr "  Position: %.4f, %.4f Grad"
+
+#, c-format
+msgid "  software: %s (%u)"
+msgstr "  Software: %s (%u)"
+
+#, c-format
+msgid "  metadata time: %s UTC"
+msgstr "  Metadaten-Zeit: %s UTC"
+
+#, c-format
+msgid "  metadata time: %lu Unix seconds"
+msgstr "  Metadaten-Zeit: %lu Unix-Sekunden"
+
+#, c-format
+msgid "  TCP port: %u"
+msgstr "  TCP-Port: %u"
+
+#, c-format
+msgid "  timezone: UTC%c%02u:%02u"
+msgstr "  Zeitzone: UTC%c%02u:%02u"
+
 #, c-format
 msgid "  unknown INP option %u (%u bytes)"
 msgstr "  Unbekannte INP-Option %u (%u Bytes)"
