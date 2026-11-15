@@ -28,6 +28,7 @@ foreach(lang de en fr)
   endforeach()
   install(FILES "doc/tnt.doc.${lang}" DESTINATION "${tnt_doc_dir}")
 endforeach()
+install(FILES doc/tnn-socket.de.md DESTINATION "${tnt_doc_dir}")
 install(FILES doc/ax25krnl.doc doc/iface.doc doc/tntdoc.dvi doc/tntdoc.html
   DESTINATION "${tnt_doc_dir}")
 install(FILES doc/tntdoc.info doc/tntdoc.info-1 doc/tntdoc.info-2

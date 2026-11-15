@@ -160,6 +160,8 @@ UDP soft-TNC mode (`soft_tnc 3`) transports hostmode commands, not raw AXUDP
 frames. Its `device` syntax is `host:port` or `localport@host:port`, and the peer
 must understand that hostmode transport. For a raw AXUDP node, configure the
 UDP route in a TNN backend and connect TNT to its hostmode socket instead.
+For step-by-step setup of a TNN Unix hostmode socket, see
+[doc/tnn-socket.de.md](doc/tnn-socket.de.md).
 
 ### Two isolated hostmode backends in one terminal
 
