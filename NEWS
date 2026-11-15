@@ -2,6 +2,7 @@
             Add two isolated Unix hostmode backends and a CB/AFU switch.
             Add mouse scrollback and refine backend response handling.
             Document connecting TNT to a TNN hostmode socket.
+            Offer sound and sound-free x86 Linux package variants.
             Retain the terminal, scrollback and CMake changes from RC1-RC3.
 
 2026/11/05: TNT V2.0.0-rc3 release candidate.

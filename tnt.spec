@@ -1,3 +1,4 @@
+%{!?tnt_sound:%global tnt_sound ON}
 Name:           tnt
 Version:        2.0.0
 Release:        1
@@ -29,7 +30,7 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_BINDIR=%{_bindir} \
   -DCMAKE_INSTALL_SBINDIR=%{_sbindir} -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir} \
   -DCMAKE_INSTALL_SYSCONFDIR=%{_sysconfdir} -DCMAKE_INSTALL_INFODIR=%{_infodir} \
-  -DTNT_LOCALSTATEDIR=%{_localstatedir} \
+  -DTNT_LOCALSTATEDIR=%{_localstatedir} -DTNT_SOUND=%{tnt_sound} \
   -DCMAKE_C_FLAGS="%{optflags}"
 cmake --build build --parallel 2
 

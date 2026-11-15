@@ -672,6 +672,10 @@ static int analyse_value(char *str1, char *str2)
     }
     return(0);
   }
+#else
+  else if (strcmp(str1,"tnt_sound_dir") == 0) {
+    return(0);
+  }
 #endif
 #ifndef DPBOXT
   else if (strcmp(str1,"remote_dir") == 0) {
@@ -689,6 +693,10 @@ static int analyse_value(char *str1, char *str2)
 #ifdef TNT_SOUND
   else if (strcmp(str1,"tnt_soundfile") == 0) {
     strcpy(tnt_sound_file,str2);
+    return(0);
+  }
+#else
+  else if (strcmp(str1,"tnt_soundfile") == 0) {
     return(0);
   }
 #endif

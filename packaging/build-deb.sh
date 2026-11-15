@@ -4,7 +4,14 @@ root=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 cd "$root"
 arch=${1:?Usage: sh packaging/build-deb.sh amd64|arm64|armhf ABSOLUTE_OUTPUT}
 output=${2:?Missing absolute output directory}
+sound=${3:-on}
 case "$output" in /*) ;; *) echo "Output path must be absolute" >&2; exit 1 ;; esac
+case "$sound" in
+  on) cmake_sound=ON; suffix= ;;
+  off) test "$arch" = amd64 || { echo "Sound-free packages are only offered for amd64" >&2; exit 1; }
+       cmake_sound=OFF; suffix=-nosound ;;
+  *) echo "Sound option must be on or off" >&2; exit 1 ;;
+esac
 case "$arch" in
   amd64) host=x86_64-linux-gnu; machine='Advanced Micro Devices X86-64' ;;
   arm64) host=aarch64-linux-gnu; machine=AArch64 ;;
@@ -31,7 +38,7 @@ if [ "$arch" != amd64 ]; then
 fi
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_SYSCONFDIR=/etc \
-  -DTNT_LOCALSTATEDIR=/var -DCMAKE_C_COMPILER="$host-gcc" $cross
+  -DTNT_LOCALSTATEDIR=/var -DTNT_SOUND="$cmake_sound" -DCMAKE_C_COMPILER="$host-gcc" $cross
 cmake --build build --parallel 2
 if [ "$arch" = amd64 ]; then
   ctest --test-dir build --output-on-failure
@@ -41,8 +48,8 @@ doc="$package/usr/share/doc/tnt"
 mkdir -p "$package/DEBIAN" "$doc"
 cp COPYING "$doc/copyright"
 cp NEWS BUILD.md packaging/README.packages "$doc/"
-printf 'Repository: https://github.com/do2bbc/tnt\nSource commit: %s\nTarget: Debian 12 %s\n' \
-  "$(git -C "$root" rev-parse HEAD)" "$arch" > "$doc/BUILD.txt"
+printf 'Repository: https://github.com/do2bbc/tnt\nSource commit: %s\nTarget: Debian 12 %s\nSound: %s\n' \
+  "$(git -C "$root" rev-parse HEAD)" "$arch" "$sound" > "$doc/BUILD.txt"
 git -C "$root" archive --prefix="tnt-$version/" HEAD | gzip -n > "$doc/SOURCE.tar.gz"
 for binary in "$package/usr/bin/tnt" "$package/usr/bin/tntc" \
               "$package/usr/libexec/tnt/help" "$package/usr/libexec/tnt/logcall" \
@@ -74,9 +81,10 @@ Installed-Size: $(du -sk "$package/usr" | cut -f1)
 Homepage: https://github.com/do2bbc/tnt
 Description: Packet-radio hostmode terminal with modern Linux terminal support
  UTF-8 terminal boundaries, resizing and mouse channel selection.
+ Sound support: $sound.
  No service or active user configuration is installed automatically.
 EOF
 cd "$package"
 find etc -type f | LC_ALL=C sort | sed 's@^@/@' > DEBIAN/conffiles
 find usr etc -type f -print0 | LC_ALL=C sort -z | xargs -0 md5sum > DEBIAN/md5sums
-dpkg-deb --root-owner-group --build "$package" "$output/tnt_${version}-1_${arch}.deb"
+dpkg-deb --root-owner-group --build "$package" "$output/tnt_${version}-1_${arch}${suffix}.deb"

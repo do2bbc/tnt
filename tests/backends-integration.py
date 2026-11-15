@@ -156,7 +156,8 @@ def run(source, build, disconnect=False, scrollback_wakeup=False,
                 elif key == "use_select":
                     line = f"use_select {0 if polling else 1}"
             lines.append(line)
-        lines.extend([f"backend2_device {root}/backend1", "backend2_channels 10"])
+        lines.extend([f"backend2_device {root}/backend1", "backend2_channels 10",
+                      f"tnt_sound_dir {root}", "tnt_soundfile sounds.tnt"])
         lines.append(f"tnt_errlog {root}/errors")
         (root / "tnt.ini").write_text("\n".join(lines) + "\n")
         (root / "tnt.up").write_text(

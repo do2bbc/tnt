@@ -17,7 +17,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [amd64, arm64, armhf]
+        include:
+          - arch: amd64
+            sound: 'on'
+          - arch: amd64
+            sound: 'off'
+          - arch: arm64
+            sound: 'on'
+          - arch: armhf
+            sound: 'on'
     steps:
       - name: Install build dependencies
         run: |
@@ -31,18 +39,22 @@ jobs:
       - name: Build and verify Debian package
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          sh packaging/build-deb.sh "${{ matrix.arch }}" /tmp/packages
-          python3 packaging/test-package.py /tmp/packages/*.deb "${{ matrix.arch }}"
+          sh packaging/build-deb.sh "${{ matrix.arch }}" /tmp/packages "${{ matrix.sound }}"
+          python3 packaging/test-package.py /tmp/packages/*.deb "${{ matrix.arch }}" "${{ matrix.sound }}"
           python3 packaging/test-package.py /tmp/packages/*.deb --preservation
       - uses: actions/upload-artifact@v6
         with:
-          name: TNT-Debian12-${{ matrix.arch }}
+          name: TNT-Debian12-${{ matrix.arch }}-sound-${{ matrix.sound }}
           path: /tmp/packages/*.deb
           if-no-files-found: error
   rpm:
     runs-on: ubuntu-24.04
     container: registry.opensuse.org/opensuse/leap:16.0
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        sound: ['on', 'off']
     steps:
       - name: Install build dependencies
         run: |
@@ -52,15 +64,49 @@ jobs:
       - name: Build and verify Leap 16 RPM
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          sh packaging/build-rpm.sh /tmp/packages
-          python3 packaging/test-package.py /tmp/packages/*.x86_64.rpm x86_64
+          sh packaging/build-rpm.sh /tmp/packages "${{ matrix.sound }}"
+          python3 packaging/test-package.py /tmp/packages/*.x86_64.rpm x86_64 "${{ matrix.sound }}"
           rpm -V tnt
           rpm -e tnt
           python3 packaging/test-package.py /tmp/packages/*.x86_64.rpm --preservation
       - uses: actions/upload-artifact@v6
         with:
-          name: TNT-openSUSE-Leap16-x86_64
+          name: TNT-openSUSE-Leap16-x86_64-sound-${{ matrix.sound }}
           path: |
             /tmp/packages/*.rpm
             /tmp/packages/*.tar.gz
           if-no-files-found: error
+
+  debian-switch:
+    needs: debian
+    runs-on: ubuntu-24.04
+    container: debian:bookworm-slim
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends python3
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: TNT-Debian12-amd64-sound-*
+          path: /tmp/packages
+          merge-multiple: true
+      - run: >-
+          python3 packaging/test-package.py --switch
+          /tmp/packages/tnt_2.0.0-1_amd64.deb
+          /tmp/packages/tnt_2.0.0-1_amd64-nosound.deb
+
+  rpm-switch:
+    needs: rpm
+    runs-on: ubuntu-24.04
+    container: registry.opensuse.org/opensuse/leap:16.0
+    steps:
+      - run: zypper --non-interactive refresh && zypper --non-interactive install --no-recommends python3
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: TNT-openSUSE-Leap16-x86_64-sound-*
+          path: /tmp/packages
+          merge-multiple: true
+      - run: >-
+          python3 packaging/test-package.py --switch
+          /tmp/packages/tnt-2.0.0-1.x86_64.rpm
+          /tmp/packages/tnt-2.0.0-1-nosound.x86_64.rpm

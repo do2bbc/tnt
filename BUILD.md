@@ -12,6 +12,8 @@ CMake respects the compiler's default C dialect and explicit user flags.
 
 Linux release 2.0.0 provides Debian 12 `.deb` packages for
 amd64, arm64 and ARMv7 armhf, plus an openSUSE Leap 16 x86_64 RPM.
+The x86 Debian and RPM packages also have sound-free alternatives; the
+standard packages and ARM packages include sound.
 See [package installation and upgrade notes](packaging/README.packages).
 No package starts a service or overwrites an active `tnt.ini`.
 Verify downloads with the release's `SHA256SUMS`.
