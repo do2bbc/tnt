@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG" CACHE STRING "Release C compiler flags")
 project(tnt VERSION 2.0.0 LANGUAGES C)
-set(TNT_VERSION "2.0.0-rc3")
+set(TNT_VERSION "2.0.0")
 
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
   message(FATAL_ERROR "Use a separate build directory: cmake -S . -B build")

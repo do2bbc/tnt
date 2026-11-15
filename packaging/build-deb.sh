@@ -73,7 +73,7 @@ Recommends: dialog
 Installed-Size: $(du -sk "$package/usr" | cut -f1)
 Homepage: https://github.com/do2bbc/tnt
 Description: Packet-radio hostmode terminal with modern Linux terminal support
- Release candidate with UTF-8 terminal boundaries, resizing and mouse channels.
+ UTF-8 terminal boundaries, resizing and mouse channel selection.
  No service or active user configuration is installed automatically.
 EOF
 cd "$package"
