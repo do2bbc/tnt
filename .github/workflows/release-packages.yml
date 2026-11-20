@@ -90,8 +90,12 @@ jobs:
           path: /tmp/packages
           merge-multiple: true
       - run: |
-          sound_package=$(find /tmp/packages -maxdepth 1 -name 'tnt_*_amd64.deb' ! -name '*nosound*' -print -quit)
-          silent_package=$(find /tmp/packages -maxdepth 1 -name 'tnt_*_amd64-nosound.deb' -print -quit)
+          for package in /tmp/packages/tnt_*_amd64*.deb; do
+            case "$package" in
+              *-nosound.deb) silent_package=$package ;;
+              *) sound_package=$package ;;
+            esac
+          done
           test -n "$sound_package" && test -n "$silent_package"
           python3 packaging/test-package.py --switch "$sound_package" "$silent_package"
 
@@ -108,7 +112,11 @@ jobs:
           path: /tmp/packages
           merge-multiple: true
       - run: |
-          sound_package=$(find /tmp/packages -maxdepth 1 -name 'tnt-*.x86_64.rpm' ! -name '*-nosound.*' -print -quit)
-          silent_package=$(find /tmp/packages -maxdepth 1 -name 'tnt-*-nosound.x86_64.rpm' -print -quit)
+          for package in /tmp/packages/tnt-*.x86_64.rpm; do
+            case "$package" in
+              *-nosound.x86_64.rpm) silent_package=$package ;;
+              *) sound_package=$package ;;
+            esac
+          done
           test -n "$sound_package" && test -n "$silent_package"
           python3 packaging/test-package.py --switch "$sound_package" "$silent_package"
