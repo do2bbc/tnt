@@ -9,6 +9,11 @@ static char terminal_url[2048];
 static size_t terminal_url_length;
 static enum { TERMINAL_URL_IDLE, TERMINAL_URL_PREFIX, TERMINAL_URL_ACTIVE }
   terminal_url_state;
+static enum {
+  TERMINAL_ESC_NONE, TERMINAL_ESC_START, TERMINAL_ESC_INTERMEDIATE,
+  TERMINAL_ESC_CSI, TERMINAL_ESC_STRING, TERMINAL_ESC_STRING_ESC
+} terminal_escape_state;
+static int terminal_escape_osc;
 
 static int terminal_plain_write(int fd, const char *buffer, size_t length)
 {
@@ -337,9 +342,61 @@ int terminal_write(int fd, const char *buffer, size_t length)
 
   if (fd != 1)
     return terminal_plain_write(fd, buffer, length);
-  for (i = 0; i < length; ++i)
-    if (terminal_url_process(fd, (unsigned char)buffer[i]) < 0)
+  for (i = 0; i < length; ++i) {
+    unsigned char byte = (unsigned char)buffer[i];
+
+    if (terminal_escape_state == TERMINAL_ESC_NONE && byte != 0x1b) {
+      if (terminal_url_process(fd, byte) < 0)
+        return -1;
+      continue;
+    }
+    /* Control sequences must pass through without URL-prefix buffering. */
+    if (terminal_escape_state == TERMINAL_ESC_NONE) {
+      if (terminal_url_flush(fd) < 0)
+        return -1;
+      terminal_escape_state = TERMINAL_ESC_START;
+    }
+    else if (terminal_escape_state == TERMINAL_ESC_STRING) {
+      if (byte == 0x1b)
+        terminal_escape_state = TERMINAL_ESC_STRING_ESC;
+      else if ((byte == 0x07 && terminal_escape_osc) ||
+               byte == 0x18 || byte == 0x1a)
+        terminal_escape_state = TERMINAL_ESC_NONE;
+    }
+    else if (terminal_escape_state == TERMINAL_ESC_STRING_ESC) {
+      if (byte == '\\' || byte == 0x18 || byte == 0x1a)
+        terminal_escape_state = TERMINAL_ESC_NONE;
+      else if (byte != 0x1b)
+        terminal_escape_state = TERMINAL_ESC_STRING;
+    }
+    else if (byte == 0x1b) {
+      terminal_escape_state = TERMINAL_ESC_START;
+    }
+    else if (byte == 0x18 || byte == 0x1a) {
+      terminal_escape_state = TERMINAL_ESC_NONE;
+    }
+    else if (terminal_escape_state == TERMINAL_ESC_START) {
+      if (byte == '[')
+        terminal_escape_state = TERMINAL_ESC_CSI;
+      else if (byte == ']' || byte == 'P' || byte == 'X' ||
+               byte == '^' || byte == '_') {
+        terminal_escape_osc = byte == ']';
+        terminal_escape_state = TERMINAL_ESC_STRING;
+      }
+      else if (byte >= 0x20 && byte <= 0x2f)
+        terminal_escape_state = TERMINAL_ESC_INTERMEDIATE;
+      else if (byte >= 0x30 && byte <= 0x7e)
+        terminal_escape_state = TERMINAL_ESC_NONE;
+    }
+    else if ((terminal_escape_state == TERMINAL_ESC_CSI &&
+              byte >= 0x40 && byte <= 0x7e) ||
+             (terminal_escape_state == TERMINAL_ESC_INTERMEDIATE &&
+              byte >= 0x30 && byte <= 0x7e)) {
+      terminal_escape_state = TERMINAL_ESC_NONE;
+    }
+    if (terminal_plain_write(fd, (const char *)&byte, 1) < 0)
       return -1;
+  }
   if (terminal_url_state == TERMINAL_URL_ACTIVE &&
       terminal_url_length >= sizeof(terminal_url) - 1 &&
       terminal_url_flush(fd) < 0)

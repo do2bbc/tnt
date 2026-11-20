@@ -1,3 +1,6 @@
+2026/11/20: TNT V2.0.1-rc2 release candidate.
+            Fix cursor visibility after terminal control sequences.
+
 2026/11/20: TNT V2.0.1-rc1 release candidate.
             Add clickable HTTP(S) links in OSC-8-compatible terminal emulators.
             Preserve terminal-native text selection and mouse-wheel scrollback.

@@ -14,6 +14,7 @@ cat > "$tmp/test.c" <<'EOF'
 #include "xmon.h"
 #include "backend.h"
 #include <assert.h>
+#include <fcntl.h>
 #include <locale.h>
 
 struct termcaplist {
@@ -453,6 +454,36 @@ static void check_hyperlinks(void)
   assert(memcmp(output, expected, sizeof(expected) - 1) == 0);
 }
 
+static void check_escape_sequences(void)
+{
+  int fd[2], saved_stdout;
+  char output[2];
+  size_t i;
+  const char sequences[] =
+    "\033[?25l\033[?25h"
+    "\033]0;https://example.org\007"
+    "\033Phttps://example.org\033\\"
+    "\033(B";
+
+  assert(pipe(fd) == 0);
+  assert(fcntl(fd[0], F_SETFL, O_NONBLOCK) == 0);
+  saved_stdout = dup(1);
+  assert(saved_stdout >= 0 && dup2(fd[1], 1) == 1);
+  assert(close(fd[1]) == 0);
+
+  assert(terminal_write(1, "h", 1) == 0);
+  assert(terminal_write(1, sequences, 1) == 0);
+  assert(read(fd[0], output, 2) == 2);
+  assert(memcmp(output, "h\033", 2) == 0);
+  for (i = 1; i < sizeof(sequences) - 1; ++i) {
+    assert(terminal_write(1, sequences + i, 1) == 0);
+    assert(read(fd[0], output, 1) == 1);
+    assert(output[0] == sequences[i]);
+  }
+  assert(dup2(saved_stdout, 1) == 1 && close(saved_stdout) == 0);
+  assert(close(fd[0]) == 0);
+}
+
 int main(void)
 {
   init_conv();
@@ -466,6 +497,7 @@ int main(void)
   check_boundary("C.UTF-8", 1);
   check_colors();
   check_render_paths();
+  check_escape_sequences();
   check_hyperlinks();
   return 0;
 }
