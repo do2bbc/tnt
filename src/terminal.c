@@ -5,6 +5,130 @@
 
 static int terminal_utf8;
 static unsigned int input_pending;
+static char terminal_url[2048];
+static size_t terminal_url_length;
+static enum { TERMINAL_URL_IDLE, TERMINAL_URL_PREFIX, TERMINAL_URL_ACTIVE }
+  terminal_url_state;
+
+static int terminal_plain_write(int fd, const char *buffer, size_t length)
+{
+  char converted[512];
+  size_t used = 0;
+
+  if (!terminal_utf8)
+    return tnt_write_all(fd, buffer, length);
+  while (length > 0) {
+    used += terminal_utf8_output((unsigned char)*buffer++, converted + used);
+    --length;
+    if (used > sizeof(converted) - 2 || length == 0) {
+      if (tnt_write_all(fd, converted, used) < 0)
+        return -1;
+      used = 0;
+    }
+  }
+  return 0;
+}
+
+static int terminal_url_flush(int fd)
+{
+  static const char open[] = "\033]8;;";
+  static const char separator[] = "\033\\";
+  static const char close[] = "\033]8;;\033\\";
+  char converted_url[sizeof(terminal_url) * 2];
+  size_t url_length = terminal_url_length;
+  size_t converted_length = 0;
+  size_t i;
+
+  if (terminal_url_state == TERMINAL_URL_ACTIVE && url_length > 0) {
+    while (url_length > 7 &&
+           (terminal_url[url_length - 1] == '.' ||
+            terminal_url[url_length - 1] == ',' ||
+            terminal_url[url_length - 1] == ';' ||
+            terminal_url[url_length - 1] == ':' ||
+            terminal_url[url_length - 1] == '!' ||
+            terminal_url[url_length - 1] == '?'))
+      --url_length;
+
+    for (i = 0; i < url_length; ++i) {
+      if (terminal_utf8)
+        converted_length += terminal_utf8_output(
+          (unsigned char)terminal_url[i], converted_url + converted_length);
+      else
+        converted_url[converted_length++] = terminal_url[i];
+    }
+
+    if (tnt_write_all(fd, open, sizeof(open) - 1) < 0 ||
+        tnt_write_all(fd, converted_url, converted_length) < 0 ||
+        tnt_write_all(fd, separator, sizeof(separator) - 1) < 0 ||
+        tnt_write_all(fd, converted_url, converted_length) < 0 ||
+        tnt_write_all(fd, close, sizeof(close) - 1) < 0)
+      return -1;
+    if (url_length < terminal_url_length &&
+        terminal_plain_write(fd, terminal_url + url_length,
+                             terminal_url_length - url_length) < 0)
+      return -1;
+  }
+  else if (terminal_url_length > 0 &&
+           terminal_plain_write(fd, terminal_url, terminal_url_length) < 0)
+    return -1;
+
+  terminal_url_length = 0;
+  terminal_url_state = TERMINAL_URL_IDLE;
+  return 0;
+}
+
+static int terminal_url_process(int fd, unsigned char byte)
+{
+  static const char http[] = "http://";
+  static const char https[] = "https://";
+
+  if (terminal_url_state == TERMINAL_URL_ACTIVE) {
+    if (byte <= 0x20 || byte == '"' || byte == '<' || byte == '>' ||
+        byte == 0x7f) {
+      if (terminal_url_flush(fd) < 0)
+        return -1;
+      if (byte != 0x7f && terminal_plain_write(fd, (const char *)&byte, 1) < 0)
+        return -1;
+      return 0;
+    }
+    if (terminal_url_length >= sizeof(terminal_url) - 1) {
+      if (terminal_url_flush(fd) < 0)
+        return -1;
+      return terminal_plain_write(fd, (const char *)&byte, 1);
+    }
+    terminal_url[terminal_url_length++] = (char)byte;
+    return 0;
+  }
+
+  if (terminal_url_state == TERMINAL_URL_PREFIX) {
+    terminal_url[terminal_url_length++] = (char)byte;
+    if ((terminal_url_length <= sizeof(http) - 1 &&
+         strncmp(terminal_url, http, terminal_url_length) == 0) ||
+        (terminal_url_length <= sizeof(https) - 1 &&
+         strncmp(terminal_url, https, terminal_url_length) == 0)) {
+      if (terminal_url_length == sizeof(http) - 1 &&
+          memcmp(terminal_url, http, sizeof(http) - 1) == 0)
+        terminal_url_state = TERMINAL_URL_ACTIVE;
+      else if (terminal_url_length == sizeof(https) - 1 &&
+               memcmp(terminal_url, https, sizeof(https) - 1) == 0)
+        terminal_url_state = TERMINAL_URL_ACTIVE;
+      return 0;
+    }
+
+    --terminal_url_length;
+    if (terminal_url_flush(fd) < 0)
+      return -1;
+    return terminal_url_process(fd, byte);
+  }
+
+  if (byte == 'h') {
+    terminal_url_state = TERMINAL_URL_PREFIX;
+    terminal_url_length = 1;
+    terminal_url[0] = 'h';
+    return 0;
+  }
+  return terminal_plain_write(fd, (const char *)&byte, 1);
+}
 
 void terminal_mouse_tracking(int enabled)
 {
@@ -209,20 +333,17 @@ size_t terminal_utf8_output(unsigned char byte, char output[2])
 
 int terminal_write(int fd, const char *buffer, size_t length)
 {
-  char converted[512];
-  size_t used = 0;
+  size_t i;
 
-  if (!terminal_utf8)
-    return tnt_write_all(fd, buffer, length);
-  while (length > 0) {
-    used += terminal_utf8_output((unsigned char)*buffer++, converted + used);
-    --length;
-    if (used > sizeof(converted) - 2 || length == 0) {
-      if (tnt_write_all(fd, converted, used) < 0)
-        return -1;
-      used = 0;
-    }
-  }
+  if (fd != 1)
+    return terminal_plain_write(fd, buffer, length);
+  for (i = 0; i < length; ++i)
+    if (terminal_url_process(fd, (unsigned char)buffer[i]) < 0)
+      return -1;
+  if (terminal_url_state == TERMINAL_URL_ACTIVE &&
+      terminal_url_length >= sizeof(terminal_url) - 1 &&
+      terminal_url_flush(fd) < 0)
+    return -1;
   return 0;
 }
 

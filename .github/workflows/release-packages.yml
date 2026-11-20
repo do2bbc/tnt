@@ -89,10 +89,11 @@ jobs:
           pattern: TNT-Debian12-amd64-sound-*
           path: /tmp/packages
           merge-multiple: true
-      - run: >-
-          python3 packaging/test-package.py --switch
-          /tmp/packages/tnt_2.0.0-1_amd64.deb
-          /tmp/packages/tnt_2.0.0-1_amd64-nosound.deb
+      - run: |
+          sound_package=$(find /tmp/packages -maxdepth 1 -name 'tnt_*_amd64.deb' ! -name '*nosound*' -print -quit)
+          silent_package=$(find /tmp/packages -maxdepth 1 -name 'tnt_*_amd64-nosound.deb' -print -quit)
+          test -n "$sound_package" && test -n "$silent_package"
+          python3 packaging/test-package.py --switch "$sound_package" "$silent_package"
 
   rpm-switch:
     needs: rpm
@@ -106,7 +107,8 @@ jobs:
           pattern: TNT-openSUSE-Leap16-x86_64-sound-*
           path: /tmp/packages
           merge-multiple: true
-      - run: >-
-          python3 packaging/test-package.py --switch
-          /tmp/packages/tnt-2.0.0-1.x86_64.rpm
-          /tmp/packages/tnt-2.0.0-1-nosound.x86_64.rpm
+      - run: |
+          sound_package=$(find /tmp/packages -maxdepth 1 -name 'tnt-*.x86_64.rpm' ! -name '*-nosound.*' -print -quit)
+          silent_package=$(find /tmp/packages -maxdepth 1 -name 'tnt-*-nosound.x86_64.rpm' -print -quit)
+          test -n "$sound_package" && test -n "$silent_package"
+          python3 packaging/test-package.py --switch "$sound_package" "$silent_package"

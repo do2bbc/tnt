@@ -6,16 +6,31 @@ import sys
 import tempfile
 
 
+def version_info():
+    cmake = Path(__file__).resolve().parents[1] / "CMakeLists.txt"
+    text = cmake.read_text()
+    match = re.search(r'^set\(TNT_VERSION "([^"]+)"\)$', text, re.MULTILINE)
+    assert match, "TNT_VERSION is missing from CMakeLists.txt"
+    version = match.group(1)
+    match = re.fullmatch(r"(\d+\.\d+\.\d+)(?:-rc(\d+))?", version)
+    assert match, f"Unsupported TNT version: {version}"
+    upstream, rc = match.groups()
+    debian = f"{upstream}~rc{rc}-1" if rc else f"{upstream}-1"
+    rpm_version = f"{upstream}~rc{rc}" if rc else upstream
+    return version, debian, rpm_version
+
+
 def main(package, arch, sound):
     os.environ["TERM"] = "xterm"
     os.environ["LC_ALL"] = "C"
+    version, debian_version, rpm_version = version_info()
     with tempfile.TemporaryDirectory() as temporary:
         root = Path(temporary)
         if package.endswith(".deb"):
             metadata = subprocess.check_output(
                 ["dpkg-deb", "-f", package, "Package", "Version", "Architecture"])
             assert b"Package: tnt\n" in metadata, metadata
-            assert b"Version: 2.0.0-1\n" in metadata, metadata
+            assert f"Version: {debian_version}\n".encode() in metadata, metadata
             assert f"Architecture: {arch}\n".encode() in metadata, metadata
             subprocess.run(["dpkg-deb", "-x", package, root], check=True)
             subprocess.run(["dpkg-deb", "-e", package, root / "control"], check=True)
@@ -41,7 +56,7 @@ def main(package, arch, sound):
         else:
             metadata = subprocess.check_output(
                 ["rpm", "-qp", "--qf", "%{NAME} %{VERSION}-%{RELEASE} %{ARCH}", package])
-            assert metadata == b"tnt 2.0.0-1 x86_64", metadata
+            assert metadata == f"tnt {rpm_version}-1 x86_64".encode(), metadata
             result = subprocess.run(["rpm", "-qp", "--scripts", package],
                                     check=True, stdout=subprocess.PIPE)
             assert not result.stdout.strip(), result.stdout
@@ -53,8 +68,9 @@ def main(package, arch, sound):
             assert not Path("/etc/tnt/tnt.ini").exists()
             assert Path("/etc/tnt/tnt.ini.ex").exists()
             binary = Path("/usr/bin/tnt").read_bytes()
-        assert re.search(rb"V2\.0\.0(?:[ (])", binary)
-        has_sound = bool(re.search(rb"TNT V2\.0\.0\([^)]*Sound\)", binary))
+        version_re = re.escape(f"V{version}".encode())
+        assert re.search(version_re + rb"(?:[ (])", binary)
+        has_sound = bool(re.search(rb"TNT " + version_re + rb"\([^)]*Sound\)", binary))
         assert has_sound == (sound == "on"), (sound, has_sound)
         print(f"{arch}: packaged programs load correctly; no service or active configuration")
 
@@ -93,6 +109,7 @@ def preservation(package):
 
 
 def switch(sound_package, silent_package):
+    version, _, _ = version_info()
     active = Path("/etc/tnt/tnt.ini")
     example = Path("/etc/tnt/tnt.ini.ex")
     assert not active.exists()
@@ -110,7 +127,8 @@ def switch(sound_package, silent_package):
     for package, sound in ((silent_package, False), (sound_package, True)):
         subprocess.run([*replace, package], check=True)
         binary = Path("/usr/bin/tnt").read_bytes()
-        assert bool(re.search(rb"TNT V2\.0\.0\([^)]*Sound\)", binary)) == sound
+        version_re = re.escape(f"TNT V{version}".encode())
+        assert bool(re.search(version_re + rb"\([^)]*Sound\)", binary)) == sound
         assert active.read_text() == "active configuration sentinel\n"
         assert example.read_text() == "modified example sentinel\n"
     print("Both variant switches preserve the active and modified configuration")

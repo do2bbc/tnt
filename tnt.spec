@@ -1,11 +1,14 @@
 %{!?tnt_sound:%global tnt_sound ON}
+%{!?tnt_version:%global tnt_version 2.0.0}
+%{!?tnt_source_version:%global tnt_source_version 2.0.0}
+%{!?tnt_release:%global tnt_release 1}
 Name:           tnt
-Version:        2.0.0
-Release:        1
+Version:        %{tnt_version}
+Release:        %{tnt_release}
 Summary:        Packet-radio hostmode terminal
 License:        GPL-2.0-or-later
 URL:            https://github.com/do2bbc/tnt
-Source0:        tnt-2.0.0.tar.gz
+Source0:        tnt-%{tnt_source_version}.tar.gz
 BuildRequires:  gcc
 BuildRequires:  make
 BuildRequires:  cmake >= 3.20
@@ -23,7 +26,7 @@ No service or active node configuration is installed or started.
 This RPM targets openSUSE Leap 16 x86_64.
 
 %prep
-%setup -q -n tnt-2.0.0
+%setup -q -n tnt-%{tnt_source_version}
 
 %build
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \

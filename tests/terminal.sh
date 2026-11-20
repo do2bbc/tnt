@@ -427,6 +427,32 @@ static void check_render_paths(void)
   assert(memcmp(frontend_output, legacy, sizeof(legacy) - 1) == 0);
 }
 
+static void check_hyperlinks(void)
+{
+  int fd[2], saved_stdout;
+  char output[256];
+  size_t used = 0;
+  ssize_t received;
+  const char first[] = "Visit https://example.org/caf\xe9";
+  const char second[] = ", then plain";
+  const char expected[] =
+    "Visit \033]8;;https://example.org/caf\xc3\xa9\033\\"
+    "https://example.org/caf\xc3\xa9\033]8;;\033\\, then plain";
+
+  assert(pipe(fd) == 0);
+  saved_stdout = dup(1);
+  assert(saved_stdout >= 0 && dup2(fd[1], 1) == 1);
+  assert(close(fd[1]) == 0);
+  assert(terminal_write(1, first, sizeof(first) - 1) == 0);
+  assert(terminal_write(1, second, sizeof(second) - 1) == 0);
+  assert(dup2(saved_stdout, 1) == 1 && close(saved_stdout) == 0);
+  while ((received = read(fd[0], output + used, sizeof(output) - used)) > 0)
+    used += (size_t)received;
+  assert(received == 0 && close(fd[0]) == 0);
+  assert(used == sizeof(expected) - 1);
+  assert(memcmp(output, expected, sizeof(expected) - 1) == 0);
+}
+
 int main(void)
 {
   init_conv();
@@ -440,6 +466,7 @@ int main(void)
   check_boundary("C.UTF-8", 1);
   check_colors();
   check_render_paths();
+  check_hyperlinks();
   return 0;
 }
 EOF

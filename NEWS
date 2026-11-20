@@ -1,3 +1,7 @@
+2026/11/20: TNT V2.0.1-rc1 release candidate.
+            Add clickable HTTP(S) links in OSC-8-compatible terminal emulators.
+            Preserve terminal-native text selection and mouse-wheel scrollback.
+
 2026/11/15: TNT V2.0.0 stable release.
             Add two isolated Unix hostmode backends and a CB/AFU switch.
             Add mouse scrollback and refine backend response handling.
